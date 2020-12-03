@@ -1,0 +1,65 @@
+package im.cave.ms.net.server.channel;
+
+import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.MapleMap;
+import im.cave.ms.net.netty.ServerAcceptor;
+import im.cave.ms.net.server.AbstractServer;
+import im.cave.ms.enums.ServerType;
+import im.cave.ms.provider.data.MapData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+/**
+ * @author fair
+ * @version V1.0
+ * @Package im.cave.ms.abstractServer.channel
+ * @date 11/19 16:22
+ */
+public class MapleChannel extends AbstractServer {
+    private static final Logger log = LoggerFactory.getLogger(MapleChannel.class);
+    private final List<MapleCharacter> players = new ArrayList<>();
+    private List<MapleMap> maps;
+
+    public MapleChannel(int worldId, int channelId) {
+        super(worldId, channelId);
+        type = ServerType.CHANNEL;
+        port = 7575 + worldId * 100 + channelId - 1;
+        acceptor = new ServerAcceptor();
+        acceptor.server = this;
+        new Thread(acceptor).start();
+        maps = new CopyOnWriteArrayList<>();
+        log.info("Channel-{} listening on port {}", channelId, port);
+    }
+
+    public void addPlayer(MapleCharacter player) {
+        if (players.contains(player)) {
+            return;
+        }
+        players.add(player);
+    }
+
+    public MapleCharacter getPlayer(int charId) {
+        return players.stream().filter(character -> character.getId() == charId).findAny().orElse(null);
+    }
+
+    public int getChannelCapacity() {
+        return (int) (Math.ceil(((float) players.size() / 100) * 500));
+    }
+
+    public void removePlayer(MapleCharacter player) {
+        players.removeIf(character -> character.getAccId() == player.getAccId());
+    }
+
+    public MapleMap getMap(int mapId) {
+        MapleMap map = maps.stream().filter(m -> m.getId() == mapId).findAny().orElse(null);
+        if (map == null) {
+            map = MapData.loadMapDataFromWz(mapId, worldId, channelId);
+            maps.add(map);
+        }
+        return map;
+    }
+}

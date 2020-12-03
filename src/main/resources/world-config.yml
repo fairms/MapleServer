@@ -1,0 +1,13 @@
+worlds:
+  - id: 2
+    flag: 0
+    server_message: Welcome to Scania!
+    event_message: Scania!
+    channels: 3
+    exp_rate: 10
+    meso_rate: 10
+    drop_rate: 10
+    boss_drop_rate: 10
+    quest_rate: 5
+    fishing_rate: 10
+    travel_rate: 10

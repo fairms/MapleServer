@@ -1,0 +1,75 @@
+package im.cave.ms.net.packet.opcode;
+
+public enum SendOpcode {
+
+    //Common
+    ACCOUNT(0x13C),
+
+    //Login Server
+    LOGIN_STATUS(0x00),
+    SERVERLIST(0x01),
+    SERVERSTATUS(0x05),//CHECK_USER_LIMIT_RESULT
+    CHARLIST(0x06),
+    SERVER_IP(0x07),
+    PING(0x11),
+    CHAR_NAME_RESPONSE(0x0A),
+    ADD_NEW_CHAR_ENTRY(0x0B),
+    OPEN_CREATE_CHAR(0x56),
+    SERVER_LIST_BG(0x5D),
+    DELETE_CHAR(0x84),
+
+
+    //Channel Server
+    CHANGE_CHANNEL(0x10),
+    CPING(0x12),
+    OPCODE_TABLE(0x2D),
+    INVENTORY_OPERATION(0x6F),
+    UPDATE_STATS(0x71),
+    SHOW_STATUS_INFO(0x83),
+    CHAR_INFO(0x9f),
+    SERVER_MSG(0xB0),
+    PET_AUTO_EAT_MSG(0xBA),
+    NOTICE_MSG(0xdd),
+    RANK(0xF7),
+    CANCEL_TITLE_EFFECT(0x145),
+    UPDATE_VOUCHER(0x201),
+    SET_MAP(0x236),
+    FIELD_EFFECT(0x244),
+    QUICKSLOT_INIT(0x258),
+    USE_CHAIR(0x29b),
+    CHATTEXT(0x2B7),
+    CHECK_ACCOUNT(0x2DC),
+    CANCEL_CHAIR(0x2E1),
+    HIDDEN_EFFECT_EQUIP(0x316),
+    MOVE_PLAYER(0x345),
+    SHOW_SPECIAL_EFFECT(0x383),
+    SHOW_ITEM_GAIN_INCHAT(0x383),
+    UPDATE_QUEST_INFO(0x388),
+    DISABLE_UI(0x394),
+    LOCK_UI(0x395),
+    CHAT_MSG(0x3A3),
+    FULLSCREEN_MSG(0x3b2),
+    OPEN_WORLDMAP(0x48F),
+    SPAWN_MONSTER(0x4D5),
+    REMOVE_MONSTER(0x4D6),
+    SPAWN_MONSTER_CONTROL(0x4D7),
+    MOVE_MONSTER_RESPONSE(0x4DF),
+    HP_INDICATOR(0x4EC),
+    SPAWN_NPC(0x542),
+    REMOVE_NPC(0x543),
+    SPAWN_NPC_REQUEST_CONTROLLER(0x545),
+    DROP_ENTER_FIELD(0x569),
+    PICK_UP_DROP(0x56b),
+    NPC_TALK(0x741),
+    KEYMAP(0x84A);
+
+    private final int code;
+
+    SendOpcode(int code) {
+        this.code = code;
+    }
+
+    public int getValue() {
+        return code;
+    }
+}
