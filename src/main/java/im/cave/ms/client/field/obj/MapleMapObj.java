@@ -52,6 +52,9 @@ public class MapleMapObj {
         Npc npc = null;
         if (getLifeType().equals("n")) {
             npc = NpcData.getNpcDataFromWz(templateId);
+            if (npc == null) {
+                return null;
+            }
             npc.setObjectId(getObjectId());
             npc.setLifeType(getLifeType());
             npc.setX(getX());
@@ -85,6 +88,9 @@ public class MapleMapObj {
             mobGen = new MobGen(templateId);
             mobGen.setPosition(getHomePosition());
             Mob mob = MobData.getMobFromWz(templateId);
+            if (mob == null) {
+                return null;
+            }
             mobGen.setMob(mob);
             mob.setObjectId(getObjectId());
             mob.setLifeType(getLifeType());
@@ -110,8 +116,6 @@ public class MapleMapObj {
             mob.setMobTimeOnDie(isMobTimeOnDie());
             mob.setRegenStart(getRegenStart());
             mob.setMobAliveReq(getMobAliveReq());
-
-
         }
         return mobGen;
     }

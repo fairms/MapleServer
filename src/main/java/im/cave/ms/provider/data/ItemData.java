@@ -4,6 +4,7 @@ import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemInfo;
 import im.cave.ms.client.items.ItemSkill;
+import im.cave.ms.client.items.SpecStat;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.ServerConstants;
@@ -383,6 +384,7 @@ public class ItemData {
                     break;
 
                 case "skill":
+                case "spec":
 
                     break;
                 case "reqSkillLevel":
@@ -747,9 +749,44 @@ public class ItemData {
                 case "android":
                     item.setAndroid(intValue);
                     break;
-                case "spec":
-                    break;
                 default:
+                    log.warn(String.format("Unknown node: %s, itemID = %s", name, item.getItemId()));
+
+            }
+        }
+        MapleData socketData = data.getChildByPath("socket");
+        if (socketData != null) {
+            for (MapleData socketAttr : socketData.getChildren()) {
+                String name = socketAttr.getName();
+                String value = MapleDataTool.getString(socketAttr);
+                if (name.equals("optionType")) {
+                    item.putScrollStat(optionType, Integer.parseInt(value));
+                }
+            }
+        }
+        MapleData specData = data.getChildByPath("spec");
+        if (specData != null) {
+            for (MapleData specAttr : specData.getChildren()) {
+                String name = specAttr.getName();
+                String value = MapleDataTool.getString(specAttr);
+                switch (name) {
+                    case "script":
+                        item.setScript(value);
+                        break;
+                    case "npc":
+                        item.setScriptNPC(Integer.parseInt(value));
+                        break;
+                    case "moveTo":
+                        item.setMoveTo(Integer.parseInt(value));
+                        break;
+                    default:
+                        SpecStat ss = SpecStat.getSpecStatByName(name);
+                        if (ss != null && value != null) {
+                            item.putSpecStat(ss, Integer.parseInt(value));
+                        } else {
+                            log.warn(String.format("Unhandled spec for id %d, name %s, value %s", itemId, name, value));
+                        }
+                }
             }
         }
         items.put(item.getItemId(), item);

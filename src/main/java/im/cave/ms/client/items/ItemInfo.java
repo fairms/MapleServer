@@ -57,4 +57,8 @@ public class ItemInfo {
     public void addQuest(int questId) {
         questIDs.add(questId);
     }
+
+    public void putSpecStat(SpecStat ss, int i) {
+        getSpecStats().put(ss, i);
+    }
 }

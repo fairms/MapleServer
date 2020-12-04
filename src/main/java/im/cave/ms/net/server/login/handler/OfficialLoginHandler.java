@@ -1,4 +1,4 @@
-package im.cave.ms.net.handler.login;
+package im.cave.ms.net.server.login.handler;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;

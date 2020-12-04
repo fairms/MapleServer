@@ -165,6 +165,7 @@ public class MaplePacketCreator {
                 case EXP:
                 case MESO:
                     mplew.writeLong(value);
+                    break;
                 case TODAYS_TRAITS:
                     mplew.writeZeroBytes(21); //限制
                     break;

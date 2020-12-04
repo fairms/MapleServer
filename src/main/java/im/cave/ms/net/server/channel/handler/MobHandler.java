@@ -1,4 +1,4 @@
-package im.cave.ms.net.handler.channel;
+package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.field.MapleMap;
@@ -6,7 +6,6 @@ import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.net.packet.MobPacket;
-import im.cave.ms.tools.Position;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

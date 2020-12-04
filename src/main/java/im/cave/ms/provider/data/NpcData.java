@@ -30,7 +30,7 @@ public class NpcData {
         MapleData data = npcData.getData(path);
         Npc npc = new Npc(npcId);
         if (data == null) {
-            return npc;
+            return null;
         }
         npc.setMove(data.getChildByPath("move") != null);
         MapleData info = data.getChildByPath("info");

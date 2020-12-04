@@ -5,16 +5,17 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.ServerType;
-import im.cave.ms.net.handler.ErrorPacketHandler;
-import im.cave.ms.net.handler.channel.InventoryHandler;
-import im.cave.ms.net.handler.channel.MobHandler;
-import im.cave.ms.net.handler.channel.NpcHandler;
-import im.cave.ms.net.handler.channel.PlayerHandler;
-import im.cave.ms.net.handler.channel.SpecialPortalHandler;
-import im.cave.ms.net.handler.channel.ChangeChannelHandler;
-import im.cave.ms.net.handler.channel.EnterPortalHandler;
-import im.cave.ms.net.handler.channel.GeneralChatHandler;
-import im.cave.ms.net.handler.channel.PlayerLoggedinHandler;
+import im.cave.ms.net.packet.PlayerPacket;
+import im.cave.ms.net.server.ErrorPacketHandler;
+import im.cave.ms.net.server.channel.handler.InventoryHandler;
+import im.cave.ms.net.server.channel.handler.MobHandler;
+import im.cave.ms.net.server.channel.handler.NpcHandler;
+import im.cave.ms.net.server.channel.handler.PlayerHandler;
+import im.cave.ms.net.server.channel.handler.SpecialPortalHandler;
+import im.cave.ms.net.server.channel.handler.ChangeChannelHandler;
+import im.cave.ms.net.server.channel.handler.EnterPortalHandler;
+import im.cave.ms.net.server.channel.handler.GeneralChatHandler;
+import im.cave.ms.net.server.channel.handler.PlayerLoggedinHandler;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.opcode.RecvOpcode;
@@ -110,8 +111,14 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
             case MOB_MOVE:
                 MobHandler.handleMoveMob(slea, c);
                 break;
+            case NPC_ANIMATION:
+                NpcHandler.handleNpcAnimation(slea, c);
+                break;
             case ITEM_MOVE:
                 InventoryHandler.handleChangeInvPos(c, slea);
+                break;
+            case USE_ITEM:
+                InventoryHandler.handleUseItem(slea, c);
                 break;
             case SELECT_NPC:
                 NpcHandler.handleUserSelectNpc(slea, c);
@@ -135,6 +142,12 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
             case WORLD_MAP_TRANSFER:
                 PlayerHandler.handleWorldMapTransfer(slea, c);
                 break;
+            case CHANGE_STAT_REQUEST:
+                PlayerHandler.handleChangeStatRequest(slea, c);
+                break;
+            case SKILL_UP_REQUEST:
+                PlayerHandler.handleSkillUp(slea, c);
+                break;
             case CHAR_INFO_REQUEST:
                 PlayerHandler.handleCharInfoReq(slea, c);
                 break;
@@ -152,6 +165,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
                 break;
             case EQUIP_EFFECT_OPT:
                 PlayerHandler.handleEquipEffectOpt(slea.readInt(), c);
+                break;
+            case CPONG:
+                c.pongReceived();
                 break;
 
         }

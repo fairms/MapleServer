@@ -26,6 +26,10 @@ public class MobData {
 
     private static final Map<Integer, Mob> mobs = new HashMap<>();
 
+    public static Mob getMob(int mobId) {
+        return mobs.getOrDefault(mobId, getMobFromWz(mobId));
+    }
+
     public static Mob getMobFromWz(int mobId) {
         Mob mob = new Mob(mobId);
         String imgName = StringUtil.getLeftPaddedStr(String.valueOf(mobId), '0', 7) + ".img";

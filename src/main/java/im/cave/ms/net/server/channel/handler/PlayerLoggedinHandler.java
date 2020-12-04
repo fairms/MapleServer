@@ -1,4 +1,4 @@
-package im.cave.ms.net.handler.channel;
+package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
@@ -37,11 +37,14 @@ public class PlayerLoggedinHandler {
         c.announce(MaplePacketCreator.encodeOpcodes(c));
 
         c.announce(MaplePacketCreator.cancelTitleEffect());
-
         //3.切换地图
+        if (player.getHp() <= 0) {
+            player.setMapId(player.getMap().getReturnMap());
+            player.heal(50);
+        }
         c.announce(ChannelPacket.getWarpToMap(player, true));
-
         player.getMap().addPlayer(player);
+
         c.announce(LoginPacket.account(player.getAccount()));
     }
 }

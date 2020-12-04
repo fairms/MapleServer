@@ -4,6 +4,8 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.skill.Skill;
+import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.InventoryType;
@@ -17,6 +19,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static im.cave.ms.enums.BodyPart.APBase;
 import static im.cave.ms.enums.BodyPart.APEnd;
@@ -244,17 +247,17 @@ public class PacketHelper {
 
     //todo
     public static void addCharSP(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        int[] sps = chr.getRemainingSps();
+        int[] remainingSps = chr.getRemainingSps();
         if (JobConstants.isSeparatedSpJob(chr.getJob().getJobId())) {
-            mplew.write(sps.length);
-            for (int i = 0; i < sps.length; i++) {
-                if (sps[i] > 0) {
+            mplew.write(chr.getRemainingSpsSize());
+            for (int i = 0; i < remainingSps.length; i++) {
+                if (remainingSps[i] > 0) {
                     mplew.write(i + 1);
-                    mplew.writeInt(sps[i]);
+                    mplew.writeInt(remainingSps[i]);
                 }
             }
         } else {
-            mplew.writeShort(sps[0]);
+            mplew.writeShort(remainingSps[0]);
         }
     }
 
@@ -475,8 +478,18 @@ public class PacketHelper {
     }
 
     private static void addSkillInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        mplew.write(1);
-        mplew.writeShort(0); // skills size
+        mplew.write(1); //mask
+//        mplew.writeShort(0); // skills size       short size = (short) (getSkills().size() + linkSkills.size());
+        Set<Skill> skills = chr.getSkills();
+        mplew.writeShort(skills.size());
+        for (Skill skill : skills) {
+            mplew.writeInt(skill.getSkillId());
+            mplew.writeInt(skill.getCurrentLevel());
+            mplew.writeLong(DateUtil.getFileTime(-1));
+            if (SkillConstants.isSkillNeedMasterLevel(skill.getSkillId())) {
+                mplew.writeInt(skill.getMasterLevel());
+            }
+        }
 
         mplew.writeShort(0); //link skill
 

@@ -1,9 +1,8 @@
-package im.cave.ms.net.handler.channel;
+package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.net.db.DataBaseManager;
-import im.cave.ms.net.handler.CommandHandler;
+import im.cave.ms.net.server.CommandHandler;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 

@@ -4,6 +4,8 @@ import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.Portal;
 import im.cave.ms.client.field.obj.MapleMapObj;
+import im.cave.ms.client.field.obj.Npc;
+import im.cave.ms.client.field.obj.mob.MobGen;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.FieldType;
 import im.cave.ms.enums.PortalType;
@@ -294,9 +296,15 @@ public class MapData {
                     }
                 }
                 if (life.getLifeType().equalsIgnoreCase("m")) {
-                    map.addMobGen(life.getMobGen());
+                    MobGen mobGen = life.getMobGen();
+                    if (mobGen != null) {
+                        map.addMobGen(mobGen);
+                    }
                 } else if (life.getLifeType().equalsIgnoreCase("n")) {
-                    map.addLife(life.getNpc());
+                    Npc npc = life.getNpc();
+                    if (npc != null) {
+                        map.addLife(life.getNpc());
+                    }
                 }
             }
         }

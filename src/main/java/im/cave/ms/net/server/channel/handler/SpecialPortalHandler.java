@@ -1,4 +1,4 @@
-package im.cave.ms.net.handler.channel;
+package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.field.Portal;

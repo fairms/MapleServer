@@ -22,7 +22,13 @@ public class MapleDataTool {
         if (data.getData() instanceof Point) {
             return data.getData().toString();
         }
-        return ((String) data.getData());
+        String ret;
+        try {
+            ret = ((String) data.getData());
+        } catch (Exception e) {
+            return null;
+        }
+        return ret;
     }
 
     public static String getString(MapleData data, String def) {

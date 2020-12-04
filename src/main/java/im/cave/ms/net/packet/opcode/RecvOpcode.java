@@ -19,6 +19,7 @@ public enum RecvOpcode {
     OPEN_CREATE_CHAR_LAYOUT(0XCF),
 
     //Channel Server
+    UNK1(0x66),
     PLAYER_LOGIN(0x71),
     CPONG(0x9D),
     ENTER_PORTAL(0xCB),
@@ -37,6 +38,8 @@ public enum RecvOpcode {
     USE_ITEM(0x10E),
     USE_SCRIPT_ITEM(0x114),
     PET_AUTO_EAT_FOOD(0x119),
+    CHANGE_STAT_REQUEST(0x14b),
+    SKILL_UP_REQUEST(0x150),
     CHAR_INFO_REQUEST(0x15c),
     PORTAL_SPECIAL(0x160),
     QUEST_ACTION(0x169),
@@ -46,6 +49,7 @@ public enum RecvOpcode {
     WORLD_MAP_TRANSFER(0x3F1),
     OPEN_WORLD_MAP(0x3F9),
     MOB_MOVE(0x424),
+    NPC_ANIMATION(0x44a),
     PICK_UP(0x450),
     AFTER_CHANGE_MAP(0x45F),
     EQUIP_EFFECT_OPT(0x60A),

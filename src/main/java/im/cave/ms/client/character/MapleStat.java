@@ -21,6 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package im.cave.ms.client.character;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public enum MapleStat {
 
     SKIN(0x1),
@@ -61,8 +66,21 @@ public enum MapleStat {
 
     private final long i;
 
-    private MapleStat(long i) {
+    MapleStat(long i) {
         this.i = i;
+    }
+
+    public static List<MapleStat> getStatsByMask(long mask) {
+        List<MapleStat> stats = new ArrayList<>();
+        List<MapleStat> allStats = Arrays.asList(values());
+        Collections.sort(allStats);
+        for (MapleStat stat : allStats) {
+            if ((stat.getValue() & mask) != 0) {
+                stats.add(stat);
+            }
+        }
+        return stats;
+
     }
 
     public long getValue() {

@@ -1,9 +1,11 @@
 package im.cave.ms.net.packet;
 
+import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.scripting.npc.NpcScriptInfo;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+import io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueue;
 
 /**
  * @author fair
@@ -168,6 +170,19 @@ public class NpcPacket {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.REMOVE_NPC.getValue());
         mplew.writeInt(objId);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter npcMove(int npcId, byte oneTimeAction, byte chatIdx, int duration, MovementInfo movement, byte keyPadState) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.NPC_ANIMATION.getValue());
+        mplew.writeInt(npcId);
+        mplew.write(oneTimeAction);
+        mplew.write(chatIdx);
+        mplew.writeInt(duration);
+        if (movement != null) {
+            movement.encode(mplew);
+        }
         return mplew;
     }
 }

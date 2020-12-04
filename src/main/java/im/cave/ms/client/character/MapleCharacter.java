@@ -1,6 +1,8 @@
 package im.cave.ms.client.character;
 
 import im.cave.ms.client.Account;
+import im.cave.ms.client.Job.MapleJob;
+import im.cave.ms.client.Job.adventurer.Beginner;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.Portal;
@@ -10,8 +12,15 @@ import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemInfo;
 import im.cave.ms.client.items.SpecStat;
+import im.cave.ms.client.skill.Skill;
+import im.cave.ms.client.skill.SkillInfo;
+import im.cave.ms.client.skill.SkillStat;
+import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
+import im.cave.ms.constants.SkillConstants;
+import im.cave.ms.enums.BaseStat;
+import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.InventoryOperation;
@@ -19,19 +28,20 @@ import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapleTraitType;
 import im.cave.ms.net.db.DataBaseManager;
 import im.cave.ms.net.packet.ChannelPacket;
+import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.net.server.channel.MapleChannel;
 import im.cave.ms.net.server.world.World;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Position;
-import im.cave.ms.tools.StringUtil;
+import im.cave.ms.tools.Util;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -43,18 +53,21 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.Serializable;
-import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
+import static im.cave.ms.enums.InventoryOperation.REMOVE;
+import static im.cave.ms.enums.InventoryOperation.UPDATE_QUANTITY;
 import static im.cave.ms.enums.InventoryType.CASH;
 
 /**
@@ -120,9 +133,14 @@ public class MapleCharacter implements Serializable {
     private Inventory cashInventory = new Inventory(CASH, (byte) 60);
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
-    private transient MapleQuickslotBinding quickSlot;
+    private MapleQuickslotBinding quickSlot;
+    @JoinColumn(name = "charId")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Skill> skills;
     @Transient
-    private transient MapleKeyBinding keyBinding;
+    private MapleKeyBinding keyBinding;
+    @Transient
+    private MapleJob jobHandler;
     @Transient
     private transient boolean isChangingChannel = false;
     private transient List<Integer> visitedMaps = new ArrayList<>();
@@ -133,6 +151,10 @@ public class MapleCharacter implements Serializable {
     private transient boolean isConversation = false;
     @Transient
     private Position position;
+    @Transient
+    private Map<BaseStat, Long> baseStats = new HashMap<>();
+    @Transient
+    private Map<Integer, Integer> hyperPsdSkillsCooltimeR = new HashMap<>();
     private transient int tick;
     private transient short foothold;
     private transient byte moveAction;
@@ -169,11 +191,6 @@ public class MapleCharacter implements Serializable {
         return decorate > 0;
     }
 
-
-    public int getRemainingSp() {
-        return 0;
-    }
-
     public Inventory getInventory(InventoryType type) {
         switch (type) {
             case EQUIPPED:
@@ -198,21 +215,38 @@ public class MapleCharacter implements Serializable {
     }
 
     public int[] getRemainingSps() {
-        String[] spsS = StringUtils.split(remainingSp, ",");
-        int[] sps = new int[0];
-        if (spsS != null) {
-            sps = new int[spsS.length];
-            for (int i = 0; i < spsS.length; i++) {
-                if (StringUtil.isNumber(spsS[i]) && !spsS[i].equals("")) {
-                    sps[i] = Integer.parseInt(spsS[i]);
-                } else {
-                    sps[i] = 0;
-                }
+        String remainingSp = getRemainingSp();
+        String[] sps = remainingSp.split(","); //0,1,2,3
+        int size = 0;
+        for (String sp : sps) {
+            if (!Util.isNumber(sp)) {
+                continue;
+            }
+            size++;
+        }
+        int[] remainingSps = new int[size];
+        for (int i = 0; i < sps.length; i++) {
+            if (!Util.isNumber(sps[i])) {
+                continue;
+            }
+            int sp = Integer.parseInt(sps[i]);
+            remainingSps[i] = sp;
+        }
+        return remainingSps;
+    }
 
+
+    public int getRemainingSpsSize() {
+        int[] remainingSps = getRemainingSps();
+        int i = 0;
+        for (int sp : remainingSps) {
+            if (sp > 0) {
+                i++;
             }
         }
-        return sps;
+        return i;
     }
+
 
     public void logout() {
         List<World> worlds = Server.getInstance().getWorlds();
@@ -228,10 +262,6 @@ public class MapleCharacter implements Serializable {
         MapleChannel prevChannel = Server.getInstance().getWorldById(world).getChannel(channel);
         prevChannel.removePlayer(this);
         saveToDB();
-    }
-
-    public void loadInventories(boolean channelServer) {
-//        InventoryDB.loadItems(this, channelServer);
     }
 
     public void putItem(Item item) {
@@ -265,7 +295,6 @@ public class MapleCharacter implements Serializable {
                 }
                 Item itemCopy = null;
                 if (item.getInvType().isStackable() && ii != null && item.getQuantity() > ii.getSlotMax()) {
-                    itemCopy = item.deepCopy();
                     itemCopy = item.deepCopy();
                     quantity = quantity - ii.getSlotMax();
                     itemCopy.setQuantity(quantity);
@@ -360,8 +389,8 @@ public class MapleCharacter implements Serializable {
         return visitedMaps.size();
     }
 
-    public int getMeso() {
-        return (int) stats.getMeso();
+    public long getMeso() {
+        return stats.getMeso();
     }
 
     public MapleMap getMap() {
@@ -388,15 +417,13 @@ public class MapleCharacter implements Serializable {
     }
 
     public void changeMap(MapleMap map, Portal portal) {
-        if (portal == null) {
-            return;
-        }
         // npcs clear?
         if (getMap() != null) {
             getMap().removePlayer(this);
         }
+        setJob(this.job);
         setMap(map);
-        announce(ChannelPacket.getWarpToMap(this, map, portal.getId()));
+        announce(ChannelPacket.getWarpToMap(this, map, portal == null ? 0 : portal.getId()));
         map.addPlayer(this);
     }
 
@@ -445,9 +472,13 @@ public class MapleCharacter implements Serializable {
         return Objects.hash(id);
     }
 
-    public void chatMessage() {
+    public void chatMessage(ChatType type, String content) {
+        announce(ChannelPacket.chatMessage(content, type));
+    }
 
 
+    public void addStat(MapleStat stat, int amount) {
+        setStat(stat, getStat(stat) + amount);
     }
 
     public int getStat(MapleStat stat) {
@@ -569,7 +600,7 @@ public class MapleCharacter implements Serializable {
     public void addDrop(Drop drop) {
         if (drop.isMeso()) {
             addMeso(drop.getMoney());
-            return;
+            announce(ChannelPacket.dropPickupMessage(drop.getMoney(), (short) 0, (short) 0));
         } else {
             Item item = drop.getItem();
             int itemId = item.getItemId();
@@ -581,7 +612,7 @@ public class MapleCharacter implements Serializable {
                 isRunOnPickUp = ii.getSpecStats().getOrDefault(SpecStat.runOnPickup, 0) != 0;
             }
             if (isConsume) {
-
+                announce(MaplePacketCreator.enableActions());
             } else if (isRunOnPickUp) {
 
             } else if (getInventory(item.getInvType()).canPickUp(item)) {
@@ -598,8 +629,239 @@ public class MapleCharacter implements Serializable {
     }
 
 
-    private void addMeso(int money) {
+    private void addMeso(int amount) {
+        long meso = getMeso();
+        long newMeso = meso + amount;
+        if (newMeso >= 0) {
+            newMeso = Math.min(GameConstants.MAX_MONEY, newMeso);
+            Map<MapleStat, Long> stats = new HashMap<>();
+            setMeso(newMeso);
+            stats.put(MapleStat.MESO, newMeso);
+            announce(MaplePacketCreator.updatePlayerStats(stats, this));
+        }
+    }
 
+    private void setMeso(long newMeso) {
+        stats.setMeso(newMeso);
+    }
+
+    public void addExp(long amount, ExpIncreaseInfo expIncreaseInfo) {
+        if (amount <= 0) {
+            return;
+        }
+        int level = getLevel();
+        long curExp = getExp();
+        if (level >= GameConstants.maxLevel) {
+            return;
+        }
+        long newExp = curExp + amount;
+        Map<MapleStat, Long> stats = new HashMap<>();
+        while (newExp >= GameConstants.charExp[level]) {
+            newExp -= GameConstants.charExp[level];
+            addStat(MapleStat.LEVEL, 1);
+            stats.put(MapleStat.LEVEL, (long) getStat(MapleStat.LEVEL));
+            level++;
+            getJobHandler().handleLevelUp();
+//            getMap().broadcastMessage(ChannelPacket.effect(getId()));
+            heal(getMaxHP());
+            healMP(getMaxMP());
+        }
+        setExp(newExp);
+        stats.put(MapleStat.EXP, newExp);
+        if (expIncreaseInfo != null) {
+            int expFromR = 0;
+            expIncreaseInfo.setIndieBonusExp(expFromR);
+            announce(ChannelPacket.incExpMessage(expIncreaseInfo));
+        }
+        announce(MaplePacketCreator.updatePlayerStats(stats, this));
+    }
+
+    private void setExp(long newExp) {
+        stats.setExp(newExp);
+    }
+
+    public void consumeItem(Item item) {
+        Inventory inventory = getInventory(item.getInvType());
+        if (item.getQuantity() <= 1 && !ItemConstants.isThrowingItem(item.getItemId())) {
+            item.setQuantity(0);
+            inventory.removeItem(item);
+            short pos = (short) item.getPos();
+            announce(PlayerPacket.inventoryOperation(true, false, REMOVE, pos, (short) 0, 0, item));
+        } else {
+            item.setQuantity(item.getQuantity() - 1);
+            announce(PlayerPacket.inventoryOperation(true, false, UPDATE_QUANTITY, (short) item.getPos(), (short) -1, 0, item));
+        }
+    }
+
+    public void heal(int amount) {
+        heal(amount, false);
+    }
+
+    public void heal(int amount, boolean mp) {
+        int curHP = getHp();
+        int maxHP = getMaxHP();
+        int newHP = Math.min(curHP + amount, maxHP);
+        Map<MapleStat, Long> stats = new HashMap<>();
+        setStat(MapleStat.HP, newHP);
+        stats.put(MapleStat.HP, (long) newHP);
+        if (mp) {
+            int curMP = getMp();
+            int maxMP = getMaxMP();
+            int newMP = Math.min(curMP + amount, maxMP);
+            setStat(MapleStat.MP, newMP);
+            stats.put(MapleStat.MP, (long) newMP);
+        }
+        announce(MaplePacketCreator.updatePlayerStats(stats, this));
+    }
+
+    public void healMP(int amount) {
+        int curMP = getMp();
+        int maxMP = getMaxMP();
+        int newMP = Math.min(curMP + amount, maxMP);
+        Map<MapleStat, Long> stats = new HashMap<>();
+        setStat(MapleStat.MP, newMP);
+        stats.put(MapleStat.MP, (long) newMP);
+        announce(MaplePacketCreator.updatePlayerStats(stats, this));
+    }
+
+    public void addSpToJobByCurrentLevel(int num) {
+        int[] remainingSps = getRemainingSps();
+        byte jobLevel = (byte) JobConstants.getJobLevelByCharLevel(getJob().getJobId(), getLevel());
+        if (jobLevel == 0) {
+            return;
+        }
+        remainingSps[jobLevel - 1] = num;
+        StringBuilder sb = new StringBuilder();
+        for (int sp : remainingSps) {
+            sb.append(sp);
+            sb.append(",");
+        }
+        String r = sb.substring(0, sb.length() - 1);
+        setRemainingSp(r);
+    }
+
+
+    public void setJob(JobConstants.JobEnum job) {
+        if (job == null) {
+            return;
+        }
+        this.job = job;
+        setJobHandler(new Beginner(this));
+    }
+
+    public void changeMap(int mapId) {
+        MapleChannel channel = Server.getInstance().getWorldById(world).getChannel(this.channel);
+        MapleMap map = channel.getMap(mapId);
+        if (map != null) {
+            changeMap(map, map.getPortal("sp"));
+        }
+    }
+
+    public Skill getSkill(int skillId) {
+        return getSkill(skillId, false);
+    }
+
+    public Skill getSkill(int id, boolean createIfNull) {
+        for (Skill s : getSkills()) {
+            if (s.getSkillId() == id) {
+                return s;
+            }
+        }
+        return createIfNull ? createAndReturnSkill(id) : null;
+    }
+
+    private Skill createAndReturnSkill(int id) {
+        Skill skill = SkillData.getSkill(id);
+        addSkill(skill);
+        return skill;
+    }
+
+    public void addSkill(Skill skill) {
+        addSkill(skill, false);
+    }
+
+
+    public void addSkill(Skill skill, boolean addRegardlessOfLevel) {
+        if (!addRegardlessOfLevel && skill.getCurrentLevel() == 0) {
+            removeSkill(skill.getSkillId());
+            return;
+        }
+        skill.setCharId(getId());
+        boolean isPassive = SkillConstants.isPassiveSkill(skill.getSkillId());
+        boolean isChanged;
+        if (getSkills().stream().noneMatch(s -> s.getSkillId() == skill.getSkillId())) {
+            getSkills().add(skill);
+            isChanged = true;
+        } else {
+            Skill oldSkill = getSkill(skill.getSkillId());
+            isChanged = oldSkill.getCurrentLevel() != skill.getCurrentLevel();
+            if (isPassive && isChanged) {
+                removeFromBaseStatCache(oldSkill);
+            }
+            oldSkill.setCurrentLevel(skill.getCurrentLevel());
+            oldSkill.setMasterLevel(skill.getMasterLevel());
+        }
+        // Change cache accordingly
+        if (isPassive && isChanged) {
+            addToBaseStatCache(skill);
+        }
+    }
+
+    private void addToBaseStatCache(Skill skill) {
+        SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
+        if (SkillConstants.isPassiveSkill(skill.getSkillId())) {
+            Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel(), skill.getSkillId());
+            stats.forEach(this::addBaseStat);
+        }
+        if (si.isPsd() && si.getSkillStatInfo().containsKey(SkillStat.coolTimeR)) {
+            for (int psdSkill : si.getPsdSkills()) {
+                getHyperPsdSkillsCooltimeR().put(psdSkill, si.getValue(SkillStat.coolTimeR, 1));
+            }
+        }
+
+    }
+
+    public Map<Integer, Integer> getHyperPsdSkillsCooltimeR() {
+        return hyperPsdSkillsCooltimeR;
+    }
+
+
+    public void removeFromBaseStatCache(Skill skill) {
+        SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
+        Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel(), skill.getSkillId());
+        stats.forEach(this::removeBaseStat);
+    }
+
+    public void removeBaseStat(BaseStat bs, int amount) {
+        addBaseStat(bs, -amount);
+    }
+
+    public void addBaseStat(BaseStat bs, int amount) {
+        getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0L) + amount);
+    }
+
+    public void removeSkill(int skillID) {
+        Skill skill = Util.findWithPred(getSkills(), s -> s.getSkillId() == skillID);
+        if (skill != null) {
+            if (SkillConstants.isPassiveSkill(skillID)) {
+                removeFromBaseStatCache(skill);
+            }
+            getSkills().remove(skill);
+
+        }
+    }
+
+    public void setRemainingSp(String remainingSp) {
+        this.remainingSp = remainingSp;
+    }
+
+    public void setRemainingSp(int[] remainingSps) {
+        StringBuilder sb = new StringBuilder();
+        for (int sp : remainingSps) {
+            sb.append(sp);
+            sb.append(",");
+        }
+        setRemainingSp(sb.substring(0, sb.length() - 1));
     }
 }
 

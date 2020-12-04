@@ -454,7 +454,7 @@ public class JobConstants {
         PINK_BEAN_EMPTY_14(800019, 13000),
         PINK_BEAN_EMPTY_15(800022, 13000);
 
-//        @EnumValue
+        //        @EnumValue
         private final short jobId;
 
         private final short beginnerJobId;

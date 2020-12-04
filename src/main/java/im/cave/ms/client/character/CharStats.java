@@ -37,10 +37,8 @@ public class CharStats {
     private int jump;
     private int hp = 50;
     private int maxHP = 50;
-    private int hpUsed = 0;
     private int mp = 5;
     private int maxMP = 5;
-    private int mpUsed = 0;
     private int fame = 0;
     private int prestige = 0;
     private int fatigue = 0;

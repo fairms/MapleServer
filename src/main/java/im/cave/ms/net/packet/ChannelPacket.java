@@ -1,5 +1,6 @@
 package im.cave.ms.net.packet;
 
+import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Drop;
@@ -14,7 +15,8 @@ import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Randomizer;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
-import static im.cave.ms.enums.DropEnterType.Instant;
+import static im.cave.ms.enums.DropEnterType.*;
+import static im.cave.ms.enums.MessageType.*;
 
 /**
  * @author fair
@@ -265,5 +267,61 @@ public class ChannelPacket {
         mplew.writeInt(dropId);
         mplew.writeInt(charId);
         return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter incExpMessage(ExpIncreaseInfo expIncreaseInfo) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        mplew.write(INC_EXP_MESSAGE.getVal());
+        expIncreaseInfo.encode(mplew);
+        mplew.writeInt(0);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter dropPickupMessage(int money, short internetCafeExtra, short smallChangeExtra) {
+        return dropPickupMessage(money, (byte) 1, internetCafeExtra, smallChangeExtra, (short) 0);
+    }
+
+    public static MaplePacketLittleEndianWriter dropPickupMessage(Item item, short quantity) {
+        return dropPickupMessage(item.getItemId(), (byte) 0, (short) 0, (short) 0, quantity);
+    }
+
+    public static MaplePacketLittleEndianWriter dropPickupMessage(int i, byte type, short internetCafeExtra, short smallChangeExtra, short quantity) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        mplew.write(DROP_PICKUP_MESSAGE.getVal());
+        mplew.writeInt(0);
+        mplew.write(0);
+        if (internetCafeExtra > 0) type = 8;
+        mplew.write(type);
+        // also error (?) codes -2, ,-3, -4, -5, <default>
+        switch (type) {
+            case -10:
+                mplew.writeInt(100);// nItemID
+                break;
+            case 0: // item
+                mplew.writeInt(i);
+                mplew.writeInt(quantity); // ?
+                mplew.write(0);
+                break;
+            case 1: // Mesos
+                mplew.writeBool(false); // boolean: portion was lost after falling to the ground
+                mplew.writeInt(i); // Mesos
+                mplew.writeShort(smallChangeExtra); // Spotting small change
+                break;
+            case 2: // ?
+                mplew.writeInt(100);// nItemID
+                mplew.writeLong(0);
+                break;
+            case 8:
+                mplew.writeInt(i); // Mesos
+                mplew.writeShort(internetCafeExtra); // Internet cafe
+                break;
+        }
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter effect(int charId) {
+        return null;
     }
 }

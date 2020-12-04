@@ -1,4 +1,4 @@
-package im.cave.ms.net.handler.login;
+package im.cave.ms.net.server.login.handler;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
@@ -21,6 +21,7 @@ public class PasswordLoginHandler {
     private static final Logger log = LoggerFactory.getLogger(PasswordLoginHandler.class);
 
     public static void handlePacket(MapleClient c, SeekableLittleEndianAccessor slea) {
+
         String username = "3378690678";
         String password = "3378690678!";
         c.setMachineID(new byte[16]);

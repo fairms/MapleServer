@@ -1,4 +1,4 @@
-package im.cave.ms.net.handler.channel;
+package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
@@ -10,6 +10,10 @@ import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.movement.MovementInfo;
+import im.cave.ms.client.skill.Skill;
+import im.cave.ms.constants.GameConstants;
+import im.cave.ms.constants.JobConstants;
+import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.net.packet.ChannelPacket;
@@ -18,6 +22,7 @@ import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.net.packet.opcode.RecvOpcode;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.net.server.channel.MapleChannel;
+import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
@@ -26,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author fair
@@ -38,7 +45,6 @@ public class PlayerHandler {
 
     public static void handleHit(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-
         slea.skip(4);
         slea.skip(4);
         player.setTick(slea.readInt());
@@ -56,6 +62,9 @@ public class PlayerHandler {
         int newHp = curHp - damage;
         if (newHp < 0) {
             newHp = 0;
+            c.announce(PlayerPacket.sendRebirthConfirm(true, false,
+                    false, false
+                    , false, 0, 0));
         }
         player.setStat(MapleStat.HP, newHp);
         stats.put(MapleStat.HP, (long) newHp);
@@ -130,7 +139,8 @@ public class PlayerHandler {
             }
             int mobUpDownYRange = slea.readInt();
             slea.skip(4);
-
+            byte type = slea.readByte();
+            slea.skip(14); //unk
             MapleMapObj obj = chr.getMap().getObj(objId);
             if (obj instanceof Mob) {
                 Mob mob = (Mob) obj;
@@ -237,5 +247,118 @@ public class PlayerHandler {
         }
         equip.setShowEffect(!equip.isShowEffect());
         c.announce(PlayerPacket.hiddenEffectEquips(player));
+    }
+
+    public static void handleSkillUp(SeekableLittleEndianAccessor slea, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        player.setTick(slea.readInt());
+        int skillId = slea.readInt();
+        int level = slea.readInt();
+        if (level < 1) {
+            c.close();
+            return;
+        }
+        Skill skill = SkillData.getSkill(skillId);
+        if (skill == null) {
+            return;
+        }
+        Skill curSkill = player.getSkill(skill.getSkillId());
+        byte jobLevel = (byte) JobConstants.getJobLevel((short) skill.getRootId());
+        if (JobConstants.isZero((short) skill.getRootId())) {
+            jobLevel = JobConstants.getJobLevelByZeroSkillID(skillId);
+        }
+        Map<MapleStat, Long> stats;
+        int rootId = skill.getRootId();
+        if ((!JobConstants.isBeginnerJob((short) rootId) && !SkillConstants.isMatching(rootId, player.getJobId())) || SkillConstants.isSkillFromItem(skillId)) {
+            log.error(String.format("Character %d tried adding an invalid skill (job %d, skill id %d)",
+                    player.getId(), skillId, rootId));
+            return;
+        }
+        if (JobConstants.isBeginnerJob((short) rootId)) {
+            stats = new HashMap<>();
+            int spentSp = player.getSkills().stream()
+                    .filter(s -> JobConstants.isBeginnerJob((short) s.getRootId()))
+                    .mapToInt(Skill::getCurrentLevel).sum();
+            int totalSp;
+            if (JobConstants.isResistance((short) skill.getRootId())) {
+                totalSp = Math.min(player.getLevel(), GameConstants.RESISTANCE_SP_MAX_LV) - 1; // sp gained from 2~10
+            } else {
+                totalSp = Math.min(player.getLevel(), GameConstants.BEGINNER_SP_MAX_LV) - 1; // sp gained from 2~7
+            }
+            if (totalSp - spentSp >= level) {
+                int curLevel = curSkill == null ? 0 : curSkill.getCurrentLevel();
+                int max = curSkill == null ? skill.getMaxLevel() : curSkill.getMaxLevel();
+                int newLevel = Math.min(curLevel + level, max);
+                skill.setCurrentLevel(newLevel);
+            }
+        } else if (JobConstants.isExtendSpJob((short) player.getJobId())) {
+            int[] remainingSps = player.getRemainingSps();
+            int remainingSp = remainingSps[jobLevel - 1];
+            if (remainingSp >= level) {
+                int curLevel = curSkill == null ? 0 : curSkill.getCurrentLevel();
+                int max = curSkill == null ? skill.getMaxLevel() : curSkill.getMaxLevel();
+                int newLevel = Math.min(curLevel + level, max);
+                skill.setCurrentLevel(newLevel);
+                remainingSps[jobLevel - 1] = remainingSp - level;
+                player.setRemainingSp(remainingSps);
+                stats = new HashMap<>();
+                stats.put(MapleStat.AVAILABLESP, (long) 1);
+            } else {
+                log.error(String.format("Character %d tried adding a skill without having the required amount of sp" +
+                                " (required %d, has %d)",
+                        player.getId(), remainingSp, level));
+                return;
+            }
+        } else {
+            int[] remainingSps = player.getRemainingSps();
+            int currentSp = remainingSps[0];
+            if (currentSp >= level) {
+                int curLevel = curSkill == null ? 0 : curSkill.getCurrentLevel();
+                int max = curSkill == null ? skill.getMaxLevel() : curSkill.getMaxLevel();
+                int newLevel = Math.min(curLevel + level, max);
+                skill.setCurrentLevel(newLevel);
+                remainingSps[0] = currentSp - level;
+                player.setRemainingSp(remainingSps);
+                stats = new HashMap<>();
+                stats.put(MapleStat.AVAILABLESP, (long) 1);
+            } else {
+                log.error(String.format("Character %d tried adding a skill without having the required amount of sp" +
+                                " (required %d, has %d)",
+                        player.getId(), currentSp, level));
+                return;
+            }
+        }
+
+        c.announce(MaplePacketCreator.updatePlayerStats(stats, player));
+        player.addSkill(skill);
+        c.announce(PlayerPacket.changeSkillRecordResult(skill));
+
+    }
+
+
+    //自动回复
+    public static void handleChangeStatRequest(SeekableLittleEndianAccessor slea, MapleClient c) {
+
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        player.setTick(slea.readInt());
+        long mask = slea.readLong();
+        List<MapleStat> stats = MapleStat.getStatsByMask(mask);
+        HashMap<MapleStat, Long> updatedStats = new HashMap<>();
+        for (MapleStat stat : stats) {
+            updatedStats.put(stat, (long) slea.readShort());
+        }
+        if (updatedStats.containsKey(MapleStat.HP)) {
+            player.heal(Math.toIntExact(updatedStats.get(MapleStat.HP)));
+        }
+        if (updatedStats.containsKey(MapleStat.MP)) {
+            player.healMP(Math.toIntExact(updatedStats.get(MapleStat.MP)));
+        }
+//        c.announce(MaplePacketCreator.updatePlayerStats(updatedStats, player));
     }
 }

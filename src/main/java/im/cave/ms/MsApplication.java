@@ -1,6 +1,7 @@
 package im.cave.ms;
 
 import im.cave.ms.net.server.Server;
+import im.cave.ms.provider.data.SkillData;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

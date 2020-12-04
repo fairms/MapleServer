@@ -1,14 +1,20 @@
 package im.cave.ms.net.packet;
 
+import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.movement.MovementInfo;
+import im.cave.ms.client.skill.Skill;
 import im.cave.ms.enums.InventoryOperation;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.net.packet.opcode.SendOpcode;
+import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+import io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueue;
 
+import java.nio.file.attribute.FileTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -205,6 +211,56 @@ public class PlayerPacket {
             mplew.writeInt(equip.getPos());
         }
         mplew.writeBool(true);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter sendRebirthConfirm(boolean onDeadRevive, boolean onDeadProtectForBuff, boolean onDeadProtectBuffMaplePoint,
+                                                                   boolean onDeadProtectExpMaplePoint, boolean anniversary, int reviveType, int protectType) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.DEATH_CONFIRM.getValue());
+        int reviveMask = 0;
+        if (onDeadRevive) {
+            reviveMask |= 0x1;
+        }
+        if (onDeadProtectForBuff) {
+            reviveMask |= 0x2;
+        }
+        if (onDeadProtectBuffMaplePoint) {
+            reviveMask |= 0x4;
+        }
+        if (onDeadProtectExpMaplePoint) {
+            reviveMask |= 0x8;
+        }
+        mplew.writeInt(reviveMask);
+        mplew.writeBool(anniversary);
+        mplew.writeInt(reviveType);
+        if (onDeadProtectForBuff || onDeadProtectExpMaplePoint) {
+            mplew.writeInt(protectType);
+        }
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter changeSkillRecordResult(Skill skill) {
+        List<Skill> skills = new ArrayList<>();
+        skills.add(skill);
+        return changeSkillRecordResult(skills, true, false, false, false);
+    }
+
+    public static MaplePacketLittleEndianWriter changeSkillRecordResult(List<Skill> skills, boolean exclRequestSent, boolean showResult
+            , boolean removeLinkSkill, boolean sn) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.CHANGE_SKILL_RESULT.getValue());
+        mplew.writeBool(exclRequestSent);
+        mplew.writeBool(showResult);
+        mplew.writeBool(removeLinkSkill);
+        mplew.writeShort(skills.size());
+        for (Skill skill : skills) {
+            mplew.writeInt(skill.getSkillId());
+            mplew.writeInt(skill.getCurrentLevel());
+            mplew.writeInt(skill.getMasterLevel());
+            mplew.writeLong(DateUtil.getFileTime(-1));
+        }
+        mplew.writeBool(sn);
         return mplew;
     }
 }

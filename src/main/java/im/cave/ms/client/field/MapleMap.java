@@ -14,6 +14,7 @@ import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.FieldOption;
 import im.cave.ms.enums.FieldType;
 import im.cave.ms.net.packet.ChannelPacket;
+import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.service.EventManager;
 import im.cave.ms.scripting.map.MapScriptManager;
@@ -101,7 +102,6 @@ public class MapleMap {
     public void addPlayer(MapleCharacter chr) {
         characters.add(chr);
         chr.setMapId(id);
-
         MapScriptManager msm = MapScriptManager.getInstance();
         int charSize = characters.size();
         if (charSize == 1) {
@@ -113,7 +113,8 @@ public class MapleMap {
             msm.runMapScript(chr.getClient(), "onUserEnter/" + onUserEnter, false);
         }
         broadcastSpawnPlayerMapObjectMessage(chr, chr, true);
-
+        chr.announce(PlayerPacket.hiddenEffectEquips(chr)); //maybe broadcast
+        chr.setJob(chr.getJob());
         sendMapObject(chr);
     }
 

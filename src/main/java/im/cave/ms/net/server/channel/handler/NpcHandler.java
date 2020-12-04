@@ -1,19 +1,23 @@
-package im.cave.ms.net.handler.channel;
+package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Npc;
+import im.cave.ms.client.movement.Movement;
+import im.cave.ms.client.movement.MovementInfo;
+import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.NpcMessageType;
+import im.cave.ms.net.packet.NpcPacket;
+import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.provider.data.NpcData;
 import im.cave.ms.provider.service.EventManager;
 import im.cave.ms.scripting.npc.NpcConversationManager;
 import im.cave.ms.scripting.npc.NpcScriptManager;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
-
-import java.awt.*;
+import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
 /**
  * @author fair
@@ -29,7 +33,7 @@ public class NpcHandler {
         MapleMapObj obj = map.getObj(objId);
         Position playerPos = slea.readPos();
         if (!(obj instanceof Npc)) {
-            player.chatMessage();
+            player.chatMessage(ChatType.Purple, "Unknown Error");
             return;
         }
         Npc npc = (Npc) obj;
@@ -80,5 +84,40 @@ public class NpcHandler {
             default:
                 cm.dispose();
         }
+    }
+
+    public static void handleNpcAnimation(SeekableLittleEndianAccessor slea, MapleClient c) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.NPC_ANIMATION.getValue());
+        int objectID = slea.readInt();
+        byte oneTimeAction = slea.readByte();
+        byte chatIdx = slea.readByte();
+        int duration = slea.readInt();
+        byte keyPadState = 0;
+        MovementInfo movement = null;
+        MapleMapObj obj = c.getPlayer().getMap().getObj(objectID);
+        if (obj instanceof Npc && ((Npc) obj).isMove()) {
+            Npc npc = (Npc) obj;
+            if (slea.available() > 0) {
+                movement = new MovementInfo(npc.getPosition(), npc.getVPosition());
+                movement.decode(slea);
+                for (Movement m : movement.getMovements()) {
+                    Position pos = m.getPosition();
+                    Position vPos = m.getVPosition();
+                    if (pos != null) {
+                        npc.setPosition(pos);
+                    }
+                    if (vPos != null) {
+                        npc.setVPosition(vPos);
+                    }
+                    npc.setMoveAction(m.getMoveAction());
+                    npc.setFh(m.getFh());
+                }
+                if (slea.available() > 0) {
+                    keyPadState = slea.readByte();
+                }
+            }
+        }
+        c.announce(NpcPacket.npcMove(objectID, oneTimeAction, chatIdx, duration, movement, keyPadState));
     }
 }

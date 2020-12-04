@@ -1,6 +1,7 @@
-package im.cave.ms.net.handler;
+package im.cave.ms.net.server;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.field.obj.Npc;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
@@ -11,6 +12,7 @@ import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.MobPacket;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.MobData;
+import im.cave.ms.provider.data.NpcData;
 import im.cave.ms.tools.HexTool;
 import im.cave.ms.tools.Util;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
@@ -51,11 +53,26 @@ public class CommandHandler {
                     if (mob == null) {
                         return;
                     }
+                    mob.setPosition(c.getPlayer().getPosition());
                     c.getPlayer().getMap().addLife(mob);
                     c.announce(MaplePacketCreator.spawnMob(mob));
                     c.announce(MaplePacketCreator.mobChangeController(mob));
                 }
                 break;
+            case "npc":
+                if (s.length < 2) {
+                    return;
+                }
+                if (s[1] != null && !s[1].equals("") && Util.isNumber(s[1])) {
+                    Npc npc = NpcData.getNpcDataFromWz(Integer.parseInt(s[1]));
+                    if (npc == null) {
+                        return;
+                    }
+                    npc.setPosition(c.getPlayer().getPosition());
+                    c.getPlayer().getMap().addLife(npc);
+                    c.announce(MaplePacketCreator.spawnNpc(npc));
+                    c.announce(MaplePacketCreator.spawnNpcController(npc));
+                }
             case "ea":
                 c.getPlayer().setConversation(false);
                 c.announce(MaplePacketCreator.enableActions());

@@ -1,9 +1,13 @@
 package im.cave.ms.client.field.obj.mob;
 
+import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.MapleMapObj;
+import im.cave.ms.config.WorldConfig;
+import im.cave.ms.constants.GameConstants;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.MobPacket;
 import im.cave.ms.tools.Position;
@@ -108,7 +112,7 @@ public class Mob extends MapleMapObj {
     private int charismaEXP;
     private boolean isSplit;
     private int splitLink;
-    private Map<MapleCharacter, Long> damageDone = new HashMap<>();
+    private Map<MapleCharacter, Long> injuryStatistics = new HashMap<>();
     //    private Set<DropInfo> drops = new HashSet<>();
 //    private List<MobSkill> skills = new ArrayList<>();
 //    private List<MobSkill> attacks = new ArrayList<>();
@@ -338,6 +342,7 @@ public class Mob extends MapleMapObj {
     }
 
     public void damage(MapleCharacter chr, long damage) {
+        addDamage(chr, damage);
         long maxHp = getMaxHp();
         long hp = getHp();
         hp = hp - damage;
@@ -351,6 +356,15 @@ public class Mob extends MapleMapObj {
 
     }
 
+    private void addDamage(MapleCharacter chr, long damage) {
+        long cur = 0;
+        if (getInjuryStatistics().containsKey(chr)) {
+            cur = getInjuryStatistics().get(chr);
+        }
+        cur += Math.min(damage, getHp());
+        getInjuryStatistics().put(chr, cur);
+    }
+
     private void die() {
         MapleMap map = getMap();
         map.broadcastMessage(MobPacket.removeMob(getObjectId(), ANIMATION_DEATH));
@@ -360,7 +374,23 @@ public class Mob extends MapleMapObj {
     }
 
     private void distributeExp() {
+        long exp = getForcedMobStat().getExp();
+        long totalDamage = getInjuryStatistics().values().stream().mapToLong(l -> l).sum();
+        for (MapleCharacter chr : getInjuryStatistics().keySet()) {
+            double damagePercent = getInjuryStatistics().get(chr) / (double) totalDamage;
+            int mobExpRate = chr.getLevel() < 10 ? 1 : WorldConfig.config.getWorldInfo(chr.getWorld()).exp_rate;
+            long appliedExpPre = (long) (exp * damagePercent * mobExpRate);
+            long appliedExpPost = appliedExpPre;
+            ExpIncreaseInfo expIncreaseInfo = new ExpIncreaseInfo();
 
+            //Burning map todo
+
+            //+exp mob stat todo
+            expIncreaseInfo.setLastHit(true);
+            expIncreaseInfo.setIncEXP((int) appliedExpPre);
+            chr.addExp(appliedExpPost, expIncreaseInfo);
+
+        }
     }
 
     private void dropDrops() {

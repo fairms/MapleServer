@@ -1,4 +1,4 @@
-package im.cave.ms.net.handler.channel;
+package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
@@ -6,6 +6,9 @@ import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.items.ItemBuffs;
+import im.cave.ms.client.items.ItemInfo;
+import im.cave.ms.client.items.SpecStat;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.InventoryType;
@@ -13,6 +16,8 @@ import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+
+import java.util.Map;
 
 import static im.cave.ms.enums.InventoryOperation.MOVE;
 import static im.cave.ms.enums.InventoryOperation.REMOVE;
@@ -46,7 +51,7 @@ public class InventoryHandler {
         if (newPos == 0) {
             Drop drop;
             boolean fullDrop;
-                if (!item.getInvType().isStackable() || quantity >= item.getQuantity()
+            if (!item.getInvType().isStackable() || quantity >= item.getQuantity()
                     || ItemConstants.isThrowingStar(item.getItemId()) || ItemConstants.isBullet(item.getItemId())) {
                 fullDrop = true;
                 player.getInventory(invTypeFrom).removeItem(item);
@@ -89,5 +94,27 @@ public class InventoryHandler {
             c.announce(PlayerPacket.inventoryOperation(true, false, MOVE, oldPos, newPos, 0, item));
         }
 
+    }
+
+    public static void handleUseItem(SeekableLittleEndianAccessor slea, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        player.setTick(slea.readInt());
+        short pos = slea.readShort();
+        int itemId = slea.readInt();
+        Item item = player.getConsumeInventory().getItem(pos);
+        if (item == null || item.getItemId() != itemId) {
+            return;
+        }
+        ItemInfo itemInfo = ItemData.getItemById(itemId);
+        Map<SpecStat, Integer> specStats = itemInfo.getSpecStats();
+        if (specStats.size() > 0) {
+            ItemBuffs.giveItemBuffsFromItemID(player, itemId);
+            player.consumeItem(item);
+        } else {
+            player.consumeItem(item);
+        }
     }
 }
