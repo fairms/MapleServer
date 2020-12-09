@@ -88,4 +88,8 @@ public class AbstractPlayerInteraction {
     public void serverMsg(String content) {
         c.announce(ChannelPacket.chatMessage(content, ChatType.Tip));
     }
+
+    public void dropMessage(String content) {
+        c.getPlayer().dropMessage(content);
+    }
 }

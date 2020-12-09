@@ -89,11 +89,17 @@ public class ItemData {
 
 
     public static Equip getEquipById(int equipId) {
-        return getEquips().getOrDefault(equipId, getEquipFromWz(equipId));
+        if(!equips.containsKey(equipId)){
+            return getEquipFromWz(equipId);
+        }
+        return equips.get(equipId);
     }
 
     public static ItemInfo getItemById(int itemId) {
-        return getItems().getOrDefault(itemId, getItemFromWz(itemId));
+        if(!items.containsKey(itemId)){
+            return getItemFromWz(itemId);
+        }
+        return items.get(itemId);
     }
 
 
@@ -796,7 +802,7 @@ public class ItemData {
     private static MapleData getItemData(int itemId) {
         boolean equip = ItemConstants.isEquip(itemId);
         MapleData ret;
-        String idStr = "0" + itemId;
+        String idStr = StringUtil.getLeftPaddedStr(String.valueOf(itemId), '0', 8);
         MapleDataDirectoryEntry root;
         if (equip) {
             root = chrData.getRoot();
@@ -807,22 +813,23 @@ public class ItemData {
                     }
                 }
             }
-        }
-        root = itemData.getRoot();
-        for (MapleDataDirectoryEntry topDir : root.getSubdirectories()) {
-            for (MapleDataFileEntry iFile : topDir.getFiles()) {
-                if (iFile.getName().equals(idStr.substring(0, 4) + ".img")
-                        || iFile.getName().equals(idStr.substring(0, 5) + ".img")
-                        || iFile.getName().equals(idStr.substring(0, 7) + ".img")
-                ) {
-                    ret = itemData.getData(topDir.getName() + "/" + iFile.getName());
-                    if (ret == null) {
-                        return null;
+        } else {
+            root = itemData.getRoot();
+            for (MapleDataDirectoryEntry topDir : root.getSubdirectories()) {
+                for (MapleDataFileEntry iFile : topDir.getFiles()) {
+                    if (iFile.getName().equals(idStr.substring(0, 4) + ".img")
+                            || iFile.getName().equals(idStr.substring(0, 5) + ".img")
+                            || iFile.getName().equals(idStr.substring(0, 7) + ".img")
+                    ) {
+                        ret = itemData.getData(topDir.getName() + "/" + iFile.getName());
+                        if (ret == null) {
+                            return null;
+                        }
+                        ret = ret.getChildByPath(idStr);
+                        return ret;
+                    } else if (iFile.getName().equals(idStr.substring(1) + ".img")) {
+                        return itemData.getData(topDir.getName() + "/" + iFile.getName());
                     }
-                    ret = ret.getChildByPath(idStr);
-                    return ret;
-                } else if (iFile.getName().equals(idStr.substring(1) + ".img")) {
-                    return itemData.getData(topDir.getName() + "/" + iFile.getName());
                 }
             }
         }

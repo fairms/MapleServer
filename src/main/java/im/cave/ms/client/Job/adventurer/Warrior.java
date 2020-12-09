@@ -1,0 +1,187 @@
+package im.cave.ms.client.Job.adventurer;
+
+import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.skill.AttackInfo;
+import im.cave.ms.client.skill.Skill;
+import im.cave.ms.client.skill.SkillInfo;
+import im.cave.ms.client.skill.SkillStat;
+import im.cave.ms.constants.JobConstants;
+import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.tools.Util;
+import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Booster;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ComboCounter;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePAD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.PowerGuard;
+import static im.cave.ms.client.skill.SkillStat.indiePad;
+import static im.cave.ms.client.skill.SkillStat.indiePowerGuard;
+import static im.cave.ms.client.skill.SkillStat.time;
+import static im.cave.ms.client.skill.SkillStat.x;
+
+/**
+ * @author fair
+ * @version V1.0
+ * @Package im.cave.ms.client.Job.adventurer
+ * @date 12/7 19:55
+ */
+public class Warrior extends Beginner {
+    public static final int IRON_BODY = 1000003;
+    public static final int WARRIOR_MASTERY = 1000009;
+    //HERO
+    public static final int HERO_WEAPON_BOOSTER = 1101004;
+    public static final int HERO_RAGE = 1101006;
+    public static final int HERO_COMBO_ATTACK = 1101013;
+    public static final int HERO_FINAL_ATTACK = 1100002;
+    public static final int HER0_PHYSICAL_TRAINING = 1100009;
+    //KNIGHT
+
+    private final AtomicInteger comboCount = new AtomicInteger(1);
+
+    private static final int[] buffs = new int[]{
+            HERO_WEAPON_BOOSTER,
+            HERO_RAGE,
+            HERO_COMBO_ATTACK
+    };
+
+    private static final int[] passive = new int[]{
+            IRON_BODY,
+            WARRIOR_MASTERY,
+            HER0_PHYSICAL_TRAINING
+    };
+
+    public Warrior(MapleCharacter chr) {
+        super(chr);
+        if (chr != null && JobConstants.isHero(chr.getJobId())) {
+            if (!chr.hasSkill(HERO_COMBO_ATTACK)) {
+                Skill skill = SkillData.getSkill(HERO_COMBO_ATTACK);
+                Objects.requireNonNull(skill).setCurrentLevel(1);
+                chr.addSkill(skill);
+            }
+        }
+    }
+
+    @Override
+    public void handleSkill(MapleClient c, int skillId, int skillLevel, SeekableLittleEndianAccessor slea) {
+        super.handleSkill(c, skillId, skillLevel, slea);
+        if (isBuff(skillId)) {
+            handleBuff(c, slea, skillId, skillLevel);
+        }
+    }
+
+    @Override
+    public void handleAttack(MapleClient c, AttackInfo attackInfo) {
+        MapleCharacter player = c.getPlayer();
+        TemporaryStatManager tsm = player.getTemporaryStatManager();
+        Skill skill = player.getSkill(attackInfo.skillId);
+        SkillInfo si = null;
+        if (skill != null) {
+            si = SkillData.getSkillInfo(attackInfo.skillId);
+        }
+        boolean hasHitMobs = attackInfo.mobCount > 0;
+        if (JobConstants.isHero(player.getJobId())) {
+            if (hasHitMobs) {
+                int comboProp = getComboProp(chr);
+                if (Util.succeedProp(comboProp)) {
+                    incCombo(chr);
+                }
+            }
+        }
+    }
+
+    private void incCombo(MapleCharacter chr) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (!tsm.hasStat(ComboCounter)) {
+            return;
+        }
+        int combo = comboCount.get();
+        int maxCombo = getMaxCombo(chr);
+        if (combo < maxCombo) {
+            combo = comboCount.getAndIncrement();
+        }
+        Option option = new Option();
+        option.nOption = combo;
+        option.rOption = HERO_COMBO_ATTACK;
+        tsm.putCharacterStatValue(ComboCounter, option);
+        tsm.sendSetStatPacket();
+    }
+
+    @Override
+    public void handleBuff(MapleClient c, SeekableLittleEndianAccessor slea, int skillId, int slv) {
+        super.handleBuff(c, slea, skillId, slv);
+        MapleCharacter player = c.getPlayer();
+        TemporaryStatManager tsm = player.getTemporaryStatManager();
+        SkillInfo skillInfo = SkillData.getSkillInfo(skillId);
+        boolean sendStat = true;
+        Option o = new Option();
+        Option oo = new Option();
+        switch (skillId) {
+            case HERO_WEAPON_BOOSTER:
+                o.nOption = skillInfo.getValue(x, slv);
+                o.rOption = skillId;
+                o.tOption = skillInfo.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o);
+                break;
+            case HERO_RAGE:
+                o.nReason = skillId;
+                o.nValue = skillInfo.getValue(indiePad, slv);
+                o.tTerm = skillInfo.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o);
+                oo.nOption = skillInfo.getValue(indiePowerGuard, slv); //减伤百分比
+                oo.rOption = skillId;
+                oo.tOption = skillInfo.getValue(time, slv);
+                tsm.putCharacterStatValue(PowerGuard, oo);
+                break;
+            case HERO_COMBO_ATTACK:
+                comboCount.set(1);
+                o.nOption = comboCount.get();
+                o.rOption = skillId;
+                o.tOption = 0;
+                tsm.putCharacterStatValue(ComboCounter, o);
+                break;
+            default:
+                sendStat = false;
+        }
+        if (sendStat) {
+            tsm.sendSetStatPacket();
+        }
+    }
+
+    @Override
+    public boolean isBuff(int skillId) {
+        return super.isBuff(skillId) || Arrays.stream(buffs).anyMatch(b -> b == skillId);
+    }
+
+
+    private int getComboProp(MapleCharacter chr) {
+        Skill skill = null;
+        if (chr.hasSkill(1110013)) {    //Combo Synergy
+            skill = chr.getSkill(1110013);
+        } else if (chr.hasSkill(HERO_COMBO_ATTACK)) {
+            skill = chr.getSkill(HERO_COMBO_ATTACK);
+        }
+        if (skill == null) {
+            return 0;
+        }
+        return SkillData.getSkillInfo(skill.getSkillId()).getValue(SkillStat.prop, skill.getCurrentLevel());
+    }
+
+
+    private int getMaxCombo(MapleCharacter chr) {
+        int num = 0;
+        if (chr.hasSkill(HERO_COMBO_ATTACK)) {
+            num = 6;
+        }
+//        if (chr.hasSkill(ADVANCED_COMBO)) {
+//            num = 11;
+//        }
+        return num;
+    }
+}

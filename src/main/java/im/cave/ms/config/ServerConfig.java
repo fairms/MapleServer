@@ -37,4 +37,5 @@ public class ServerConfig {
             throw new RuntimeException(message);
         }
     }
+
 }

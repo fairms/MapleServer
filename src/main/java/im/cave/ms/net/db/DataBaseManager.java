@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class DataBaseManager {
         synchronized (obj) {
             try (Session session = getSession()) {
                 Transaction t = session.beginTransaction();
-                session.saveOrUpdate(obj);
+                session.saveOrUpdate(session.merge(obj));
                 t.commit();
             }
         }

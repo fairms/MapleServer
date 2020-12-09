@@ -78,6 +78,7 @@ public class LoginPacket {
         return mplew;
     }
 
+    private static int num = 1;
 
     public static MaplePacketLittleEndianWriter loginResult(MapleClient c, LoginType result) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
@@ -216,18 +217,21 @@ public class LoginPacket {
         return mplew;
     }
 
-    public static MaplePacketLittleEndianWriter getChannel(int port, int charId) {
+    public static MaplePacketLittleEndianWriter selectCharacterResult(LoginType loginType, byte errorCode, int port, int charId) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SERVER_IP.getValue());
-        mplew.writeShort(0);
-        mplew.write(ServerConstants.NEXON_IP);
-        mplew.writeShort(port);
-        mplew.writeInt(-1640004628);
-        mplew.writeInt(charId);
-        mplew.writeInt(0);
-        mplew.writeShort(5120);
-        mplew.writeShort(1000);
-        mplew.writeZeroBytes(6);
+        mplew.write(loginType.getValue());
+        mplew.write(errorCode);
+        if (loginType.equals(LoginType.Success)) {
+            mplew.write(ServerConstants.NEXON_IP);
+            mplew.writeShort(port);
+            mplew.writeInt(0);
+            mplew.writeInt(charId);
+            mplew.writeInt(0);
+            mplew.writeShort(5120);
+            mplew.writeShort(1000);
+            mplew.writeZeroBytes(6);
+        }
         return mplew;
     }
 

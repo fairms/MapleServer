@@ -64,7 +64,8 @@ public class ByteArrayByteStream implements SeekableInputStreamBytestream {
             System.arraycopy(arr, pos, now, 0, arr.length - pos);
             nows = HexTool.toString(now);
         }
-        return "All: " + HexTool.toString(arr);
+//        return "All:" + HexTool.toString(arr);
+        return "Packet:" + nows;
     }
 
     @Override

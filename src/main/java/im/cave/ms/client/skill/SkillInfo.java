@@ -52,6 +52,7 @@ public class SkillInfo {
     private Map<Integer, Integer> extraSkillInfo = new HashMap<>();
     private boolean ignoreCounter;
     private boolean areaAttack;
+    public List<Map<SkillStat, String>> levels;
 
     public int getSkillId() {
         return skillId;
@@ -99,6 +100,15 @@ public class SkillInfo {
 
     public int getValue(SkillStat skillStat, int slv) {
         int result = 0;
+        if (levels != null) {
+            Map<SkillStat, String> stats = levels.get(slv - 1);
+            String value = stats.get(skillStat);
+            if (value == null) {
+                return 0;
+            } else {
+                return Integer.parseInt(value);
+            }
+        }
         String value = getSkillStatInfo().get(skillStat);
         if (value == null || slv == 0) {
             return 0;
@@ -185,11 +195,12 @@ public class SkillInfo {
 
     public Map<BaseStat, Integer> getBaseStatValues(MapleCharacter chr, int slv, int skillID) {
         Map<BaseStat, Integer> stats = new HashMap<>();
-        chr.chatMessage(ChatType.Mob, "SkillID : " + skillID);
         for (SkillStat ss : getSkillStatInfo().keySet()) {
             Tuple<BaseStat, Integer> bs = getBaseStatValue(ss, slv, chr);
+            if (bs == null) {
+                continue;
+            }
             stats.put(bs.getLeft(), bs.getRight());
-            chr.chatMessage(ChatType.Mob, ss.name() + " : " + bs.getRight());
         }
         if (skillID == 20010194) {
             stats.put(BaseStat.mhpR, 15);
@@ -199,6 +210,9 @@ public class SkillInfo {
 
     private Tuple<BaseStat, Integer> getBaseStatValue(SkillStat ss, int slv, MapleCharacter chr) {
         BaseStat bs = ss.getBaseStat();
+        if (bs == null) {
+            return null;
+        }
         int value = getValue(ss, slv);
         switch (ss) {
             case lv2damX:

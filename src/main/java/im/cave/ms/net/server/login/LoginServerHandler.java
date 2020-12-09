@@ -3,6 +3,7 @@ package im.cave.ms.net.server.login;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.net.server.ErrorPacketHandler;
 import im.cave.ms.net.server.login.handler.CharSelectedHandler;
 import im.cave.ms.net.server.login.handler.CharlistRequestHandler;
@@ -33,7 +34,8 @@ import static im.cave.ms.client.MapleClient.CLIENT_KEY;
  * @date 11/19 19:40
  */
 public class LoginServerHandler extends SimpleChannelInboundHandler<SeekableLittleEndianAccessor> {
-    private static final Logger log = LoggerFactory.getLogger("LoginServer");
+
+    private static final Logger log = LoggerFactory.getLogger(LoginServerHandler.class);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -51,16 +53,15 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<SeekableLitt
     public void channelInactive(ChannelHandlerContext ctx) {
         log.debug("[ChannelHandler] | Channel inactive.");
         MapleClient c = ctx.channel().attr(CLIENT_KEY).get();
-        Account account = c.getAccount();
-        MapleCharacter player = c.getPlayer();
-        if (player != null && !player.isChangingChannel()) {
-            player.logout();
-        } else if (player != null && player.isChangingChannel()) {
-            player.setChangingChannel(false);
-        } else if (account != null) {
-            account.logout();
+        if (c != null) {
+            Account account = c.getAccount();
+            if (account != null && c.getLoginStatus() == LoginStatus.SERVER_TRANSITION) {
+                c.close();
+            } else if (account != null) {
+                account.logout();
+            }
+            c.close();
         }
-        c.close();
     }
 
     @Override

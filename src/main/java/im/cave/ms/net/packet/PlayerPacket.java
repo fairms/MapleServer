@@ -1,7 +1,8 @@
 package im.cave.ms.net.packet;
 
-import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.temp.CharacterTemporaryStat;
+import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.movement.MovementInfo;
@@ -11,11 +12,11 @@ import im.cave.ms.enums.InventoryType;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
-import io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueue;
 
-import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
@@ -261,6 +262,56 @@ public class PlayerPacket {
             mplew.writeLong(DateUtil.getFileTime(-1));
         }
         mplew.writeBool(sn);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter skillCoolTimes(Map<Integer, Integer> cooltimes) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SKILL_COOLTIME.getValue());
+        mplew.writeInt(cooltimes.size());
+        cooltimes.forEach((id, cooltime) -> {
+            mplew.writeInt(id);
+            mplew.writeInt(cooltime);
+        });
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter skillCoolDown(int skillId) {
+        HashMap<Integer, Integer> skills = new HashMap<>();
+        skills.put(skillId, 0);
+        return skillCoolTimes(skills);
+    }
+
+
+    public static MaplePacketLittleEndianWriter removeBuff(TemporaryStatManager tsm, boolean demount) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.REMOVE_BUFF.getValue());
+        mplew.writeInt(0);
+        mplew.write(1);
+        mplew.write(1);
+        for (int i : tsm.getRemovedMask()) {
+            mplew.writeInt(i);
+        }
+        tsm.getRemovedStats().forEach((characterTemporaryStat, options) -> {
+            mplew.writeInt(0);
+        });
+        if (demount) {
+            mplew.writeBool(true);
+        }
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter giveBuff(TemporaryStatManager tsm) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
+        mplew.writeZeroBytes(8);
+        tsm.encodeForLocal(mplew);
+        //unk
+        mplew.write(1);
+        mplew.write(1);
+        mplew.write(1);
+        mplew.writeInt(0);
+        mplew.write(0);  //sometimes
         return mplew;
     }
 }

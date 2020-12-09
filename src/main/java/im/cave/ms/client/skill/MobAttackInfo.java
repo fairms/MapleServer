@@ -5,7 +5,7 @@ import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
 
 public class MobAttackInfo {
-    public int mobId;
+    public int objectId;
     public byte hitAction;
     public byte left;
     public byte idk3;
@@ -44,7 +44,7 @@ public class MobAttackInfo {
 
     public MobAttackInfo deepCopy() {
         MobAttackInfo mai = new MobAttackInfo();
-        mai.mobId = mobId;
+        mai.objectId = objectId;
         mai.hitAction = hitAction;
         mai.left = left;
         mai.idk3 = idk3;
@@ -57,12 +57,12 @@ public class MobAttackInfo {
         mai.oldPosY = oldPosY;
         mai.hpPerc = hpPerc;
         mai.damages = new long[damages.length];
-        if(damages.length > 0) {
+        if (damages.length > 0) {
             System.arraycopy(damages, 0, mai.damages, 0, damages.length);
         }
         mai.mobUpDownYRange = mobUpDownYRange;
         mai.animationDeltaL = animationDeltaL;
-        if(hitPartRunTimes != null && hitPartRunTimes.length > 0) {
+        if (hitPartRunTimes != null && hitPartRunTimes.length > 0) {
             System.arraycopy(hitPartRunTimes, 0, mai.hitPartRunTimes, 0, hitPartRunTimes.length);
         }
         mai.templateID = templateID;

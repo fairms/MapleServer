@@ -20,8 +20,8 @@ public class CharlistRequestHandler {
         int channel = slea.readByte();
         c.setWorld(worldId);
         c.setChannel(channel);
-        c.announce(LoginPacket.account(c.getAccount()));
         List<MapleCharacter> characters = c.loadCharacters(worldId, false);
         c.announce(LoginPacket.charList(c, characters, 0));
+        c.announce(LoginPacket.account(c.getAccount()));
     }
 }

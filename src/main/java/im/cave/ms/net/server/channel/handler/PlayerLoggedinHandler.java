@@ -1,14 +1,19 @@
 package im.cave.ms.net.server.channel.handler;
 
+import im.cave.ms.client.Job.JobManager;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.net.server.channel.MapleChannel;
 import im.cave.ms.net.server.world.World;
+import im.cave.ms.tools.Pair;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+
+import java.util.Arrays;
 
 /**
  * @author fair
@@ -19,20 +24,39 @@ import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 public class PlayerLoggedinHandler {
 
     public static void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        slea.readInt();
+        int worldId = slea.readInt();
         int charId = slea.readInt();
         byte[] machineId = slea.read(16);
-        c.setMachineID(machineId);
-        World world = Server.getInstance().getWorldById(c.getWorld());
-        MapleChannel channel = world.getChannel(c.getChannel());
-        MapleCharacter player = channel.getPlayer(charId);
+        Pair<Byte, MapleClient> transInfo = Server.getInstance().getClientTransInfo(charId);
+        if (transInfo == null) {
+            c.close();
+            return;
+        }
+        MapleClient oldClient = transInfo.getRight();
+//        if (!Arrays.equals(oldClient.getMachineID(), machineId) ||) {
+//            c.close();
+//            return;
+//        }
+        MapleCharacter player = oldClient.getPlayer();
         if (player == null) {
             c.close();
             return;
         }
-        player.setChannel(channel.getChannelId());
+        Byte channel = transInfo.getLeft();
+        c.setMachineID(machineId);
+        c.setWorld(worldId);
+        c.setChannel(channel);
+        c.setAccount(oldClient.getAccount());
+        Server.getInstance().removeTransfer(charId);
+        MapleChannel mapleChannel = c.getMapleChannel();
         player.setClient(c);
+        player.setAccount(c.getAccount());
+        player.setChannel(channel);
         c.setPlayer(player);
+        c.setLoginStatus(LoginStatus.LOGGEDIN);
+        mapleChannel.addPlayer(player);
+        Server.getInstance().addAccount(c.getAccount());
+        player.setJobHandler(JobManager.getJobById(player.getJobId(), player));
         //加密后的Opcode
         c.announce(MaplePacketCreator.encodeOpcodes(c));
 
@@ -44,7 +68,7 @@ public class PlayerLoggedinHandler {
         }
         c.announce(ChannelPacket.getWarpToMap(player, true));
         player.getMap().addPlayer(player);
-
+        player.initBaseStats();
         c.announce(LoginPacket.account(player.getAccount()));
     }
 }

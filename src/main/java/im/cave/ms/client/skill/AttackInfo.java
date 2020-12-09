@@ -18,12 +18,13 @@ public class AttackInfo {
     public byte hits;
     public int mobCount;
     public int skillId;
-    public int slv;
+    public int skillLevel;
     public int keyDown;
     public byte idk;
     public boolean left;
     public short attackAction;
     public byte attackActionType;
+    public byte direction;
     public byte idk0;
     public byte attackSpeed;
     public byte reduceCount;

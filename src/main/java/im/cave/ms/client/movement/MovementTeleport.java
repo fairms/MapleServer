@@ -20,7 +20,7 @@ public class MovementTeleport extends MovementBase {
         position = new Position(x, y);
 
         fh = slea.readShort();
-
+        slea.readInt(); // unk
         moveAction = slea.readByte();
         elapse = slea.readShort();
         forcedStop = slea.readByte();

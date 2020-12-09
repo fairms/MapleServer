@@ -19,13 +19,13 @@ public class NpcPacket {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         int overrideTemplate = nsi.getOverrideSpeakerTemplateID();
         mplew.writeShort(SendOpcode.NPC_TALK.getValue());
-        mplew.write(nsi.getSpeakerType());
+        mplew.write(nsi.getSpeakerType()); //always 4
         mplew.writeInt(nsi.getTemplateID());
-        mplew.write(1);
-        mplew.writeInt(0);
-        mplew.write(type.getVal());
-        mplew.writeShort(nsi.getParam());
-        mplew.write(nsi.getColor());
+        mplew.write(1); //override ?
+        mplew.writeInt(0); //override id;
+        mplew.write(type.getVal());  //type
+        mplew.writeShort(nsi.getParam()); //mask
+        mplew.write(nsi.getColor()); // 0 or 1
         switch (type) {
             case Say:
             case SayOk:

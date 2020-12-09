@@ -22,6 +22,7 @@
 package im.cave.ms.tools.data.input;
 
 import im.cave.ms.tools.Position;
+import im.cave.ms.tools.Rect;
 
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
@@ -235,6 +236,11 @@ public class GenericLittleEndianAccessor implements LittleEndianAccessor {
     @Override
     public long available() {
         return bs.available();
+    }
+
+    @Override
+    public Rect readShortRect() {
+        return new Rect(readPos(), readPos());
     }
 
     /**

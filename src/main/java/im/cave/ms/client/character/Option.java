@@ -1,5 +1,8 @@
 package im.cave.ms.client.character;
 
+import im.cave.ms.client.skill.SkillInfo;
+import im.cave.ms.client.skill.SkillStat;
+import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Util;
 
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ public class Option {
     public int nOption;
     public int rOption;
     public int tOption;
+
     public int xOption;
     public int mOption;
     public int wOption;
@@ -32,7 +36,7 @@ public class Option {
     public int tTerm;
     public int pOption;
     public int slv;
-//    public Summon summon;
+    //    public Summon summon;
     public List<Option> extraOpts = new ArrayList<>();
     public boolean isInMillis = false;
 
@@ -52,10 +56,10 @@ public class Option {
     }
 
     public Option(int skillID, byte slv) {
-//        SkillInfo si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfo(skillID);
         rOption = skillID;
-//        tOption = si.getValue(SkillStat.time, slv);
-//        this.tStart = Util.getCurrentTime();
+        tOption = si.getValue(SkillStat.time, slv);
+        this.tStart = Util.getCurrentTime();
     }
 
     public Option() {

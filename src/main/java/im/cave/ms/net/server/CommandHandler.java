@@ -1,21 +1,29 @@
 package im.cave.ms.net.server;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Npc;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.constants.ItemConstants;
+import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.MobPacket;
+import im.cave.ms.net.server.channel.MapleChannel;
+import im.cave.ms.net.server.world.World;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.MobData;
 import im.cave.ms.provider.data.NpcData;
 import im.cave.ms.tools.HexTool;
+import im.cave.ms.tools.StringUtil;
 import im.cave.ms.tools.Util;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+
+import java.util.List;
 
 import static im.cave.ms.enums.ChatType.Notice;
 
@@ -53,10 +61,15 @@ public class CommandHandler {
                     if (mob == null) {
                         return;
                     }
+                    mob.setHp(mob.getMaxHp());
+                    mob.setMp(mob.getMaxMp());
                     mob.setPosition(c.getPlayer().getPosition());
                     c.getPlayer().getMap().addLife(mob);
-                    c.announce(MaplePacketCreator.spawnMob(mob));
-                    c.announce(MaplePacketCreator.mobChangeController(mob));
+                    for (int i = 0; i < 100; i++) {
+                        c.announce(MaplePacketCreator.spawnMob(mob));
+                        c.announce(MaplePacketCreator.mobChangeController(mob));
+
+                    }
                 }
                 break;
             case "npc":
@@ -69,10 +82,15 @@ public class CommandHandler {
                         return;
                     }
                     npc.setPosition(c.getPlayer().getPosition());
+                    npc.setRx0(npc.getPosition().getX() - 50);
+                    npc.setRx1(npc.getPosition().getX() + 50);
+                    npc.setCy(npc.getPosition().getY());
                     c.getPlayer().getMap().addLife(npc);
+                    npc.setFh(c.getPlayer().getFoothold());
                     c.announce(MaplePacketCreator.spawnNpc(npc));
                     c.announce(MaplePacketCreator.spawnNpcController(npc));
                 }
+                break;
             case "ea":
                 c.getPlayer().setConversation(false);
                 c.announce(MaplePacketCreator.enableActions());
@@ -94,7 +112,7 @@ public class CommandHandler {
                     if (item == null) {
                         return;
                     }
-                    item.setQuantity(1);
+                    item.setQuantity(100);
                     c.getPlayer().putItem(item);
                 }
                 break;
@@ -109,7 +127,45 @@ public class CommandHandler {
                 mplew.write(byteArrayFromHexString);
                 c.announce(mplew);
                 break;
-
+            case "debug":
+                MapleCharacter player = c.getPlayer();
+                player.chatMessage(ChatType.Tip, Server.getInstance().onlinePlayer());
+                break;
+            case "maps":
+                int num = 0;
+                List<World> worlds = Server.getInstance().getWorlds();
+                for (World world : worlds) {
+                    for (MapleChannel channel : world.getChannels()) {
+                        for (MapleMap map : channel.getMaps()) {
+                            num += map.getCharacters().size();
+                        }
+                    }
+                }
+                c.getPlayer().chatMessage(ChatType.Tip, "所有地图在线" + num);
+                break;
+            case "warp":
+                if (s.length < 2 || !StringUtil.isNumber(s[1])) {
+                    return;
+                }
+                c.getPlayer().changeMap(Integer.parseInt(s[1]));
+                break;
+            case "job":
+                if (s.length < 2) {
+                    return;
+                }
+                c.getPlayer().changeJob(Integer.parseInt(s[1]));
+                break;
+            case "notice":
+                if (s.length < 2) {
+                    return;
+                }
+                c.getPlayer().dropMessage(s[1]);
+                break;
+            case "effect":
+                if (s.length < 2) {
+                    return;
+                }
+                c.getPlayer().showEffect(Integer.parseInt(s[1]));
         }
     }
 }

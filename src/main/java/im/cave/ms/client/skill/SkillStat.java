@@ -41,6 +41,7 @@ public enum SkillStat {
     indieBooster,
     indieSpeed,
     indieJump,
+    indiePowerGuard,
     range,
     time,
     cooltimeMS,
@@ -280,6 +281,8 @@ public enum SkillStat {
     indieForceJump,
     itemCon,
     itemConNo,
+    type,
+    areaAttack
     ;
 
     public static SkillStat getSkillStatByString(String s) {

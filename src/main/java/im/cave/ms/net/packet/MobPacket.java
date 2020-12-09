@@ -4,8 +4,6 @@ import im.cave.ms.enums.RemoveMobType;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
-import static im.cave.ms.enums.RemoveMobType.ANIMATION_DEATH;
-
 /**
  * @author fair
  * @version V1.0
@@ -39,7 +37,7 @@ public class MobPacket {
 
     public static MaplePacketLittleEndianWriter removeMob(int objectId, RemoveMobType type) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.REMOVE_MONSTER.getValue());
+        mplew.writeShort(SendOpcode.REMOVE_MOB.getValue());
         mplew.writeInt(objectId);
         mplew.write(type.getVal());
         mplew.writeZeroBytes(8);

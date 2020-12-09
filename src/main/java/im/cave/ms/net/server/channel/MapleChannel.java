@@ -22,12 +22,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MapleChannel extends AbstractServer {
     private static final Logger log = LoggerFactory.getLogger(MapleChannel.class);
     private final List<MapleCharacter> players = new ArrayList<>();
-    private List<MapleMap> maps;
+    private final List<MapleMap> maps;
 
     public MapleChannel(int worldId, int channelId) {
         super(worldId, channelId);
         type = ServerType.CHANNEL;
-        port = 7575 + worldId * 100 + channelId - 1;
+        port = 7575 + worldId * 100 + channelId;
         acceptor = new ServerAcceptor();
         acceptor.server = this;
         new Thread(acceptor).start();
@@ -46,6 +46,10 @@ public class MapleChannel extends AbstractServer {
         return players.stream().filter(character -> character.getId() == charId).findAny().orElse(null);
     }
 
+    public Integer getPlayerCount() {
+        return players.size();
+    }
+
     public int getChannelCapacity() {
         return (int) (Math.ceil(((float) players.size() / 100) * 500));
     }
@@ -61,5 +65,9 @@ public class MapleChannel extends AbstractServer {
             maps.add(map);
         }
         return map;
+    }
+
+    public List<MapleMap> getMaps() {
+        return maps;
     }
 }

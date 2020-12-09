@@ -4,9 +4,9 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
-import im.cave.ms.enums.InventoryType;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
+import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.server.Server;
@@ -33,11 +33,9 @@ public class CreateCharHandler {
     }
 
     public static void createChar(SeekableLittleEndianAccessor slea, MapleClient c) {
-
         String name;
         byte gender, skin;
         short subcategory;
-
         name = slea.readMapleAsciiString();
         int keyMode = slea.readInt(); //默认键盘布局
         if (keyMode != 0 && keyMode != 1) {
@@ -63,7 +61,6 @@ public class CreateCharHandler {
                 c.close();
             }
         }
-
         MapleCharacter chr = MapleCharacter.getDefault(job);
         chr.setAccId(c.getAccount().getId());
         chr.setWorld(c.getWorld());
@@ -72,13 +69,14 @@ public class CreateCharHandler {
         chr.setName(name);
         chr.setGm(c.getAccount().getGm());
         chr.setChannel(c.getChannel());
-        chr.getKeyBinding().setDefault(keyMode == 0);
+        chr.getKeyMap().setDefault(keyMode == 0);
         chr.setFace(items[0]);
         chr.setHair(items[1]);
         chr.setClient(c);
         chr.setAccount(c.getAccount());
         Inventory equippedIv = chr.getInventory(InventoryType.EQUIPPED);
-
+        chr.getAccount().addChar(chr);
+        chr.saveToDB();  //先保存角色
         for (int id : items) {
             Equip equip = ItemData.getEquipById(id);
             if (equip != null && ItemConstants.isEquip(id)) {
@@ -87,13 +85,6 @@ public class CreateCharHandler {
                 equippedIv.addItem(equip);
             }
         }
-        chr.saveToDB();
-        chr.getAccount().addChar(chr);
-        World world = Server.getInstance().getWorldById(c.getWorld());
-        MapleChannel channel = world.getChannel(c.getChannel());
-        channel.addPlayer(chr);
-        c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
-        chr.setChangingChannel(true);
-
+        chr.changeChannel(c.getChannel());
     }
 }

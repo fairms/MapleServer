@@ -7,4 +7,6 @@ package im.cave.ms.constants;
  * @date 11/19 23:37
  */
 public class QuestConstants {
+    public static final String QUEST_START_SCRIPT_END_TAG = "s";
+    public static final String QUEST_COMPLETE_SCRIPT_END_TAG = "e";
 }

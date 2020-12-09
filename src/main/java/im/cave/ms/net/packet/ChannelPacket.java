@@ -202,14 +202,22 @@ public class ChannelPacket {
     }
 
 
-    public static MaplePacketLittleEndianWriter noticeMessage(String content) {
+    public static MaplePacketLittleEndianWriter debugMsg(String content) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.NOTICE_MSG.getValue());
-        mplew.writeInt(3);
-        mplew.writeInt(14);
-        mplew.writeInt(14);
-        mplew.writeInt(0);
-        mplew.write(0);
+        mplew.writeShort(SendOpcode.DEBUG_MSG.getValue());
+        mplew.writeInt(3); //unk
+        mplew.writeInt(14); //unk
+        mplew.writeInt(14); //unk
+        mplew.writeInt(0); //unk
+        mplew.write(0); //unk
+        mplew.writeMapleAsciiString(content);
+        return mplew;
+    }
+
+
+    public static MaplePacketLittleEndianWriter serverNotice(String content) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SERVER_NOTICE.getValue());
         mplew.writeMapleAsciiString(content);
         return mplew;
     }
@@ -323,5 +331,16 @@ public class ChannelPacket {
 
     public static MaplePacketLittleEndianWriter effect(int charId) {
         return null;
+    }
+
+    public static MaplePacketLittleEndianWriter resultInstanceTable(String requestStr, int type, int subType, int value) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.RESULT_INSTANCE_TABLE.getValue());
+        mplew.writeMapleAsciiString(requestStr);
+        mplew.writeInt(type);
+        mplew.writeInt(subType);
+        mplew.writeBool(type < 41);
+        mplew.writeInt(value);
+        return mplew;
     }
 }

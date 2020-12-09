@@ -205,7 +205,7 @@ public class JobConstants {
     }
 
     public static boolean isSuperGm(short id) {
-        return id == JobEnum.SUPERGM.getJobId();
+        return id == JobEnum.SUPER_GM.getJobId();
     }
 
     public enum JobEnum {
@@ -273,7 +273,7 @@ public class JobConstants {
         // 580, 581, 582 - bucc
         MANAGER(800, 0),
         GM(900, 0),
-        SUPERGM(910, 0),
+        SUPER_GM(910, 0),
         NOBLESSE(1000, 1000),
         DAWNWARRIOR1(1100, 1000),
         DAWNWARRIOR2(1110, 1000),
@@ -660,7 +660,7 @@ public class JobConstants {
     }
 
     public static boolean isExtendSpJob(short jobId) {
-        return !isBeastTamer(jobId) && !isPinkBean(jobId);
+        return !isBeastTamer(jobId) && !isPinkBean(jobId) && !isGmJob(jobId);
     }
 
     public static boolean isDemon(short jobId) {
@@ -738,6 +738,9 @@ public class JobConstants {
                 return 6;
             }
         }
+        if (JobConstants.isGmJob(job)) {
+            return 1;
+        }
         if (charLevel <= 10) {
             return 0;
         } else if (charLevel <= 30) {
@@ -809,7 +812,4 @@ public class JobConstants {
     }
 
 
-    public static boolean isSeparatedSpJob(short jobID) {
-        return true;
-    }
 }

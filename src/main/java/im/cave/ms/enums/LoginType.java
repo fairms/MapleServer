@@ -6,12 +6,12 @@ package im.cave.ms.enums;
  * @author Sjonnie
  */
 public enum LoginType {
-    Success(0),
+    Success(0), //有用
     TempBlocked(1),
     Blocked(2),
     Abandoned(3),
     IncorrectPassword(4),
-    NotRegistered(5),
+    NotRegistered(5), // 有用
     DBFail(6),
     AlreadyConnected(7),
     NotConnectableWorld(8),

@@ -3,20 +3,25 @@ package im.cave.ms.client.Job;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleStat;
-import im.cave.ms.client.field.obj.mob.Mob;
+import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.skill.AttackInfo;
-import im.cave.ms.client.skill.MobAttackInfo;
+import im.cave.ms.client.skill.SkillInfo;
+import im.cave.ms.client.skill.SkillStat;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.net.packet.MaplePacketCreator;
-import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.service.EventManager;
+import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -154,99 +159,52 @@ public abstract class MapleJob {
 //        }
     }
 
-//    public void handleSkill(MapleClient c, int skillID, byte slv, InPacket inPacket) {
-//        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-//        MapleCharacter chr = c.getChr();
-//        Skill skill = SkillData.getSkillDeepCopyById(skillID);
-//        SkillInfo si = null;
-//        if (skill != null) {
-//            si = SkillData.getSkillInfoById(skillID);
-//        }
-//        chr.chatMessage(ChatType.Mob, "SkillID: " + skillID);
-//        Summon summon;
-//        Field field;
-//        if (inPacket != null && isBuff(skillID)) {
-//            handleJoblessBuff(c, inPacket, skillID, slv);
-//        } else {
-//            if (chr.hasSkill(skillID) && si.getVehicleId() > 0) {
-//                TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
-//                if (tsm.hasStat(RideVehicle)) {
-//                    tsm.removeStat(RideVehicle, false);
-//                }
-//                tsb.setNOption(si.getVehicleId());
-//                tsb.setROption(skillID);
-//                tsm.putMapleCharacteracterStatValue(RideVehicle, tsb.getOption());
-//                tsm.sendSetStatPacket();
-//            } else {
-//                field = c.getChr().getField();
-//                int noviceSkill = SkillConstants.getNoviceSkillFromRace(skillID);
-//                if (noviceSkill == 1085 || noviceSkill == 1087 || noviceSkill == 1090 || noviceSkill == 1179) {
-//                    summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-//                    summon.setMoveAction((byte) 4);
-//                    summon.setAssistType(AssistType.Heal);
-//                    summon.setFlyMob(true);
-//                    field.spawnSummon(summon);
-//                }
-//                // TOOD: make sure user owns skill
-//                switch (skillID) {
-//                    case MONOLITH:
-//                        summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-//                        field = c.getChr().getField();
-//                        summon.setMoveAbility(MoveAbility.Stop);
-//                        field.spawnSummon(summon);
-//                        field.setKishin(true);
-//                        break;
-//                    case WHITE_ANGELIC_BLESSING:
-//                    case WHITE_ANGELIC_BLESSING_2:
-//                    case LIGHTNING_GOD_RING:
-//                    case LIGHTNING_GOD_RING_2:
-//                    case GUARD_RING:
-//                    case SUN_RING:
-//                    case RAIN_RING:
-//                    case RAINBOW_RING:
-//                    case SNOW_RING:
-//                    case LIGHTNING_RING:
-//                    case WIND_RING:
-//                        summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-//                        summon.setMoveAction((byte) 4);
-//                        summon.setAssistType(AssistType.Heal);
-//                        summon.setFlyMob(true);
-//                        field.spawnSummon(summon);
-//                        break;
-//                    case ELEMENTAL_SYLPH:
-//                    case FLAME_SYLPH:
-//                    case THUNDER_SYLPH:
-//                    case ICE_SYLPH:
-//                    case EARTH_SYLPH:
-//                    case DARK_SYLPH:
-//                    case HOLY_SYLPH:
-//                    case SALAMANDER_SYLPH:
-//                    case ELECTRON_SYLPH:
-//                    case UNDINE_SYLPH:
-//                    case GNOME_SYLPH:
-//                    case DEVIL_SYLPH:
-//                    case ANGEL_SYLPH:
-//                    case ELEMENTAL_SYLPH_2:
-//                    case FLAME_SYLPH_2:
-//                    case THUNDER_SYLPH_2:
-//                    case ICE_SYLPH_2:
-//                    case EARTH_SYLPH_2:
-//                    case DARK_SYLPH_2:
-//                    case HOLY_SYLPH_2:
-//                    case SALAMANDER_SYLPH_2:
-//                    case ELECTRON_SYLPH_2:
-//                    case UNDINE_SYLPH_2:
-//                    case GNOME_SYLPH_2:
-//                    case DEVIL_SYLPH_2:
-//                    case ANGEL_SYLPH_2:
-//                        summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-//                        field.spawnSummon(summon);
-//                        break;
-//                }
-//            }
-//        }
-//    }
-//
+    public void handleSkill(MapleClient c, int skillId, int slv, SeekableLittleEndianAccessor slea) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        MapleCharacter chr = c.getPlayer();
+        SkillInfo si = SkillData.getSkillInfo(skillId);
+        int cooltime = si.getValue(SkillStat.cooltime, slv);
+        if (cooltime > 0) {
+            //处理冷却时间减少
+            HashMap<Integer, Integer> cooltimes = new HashMap<>();
+            chr.addSkillCooltime(skillId, cooltime * 1000);
+            cooltimes.put(skillId, cooltime * 1000);
+            c.announce(PlayerPacket.skillCoolTimes(cooltimes));
+            //todo
+            EventManager.addEvent(() -> c.announce(PlayerPacket.skillCoolDown(skillId)), cooltime, TimeUnit.SECONDS);
+        }
+        if (slea != null && isBuff(skillId)) {
+            handleJobLessBuff(c, slea, skillId, slv);
+        } else {
+            chr.dropMessage("unhandled skill" + skillId);
+        }
+    }
+
+    public void handleJobLessBuff(MapleClient c, SeekableLittleEndianAccessor slea, int skillId, int slv) {
+        MapleCharacter player = c.getPlayer();
+        SkillInfo skillInfo = SkillData.getSkillInfo(skillId);
+        TemporaryStatManager tsm = player.getTemporaryStatManager();
+        Option option = new Option();
+        long curTime = System.currentTimeMillis();
+        boolean sendStat = true;
+        switch (skillId) {
+            case 10000000:
+                player.dropMessage("10000000");
+                break;
+            case 200000000:
+                player.dropMessage("20000000");
+                break;
+            default:
+                player.dropMessage("unhandled buff" + skillId);
+                sendStat = false;
+        }
+
+        if (sendStat) {
+            tsm.sendSetStatPacket();
+        }
+
+    }
+
 //    public int alterCooldownSkill(int skillId) {
 //        Skill skill = chr.getSkill(skillId);
 //        if (skill == null) {
@@ -586,7 +544,7 @@ public abstract class MapleJob {
 
         if (level >= 10) {
             chr.addSpToJobByCurrentLevel(sp);
-            stats.put(MapleStat.AVAILABLESP, (long) 1); // 1 :mean encode
+            stats.put(MapleStat.AVAILABLESP, (long) 1);
         }
 
 //        byte linkSkillLevel = (byte) SkillConstants.getLinkSkillLevelByMapleCharacterLevel(level);
@@ -664,8 +622,8 @@ public abstract class MapleJob {
 //        }
     }
 
-    public boolean isBuff(int skillID) {
-        return Arrays.stream(buffs).anyMatch(b -> b == skillID);
+    public boolean isBuff(int skillId) {
+        return Arrays.stream(buffs).anyMatch(b -> b == skillId);
     }
 
     public void setMapleCharacterCreationStats(MapleCharacter chr) {

@@ -7,6 +7,7 @@ import im.cave.ms.scripting.AbstractPlayerInteraction;
 
 
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 import static im.cave.ms.enums.NpcMessageType.*;
@@ -42,6 +43,20 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
     public int sendSayOkay(String text) {
         return sendGeneralSay(text, SayOk);
+    }
+
+    public int sendAskMenu(Map<Integer, String> options) {
+        StringBuilder sb = new StringBuilder();
+        options.forEach((option, text) -> {
+            if (option == null) {
+                sb.append(text);
+            } else {
+                sb.append("#L").append(option).append("#")
+                        .append(text).append("#l");
+            }
+            sb.append("\\n");
+        });
+        return sendGeneralSay(sb.toString(), AskMenu);
     }
 
     public String sendAskText(String text, String defaultText, short minLength, short maxLength) {

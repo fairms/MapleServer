@@ -4,6 +4,8 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.quest.Quest;
+import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.client.skill.Skill;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.EnchantStat;
@@ -157,10 +159,9 @@ public class PacketHelper {
         mplew.writeBool(false);
         mplew.writeZeroBytes(20);
 
-        if (chr.hasDecorate()) {
+        if (JobConstants.isXenon(chr.getJobId()) || JobConstants.isDemon(chr.getJobId())) {
             mplew.writeInt(chr.getDecorate());
         }
-
         mplew.writeLong(0);
         //todo
 //        if (MapleJob.is林之灵(chr.getJob())) {
@@ -208,12 +209,12 @@ public class PacketHelper {
         mplew.writeLong(0); // gach exp  pos map
         mplew.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
         mplew.writeInt(chr.getMapId());
-        mplew.write(chr.getSpawnPoint());
-        mplew.writeShort(0); //subjob
-        mplew.write(0);
-        if (chr.hasDecorate()) {
+        mplew.write(chr.getSpawnPoint()); //portal
+        mplew.writeShort(0); //sub job
+        if (JobConstants.isXenon(chr.getJobId()) || JobConstants.isDemon(chr.getJobId())) {
             mplew.writeInt(chr.getDecorate());
         }
+        mplew.write(0);
         mplew.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis())); //账号创建时间?
         mplew.writeShort(chr.getFatigue());  //2
         mplew.writeInt(DateUtil.getTime()); // 年月日时  //上次登录时间? //lastfatigueupdatetime
@@ -248,7 +249,7 @@ public class PacketHelper {
     //todo
     public static void addCharSP(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
         int[] remainingSps = chr.getRemainingSps();
-        if (JobConstants.isSeparatedSpJob(chr.getJob().getJobId())) {
+        if (JobConstants.isExtendSpJob(chr.getJobId())) {
             mplew.write(chr.getRemainingSpsSize());
             for (int i = 0; i < remainingSps.length; i++) {
                 if (remainingSps[i] > 0) {
@@ -279,7 +280,7 @@ public class PacketHelper {
     }
 
     public static void addCharInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        mplew.writeLong(-1); // 开始生成角色信息 mask
+        mplew.writeLong(-1); // 开始生成角色信息 mask  0xFFFFFFFFFFFFFFFFL
         mplew.write(0); //getCombatOrders
         mplew.writeInt(-1); // pet getActiveSkillCoolTime
         mplew.writeInt(-1);
@@ -344,8 +345,8 @@ public class PacketHelper {
         addInventoryInfo(mplew, chr);
         addSkillInfo(mplew, chr);
         addQuestInfo(mplew, chr);
-        addRingsInfo(mplew, chr);
-        addTRocksInfo(mplew, chr);
+        addRingsInfo(mplew, chr); //CoupleRecord
+        addTRocksInfo(mplew, chr); //MapTransfer
 
         // QuestInfo
         mplew.writeShort(0); // quest complete old
@@ -468,13 +469,22 @@ public class PacketHelper {
     }
 
     private static void addQuestInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        mplew.write(1);
-        mplew.writeShort(0); //started quests
-
-        mplew.write(1);
-        mplew.writeShort(0); //completed quest
-
-        mplew.writeShort(0); //mini game todo
+        mplew.writeBool(true);//started quests
+        QuestManager questManager = chr.getQuestManager();
+        int size = questManager.getQuestsInProgress().size();
+        mplew.writeShort(size);
+        for (Quest quest : questManager.getQuestsInProgress()) {
+            mplew.writeInt(quest.getQrKey());
+            mplew.writeMapleAsciiString(quest.getQrValue());
+        }
+        mplew.writeBool(true); //completed quest
+        Set<Quest> completedQuests = questManager.getCompletedQuests();
+        mplew.writeShort(completedQuests.size());
+        for (Quest quest : completedQuests) {
+            mplew.writeInt(quest.getQrKey());
+            mplew.writeLong(getTime(quest.getCompletedTime()));
+        }
+        mplew.writeShort(0); //mini game
     }
 
     private static void addSkillInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {

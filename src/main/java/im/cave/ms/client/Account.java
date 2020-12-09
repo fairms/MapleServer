@@ -17,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.transaction.Transactional;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String account, password;
-    private int characterSlots;
+    private int characterSlots = 6;
     private int point, voucher;
     private byte gender, gm;
     private boolean isBanned;
@@ -60,18 +61,18 @@ public class Account {
         return ((Account) account);
     }
 
+    @Transactional
     public void saveToDb() {
         DataBaseManager.saveToDB(this);
     }
 
     public void logout() {
         Server.getInstance().removeAccount(this);
-        DataBaseManager.saveToDB(this);
+        saveToDb();
     }
 
     public void addChar(MapleCharacter chr) {
         characters.add(chr);
-        characterSlots--;
     }
 
     public MapleCharacter getCharacter(int charId) {

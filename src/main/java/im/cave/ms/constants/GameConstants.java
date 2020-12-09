@@ -13,8 +13,9 @@ public class GameConstants {
     public static int maxLevel = 275;
     public static final long MAX_MONEY = 3000000000L;
     public static final int BEGINNER_SP_MAX_LV = 7;
+    public static final long DAMAGE_CAP = 50000000;
     public static final int RESISTANCE_SP_MAX_LV = 10;
-
+    public static final int QUICKSLOT_SIZE = 32;
     //  default keymap
     public static final byte[] DEFAULT_KEY = {1, 2, 3, 4, 5, 6, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 31, 34, 35, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 48, 50, 56, 57, 59, 60, 61, 63, 64, 65, 66, 70};
     public static final byte[] DEFAULT_TYPE = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 4};
@@ -29,6 +30,9 @@ public class GameConstants {
     public static final int DROP_REMAIN_ON_GROUND_TIME = 120; // 2 minutes
 
     public static final int BASE_MOB_RESPAWN_RATE = 10000; // In milliseconds
+
+    //map
+    public static final int NO_MAP_ID = 999999999;
 
 
     public static int[][][] INC_HP_MP = {

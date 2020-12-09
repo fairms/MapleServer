@@ -49,7 +49,6 @@ public class NpcHandler {
         }
         String finalScript = script;
         EventManager.addEvent(() -> NpcScriptManager.getInstance().start(c, npcId, finalScript), 0);
-
     }
 
 
@@ -64,7 +63,7 @@ public class NpcHandler {
         }
         byte lastType = slea.readByte();
         byte action = slea.readByte();
-        if (action == 0 || action == -1) {
+        if (action == -1) {
             cm.dispose();
             return;
         }
@@ -74,12 +73,20 @@ public class NpcHandler {
                 if (action == 1) {
                     String response = slea.readMapleAsciiString();
                     cm.getNpcScriptInfo().addResponse(response);
+                } else {
+                    cm.dispose();
                 }
                 break;
             case AskYesNo:
-                if (action == 1) {
-                    cm.getNpcScriptInfo().addResponse(1);
+                cm.getNpcScriptInfo().addResponse(action);
+                break;
+            case AskMenu:
+                if (action == 0) {
+                    cm.getNpcScriptInfo().addResponse(-1);
+                    return;
                 }
+                int select = slea.readInt();
+                cm.getNpcScriptInfo().addResponse(select);
                 break;
             default:
                 cm.dispose();

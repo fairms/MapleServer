@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,10 @@ public class SkillData {
 //    private static Map<Integer, MakingSkillRecipe> makingSkillRecipes = new HashMap<>();
 
     public static SkillInfo getSkillInfo(int skillId) {
-        return skills.getOrDefault(skillId, loadSkillFromWz(skillId));
+        if (!skills.containsKey(skillId)) {
+            return loadSkillFromWz(skillId);
+        }
+        return skills.get(skillId);
     }
 
 
@@ -64,8 +68,15 @@ public class SkillData {
     public static SkillInfo loadSkillFromWz(int skillId) {
         String sId = String.valueOf(skillId);
         sId = StringUtil.getLeftPaddedStr(sId, '0', 7);
-        String rootId = sId.substring(0, sId.length() - 4);
-        String rootPath = rootId + ".img";
+        String rootId;
+        String rootPath;
+        if (skillId > 80000000 && skillId < 89000000) {  // 特殊的
+            rootId = sId.substring(0, sId.length() - 2);
+            rootPath = rootId + ".img";
+        } else {
+            rootId = sId.substring(0, sId.length() - 4);
+            rootPath = rootId + ".img";
+        }
         MapleData data;
         data = skillData.getData(rootPath);
         if (data == null) {
@@ -170,7 +181,6 @@ public class SkillData {
                                     skill.addAddAttackSkills(Integer.parseInt(skillPlusInfoValue));
                                 }
                             }
-                            break;
                         }
                         break;
                     case "extraSkillInfo":
@@ -198,19 +208,24 @@ public class SkillData {
                             }
                         }
                         break;
-                    case "level": //todo level
+                    case "level":
                         List<MapleData> levels = skillAttr.getChildren();
                         skill.setMaxLevel(levels.size());
+                        skill.levels = new ArrayList<>();
                         for (MapleData level : levels) {
+                            HashMap<SkillStat, String> skillLevel = new HashMap<>();
                             for (MapleData levelAttr : level.getChildren()) {
                                 String levelAttrName = levelAttr.getName();
                                 SkillStat skillStat = SkillStat.getSkillStatByString(levelAttrName);
                                 if (skillStat != null) {
-                                    skill.addSkillStatInfo(skillStat, MapleDataTool.getString(levelAttr));
+                                    skillLevel.put(skillStat, MapleDataTool.getString(levelAttr));
                                 }
                             }
+                            skill.levels.add(skillLevel);
                         }
                         break;
+                    default:
+                        log.warn("unknown skill attr : {} of skill:{}", name, skillId);
                 }
             }
 

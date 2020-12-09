@@ -1,7 +1,6 @@
 package im.cave.ms.net.packet;
 
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.character.CharStats;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.client.field.obj.Npc;
@@ -118,7 +117,9 @@ public class MaplePacketCreator {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.UPDATE_STATS.getValue());
         mplew.write(enableActions ? 1 : 0);
+
         mplew.write(0); //unk
+
         long mask = 0;
         for (MapleStat stat : stats.keySet()) {
             mask |= stat.getValue();
@@ -149,6 +150,7 @@ public class MaplePacketCreator {
                 case CRAFT:
                 case LEVEL:
                 case ICE_GAGE:
+                case JOB:
                     mplew.writeInt((int) value);
                     break;
                 case STR:
@@ -174,11 +176,13 @@ public class MaplePacketCreator {
         mplew.write(chr != null ? chr.getHairColorBase() : -1);
         mplew.write(chr != null ? chr.getHairColorMixed() : 0);
         mplew.write(chr != null ? chr.getHairColorProb() : 0);
-        mplew.writeBool(mask == 0 || enableActions);
-        if (mask == 0 || !enableActions) {
+
+
+        mplew.write(0);
+        if (mask == 0 || !enableActions) { //unknown
             mplew.write(0);
         }
-        mplew.writeBool(false);
+        mplew.write(0);
 
         return mplew;
 
@@ -215,7 +219,7 @@ public class MaplePacketCreator {
 
     public static MaplePacketLittleEndianWriter spawnMob(Mob mob) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SPAWN_MONSTER.getValue());
+        mplew.writeShort(SendOpcode.SPAWN_MOB.getValue());
         mplew.writeBool(mob.isSealedInsteadDead());
         mplew.writeInt(mob.getObjectId());
         mplew.write(mob.getCalcDamageIndex());

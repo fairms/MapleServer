@@ -96,6 +96,7 @@ public class MovementInfo {
                 case 21:
                 case 22:
                 case 24:
+                case 28:
                 case 60:
                 case 62:
                 case 64:

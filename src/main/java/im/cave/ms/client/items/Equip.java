@@ -1,5 +1,6 @@
 package im.cave.ms.client.items;
 
+import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipBaseStat;
@@ -7,6 +8,7 @@ import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.ItemGrade;
 import im.cave.ms.net.db.InlinedIntArrayConverter;
+import im.cave.ms.provider.data.ItemData;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -191,7 +193,87 @@ public class Equip extends Item {
         }
     }
 
-    private int getBaseStat(EquipBaseStat ebs) {
+
+
+//    public double getBaseStat(BaseStat baseStat) {
+//        // TODO: Sockets
+//        double res = 0;
+//        for (int i = 0; i < getOptions().size() - 1; i++) { // last one is anvil => skipped
+//            int id = getOptions().get(i);
+//            int level = (getRLevel() + getIIncReq()) / 10;
+//            ItemOption io = ItemData.getItemOptionById(id);
+//            if (io != null) {
+//                Map<BaseStat, Double> valMap = io.getStatValuesByLevel(level);
+//                res += valMap.getOrDefault(baseStat, 0D);
+//            }
+//        }
+//        switch (baseStat) {
+//            case str:
+//                res += getTotalStat(EquipBaseStat.iStr);
+//                break;
+//            case dex:
+//                res += getTotalStat(EquipBaseStat.iDex);
+//                break;
+//            case inte:
+//                res += getTotalStat(EquipBaseStat.iInt);
+//                break;
+//            case luk:
+//                res += getTotalStat(EquipBaseStat.iLuk);
+//                break;
+//            case pad:
+//                res += getTotalStat(EquipBaseStat.iPAD);
+//                break;
+//            case mad:
+//                res += getTotalStat(EquipBaseStat.iMAD);
+//                break;
+//            case pdd:
+//                res += getTotalStat(EquipBaseStat.iPDD);
+//                break;
+//            case mdd:
+//                res += getTotalStat(EquipBaseStat.iMDD);
+//                break;
+//            case mhp:
+//                res += getTotalStat(EquipBaseStat.iMaxHP);
+//                break;
+//            case mmp:
+//                res += getTotalStat(EquipBaseStat.iMaxMP);
+//                break;
+//            case fd:
+//                res += getTotalStat(EquipBaseStat.damR);
+//                break;
+//            case bd:
+//                res += getTotalStat(EquipBaseStat.bdr);
+//                break;
+//            case ied:
+//                res += getTotalStat(EquipBaseStat.imdr);
+//                break;
+//            case eva:
+//                res += getTotalStat(EquipBaseStat.iEVA);
+//                break;
+//            case acc:
+//                res += getTotalStat(EquipBaseStat.iACC);
+//                break;
+//            case speed:
+//                res += getTotalStat(EquipBaseStat.iSpeed);
+//                break;
+//            case jump:
+//                res += getTotalStat(EquipBaseStat.iJump);
+//                break;
+//            case booster:
+//                res += getAttackSpeed();
+//                break;
+//            case strR:
+//            case dexR:
+//            case intR:
+//            case lukR:
+//                res += getTotalStat(EquipBaseStat.statR);
+//                break;
+//        }
+//        return res;
+//    }
+
+
+    public int getBaseStat(EquipBaseStat ebs) {
         switch (ebs) {
             case tuc:
                 return getTuc();

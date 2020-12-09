@@ -3,22 +3,22 @@ package im.cave.ms.net.server.channel;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.ServerType;
-import im.cave.ms.net.packet.PlayerPacket;
+import im.cave.ms.net.packet.LoginPacket;
+import im.cave.ms.net.packet.MaplePacketCreator;
+import im.cave.ms.net.packet.opcode.RecvOpcode;
 import im.cave.ms.net.server.ErrorPacketHandler;
+import im.cave.ms.net.server.channel.handler.ChangeChannelHandler;
+import im.cave.ms.net.server.channel.handler.EnterPortalHandler;
+import im.cave.ms.net.server.channel.handler.GeneralChatHandler;
 import im.cave.ms.net.server.channel.handler.InventoryHandler;
 import im.cave.ms.net.server.channel.handler.MobHandler;
 import im.cave.ms.net.server.channel.handler.NpcHandler;
 import im.cave.ms.net.server.channel.handler.PlayerHandler;
-import im.cave.ms.net.server.channel.handler.SpecialPortalHandler;
-import im.cave.ms.net.server.channel.handler.ChangeChannelHandler;
-import im.cave.ms.net.server.channel.handler.EnterPortalHandler;
-import im.cave.ms.net.server.channel.handler.GeneralChatHandler;
 import im.cave.ms.net.server.channel.handler.PlayerLoggedinHandler;
-import im.cave.ms.net.packet.LoginPacket;
-import im.cave.ms.net.packet.MaplePacketCreator;
-import im.cave.ms.net.packet.opcode.RecvOpcode;
+import im.cave.ms.net.server.channel.handler.QuestHandler;
+import im.cave.ms.net.server.channel.handler.SpecialPortalHandler;
+import im.cave.ms.net.server.channel.handler.WorldHandler;
 import im.cave.ms.provider.service.EventManager;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import io.netty.channel.ChannelHandlerContext;
@@ -51,9 +51,6 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
         int sendIv = (int) (Math.random() * Integer.MAX_VALUE);
         int recvIv = (int) (Math.random() * Integer.MAX_VALUE);
         MapleClient client = new MapleClient(ctx.channel(), sendIv, recvIv);
-        client.setChannel(channel);
-        client.setWorld(world);
-        client.setLoginStatus(LoginStatus.LOGGEDIN);
         client.announce(LoginPacket.getHello(sendIv, recvIv, ServerType.CHANNEL));
         ctx.channel().attr(CLIENT_KEY).set(client);
         EventManager.addFixedRateEvent(client::sendPing, 0, 10000);
@@ -65,7 +62,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
         Account account = c.getAccount();
         MapleCharacter player = c.getPlayer();
         if (player != null && !player.isChangingChannel()) {
-            player.logout(channel);
+            player.logout();
         } else if (player != null && player.isChangingChannel()) {
             player.setChangingChannel(false);
         } else if (account != null) {
@@ -102,8 +99,14 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
             case PORTAL_SPECIAL:
                 SpecialPortalHandler.handlePacket(slea, c);
                 break;
+            case USER_QUEST_REQUEST:
+                QuestHandler.handleQuestRequest(slea, c);
+                break;
             case ENTER_PORTAL:
                 EnterPortalHandler.handlePacket(slea, c);
+                break;
+            case REQUEST_INSTANCE_TABLE:
+                WorldHandler.handleInstanceTableRequest(slea, c);
                 break;
             case CHANGE_CHANNEL:
                 ChangeChannelHandler.handlePacket(slea, c);
@@ -133,8 +136,8 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
                 PlayerHandler.handlePlayerMove(slea, c);
                 break;
             case CLOSE_RANGE_ATTACK:
-//            case RANGED_ATTACK:
-//            case MAGIC_ATTACK:
+            case RANGED_ATTACK:
+            case MAGIC_ATTACK:
 //            case SUMMON_ATTACK:
 //            case TOUCH_MONSTER_ATTACK:
                 PlayerHandler.handleAttack(slea, c, opcode);
@@ -145,11 +148,23 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
             case CHANGE_STAT_REQUEST:
                 PlayerHandler.handleChangeStatRequest(slea, c);
                 break;
-            case SKILL_UP_REQUEST:
+            case SKILL_UP:
                 PlayerHandler.handleSkillUp(slea, c);
+                break;
+            case USE_SKILL:
+                PlayerHandler.handleUseSkill(slea, c);
+                break;
+            case CANCEL_BUFF:
+                PlayerHandler.handleCancelBuff(slea, c);
                 break;
             case CHAR_INFO_REQUEST:
                 PlayerHandler.handleCharInfoReq(slea, c);
+                break;
+            case CHANGE_QUICKSLOT:
+                PlayerHandler.handleChangeQuickslot(slea, c);
+                break;
+            case CHANGE_KEYMAP:
+                PlayerHandler.handleChangeKeyMap(slea, c);
                 break;
             case UPDATE_TICK:
                 c.getPlayer().setTick(slea.readInt());

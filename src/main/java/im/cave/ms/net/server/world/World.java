@@ -22,6 +22,9 @@ public class World {
         this.eventMessage = eventMessage;
     }
 
+    public void setEventMessage(String eventMessage) {
+        this.eventMessage = eventMessage;
+    }
 
     public int getId() {
         return id;

@@ -15,7 +15,7 @@ public enum ServerMsgType {
     SPEAKER_WORLD(3),
     SLIDE(4),
     EVENT(5),
-    NOTICE_WITH_OUT_PREFIX(6),
+    NOTICE_WITH_OUT_PREFIX(6),  //38
     UTIL_DLG_EX(7),
     ITEM_SPEAKER(8), // Holds item info
     SPEAKER_BRIDGE(9),

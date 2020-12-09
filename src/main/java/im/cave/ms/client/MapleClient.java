@@ -5,22 +5,20 @@ import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.enums.ServerType;
 import im.cave.ms.net.packet.LoginPacket;
-import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.net.server.channel.MapleChannel;
-import im.cave.ms.net.server.world.World;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 /**
  * @author fair
@@ -175,15 +173,17 @@ public class MapleClient {
             if (Server.getInstance().isAccountLoggedIn(account)) {
                 return LoginType.AlreadyConnected;
             }
+            Server.getInstance().addAccount(account);
             setAccount(account);
             setLoginStatus(LoginStatus.LOGGEDIN);
+            account.saveToDb();
             return LoginType.Success;
         }
         return LoginType.IncorrectPassword;
     }
 
     public List<MapleCharacter> loadCharacters(int worldId, boolean channelServer) {
-        return new ArrayList<>(this.getAccount().getCharacters());
+        return this.getAccount().getCharacters().stream().filter(character -> character.getWorld() == worldId).collect(Collectors.toList());
     }
 
     public NashornScriptEngine getScriptEngine(String name) {
@@ -198,33 +198,11 @@ public class MapleClient {
         engines.remove(name);
     }
 
-    public long getLastPong() {
-        return lastPong;
-    }
-
-    public void setLastPong(long lastPong) {
-        this.lastPong = lastPong;
-    }
-
-    public void changeChannel(int channel) {
-        Server server = Server.getInstance();
-        World world = server.getWorldById(this.world);
-        MapleChannel tChannel = world.getChannel(channel);
-        player.getMap().removePlayer(player);
-        player.setChangingChannel(true);
-        tChannel.addPlayer(player);
-        announce(MaplePacketCreator.getChannelChange(tChannel.getPort()));
-    }
-
-
     public void sendPing() {
         announce(LoginPacket.ping(channel == -1 ? ServerType.LOGIN : ServerType.CHANNEL));
     }
 
-
     public MapleChannel getMapleChannel() {
-        Server server = Server.getInstance();
-        World wd = server.getWorldById(world);
-        return wd.getChannel(this.channel);
+        return Server.getInstance().getChannel(world, channel);
     }
 }

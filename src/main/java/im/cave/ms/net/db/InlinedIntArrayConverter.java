@@ -21,7 +21,7 @@ public class InlinedIntArrayConverter implements AttributeConverter<List<Integer
         }
         String res;
         if (integers.size() > 0) {
-            res = sb.toString().substring(0, sb.length() - 1); // removes last comma
+            res = sb.substring(0, sb.length() - 1); // removes last comma
         } else {
             res = "";
         }

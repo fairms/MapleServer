@@ -156,6 +156,9 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      */
     @Override
     public void writeMapleAsciiString(String s) {
+        if (s == null) {
+            s = "";
+        }
         writeShort((short) s.getBytes(ASCII).length);
         writeAsciiString(s);
     }

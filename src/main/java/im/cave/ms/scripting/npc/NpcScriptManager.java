@@ -4,7 +4,6 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.scripting.AbstractScriptManager;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
 
-import javax.script.ScriptException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -52,6 +51,7 @@ public class NpcScriptManager extends AbstractScriptManager {
                 nse = getScriptEngine("npc/" + script + ".js");
             }
             if (nse == null) {
+                c.getPlayer().dropMessage("NPC: " + npcId + " " + script + " 脚本不存在 地图:" + c.getPlayer().getMapId());
                 dispose(c);
                 return;
             }
@@ -60,30 +60,13 @@ public class NpcScriptManager extends AbstractScriptManager {
             nse.put("cm", ncm);
             c.getPlayer().setConversation(true);
             scripts.put(c, nse);
-            try {
-                nse.invokeFunction("start");
-            } catch (NoSuchMethodException e) {
-                nse.invokeFunction("action");
-            }
+
+            nse.invokeFunction("start");
         } catch (Exception e) {
             e.printStackTrace();
             dispose(c);
         }
     }
-
-
-    public void action(MapleClient c, byte mode, byte type, int selection) {
-        NashornScriptEngine iv = scripts.get(c);
-        if (iv != null) {
-            try {
-                iv.invokeFunction("action", mode, type, selection);
-            } catch (ScriptException | NoSuchMethodException e) {
-                e.printStackTrace();
-                dispose(c);
-            }
-        }
-    }
-
 
     public void dispose(MapleClient c) {
         NpcConversationManager cm = cms.get(c);

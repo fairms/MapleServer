@@ -26,7 +26,8 @@ public class NpcData {
 
 
     public static Npc getNpcDataFromWz(int npcId) {
-        String path = String.format("%d.img", npcId);
+        String npcStringId = StringUtil.getLeftPaddedStr(String.valueOf(npcId), '0', 7);
+        String path = String.format("%s.img", npcStringId);
         MapleData data = npcData.getData(path);
         Npc npc = new Npc(npcId);
         if (data == null) {
