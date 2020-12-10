@@ -87,7 +87,7 @@ public class MapleMapObj {
         if (getLifeType().equals("m")) {
             mobGen = new MobGen(templateId);
             mobGen.setPosition(getHomePosition());
-            Mob mob = MobData.getMobFromWz(templateId);
+            Mob mob = MobData.getMobDeepCopyById(templateId);
             if (mob == null) {
                 return null;
             }

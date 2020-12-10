@@ -10,6 +10,8 @@ import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.QuestType;
 import im.cave.ms.net.packet.QuestPacket;
 import im.cave.ms.provider.data.QuestData;
+import im.cave.ms.provider.service.EventManager;
+import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import org.slf4j.Logger;
@@ -83,17 +85,25 @@ public class QuestHandler {
                 if (scriptName == null || scriptName.equalsIgnoreCase("")) {
                     scriptName = String.format("%d%s", questId, QuestConstants.QUEST_START_SCRIPT_END_TAG);
                 }
-                //todo
-//                chr.getScriptManager().startScript(questID, scriptName, ScriptType.Quest);
-                break;
+            {
+                String finalScriptName = scriptName;
+                int finalQuestId = questId;
+                int finalNpcTemplateId = npcTemplateId;
+                EventManager.addEvent(() -> QuestScriptManager.getInstance().start(c, finalScriptName, finalQuestId, finalNpcTemplateId), 0);
+            }
+            break;
             case QuestReq_CompleteScript:
                 scriptName = questInfo.getEndScript();
                 if (scriptName == null || scriptName.equalsIgnoreCase("")) {
                     scriptName = String.format("%d%s", questId, QuestConstants.QUEST_COMPLETE_SCRIPT_END_TAG);
                 }
-                //todo
-//                chr.getScriptManager().startScript(questID, scriptName, ScriptType.Quest);
+            {
+                String finalScriptName = scriptName;
+                int finalQuestId = questId;
+                int finalNpcTemplateId = npcTemplateId;
+                EventManager.addEvent(() -> QuestScriptManager.getInstance().start(c, finalScriptName, finalQuestId, finalNpcTemplateId), 0);
                 break;
+            }
             case QuestReq_LaterStep:
                 if (questInfo != null && questInfo.getTransferField() != 0) {
                     player.changeMap(questInfo.getTransferField());

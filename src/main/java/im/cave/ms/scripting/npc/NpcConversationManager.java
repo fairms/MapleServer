@@ -37,9 +37,9 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
     //38
-    public boolean sendAskAccept(String text) {
-        return sendGeneralSay(text, AskAccept) != 0;
-    }
+//    public boolean sendAskAccept(String text) {
+//        return sendGeneralSay(text, AskAccept) != 0;
+//    }
 
     public int sendSayOkay(String text) {
         return sendGeneralSay(text, SayOk);

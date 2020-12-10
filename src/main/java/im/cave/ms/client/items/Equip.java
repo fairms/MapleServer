@@ -194,7 +194,6 @@ public class Equip extends Item {
     }
 
 
-
 //    public double getBaseStat(BaseStat baseStat) {
 //        // TODO: Sockets
 //        double res = 0;
@@ -404,6 +403,111 @@ public class Equip extends Item {
         short attr = getAttribute();
         attr |= ea.getVal();
         setAttribute(attr);
+    }
+
+
+    public Equip deepCopy() {
+        Equip ret = new Equip();
+        ret.quantity = quantity;
+        ret.pos = pos;
+        ret.title = title;
+        ret.tuc = tuc;
+        ret.iucMax = iucMax;
+        ret.hasIUCMax = hasIUCMax;
+        ret.cuc = cuc;
+        ret.iStr = iStr;
+        ret.iDex = iDex;
+        ret.iInt = iInt;
+        ret.iLuk = iLuk;
+        ret.iMaxHp = iMaxHp;
+        ret.iMaxMp = iMaxMp;
+        ret.iPad = iPad;
+        ret.iMad = iMad;
+        ret.iPDD = iPDD;
+        ret.iMDD = iMDD;
+        ret.iAcc = iAcc;
+        ret.iEva = iEva;
+        ret.iCraft = iCraft;
+        ret.iSpeed = iSpeed;
+        ret.iJump = iJump;
+        ret.attribute = attribute;
+        ret.levelUpType = levelUpType;
+        ret.level = level;
+        ret.exp = exp;
+        ret.durability = durability;
+        ret.iuc = iuc;
+        ret.iReduceReq = iReduceReq;
+        ret.specialAttribute = specialAttribute;
+        ret.durabilityMax = durabilityMax;
+        ret.iIncReq = iIncReq;
+        ret.growthEnchant = growthEnchant;
+        ret.psEnchant = psEnchant;
+        ret.bdr = bdr;
+        ret.imdr = imdr;
+        ret.bossReward = bossReward;
+        ret.superiorEqp = superiorEqp;
+        ret.damR = damR;
+        ret.statR = statR;
+        ret.cuttable = cuttable;
+        ret.exGradeOption = exGradeOption;
+        ret.hyperUpgrade = hyperUpgrade;
+        ret.itemState = itemState;
+        ret.chuc = chuc;
+        ret.soulOptionId = soulOptionId;
+        ret.soulSocketId = soulSocketId;
+        ret.soulOption = soulOption;
+        ret.rStr = rStr;
+        ret.rDex = rDex;
+        ret.rInt = rInt;
+        ret.rLuk = rLuk;
+        ret.rLevel = rLevel;
+        ret.rJob = rJob;
+        ret.rPop = rPop;
+        ret.iSlot = iSlot;
+        ret.vSlot = vSlot;
+        ret.fixedGrade = fixedGrade;
+        ret.options = new ArrayList<>();
+        ret.options.addAll(options);
+        ret.specialGrade = specialGrade;
+        ret.fixedPotential = fixedPotential;
+        ret.noPotential = noPotential;
+        ret.tradeBlock = tradeBlock;
+        ret.isOnly = isOnly;
+        ret.notSale = notSale;
+        ret.attackSpeed = attackSpeed;
+        ret.price = price;
+        ret.charmEXP = charmEXP;
+        ret.expireOnLogout = expireOnLogout;
+        ret.setItemId = setItemId;
+        ret.exItem = exItem;
+        ret.equipTradeBlock = equipTradeBlock;
+        ret.setOwner(getOwner());
+        ret.itemId = itemId;
+        ret.cashItemSerialNumber = cashItemSerialNumber;
+        ret.expireTime = expireTime;
+        ret.invType = invType;
+        ret.type = type;
+        ret.isCash = isCash;
+        ret.sockets = new ArrayList<>(sockets);
+        ret.fSTR = fSTR;
+        ret.fDEX = fDEX;
+        ret.fINT = fINT;
+        ret.fLUK = fLUK;
+        ret.fATT = fATT;
+        ret.fMATT = fMATT;
+        ret.fDEF = fDEF;
+        ret.fHP = fHP;
+        ret.fMP = fMP;
+        ret.fSpeed = fSpeed;
+        ret.fJump = fJump;
+        ret.fAllStat = fAllStat;
+        ret.fBoss = fBoss;
+        ret.fDamage = fDamage;
+        ret.fLevel = fLevel;
+        ret.dropStreak = dropStreak;
+        ret.itemSkills = itemSkills;
+        ret.effectItemID = effectItemID;
+        return ret;
     }
 
 }

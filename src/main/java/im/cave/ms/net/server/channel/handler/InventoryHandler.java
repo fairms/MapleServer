@@ -59,7 +59,7 @@ public class InventoryHandler {
                 drop = new Drop(-1, item);
             } else {
                 fullDrop = false;
-                Item dropItem = ItemData.getItemCopy(item.getItemId());
+                Item dropItem = ItemData.getItemCopy(item.getItemId(), false);
                 dropItem.setQuantity(quantity);
                 item.removeQuantity(quantity);
                 drop = new Drop(-1, dropItem);

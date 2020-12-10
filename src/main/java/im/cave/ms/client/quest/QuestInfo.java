@@ -2,6 +2,7 @@ package im.cave.ms.client.quest;
 
 import im.cave.ms.client.quest.progress.QuestProgressRequirement;
 import im.cave.ms.client.quest.requirement.QuestStartRequirement;
+import im.cave.ms.client.quest.reward.QuestReward;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,7 +18,7 @@ public class QuestInfo {
     private boolean normalAutoStart;
     private final Set<QuestStartRequirement> questStartRequirements = new HashSet<>();
     private final Set<QuestProgressRequirement> questProgressRequirements = new HashSet<>();
-    //    private Set<QuestReward> questRewards = new HashSet<>();
+    private final Set<QuestReward> questRewards = new HashSet<>();
     private final Set<Integer> fieldEnters = new HashSet<>();
     private int infoNumber;
     private long end;
@@ -44,9 +45,9 @@ public class QuestInfo {
     private boolean autoComplete;
     private int medalItemId;
 
-//    public Set<QuestReward> getQuestRewards() {
-//        return questRewards;
-//    }
+    public Set<QuestReward> getQuestRewards() {
+        return questRewards;
+    }
 
     public void setQuestID(int questID) {
         this.questID = questID;
@@ -152,9 +153,9 @@ public class QuestInfo {
         getQuestProgressRequirements().add(qpr);
     }
 
-//    public void addReward(QuestReward qir) {
-//        getQuestRewards().add(qir);
-//    }
+    public void addReward(QuestReward qir) {
+        getQuestRewards().add(qir);
+    }
 
     public void setSubJobFlags(int subJobFlags) {
         this.subJobFlags = subJobFlags;

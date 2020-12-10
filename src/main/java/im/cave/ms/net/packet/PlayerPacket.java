@@ -1,17 +1,19 @@
 package im.cave.ms.net.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.client.skill.Skill;
 import im.cave.ms.enums.InventoryOperation;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.MessageType;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+import org.aspectj.bridge.Message;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -314,4 +316,58 @@ public class PlayerPacket {
         mplew.write(0);  //sometimes
         return mplew;
     }
+
+
+    public static MaplePacketLittleEndianWriter effect(Effect effect) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.EFFECT.getValue());
+        effect.encode(mplew);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter incMoneyMessage(int amount) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        mplew.write(MessageType.INC_MONEY_MESSAGE.getVal());
+        mplew.writeInt(amount);
+        mplew.writeInt(amount > 0 ? 1 : -1);
+        return mplew;
+    }
+
+    // todo 纯复制
+    public static MaplePacketLittleEndianWriter message(MessageType mt, int i, String string, byte type) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        mplew.write(mt.getVal());
+        switch (mt) {
+            case CASH_ITEM_EXPIRE_MESSAGE:
+            case INC_POP_MESSAGE:
+            case INC_GP_MESSAGE:
+            case GIVE_BUFF_MESSAGE:
+                mplew.writeInt(i);
+                break;
+            case INC_COMMITMENT_MESSAGE:
+                mplew.writeInt(i);
+                mplew.write(i < 0 ? 1 : i == 0 ? 2 : 0); // gained = 0, lost = 1, cap = 2
+                break;
+            case SYSTEM_MESSAGE:
+                mplew.writeMapleAsciiString(string);
+                break;
+            case QUEST_RECORD_EX_MESSAGE:
+            case WORLD_SHARE_RECORD_MESSAGE:
+            case COLLECTION_RECORD_MESSAGE:
+                mplew.writeInt(i);
+                mplew.writeMapleAsciiString(string);
+                break;
+            case INC_HARDCORE_EXP_MESSAGE:
+                mplew.writeInt(i); //You have gained x EXP
+                mplew.writeInt(i); //Field Bonus Exp
+                break;
+            case BARRIER_EFFECT_IGNORE_MESSAGE:
+                mplew.write(type); //protection/shield scroll pop-up Message
+                break;
+        }
+        return mplew;
+    }
+
 }

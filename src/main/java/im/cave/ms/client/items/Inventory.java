@@ -127,6 +127,11 @@ public class Inventory {
         return getItems().size() >= getSlots();
     }
 
+
+    public Item getItemByItemID(int itemId) {
+        return getItems().stream().filter(item -> item.getItemId() == itemId).findFirst().orElse(null);
+    }
+
     public Item getItemByItemIDAndStackable(int itemId) {
         ItemInfo ii = ItemData.getItemById(itemId);
         if (ii == null) {

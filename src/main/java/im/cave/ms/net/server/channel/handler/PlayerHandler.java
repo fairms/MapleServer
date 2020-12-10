@@ -65,6 +65,9 @@ public class PlayerHandler {
         byte type = slea.readByte();
         byte element = slea.readByte();
         int damage = slea.readInt();
+        if (JobConstants.isGmJob(player.getJobId())) {
+            return;
+        }
         slea.skip(2);
         if (slea.available() >= 13) {
             int objId = slea.readInt();
@@ -162,7 +165,20 @@ public class PlayerHandler {
             }
             slea.readInt(); // 00 00 00 00
             slea.readInt(); // crc E7 DA 52 9A
-            slea.skip(15); //unk pos
+            mobAttackInfo.type = slea.readByte();
+            if (mobAttackInfo.type == 1) {
+                mobAttackInfo.currentAnimationName = slea.readMapleAsciiString();
+                slea.readMapleAsciiString();
+                mobAttackInfo.animationDeltaL = slea.readInt();
+                mobAttackInfo.hitPartRunTimesSize = slea.readInt();
+                mobAttackInfo.hitPartRunTimes = new String[mobAttackInfo.hitPartRunTimesSize];
+                for (int j = 0; j < mobAttackInfo.hitPartRunTimesSize; j++) {
+                    mobAttackInfo.hitPartRunTimes[j] = slea.readMapleAsciiString();
+                }
+            } else if (mobAttackInfo.type == 2) {
+                player.dropMessage("mobAttackInfo.type == 2 !!!");
+            }
+            slea.skip(14); //unk pos
             attackInfo.mobAttackInfo.add(mobAttackInfo);
         }
         player.getJobHandler().handleAttack(c, attackInfo);

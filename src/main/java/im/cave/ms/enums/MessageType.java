@@ -7,7 +7,7 @@ public enum MessageType {
     DROP_PICKUP_MESSAGE(0),
     QUEST_RECORD_MESSAGE(1),// v200
     QUEST_RECORD_MESSAGE_ADD_VALID_CHECK(2),// v200
-//    CASH_ITEM_EXPIRE_MESSAGE(3),// v200
+    CASH_ITEM_EXPIRE_MESSAGE(2),// v200
     INC_EXP_MESSAGE(3), // 白色字体经验
     INC_SP_MESSAGE(5),// v200
     INC_POP_MESSAGE(6),// v200
@@ -42,7 +42,7 @@ public enum MessageType {
     NX_RECORD_MESSAGE(35),
     BLOCKED_BEHAVIOR_MESSAGE(36),
     INC_WP_MESSAGE(37),
-//    MAX_WP_MESSAGE(38),
+    //    MAX_WP_MESSAGE(38),
     STYLISH_KILL_MESSAGE(38), //连杀奖励经验 / 黄色
     BARRIER_EFFECT_IGNORE_MESSAGE(40),
     EXPIRED_CASH_ITEM_RESULT_MESSAGE(41),
@@ -52,7 +52,7 @@ public enum MessageType {
     //45-54
     ;
 
-    private byte val;
+    private final byte val;
 
     MessageType(int val) {
         this.val = (byte) val;

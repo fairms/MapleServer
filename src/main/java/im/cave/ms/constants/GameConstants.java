@@ -28,6 +28,12 @@ public class GameConstants {
     //drop
     public static final int DROP_HEIGHT = 100; // was 20
     public static final int DROP_REMAIN_ON_GROUND_TIME = 120; // 2 minutes
+    public static final int DROP_REMOVE_OWNERSHIP_TIME = 30; // 30 sec
+    public static final int DROP_DIFF = 25;
+    public static final int MIN_MONEY_MULT = 6;
+    public static final int MAX_MONEY_MULT = 9;
+    public static final int MAX_DROP_CHANCE = 10000;
+
 
     public static final int BASE_MOB_RESPAWN_RATE = 10000; // In milliseconds
 

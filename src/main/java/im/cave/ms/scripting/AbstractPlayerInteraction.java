@@ -92,4 +92,15 @@ public class AbstractPlayerInteraction {
     public void dropMessage(String content) {
         c.getPlayer().dropMessage(content);
     }
+
+
+    public boolean forceCompleteQuest(int questId) {
+        c.getPlayer().getQuestManager().completeQuest(questId);
+        return true;
+    }
+
+    public boolean forceStartQuest(int questId) {
+        c.getPlayer().getQuestManager().addQuest(questId);
+        return true;
+    }
 }

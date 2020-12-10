@@ -48,7 +48,7 @@ public class NpcScriptManager extends AbstractScriptManager {
             if (scripts.containsKey(c)) {
                 nse = scripts.get(c);
             } else {
-                nse = getScriptEngine("npc/" + script + ".js");
+                nse = getScriptEngine("npc/" + script + ".js", c);
             }
             if (nse == null) {
                 c.getPlayer().dropMessage("NPC: " + npcId + " " + script + " 脚本不存在 地图:" + c.getPlayer().getMapId());

@@ -8,16 +8,15 @@ import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.constants.ItemConstants;
-import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
-import im.cave.ms.net.packet.MobPacket;
 import im.cave.ms.net.server.channel.MapleChannel;
 import im.cave.ms.net.server.world.World;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.MobData;
 import im.cave.ms.provider.data.NpcData;
+import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.HexTool;
 import im.cave.ms.tools.StringUtil;
 import im.cave.ms.tools.Util;
@@ -57,18 +56,18 @@ public class CommandHandler {
                     return;
                 }
                 if (s[1] != null && !s[1].equals("") && Util.isNumber(s[1])) {
-                    Mob mob = MobData.getMobFromWz(Integer.parseInt(s[1]));
+                    Mob mob = MobData.getMob(Integer.parseInt(s[1]));
                     if (mob == null) {
                         return;
                     }
                     mob.setHp(mob.getMaxHp());
                     mob.setMp(mob.getMaxMp());
                     mob.setPosition(c.getPlayer().getPosition());
-                    c.getPlayer().getMap().addLife(mob);
                     for (int i = 0; i < 100; i++) {
-                        c.announce(MaplePacketCreator.spawnMob(mob));
-                        c.announce(MaplePacketCreator.mobChangeController(mob));
-
+                        Mob copy = mob.deepCopy();
+                        c.getPlayer().getMap().addObj(copy);
+                        c.announce(MaplePacketCreator.spawnMob(copy));
+                        c.announce(MaplePacketCreator.mobChangeController(copy));
                     }
                 }
                 break;
@@ -85,7 +84,7 @@ public class CommandHandler {
                     npc.setRx0(npc.getPosition().getX() - 50);
                     npc.setRx1(npc.getPosition().getX() + 50);
                     npc.setCy(npc.getPosition().getY());
-                    c.getPlayer().getMap().addLife(npc);
+                    c.getPlayer().getMap().addObj(npc);
                     npc.setFh(c.getPlayer().getFoothold());
                     c.announce(MaplePacketCreator.spawnNpc(npc));
                     c.announce(MaplePacketCreator.spawnNpcController(npc));
@@ -93,6 +92,7 @@ public class CommandHandler {
                 break;
             case "ea":
                 c.getPlayer().setConversation(false);
+                QuestScriptManager.getInstance().dispose(c);
                 c.announce(MaplePacketCreator.enableActions());
                 break;
             case "item":
@@ -108,7 +108,7 @@ public class CommandHandler {
                     c.getPlayer().putItem(equip);
 
                 } else {
-                    Item item = ItemData.getItemCopy(itemId);
+                    Item item = ItemData.getItemCopy(itemId, false);
                     if (item == null) {
                         return;
                     }
@@ -161,11 +161,6 @@ public class CommandHandler {
                 }
                 c.getPlayer().dropMessage(s[1]);
                 break;
-            case "effect":
-                if (s.length < 2) {
-                    return;
-                }
-                c.getPlayer().showEffect(Integer.parseInt(s[1]));
         }
     }
 }

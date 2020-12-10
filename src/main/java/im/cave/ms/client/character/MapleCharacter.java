@@ -633,7 +633,9 @@ public class MapleCharacter implements Serializable {
     public void addDrop(Drop drop) {
         if (drop.isMeso()) {
             addMeso(drop.getMoney());
+            getQuestManager().handleMoneyGain(drop.getMoney());
             announce(ChannelPacket.dropPickupMessage(drop.getMoney(), (short) 0, (short) 0));
+//            dispose();
         } else {
             Item item = drop.getItem();
             int itemId = item.getItemId();
@@ -662,7 +664,7 @@ public class MapleCharacter implements Serializable {
     }
 
 
-    private void addMeso(int amount) {
+    public void addMeso(long amount) {
         long meso = getMeso();
         long newMeso = meso + amount;
         if (newMeso >= 0) {
@@ -711,6 +713,16 @@ public class MapleCharacter implements Serializable {
 
     private void setExp(long newExp) {
         stats.setExp(newExp);
+    }
+
+    public void consumeItem(int itemId, int quantity) {
+        Item checkItem = ItemData.getItemCopy(itemId, false);
+        Item item = getInventory(checkItem.getInvType()).getItemByItemID(itemId);
+        if (item != null) {
+            int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
+            item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
+            consumeItem(item);
+        }
     }
 
     public void consumeItem(Item item) {
@@ -1034,7 +1046,8 @@ public class MapleCharacter implements Serializable {
         return questManager;
     }
 
-    public void showEffect(int effect) {
-        announce(QuestPacket.showEffect(effect));
+
+    public boolean hasAnyQuestsInProgress(Set<Integer> quests) {
+        return true;
     }
 }

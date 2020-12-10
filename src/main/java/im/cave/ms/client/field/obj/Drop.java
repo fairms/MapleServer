@@ -52,4 +52,18 @@ public class Drop extends MapleMapObj {
     public void sendSpawnData(MapleCharacter chr) {
         chr.announce(ChannelPacket.dropEnterField(this, DropEnterType.Instant, getPosition()));
     }
+
+    public boolean canBePickedUpBy(MapleCharacter chr) {
+        int owner = getOwnerID();
+        return owner == chr.getId();
+//        return owner == chr.getId() ||
+//                (chr.getParty() != null && chr.getParty().hasPartyMember(owner))
+//                || owner == 0;
+    }
+
+
+    public void setMoney(int money) {
+        this.money = money;
+        this.isMeso = true;
+    }
 }

@@ -1,7 +1,10 @@
 package im.cave.ms.provider.data;
 
+import im.cave.ms.client.field.obj.Drop;
+import im.cave.ms.client.field.obj.DropInfo;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobStat;
+import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataProvider;
@@ -614,7 +617,26 @@ public class MobData {
 
             }
         }
+
+        mob.setDrops(DropData.getDrops(mobId));
+        mob.getDrops().add(new DropInfo(GameConstants.MAX_DROP_CHANCE,
+                GameConstants.MIN_MONEY_MULT * mob.getForcedMobStat().getLevel(),
+                GameConstants.MAX_MONEY_MULT * mob.getForcedMobStat().getLevel()
+        ));
+        for (DropInfo di : mob.getDrops()) {
+            di.generateNextDrop();
+        }
         mobs.put(mobId, mob);
         return mob;
+    }
+
+    public static Mob getMobDeepCopyById(int templateId) {
+        Mob from = getMob(templateId);
+        Mob copy = null;
+        if (from != null) {
+            copy = from.deepCopy();
+        }
+        return copy;
+
     }
 }

@@ -475,7 +475,7 @@ public class PacketHelper {
         mplew.writeShort(size);
         for (Quest quest : questManager.getQuestsInProgress()) {
             mplew.writeInt(quest.getQrKey());
-            mplew.writeMapleAsciiString(quest.getQrValue());
+            mplew.writeMapleAsciiString(quest.getQRValue());
         }
         mplew.writeBool(true); //completed quest
         Set<Quest> completedQuests = questManager.getCompletedQuests();

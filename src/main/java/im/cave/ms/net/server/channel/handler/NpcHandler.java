@@ -15,6 +15,8 @@ import im.cave.ms.provider.data.NpcData;
 import im.cave.ms.provider.service.EventManager;
 import im.cave.ms.scripting.npc.NpcConversationManager;
 import im.cave.ms.scripting.npc.NpcScriptManager;
+import im.cave.ms.scripting.quest.QuestActionManager;
+import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
@@ -58,8 +60,12 @@ public class NpcHandler {
             return;
         }
         NpcConversationManager cm = NpcScriptManager.getInstance().getCM(c);
-        if (cm == null) {
+        QuestActionManager qm = QuestScriptManager.getInstance().getQM(c);
+        if (cm == null && qm == null) {
             return;
+        }
+        if (cm == null) {
+            cm = qm;
         }
         byte lastType = slea.readByte();
         byte action = slea.readByte();

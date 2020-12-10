@@ -231,15 +231,16 @@ public class ChannelPacket {
     }
 
 
-    public static MaplePacketLittleEndianWriter dropEnterField(Drop drop, DropEnterType dropEnterType, Position position) {
-        return dropEnterField(drop, dropEnterType, position, position);
+    public static MaplePacketLittleEndianWriter dropEnterField(Drop drop, DropEnterType dropEnterType, Position posFrom) {
+        return dropEnterField(drop, dropEnterType, posFrom, posFrom);
     }
 
-    public static MaplePacketLittleEndianWriter dropEnterField(Drop drop, DropEnterType dropEnterType, Position posTo, Position posFrom) {
-        return dropEnterField(drop, dropEnterType, posTo, posFrom, 0);
+    public static MaplePacketLittleEndianWriter dropEnterField(Drop drop, DropEnterType dropEnterType, Position posFrom, Position posTo) {
+        return dropEnterField(drop, dropEnterType, posFrom, posTo, 0, false);
     }
 
-    public static MaplePacketLittleEndianWriter dropEnterField(Drop drop, DropEnterType dropEnterType, Position posTo, Position posFrom, int delay) {
+
+    public static MaplePacketLittleEndianWriter dropEnterField(Drop drop, DropEnterType dropEnterType, Position posFrom, Position posTo, int delay, boolean canBePickByPet) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.DROP_ENTER_FIELD.getValue());
         mplew.writeBool(drop.isMeso());
@@ -263,7 +264,7 @@ public class ChannelPacket {
         if (!drop.isMeso()) {
             mplew.writeLong(drop.getExpireTime());
         }
-        mplew.writeBool(drop.isCanBePickedUpByPet());
+        mplew.writeBool(drop.isCanBePickedUpByPet() && canBePickByPet);
         mplew.writeZeroBytes(14); //unk
         return mplew;
     }

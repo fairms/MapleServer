@@ -303,7 +303,7 @@ public class MapData {
                 } else if (life.getLifeType().equalsIgnoreCase("n")) {
                     Npc npc = life.getNpc();
                     if (npc != null) {
-                        map.addLife(life.getNpc());
+                        map.addObj(life.getNpc());
                     }
                 }
             }

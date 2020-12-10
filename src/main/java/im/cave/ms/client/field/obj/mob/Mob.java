@@ -5,6 +5,7 @@ import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
+import im.cave.ms.client.field.obj.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.config.WorldConfig;
 import im.cave.ms.constants.GameConstants;
@@ -113,8 +114,8 @@ public class Mob extends MapleMapObj {
     private boolean isSplit;
     private int splitLink;
     private Map<MapleCharacter, Long> injuryStatistics = new HashMap<>();
-    //    private Set<DropInfo> drops = new HashSet<>();
-//    private List<MobSkill> skills = new ArrayList<>();
+    private Set<DropInfo> drops = new HashSet<>();
+    //    private List<MobSkill> skills = new ArrayList<>();
 //    private List<MobSkill> attacks = new ArrayList<>();
     private Set<Integer> quests = new HashSet<>();
     private Set<Integer> revives = new HashSet<>();
@@ -297,7 +298,7 @@ public class Mob extends MapleMapObj {
         copy.setCharismaEXP(getCharismaEXP());
         copy.setMp(getMaxMp());
         copy.setMaxMp(getMaxMp());
-//        copy.setDrops(getDrops()); // doesn't get mutated, so should be fine
+        copy.setDrops(getDrops());
         copy.setBanMap(isBanMap());
         copy.setBanType(getBanType());
         copy.setBanMsgType(getBanMsgType());
@@ -371,6 +372,9 @@ public class Mob extends MapleMapObj {
         map.removeObj(getObjectId(), false);
         distributeExp();
         dropDrops();
+        for (MapleCharacter chr : getInjuryStatistics().keySet()) {
+            chr.getQuestManager().handleMobKill(this);
+        }
     }
 
     private void distributeExp() {
@@ -393,7 +397,35 @@ public class Mob extends MapleMapObj {
         }
     }
 
-    private void dropDrops() {
-
+    public MapleCharacter getMostDamageChar() {
+        Tuple<MapleCharacter, Long> max = new Tuple<>(null, (long) -1);
+        for (Map.Entry<MapleCharacter, Long> entry : getInjuryStatistics().entrySet()) {
+            MapleCharacter chr = entry.getKey();
+            long damage = entry.getValue();
+            if (damage > max.getRight()) {
+                max.setLeft(chr);
+                max.setRight(damage);
+            }
+        }
+        return max.getLeft();
     }
+
+    private void dropDrops() {
+        MapleCharacter chr = getMostDamageChar();
+        int ownerId = 0;
+        if (chr != null) {
+            ownerId = chr.getId();
+        }
+        int fh = getFh();
+        if (fh == 0) {
+            Foothold foothold = getMap().getFootholdBelow(getPosition());
+            if (foothold != null) {
+                fh = foothold.getId();
+            }
+        }
+        int totalMesoRate = 0;
+        int totalDropRate = 0;
+        getMap().drop(getDrops(), getMap().getFoothold(fh), getPosition(), ownerId, totalMesoRate, totalDropRate, false);
+    }
+
 }

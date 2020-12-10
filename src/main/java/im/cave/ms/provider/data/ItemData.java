@@ -5,9 +5,12 @@ import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemInfo;
 import im.cave.ms.client.items.ItemSkill;
 import im.cave.ms.client.items.SpecStat;
+import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.ServerConstants;
+import im.cave.ms.enums.ItemGrade;
+import im.cave.ms.enums.ItemState;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataDirectoryEntry;
 import im.cave.ms.provider.wz.MapleDataFileEntry;
@@ -89,14 +92,14 @@ public class ItemData {
 
 
     public static Equip getEquipById(int equipId) {
-        if(!equips.containsKey(equipId)){
+        if (!equips.containsKey(equipId)) {
             return getEquipFromWz(equipId);
         }
         return equips.get(equipId);
     }
 
     public static ItemInfo getItemById(int itemId) {
-        if(!items.containsKey(itemId)){
+        if (!items.containsKey(itemId)) {
             return getItemFromWz(itemId);
         }
         return items.get(itemId);
@@ -855,8 +858,45 @@ public class ItemData {
     }
 
 
-    public static Item getItemCopy(int itemId) {
+    public static Item getItemCopy(int itemId, boolean randomize) {
+        if (ItemConstants.isEquip(itemId)) {
+            return getEquipDeepCopyFromID(itemId, randomize);
+        } else if (ItemConstants.isPet(itemId)) {
+//            return getPetDeepCopyFromID(id);
+        }
+
         return getDeepCopyByItemInfo(getItemById(itemId));
+    }
+
+    public static Item getEquipDeepCopyFromID(int itemId, boolean randomize) {
+        Equip e = getEquipById(itemId);
+        Equip ret = e == null ? null : e.deepCopy();
+        if (ret != null) {
+            ret.setQuantity(1);
+            ret.setCuttable((short) -1);
+            ret.setHyperUpgrade((short) ItemState.AmazingHyperUpgradeChecked.getVal());
+            ret.setType(Item.Type.EQUIP);
+            ret.setInvType(InventoryType.EQUIP);
+            if (randomize) {
+//                if (ItemConstants.canEquipHaveFlame(ret)) {
+//                    ret.randomizeFlameStats(true);
+//                }
+//                if (ItemConstants.canEquipHavePotential(ret)) {
+//                    ItemGrade grade = ItemGrade.None;
+//                    if (Util.succeedProp(GameConstants.RANDOM_EQUIP_UNIQUE_CHANCE)) {
+//                        grade = ItemGrade.HiddenUnique;
+//                    } else if (Util.succeedProp(GameConstants.RANDOM_EQUIP_EPIC_CHANCE)) {
+//                        grade = ItemGrade.HiddenEpic;
+//                    } else if (Util.succeedProp(GameConstants.RANDOM_EQUIP_RARE_CHANCE)) {
+//                        grade = ItemGrade.HiddenRare;
+//                    }
+//                    if (grade != ItemGrade.None) {
+//                        ret.setHiddenOptionBase(grade.getVal(), ItemConstants.THIRD_LINE_CHANCE);
+//                    }
+//                }
+            }
+        }
+        return ret;
     }
 
 

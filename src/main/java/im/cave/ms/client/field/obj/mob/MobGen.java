@@ -3,9 +3,7 @@ package im.cave.ms.client.field.obj.mob;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.MapleMapObj;
-import im.cave.ms.constants.GameConstants;
 import im.cave.ms.net.packet.MaplePacketCreator;
-import im.cave.ms.net.packet.MobPacket;
 import im.cave.ms.tools.Position;
 
 /**
@@ -94,7 +92,7 @@ public class MobGen extends MapleMapObj {
         Position pos = mob.getHomePosition();
         mob.setPosition(pos.deepCopy());
         mob.setHomePosition(pos.deepCopy());
-        map.addLife(mob);
+        map.addObj(mob);
         map.broadcastMessage(null, MaplePacketCreator.spawnMob(mob));
         map.broadcastMessage(null, MaplePacketCreator.mobChangeController(mob));
         setNextPossibleSpawnTime(System.currentTimeMillis() + (getMob().getMobTime() * 1000));

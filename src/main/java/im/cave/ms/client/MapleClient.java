@@ -43,6 +43,7 @@ public class MapleClient {
     private LoginStatus loginStatus = LoginStatus.NOTLOGGEDIN;
     private long lastPong;
     private final Map<String, NashornScriptEngine> engines = new HashMap<>();
+    private final ReentrantLock scriptLock = new ReentrantLock(true);
 
     public MapleClient(Channel ch, int sendIv, int recvIv) {
         this.ch = ch;
@@ -145,6 +146,14 @@ public class MapleClient {
 
     public void releaseEncoderState() {
         lock.unlock();
+    }
+
+    public void acquireScriptState() {
+        scriptLock.lock();
+    }
+
+    public void releaseScriptState() {
+        scriptLock.unlock();
     }
 
     public int getPort() {

@@ -1,11 +1,16 @@
 package im.cave.ms.client.quest;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.quest.requirement.QuestStartCompletionRequirement;
 import im.cave.ms.client.quest.requirement.QuestStartRequirement;
+import im.cave.ms.client.quest.reward.QuestBuffItemReward;
+import im.cave.ms.client.quest.reward.QuestItemReward;
+import im.cave.ms.client.quest.reward.QuestReward;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.QuestStatus;
+import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.net.packet.QuestPacket;
 import im.cave.ms.provider.data.QuestData;
 import lombok.Getter;
@@ -130,14 +135,14 @@ public class QuestManager {
             } else {
                 chr.chatMessage(ChatType.Tip, "[Info] Accepted quest " + quest.getQrKey());
                 if (addRewardsFromWz) {
-//                    QuestInfo qi = QuestData.getQuestInfoById(quest.getQRKey());
-//                    if (qi != null) {
-//                        for (QuestReward qr : qi.getQuestRewards()) {
-//                            if ((qr instanceof QuestItemReward && ((QuestItemReward) qr).getStatus() == 0) || (qr instanceof QuestBuffItemReward && ((QuestBuffItemReward) qr).getStatus() == 0)) {
-//                                qr.giveReward(getChr());
-//                            }
-//                        }
-//                    }
+                    QuestInfo qi = QuestData.getQuestInfo(quest.getQrKey());
+                    if (qi != null) {
+                        for (QuestReward qr : qi.getQuestRewards()) {
+                            if ((qr instanceof QuestItemReward && ((QuestItemReward) qr).getStatus() == 0) || (qr instanceof QuestBuffItemReward && ((QuestBuffItemReward) qr).getStatus() == 0)) {
+                                qr.giveReward(getChr());
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -189,33 +194,33 @@ public class QuestManager {
         quest.setCompletedTime(System.currentTimeMillis());
         chr.chatMessage(ChatType.Tip, "[Info] Completed quest " + quest.getQrKey());
 //        chr.getMap().broadcastMessage(UserRemote.effect(chr.getId(), Effect.questCompleteEffect()));
-//        chr.announce(EffectPacket.effect(Effect.questCompleteEffect()));
+        chr.announce(PlayerPacket.effect(Effect.questCompleteEffect()));
         chr.announce(QuestPacket.questRecordMessage(quest));
         if (questInfo != null) {
-//            for (QuestReward qr : questInfo.getQuestRewards()) {
-//                if (!(qr instanceof QuestItemReward) || ((QuestItemReward) qr).getStatus() != 0) {
-//                    qr.giveReward(chr);
-//                }
-//            }
+            for (QuestReward qr : questInfo.getQuestRewards()) {
+                if (!(qr instanceof QuestItemReward) || ((QuestItemReward) qr).getStatus() != 0) {
+                    qr.giveReward(chr);
+                }
+            }
         }
     }
 
     public void handleMobKill(Mob mob) {
-        for (int questID : mob.getQuests()) {
-            Quest q = getQuests().get(questID);
-//            if (q != null && !q.isComplete(chr)) {
-//                q.handleMobKill(mob.getTemplateId());
-//                chr.write(WvsContext.questRecordMessage(q));
-//            }
+        Set<Quest> questsInProgress = chr.getQuestManager().getQuestsInProgress();
+        for (Quest quest : questsInProgress) {
+            if (quest.reqMob(mob.getTemplateId())) {
+                quest.handleMobKill(mob.getTemplateId());
+                chr.announce(QuestPacket.questRecordMessage(quest));
+            }
         }
     }
 
     public void handleMoneyGain(int money) {
         for (Quest q : getQuestsInProgress()) {
-//            if (q.hasMoneyReq()) {
-//                q.addMoney(money);
-//                chr.write(WvsContext.questRecordMessage(q));
-//            }
+            if (q.hasMoneyReq()) {
+                q.addMoney(money);
+                chr.announce(QuestPacket.questRecordMessage(q));
+            }
         }
     }
 

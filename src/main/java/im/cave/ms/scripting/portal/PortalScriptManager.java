@@ -33,13 +33,13 @@ public class PortalScriptManager extends AbstractScriptManager {
         sef = sem.getEngineByName("javascript").getFactory();
     }
 
-    private NashornScriptEngine getPortalScript(String scriptName) {
+    private NashornScriptEngine getPortalScript(String scriptName, MapleClient c) {
         String scriptPath = String.format("portal/%s.js", scriptName);
         NashornScriptEngine nse = scripts.get(scriptPath);
         if (nse != null) {
             return nse;
         }
-        nse = getScriptEngine(scriptPath);
+        nse = getScriptEngine(scriptPath, c);
         if (nse == null) {
             return null;
         }
@@ -49,7 +49,7 @@ public class PortalScriptManager extends AbstractScriptManager {
 
     public boolean executePortalScript(Portal portal, MapleClient client) {
         try {
-            NashornScriptEngine nse = getPortalScript(portal.getScript());
+            NashornScriptEngine nse = getPortalScript(portal.getScript(), client);
             if (nse != null) {
                 return (boolean) nse.invokeFunction("enter", new PortalPlayerInteraction(client, portal));
             }

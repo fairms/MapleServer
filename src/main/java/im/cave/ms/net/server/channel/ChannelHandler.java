@@ -100,7 +100,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
                 SpecialPortalHandler.handlePacket(slea, c);
                 break;
             case USER_QUEST_REQUEST:
-                QuestHandler.handleQuestRequest(slea, c);
+                EventManager.addEvent(() -> QuestHandler.handleQuestRequest(slea, c), 0);
                 break;
             case ENTER_PORTAL:
                 EnterPortalHandler.handlePacket(slea, c);
@@ -184,7 +184,6 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
             case CPONG:
                 c.pongReceived();
                 break;
-
         }
 
     }

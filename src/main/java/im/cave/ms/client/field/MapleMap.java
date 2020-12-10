@@ -2,6 +2,7 @@ package im.cave.ms.client.field;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.obj.Drop;
+import im.cave.ms.client.field.obj.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobGen;
@@ -157,13 +158,13 @@ public class MapleMap {
                 .findAny().orElse(null);
     }
 
-    public void addLife(MapleMapObj life) {
-        if (life.getObjectId() < 0) {
-            life.setObjectId(objectIdCounter.getAndIncrement());
+    public void addObj(MapleMapObj obj) {
+        if (obj.getObjectId() < 0) {
+            obj.setObjectId(objectIdCounter.getAndIncrement());
         }
-        if (!objs.containsValue(life)) {
-            objs.put(life.getObjectId(), life);
-            life.setMap(this);
+        if (!objs.containsValue(obj)) {
+            objs.put(obj.getObjectId(), obj);
+            obj.setMap(this);
         }
     }
 
@@ -253,6 +254,68 @@ public class MapleMap {
     }
 
 
+    public void drop(Set<DropInfo> drops, Foothold fh, Position position, int ownerId, int mesoRate, int dropRate, boolean isElite) {
+        int x = position.getX();
+        int minX = fh == null ? position.getX() : fh.getX1();
+        int maxX = fh == null ? position.getX() : fh.getX2();
+        int diff = 0;
+        for (DropInfo drop : drops) {
+            if (drop.willDrop(dropRate)) {
+                x = (x + diff) > maxX ? maxX - 10 : (x + diff) < minX ? minX + 10 : x + diff;
+                Position posTo;
+                if (fh == null) {
+                    posTo = position.deepCopy();
+                } else {
+                    posTo = new Position(x, fh.getYFromX(x));
+                }
+                DropInfo copy = null;
+                if (drop.isMoney()) {
+                    copy = drop.deepCopy();
+                    copy.setMoney((int) (drop.getMoney() * ((100 + mesoRate) / 100D)));
+                }
+
+                drop(copy != null ? copy : drop, position, posTo, ownerId);
+                diff = diff < 0 ? Math.abs(diff - GameConstants.DROP_DIFF) : -(diff + GameConstants.DROP_DIFF);
+                drop.generateNextDrop();
+            }
+        }
+
+    }
+
+    public void drop(DropInfo dropInfo, Position posFrom, Position posTo, int ownerId) {
+        int itemID = dropInfo.getItemID();
+        Item item;
+        Drop drop = new Drop(-1);
+        drop.setPosition(posTo);
+        drop.setOwnerID(ownerId);
+        Set<Integer> quests = new HashSet<>();
+        if (itemID != 0) {
+            item = ItemData.getItemCopy(itemID, true);
+            if (item != null) {
+                item.setQuantity(dropInfo.getQuantity());
+                drop.setItem(item);
+                ItemInfo itemInfo = ItemData.getItemById(itemID);
+                if (itemInfo != null && itemInfo.isQuest()) {
+                    quests = itemInfo.getQuestIDs();
+                }
+            } else {
+                log.error("Was not able to find the item to drop! id = " + itemID);
+                return;
+            }
+        } else {
+            drop.setMoney(dropInfo.getMoney());
+        }
+        addObj(drop);
+        drop.setExpireTime(System.currentTimeMillis() + GameConstants.DROP_REMOVE_OWNERSHIP_TIME * 1000);
+        addObjScheduledFuture(drop, EventManager.addEvent(() -> removeDrop(drop.getObjectId(), DropLeaveType.Fade, 0, true), DROP_REMAIN_ON_GROUND_TIME, TimeUnit.SECONDS));
+        EventManager.addEvent(() -> drop.setOwnerID(0), GameConstants.DROP_REMOVE_OWNERSHIP_TIME, TimeUnit.SECONDS);
+        for (MapleCharacter chr : getCharacters()) {
+            if (chr.hasAnyQuestsInProgress(quests)) {
+                broadcastMessage(ChannelPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo, ownerId, drop.canBePickedUpBy(chr)));
+            }
+        }
+    }
+
     public void addObjScheduledFuture(MapleMapObj obj, ScheduledFuture scheduledFuture) {
         getObjScheduledFutures().put(obj, scheduledFuture);
     }
@@ -268,7 +331,7 @@ public class MapleMap {
         }
         drop.setPosition(posTo);
         if (isTradable) {
-            addLife(drop);
+            addObj(drop);
             addObjScheduledFuture(drop, EventManager.addEvent(() -> removeDrop(drop.getObjectId(), DropLeaveType.Fade, 0, true), DROP_REMAIN_ON_GROUND_TIME, TimeUnit.SECONDS));
         } else {
             drop.setObjectId(getObjectIdCounter().getAndIncrement());
@@ -290,6 +353,29 @@ public class MapleMap {
     }
 
     public Foothold findFootHoldBelow(Position position) {
+        Set<Foothold> footholds = getFootholds().stream().filter(fh -> fh.getX1() <= position.getX() && fh.getX2() >= position.getX()).collect(Collectors.toSet());
+        Foothold res = null;
+        int lastY = Integer.MAX_VALUE;
+        for (Foothold fh : footholds) {
+            int y = fh.getYFromX(position.getX());
+            if (res == null && y >= position.getY()) {
+                res = fh;
+                lastY = y;
+            } else {
+                if (y < lastY && y >= position.getY()) {
+                    res = fh;
+                    lastY = y;
+                }
+            }
+        }
+        return res;
+    }
+
+    public Foothold getFoothold(int fh) {
+        return getFootholds().stream().filter(f -> f.getId() == fh).findFirst().orElse(null);
+    }
+
+    public Foothold getFootholdBelow(Position position) {
         Set<Foothold> footholds = getFootholds().stream().filter(fh -> fh.getX1() <= position.getX() && fh.getX2() >= position.getX()).collect(Collectors.toSet());
         Foothold res = null;
         int lastY = Integer.MAX_VALUE;

@@ -26,7 +26,7 @@ public class QuestPacket {
                 mplew.write(0); // If quest is completed, but should never be true?
                 break;
             case Started:
-                mplew.writeMapleAsciiString(quest.getQrValue());
+                mplew.writeMapleAsciiString(quest.getQRValue());
                 break;
             case Completed:
                 mplew.writeLong(quest.getCompletedTime());
@@ -46,10 +46,4 @@ public class QuestPacket {
         return mplew;
     }
 
-    public static MaplePacketLittleEndianWriter showEffect(int effect) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.EFFECT.getValue());
-        mplew.write(effect);
-        return mplew;
-    }
 }

@@ -14,6 +14,11 @@ import im.cave.ms.client.quest.requirement.QuestStartJobRequirement;
 import im.cave.ms.client.quest.requirement.QuestStartMarriageRequirement;
 import im.cave.ms.client.quest.requirement.QuestStartMaxLevelRequirement;
 import im.cave.ms.client.quest.requirement.QuestStartMinStatRequirement;
+import im.cave.ms.client.quest.reward.QuestBuffItemReward;
+import im.cave.ms.client.quest.reward.QuestExpReward;
+import im.cave.ms.client.quest.reward.QuestItemReward;
+import im.cave.ms.client.quest.reward.QuestMoneyReward;
+import im.cave.ms.client.quest.reward.QuestPopReward;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.QuestStatus;
 import im.cave.ms.provider.wz.MapleData;
@@ -48,14 +53,14 @@ public class QuestData {
     }
 
     private static QuestInfo getQuestInfoFromWz(int questId) {
-        MapleData data = questData.getData("/Check.img");
-        MapleData questData = data.getChildByPath(String.valueOf(questId));
-        if (questData == null) {
+        MapleData checkData = questData.getData("/Check.img");
+        MapleData baseData = checkData.getChildByPath(String.valueOf(questId));
+        if (baseData == null) {
             return null;
         }
         QuestInfo quest = new QuestInfo();
         quest.setQuestID(questId);
-        for (MapleData questAttr : questData.getChildren()) {
+        for (MapleData questAttr : baseData.getChildren()) {
             byte status = Byte.parseByte(questAttr.getName());
             for (MapleData info : questAttr.getChildren()) {
                 String name = info.getName();
@@ -358,6 +363,7 @@ public class QuestData {
                                     case "levelCondition":
                                         break;
                                     default:
+                                        log.warn("unknown quest skill req attr :{} quest:{}", name, questId);
                                         break;
                                 }
                             }
@@ -385,6 +391,7 @@ public class QuestData {
                                         order = Integer.parseInt(reqValue);
                                         break;
                                     default:
+                                        log.warn("unknown quest npc speech req attr :{} quest:{}", name, questId);
                                         break;
                                 }
                             }
@@ -401,6 +408,85 @@ public class QuestData {
             }
         }
         quests.put(questId, quest);
+
+        MapleData actData = questData.getData("/Act.img");
+        MapleData actInfos = actData.getChildByPath(String.valueOf(questId));
+        for (MapleData actInfo : actInfos) {
+            int status = Integer.parseInt(actInfo.getName());
+            for (MapleData reward : actInfo.getChildren()) {
+                String name = reward.getName();
+                String value = MapleDataTool.getString(reward);
+                switch (name) {
+                    case "transferField":
+                        quest.setTransferField(Integer.valueOf(value));
+                        break;
+                    case "nextQuest":
+                        quest.setNextQuest(Integer.parseInt(value));
+                        break;
+                    case "exp":
+                        quest.addReward(new QuestExpReward(Long.parseLong(value)));
+                        break;
+                    case "money":
+                        quest.addReward(new QuestMoneyReward(Long.parseLong(value)));
+                        break;
+                    case "pop":
+                        quest.addReward(new QuestPopReward(Integer.parseInt(value)));
+                        break;
+                    case "buffItemID":
+                        quest.addReward(new QuestBuffItemReward(Integer.parseInt(value), status));
+                        break;
+                    case "item":
+                        for (MapleData item : reward.getChildren()) {
+                            QuestItemReward qir = new QuestItemReward();
+                            qir.setStatus(status);
+                            for (MapleData itemInfo : item.getChildren()) {
+                                String itemName = itemInfo.getName();
+                                String itemValue = MapleDataTool.getString(itemInfo);
+                                switch (itemName) {
+                                    case "id":
+                                        qir.setId(Integer.parseInt(itemValue));
+                                        break;
+                                    case "prop":
+                                        qir.setProp(Integer.parseInt(itemValue));
+                                        break;
+                                    case "count":
+                                        qir.setQuantity(Short.parseShort(itemValue));
+                                        break;
+                                    case "potentialGrade":
+                                        qir.setPotentialGrade(itemValue);
+                                        break;
+                                    case "gender":
+                                        qir.setGender(Integer.parseInt(itemValue));
+                                        break;
+                                    default:
+                                        log.warn(String.format("(%d) Unk item name %s with value %s status %d", questId, itemName, itemValue, status));
+                                        break;
+                                }
+                            }
+                            quest.addReward(qir);
+                        }
+                        break;
+                    default:
+                        log.warn(String.format("(%d) Unk name %s with value %s status %d", questId, name, value, status));
+                        break;
+                }
+            }
+        }
+
+        MapleData questInfos = questData.getData("/QuestInfo.img");
+        MapleData questInfo = questInfos.getChildByPath(String.valueOf(questId));
+        for (MapleData questInfoData : questInfo.getChildren()) {
+            String name = questInfoData.getName();
+            String value = MapleDataTool.getString(questInfoData);
+            switch (name) {
+                case "autoComplete":
+                    quest.setAutoComplete(Integer.parseInt(value) == 1);
+                    break;
+                case "viewMedalItem":
+                    quest.setMedalItemId(Integer.parseInt(value));
+                    break;
+            }
+        }
         return quest;
     }
 
