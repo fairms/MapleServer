@@ -40,7 +40,7 @@ public class QuestItemReward implements QuestReward {
         if (getQuantity() < 0) {
             chr.consumeItem(item.getItemId(), -getQuantity());
         } else {
-            chr.putItem(item);
+            chr.addItemToInv(item);
         }
         chr.announce(PlayerPacket.effect(Effect.gainQuestItem(item.getItemId(), getQuantity())));
     }

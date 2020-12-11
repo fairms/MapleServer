@@ -26,8 +26,8 @@ public enum NpcMessageType {
     AskPet(13, ResponseType.Answer),// v202.3
     AskPetAll(14, ResponseType.Answer),// v202.3
     AskActionPetEvolution(15, ResponseType.Answer),// v202.3
-    Script(16, ResponseType.Answer),
-    AskAccept(17, ResponseType.Response),// v202.3
+//    Script(16, ResponseType.Answer),
+    AskAccept(16, ResponseType.Response),// v202.3
     // 18
     AskBoxtext(19, ResponseType.Answer),// v202.3
     AskSlideMenu(20, ResponseType.Answer),// v202.3

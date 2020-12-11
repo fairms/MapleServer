@@ -1,19 +1,29 @@
 package im.cave.ms.net.packet;
 
+import im.cave.ms.client.Account;
+import im.cave.ms.client.Trunk;
 import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
+import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.DimensionalMirror;
 import im.cave.ms.enums.DropEnterType;
 import im.cave.ms.enums.DropLeaveType;
+import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ServerMsgType;
+import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Randomizer;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+
+import java.util.Collection;
+import java.util.List;
 
 import static im.cave.ms.enums.DropEnterType.*;
 import static im.cave.ms.enums.MessageType.*;
@@ -34,7 +44,6 @@ public class ChannelPacket {
     }
 
     public static MaplePacketLittleEndianWriter getWarpToMap(MapleCharacter chr, boolean load, MapleMap to, int spawnPoint, boolean firstLoggedIn) {
-
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SET_MAP.getValue());
         mplew.writeShort(1);
@@ -243,14 +252,14 @@ public class ChannelPacket {
     public static MaplePacketLittleEndianWriter dropEnterField(Drop drop, DropEnterType dropEnterType, Position posFrom, Position posTo, int delay, boolean canBePickByPet) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.DROP_ENTER_FIELD.getValue());
-        mplew.writeBool(drop.isMeso());
+        mplew.writeBool(drop.isMoney());
         mplew.write(dropEnterType.getVal());
         mplew.writeInt(drop.getObjectId());
-        mplew.writeBool(drop.isMeso());
+        mplew.writeBool(drop.isMoney());
         mplew.writeInt(0); //getDropMotionType
         mplew.writeInt(0); //dropSpeed
         mplew.writeInt(0);  //rand?
-        mplew.writeInt(!drop.isMeso() ? drop.getItem().getItemId() : drop.getMoney());
+        mplew.writeInt(!drop.isMoney() ? drop.getItem().getItemId() : drop.getMoney());
         mplew.writeInt(drop.getOwnerID());
         mplew.write(2); // 0 = timeout for non-owner, 1 = timeout for non-owner's party, 2 = FFA, 3 = explosive/FFA
         mplew.writePos(posTo);
@@ -261,7 +270,7 @@ public class ChannelPacket {
             mplew.writeInt(delay); //delay
         }
         mplew.write(0); //unk
-        if (!drop.isMeso()) {
+        if (!drop.isMoney()) {
             mplew.writeLong(drop.getExpireTime());
         }
         mplew.writeBool(drop.isCanBePickedUpByPet() && canBePickByPet);
@@ -330,9 +339,6 @@ public class ChannelPacket {
         return mplew;
     }
 
-    public static MaplePacketLittleEndianWriter effect(int charId) {
-        return null;
-    }
 
     public static MaplePacketLittleEndianWriter resultInstanceTable(String requestStr, int type, int subType, int value) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
@@ -342,6 +348,94 @@ public class ChannelPacket {
         mplew.writeInt(subType);
         mplew.writeBool(type < 41);
         mplew.writeInt(value);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter unityPortal() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.OPEN_UNITY_PORTAL.getValue());
+        mplew.writeInt(DimensionalMirror.values().length);
+        for (DimensionalMirror unityPortal : DimensionalMirror.values()) {
+            mplew.writeMapleAsciiString(unityPortal.getName());
+            mplew.writeMapleAsciiString(unityPortal.getDesc());
+            mplew.writeInt(unityPortal.getReqLevel());
+            mplew.writeInt(0);
+            mplew.writeInt(unityPortal.getId());
+            mplew.writeInt(unityPortal.getReqQuest());
+            mplew.writeInt(unityPortal.getQuestToSave());
+            mplew.writeBool(unityPortal.isSquad());
+            mplew.writeInt(unityPortal.getRewards().length);
+            for (Integer reward : unityPortal.getRewards()) {
+                mplew.writeInt(reward);
+            }
+        }
+        mplew.writeShort(0);
+        mplew.writeInt(0);
+        return mplew;
+    }
+
+
+    public static MaplePacketLittleEndianWriter quickMove(boolean town) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        List<QuickMoveInfo> quickMoveInfos = GameConstants.getQuickMoveInfos();
+        mplew.writeShort(SendOpcode.QUICK_MOVE.getValue());
+        if (town) {
+            mplew.write(quickMoveInfos.size());
+            for (int i = 0; i < quickMoveInfos.size(); i++) {
+                mplew.writeInt(i);
+                mplew.writeInt(quickMoveInfos.get(i).getTemplateID());
+                mplew.writeInt(quickMoveInfos.get(i).getCode().getVal());
+                mplew.writeInt(quickMoveInfos.get(i).getLevelMin());
+                mplew.writeMapleAsciiString(quickMoveInfos.get(i).getMsg());
+                mplew.writeLong(quickMoveInfos.get(i).getStart());
+                mplew.writeLong(quickMoveInfos.get(i).getEnd());
+            }
+        } else {
+            mplew.writeBool(false);
+        }
+        return mplew;
+    }
+
+
+    public static MaplePacketLittleEndianWriter openTrunk(int npcId, Account account) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
+        mplew.write(TrunkOpType.TrunkRes_OpenTrunkDlg.getVal());
+        mplew.writeInt(npcId);
+        Trunk trunk = account.getTrunk();
+        mplew.write(trunk.getSlotCount());
+        mplew.writeLong(0x7E); //unk
+        mplew.writeLong(trunk.getMoney());
+        mplew.write(trunk.getItems().size());
+        mplew.writeInt(0);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter trunkMsg(TrunkOpType trunkOpType) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.write(trunkOpType.getVal());
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter getMoneyFromTrunk(long mount, Trunk trunk) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.write(TrunkOpType.TrunkRes_MoneySuccess.getVal());
+        mplew.write(trunk.getSlotCount());
+        mplew.writeLong(0x02);
+        mplew.writeLong(trunk.getMoney());
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter getItemFromTrunk(Collection<Item> items, Trunk trunk, InventoryType type) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
+        mplew.write(TrunkOpType.TrunkRes_GetSuccess.getVal());
+        mplew.write(trunk.getSlotCount());
+        mplew.writeLong(type.getBitfieldEncoding());
+        mplew.write(items.size());
+        for (Item item : items) {
+            PacketHelper.addItemInfo(mplew, item);
+        }
         return mplew;
     }
 }

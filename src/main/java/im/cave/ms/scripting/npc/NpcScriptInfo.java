@@ -39,6 +39,7 @@ public class NpcScriptInfo {
     private String[] selectText;
     private int templateID;
     private int faceIndex;
+    private int requireCard;
     private boolean isLeft;
     //async
     private final Lock lock = new ReentrantLock();
@@ -367,6 +368,18 @@ public class NpcScriptInfo {
 
     public void setLeft(boolean left) {
         isLeft = left;
+    }
+
+    public void setColor(int color) {
+        this.color = (byte) color;
+    }
+
+    public int getRequireCard() {
+        return requireCard;
+    }
+
+    public void setRequireCard(int requireCard) {
+        this.requireCard = requireCard;
     }
 
     public enum Param {

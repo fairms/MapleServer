@@ -2,13 +2,12 @@ package im.cave.ms.provider.data;
 
 import im.cave.ms.client.field.obj.Npc;
 import im.cave.ms.constants.ServerConstants;
-import im.cave.ms.net.packet.PacketHelper;
 import im.cave.ms.provider.wz.MapleData;
-import im.cave.ms.provider.wz.MapleDataDirectoryEntry;
 import im.cave.ms.provider.wz.MapleDataProvider;
 import im.cave.ms.provider.wz.MapleDataProviderFactory;
 import im.cave.ms.provider.wz.MapleDataTool;
 import im.cave.ms.tools.StringUtil;
+import im.cave.ms.tools.Util;
 
 import java.io.File;
 import java.util.HashSet;
@@ -23,6 +22,15 @@ import java.util.Set;
 public class NpcData {
     private static final MapleDataProvider npcData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Npc.wz"));
     private static final Set<Npc> npcs = new HashSet<>();
+
+
+    public static Npc getNpc(int npcId) {
+        Npc npc = Util.findWithPred(npcs, n -> n.getTemplateId() == npcId);
+        if (npc == null) {
+            npc = getNpcDataFromWz(npcId);
+        }
+        return npc;
+    }
 
 
     public static Npc getNpcDataFromWz(int npcId) {

@@ -3,6 +3,7 @@ package im.cave.ms.net.packet;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleStat;
+import im.cave.ms.client.field.FieldEffect;
 import im.cave.ms.client.field.obj.Npc;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.net.crypto.TripleDESCipher;
@@ -104,6 +105,17 @@ public class MaplePacketCreator {
         mplew.write(0xFF);
         return mplew;
     }
+
+    public static MaplePacketLittleEndianWriter blackboard(MapleCharacter chr, boolean show, String content) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeInt(chr.getId());
+        mplew.writeBool(show);
+        if (show) {
+            mplew.writeMapleAsciiString(content);
+        }
+        return mplew;
+    }
+
 
     public static MaplePacketLittleEndianWriter enableActions() {
         return updatePlayerStats(EMPTY_STATUS, true, null);
@@ -296,6 +308,51 @@ public class MaplePacketCreator {
         mplew.writeInt(mob.getScale());
         mplew.writeInt(-1);
         mplew.writeZeroBytes(42);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter startBattleAnalysis() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.BATTLE_ANALYSIS.getValue());
+        mplew.write(1);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter keymapInit(MapleCharacter character) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.KEYMAP_INIT.getValue());
+        character.getKeyMap().encode(mplew);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter quickslotInit(MapleCharacter player) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.QUICKSLOT_INIT.getValue());
+        boolean edited = player.getQuickslots() != null && player.getQuickslots().size() == 32;
+        mplew.writeBool(edited);
+        if (player.getQuickslots() != null) {
+            for (Integer key : player.getQuickslots()) {
+                mplew.writeInt(key);
+            }
+        }
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter fieldEffect(FieldEffect effect) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.FIELD_EFFECT.getValue());
+        effect.encode(mplew);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter fieldMessage(int itemId, String message, int duration) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.FIELD_MESSAGE.getValue());
+        mplew.write(0);
+        mplew.writeInt(itemId);
+        mplew.writeMapleAsciiString(message);
+        mplew.writeInt(duration);
+        mplew.write(0);
         return mplew;
     }
 

@@ -123,11 +123,20 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
             case USE_ITEM:
                 InventoryHandler.handleUseItem(slea, c);
                 break;
+            case USER_ABILITY_UP_REQUEST:
+                PlayerHandler.handleAPUpdateRequest(slea, c);
+                break;
+            case USER_ABILITY_MASS_UP_REQUEST:
+                PlayerHandler.handleAPMassUpdateRequest(slea, c);
+                break;
             case SELECT_NPC:
-                NpcHandler.handleUserSelectNpc(slea, c);
+                NpcHandler.handleUserSelectNPC(slea, c);
                 break;
             case TALK_ACTION:
                 NpcHandler.handleAction(slea, c);
+                break;
+            case TRUNK_OPERATION:
+                WorldHandler.handleTrunkOperation(slea, c);
                 break;
             case CHAR_HIT:
                 PlayerHandler.handleHit(slea, c);
@@ -135,6 +144,8 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
             case PLAYER_MOVE:
                 PlayerHandler.handlePlayerMove(slea, c);
                 break;
+            case MIGRATE_TO_CASH_SHOP_REQUEST:
+                WorldHandler.handleMigrateToCashShopRequest(slea, c);
             case CLOSE_RANGE_ATTACK:
             case RANGED_ATTACK:
             case MAGIC_ATTACK:
@@ -166,8 +177,17 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
             case CHANGE_KEYMAP:
                 PlayerHandler.handleChangeKeyMap(slea, c);
                 break;
+            case CHANGE_CHAR_REQUEST:
+                WorldHandler.handleChangeCharRequest(slea, c);
+                break;
             case UPDATE_TICK:
                 c.getPlayer().setTick(slea.readInt());
+                break;
+            case UNITY_PORTAL_SELECT:
+                WorldHandler.handleUnityPortalSelect(slea, c);
+                break;
+            case SKILL_OPT:
+                c.getPlayer().changeSkillState(slea.readInt());
                 break;
             case CANCEL_CHAIR:
                 PlayerHandler.cancelChair(slea, c);
@@ -177,6 +197,12 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
                 break;
             case PICK_UP:
                 PlayerHandler.handlePickUp(slea, c);
+                break;
+            case QUICK_MOVE_SELECT:
+                WorldHandler.handleQuickMove(slea.readInt(), c);
+                break;
+            case BATTLE_ANALYSIS:
+                WorldHandler.handleBattleAnalysis(slea, c);
                 break;
             case EQUIP_EFFECT_OPT:
                 PlayerHandler.handleEquipEffectOpt(slea.readInt(), c);

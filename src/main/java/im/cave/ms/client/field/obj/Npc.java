@@ -65,4 +65,43 @@ public class Npc extends MapleMapObj {
         mplew.writeInt(-1);
         mplew.writeZeroBytes(12);
     }
+
+    public Npc deepCopy() {
+        Npc copy = new Npc(getTemplateId());
+        copy.setLifeType(getLifeType());
+        copy.setX(getX());
+        copy.setY(getY());
+        copy.setMobTime(getMobTime());
+        copy.setFlip(isFlip());
+        copy.setHide(isHide());
+        copy.setFh(getFh());
+        copy.setCy(getCy());
+        copy.setRx0(getRx0());
+        copy.setRx1(getRx1());
+        copy.setLimitedName(getLimitedName());
+        copy.setUseDay(isUseDay());
+        copy.setUseNight(isUseNight());
+        copy.setHold(isHold());
+        copy.setNoFoothold(isNoFoothold());
+        copy.setDummy(isDummy());
+        copy.setSpine(isSpine());
+        copy.setMobTimeOnDie(isMobTimeOnDie());
+        copy.setRegenStart(getRegenStart());
+        copy.setMove(isMove());
+        copy.setMobAliveReq(getMobAliveReq());
+        copy.setTrunkGet(getTrunkGet());
+        copy.setTrunkPut(getTrunkPut());
+        copy.setNpcRect(getNpcRect());
+        copy.getScripts().putAll(getScripts());
+        return copy;
+    }
+
+
+    public Rect getDC() {
+        return npcRect;
+    }
+
+    public void setDC(Rect npcRect) {
+        this.npcRect = npcRect;
+    }
 }

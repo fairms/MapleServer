@@ -13,7 +13,6 @@ import im.cave.ms.enums.MessageType;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
-import org.aspectj.bridge.Message;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
+import static im.cave.ms.net.packet.PacketHelper.MAX_TIME;
 
 /**
  * @author fair
@@ -30,6 +30,7 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
  * @date 11/29 22:25
  */
 public class PlayerPacket {
+
 
     public static MaplePacketLittleEndianWriter inventoryOperation(boolean exclRequestSent, boolean notRemoveAddInfo, InventoryOperation type, short oldPos, short newPos,
                                                                    int bagPos, Item item) {
@@ -121,8 +122,9 @@ public class PlayerPacket {
 
     public static MaplePacketLittleEndianWriter updateVoucher(MapleCharacter chr) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.write(chr.getId());
-        mplew.write(chr.getAccount().getVoucher());
+        mplew.writeShort(SendOpcode.UPDATE_VOUCHER.getValue());
+        mplew.writeInt(chr.getId());
+        mplew.writeInt(chr.getAccount().getVoucher());
         return mplew;
     }
 
@@ -261,7 +263,7 @@ public class PlayerPacket {
             mplew.writeInt(skill.getSkillId());
             mplew.writeInt(skill.getCurrentLevel());
             mplew.writeInt(skill.getMasterLevel());
-            mplew.writeLong(DateUtil.getFileTime(-1));
+            mplew.writeLong(MAX_TIME);
         }
         mplew.writeBool(sn);
         return mplew;
@@ -370,4 +372,11 @@ public class PlayerPacket {
         return mplew;
     }
 
+    public static MaplePacketLittleEndianWriter inventoryRefresh() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
+        mplew.writeBool(true);
+        mplew.writeShort(0);
+        return mplew;
+    }
 }

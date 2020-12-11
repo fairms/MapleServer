@@ -4,6 +4,7 @@ import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.config.WorldConfig;
+import im.cave.ms.net.server.cashshop.CashShopServer;
 import im.cave.ms.net.server.channel.MapleChannel;
 import im.cave.ms.net.server.login.LoginServer;
 import im.cave.ms.net.server.world.World;
@@ -125,5 +126,9 @@ public class Server {
             }
         }
         return sb.toString();
+    }
+
+    public CashShopServer getCashShop(byte world) {
+        return getWorldById(world).getCashShop();
     }
 }

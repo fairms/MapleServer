@@ -49,7 +49,6 @@ public class QuestManager {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ElementCollection
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @CollectionTable(name = "questlists")
     @MapKeyColumn(name = "questId")

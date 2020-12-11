@@ -60,15 +60,13 @@ public class CommandHandler {
                     if (mob == null) {
                         return;
                     }
-                    mob.setHp(mob.getMaxHp());
-                    mob.setMp(mob.getMaxMp());
-                    mob.setPosition(c.getPlayer().getPosition());
-                    for (int i = 0; i < 100; i++) {
-                        Mob copy = mob.deepCopy();
-                        c.getPlayer().getMap().addObj(copy);
-                        c.announce(MaplePacketCreator.spawnMob(copy));
-                        c.announce(MaplePacketCreator.mobChangeController(copy));
-                    }
+                    Mob copy = mob.deepCopy();
+                    copy.setHp(mob.getMaxHp());
+                    copy.setMp(mob.getMaxMp());
+                    copy.setPosition(c.getPlayer().getPosition());
+                    c.getPlayer().getMap().addObj(copy);
+                    c.announce(MaplePacketCreator.spawnMob(copy));
+                    c.announce(MaplePacketCreator.mobChangeController(copy));
                 }
                 break;
             case "npc":
@@ -76,7 +74,7 @@ public class CommandHandler {
                     return;
                 }
                 if (s[1] != null && !s[1].equals("") && Util.isNumber(s[1])) {
-                    Npc npc = NpcData.getNpcDataFromWz(Integer.parseInt(s[1]));
+                    Npc npc = NpcData.getNpc(Integer.parseInt(s[1])).deepCopy();
                     if (npc == null) {
                         return;
                     }
@@ -105,7 +103,7 @@ public class CommandHandler {
                     if (equip == null) {
                         return;
                     }
-                    c.getPlayer().putItem(equip);
+                    c.getPlayer().addItemToInv(equip);
 
                 } else {
                     Item item = ItemData.getItemCopy(itemId, false);
@@ -113,7 +111,7 @@ public class CommandHandler {
                         return;
                     }
                     item.setQuantity(100);
-                    c.getPlayer().putItem(item);
+                    c.getPlayer().addItemToInv(item);
                 }
                 break;
             case "t":

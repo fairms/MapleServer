@@ -8,6 +8,7 @@ import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.net.server.channel.MapleChannel;
+import im.cave.ms.net.server.login.LoginServer;
 import im.cave.ms.net.server.world.World;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.LoginType;
@@ -242,6 +243,55 @@ public class LoginPacket {
         } else {
             mplew.writeShort(SendOpcode.CPING.getValue());
         }
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter changePlayer(MapleClient c) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        char[] ss = new char[256];
+        int i = 0;
+        while (i < ss.length) {
+            int f = (int) (Math.random() * 3);
+            if (f == 0) {
+                ss[i] = (char) ('A' + Math.random() * 26);
+            } else if (f == 1) {
+                ss[i] = (char) ('a' + Math.random() * 26);
+            } else {
+                ss[i] = (char) ('0' + Math.random() * 10);
+            }
+            i++;
+        }
+        String key = new String(ss);
+        LoginServer.getInstance().putLoginAuthKey(key, c.getAccount().getAccount(), c.getChannel());
+        mplew.writeShort(SendOpcode.CHANGE_CHAR_KEY.getValue());
+        mplew.writeMapleAsciiString(key);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter authSuccess(MapleClient c) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.AUTH_SUCCESS.getValue());
+        mplew.write(0);
+        mplew.writeInt(c.getAccount().getId());
+        mplew.write(0);
+        mplew.writeInt(0);
+        mplew.writeInt(0);
+        mplew.write(3);
+        mplew.write(0);
+        mplew.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
+        mplew.writeLong(0);
+        mplew.write(0);
+        mplew.writeMapleAsciiString(c.getAccount().getAccount());
+        mplew.writeShort(0);
+        mplew.write(1);
+        mplew.write(33);
+        for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
+            mplew.write(ServerConfig.config.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
+            mplew.writeShort(1);
+        }
+        mplew.write(0);
+        mplew.writeInt(-1);
+        mplew.write(1);
         return mplew;
     }
 }

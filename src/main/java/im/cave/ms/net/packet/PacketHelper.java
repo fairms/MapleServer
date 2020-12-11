@@ -1,6 +1,7 @@
 package im.cave.ms.net.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
@@ -349,10 +350,9 @@ public class PacketHelper {
         addTRocksInfo(mplew, chr); //MapTransfer
 
         // QuestInfo
-        mplew.writeShort(0); // quest complete old
+        mplew.writeShort(0); // quest ex
 
-        //未知
-        mplew.writeInt(0); //quest ex
+        mplew.writeInt(0); //unk
         mplew.write(1);
         mplew.writeInt(0);
         mplew.writeInt(1);
@@ -362,8 +362,11 @@ public class PacketHelper {
         for (int i = 0; i < 20; i++) {
             mplew.writeInt(0);
         }
-
-        mplew.writeShort(0); // 内在能力 todo
+        //内在能力
+        mplew.writeShort(chr.getCharacterPotential().size());
+        for (CharacterPotential characterPotential : chr.getCharacterPotential()) {
+            characterPotential.encode(mplew);
+        }
 
         mplew.writeShort(0);
         mplew.writeInt(1); //荣耀等级
@@ -495,7 +498,7 @@ public class PacketHelper {
         for (Skill skill : skills) {
             mplew.writeInt(skill.getSkillId());
             mplew.writeInt(skill.getCurrentLevel());
-            mplew.writeLong(DateUtil.getFileTime(-1));
+            mplew.writeLong(MAX_TIME);
             if (SkillConstants.isSkillNeedMasterLevel(skill.getSkillId())) {
                 mplew.writeInt(skill.getMasterLevel());
             }
@@ -744,7 +747,7 @@ public class PacketHelper {
                 mplew.writeInt(equip.getDurability());
             }
             if (equip.hasStat(EquipBaseStat.iuc)) {
-                mplew.writeInt(equip.getIuc()); // hammer
+                mplew.writeInt(equip.getIuc()); // 金锤子
             }
 //            if (equip.hasStat(EquipBaseStat.iPvpDamage)) {
 //                mplew.writeShort(equip.getIPvpDamage());
@@ -786,15 +789,14 @@ public class PacketHelper {
                 mplew.write(equip.getStatR() + equip.getFAllStat()); // as
             }
             if (equip.hasStat(EquipBaseStat.cuttable)) {
-                mplew.write(equip.getCuttable()); // sok //剪刀
+                mplew.write(equip.getCuttable());  //剪刀 FF
             }
             if (equip.hasStat(EquipBaseStat.exGradeOption)) {
-                mplew.writeLong(equip.getExGradeOption());  //?
+                mplew.writeLong(equip.getExGradeOption());  // 经验
             }
             if (equip.hasStat(EquipBaseStat.itemState)) {
-                mplew.writeInt(equip.getItemState());
+                mplew.writeInt(equip.getItemState());  // 00 01 00 00
             }
-
 
             mplew.writeMapleAsciiString(equip.getOwner());
             mplew.write(equip.getGrade());

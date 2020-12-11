@@ -30,7 +30,7 @@ public enum ChatType {
     ItemMessage(21),
     MiracleTime(22),
     LotteryItemSpeaker(23),
-    LotteryItemSpeakerWorld(24),
+    YellowBlue(24),  //[Lucid] : content
     AvatarMegaphone(25),
     PickupSpeakerWorld(26),
     WorldName(27),

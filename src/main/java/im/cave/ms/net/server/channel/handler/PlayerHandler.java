@@ -486,4 +486,63 @@ public class PlayerHandler {
         TemporaryStatManager tsm = player.getTemporaryStatManager();
         tsm.removeStatsBySkill(skillId);
     }
+
+    public static void handleAPUpdateRequest(SeekableLittleEndianAccessor slea, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null || player.getRemainingAp() <= 0) {
+            return;
+        }
+        player.setTick(slea.readInt());
+        short stat = slea.readShort();
+        MapleStat charStat = MapleStat.getByValue(stat);
+        if (charStat == null) {
+            return;
+        }
+        int amount = 1;
+        if (charStat == MapleStat.MAXMP || charStat == MapleStat.MAXHP) {
+            amount = 20;
+        }
+        player.addStat(charStat, amount);
+        player.addStat(MapleStat.AVAILABLEAP, (short) -1);
+        Map<MapleStat, Long> stats = new HashMap<>();
+        stats.put(charStat, (long) player.getStat(charStat));
+        stats.put(MapleStat.AVAILABLEAP, (long) player.getStat(MapleStat.AVAILABLEAP));
+        c.announce(MaplePacketCreator.updatePlayerStats(stats, true, player));
+    }
+
+    public static void handleAPMassUpdateRequest(SeekableLittleEndianAccessor slea, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null || player.getRemainingAp() <= 0) {
+            return;
+        }
+        player.setTick(slea.readInt());
+        int type = slea.readInt();
+        int amount;
+        MapleStat charStat = null;
+        if (type == 1) {
+            charStat = MapleStat.getByValue(slea.readLong());
+        } else if (type == 2) {
+            slea.readInt();
+            slea.readInt();
+            slea.readInt();
+            charStat = MapleStat.getByValue(slea.readLong());
+        }
+        if (charStat == null) {
+            return;
+        }
+        amount = slea.readInt();
+        int addStat = amount;
+        if (player.getRemainingAp() < amount) {
+            return;
+        }
+        if (charStat == MapleStat.MAXMP || charStat == MapleStat.MAXHP) {
+            addStat *= 20;
+        }
+        player.setStat(charStat, addStat);
+        player.setStat(MapleStat.AVAILABLEAP, amount);
+        Map<MapleStat, Long> stats = new HashMap<>();
+        stats.put(charStat, (long) player.getStat(charStat));
+        stats.put(MapleStat.AVAILABLEAP, (long) player.getStat(MapleStat.AVAILABLEAP));
+        c.announce(MaplePacketCreator.updatePlayerStats(stats, player));
+    }
 }

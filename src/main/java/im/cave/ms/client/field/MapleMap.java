@@ -311,7 +311,7 @@ public class MapleMap {
         EventManager.addEvent(() -> drop.setOwnerID(0), GameConstants.DROP_REMOVE_OWNERSHIP_TIME, TimeUnit.SECONDS);
         for (MapleCharacter chr : getCharacters()) {
             if (chr.hasAnyQuestsInProgress(quests)) {
-                broadcastMessage(ChannelPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo, ownerId, drop.canBePickedUpBy(chr)));
+                broadcastMessage(ChannelPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo, 500, drop.canBePickedUpBy(chr)));
             }
         }
     }

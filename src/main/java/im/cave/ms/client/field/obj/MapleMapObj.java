@@ -51,7 +51,7 @@ public class MapleMapObj {
     public Npc getNpc() {
         Npc npc = null;
         if (getLifeType().equals("n")) {
-            npc = NpcData.getNpcDataFromWz(templateId);
+            npc = NpcData.getNpc(templateId).deepCopy();
             if (npc == null) {
                 return null;
             }

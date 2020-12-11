@@ -7,6 +7,7 @@ import im.cave.ms.scripting.AbstractPlayerInteraction;
 
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -72,6 +73,17 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
             return "";
         }
         return ((String) response);
+    }
+
+    public int sendAskAvatar(String text, int requireCard, int[] options, boolean isAngelicBuster, boolean isZeroBeta) {
+        npcScriptInfo.setOptions(options);
+        npcScriptInfo.setColor(0);
+        npcScriptInfo.setRequireCard(requireCard);
+        return sendGeneralSay(text, AskAvatar);
+    }
+
+    public int sendAskAvatar(String text, int requireCard, int[] options) {
+        return sendAskAvatar(text, requireCard, options, false, false);
     }
 
 

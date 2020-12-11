@@ -7,13 +7,11 @@ import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
+import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.net.server.channel.MapleChannel;
-import im.cave.ms.net.server.world.World;
 import im.cave.ms.tools.Pair;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
-
-import java.util.Arrays;
 
 /**
  * @author fair
@@ -59,16 +57,19 @@ public class PlayerLoggedinHandler {
         player.setJobHandler(JobManager.getJobById(player.getJobId(), player));
         //加密后的Opcode
         c.announce(MaplePacketCreator.encodeOpcodes(c));
-
         c.announce(MaplePacketCreator.cancelTitleEffect());
         //3.切换地图
         if (player.getHp() <= 0) {
             player.setMapId(player.getMap().getReturnMap());
             player.heal(50);
         }
-        c.announce(ChannelPacket.getWarpToMap(player, true));
-        player.getMap().addPlayer(player);
+        player.changeMap(player.getMapId(), true);
         player.initBaseStats();
+        player.buildQuestEx();
+
+        c.announce(MaplePacketCreator.keymapInit(player));
+        c.announce(MaplePacketCreator.quickslotInit(player));
         c.announce(LoginPacket.account(player.getAccount()));
+        c.announce(PlayerPacket.updateVoucher(player));
     }
 }

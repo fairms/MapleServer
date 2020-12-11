@@ -64,6 +64,7 @@ import static im.cave.ms.client.items.ScrollStat.reqRUC;
 import static im.cave.ms.client.items.ScrollStat.speed;
 import static im.cave.ms.client.items.ScrollStat.success;
 import static im.cave.ms.client.items.ScrollStat.tuc;
+import static im.cave.ms.constants.GameConstants.MAX_TIME;
 import static im.cave.ms.provider.wz.MapleDataType.CANVAS;
 
 /**
@@ -128,7 +129,7 @@ public class ItemData {
         equip.setInvType(InventoryType.EQUIP);
         equip.setType(Item.Type.EQUIP);
         equip.setItemId(equipId);
-        equip.setExpireTime(DateUtil.getFileTime(-1));
+        equip.setExpireTime(MAX_TIME);
         List<Integer> options = new ArrayList<>(7);
         for (MapleData attr : info.getChildren()) {
             if (attr.getType() == CANVAS) {

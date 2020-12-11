@@ -22,7 +22,6 @@ public class ServerListHandler {
     }
 
     public static void serverList(SeekableLittleEndianAccessor slea, MapleClient c) {
-        validate(c);
         for (MaplePacketLittleEndianWriter server : LoginPacket.serverList()) {
             c.announce(server);
         }

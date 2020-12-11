@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
+import static im.cave.ms.constants.GameConstants.ZERO_TIME;
+
 /**
  * @author fair
  * @version V1.0
@@ -40,7 +42,7 @@ public class Item implements Serializable {
     protected int pos;
     @Column(name = "sn")
     protected long cashItemSerialNumber;
-    protected long expireTime = DateUtil.getFileTime(-2);
+    protected long expireTime = ZERO_TIME;
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "invType")
     protected InventoryType invType;

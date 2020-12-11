@@ -1,8 +1,15 @@
 package im.cave.ms.net.server.login.handler;
 
+import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.enums.LoginStatus;
+import im.cave.ms.enums.LoginType;
+import im.cave.ms.net.db.DataBaseManager;
 import im.cave.ms.net.packet.LoginPacket;
+import im.cave.ms.net.server.Server;
+import im.cave.ms.net.server.login.LoginServer;
+import im.cave.ms.tools.Pair;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 
 import java.util.List;
@@ -20,6 +27,23 @@ public class CharlistRequestHandler {
         int channel = slea.readByte();
         c.setWorld(worldId);
         c.setChannel(channel);
+        if (c.getLoginStatus() == LoginStatus.NOTLOGGEDIN && slea.available() == 284) {
+            slea.skip(2);
+            String key = slea.readMapleAsciiString();
+            LoginServer instance = LoginServer.getInstance();
+            if (instance.getLoginAuthKey().containsKey(key)) {
+                Pair<String, Integer> pair = instance.getLoginAuthKey().get(key);
+                Account account = (Account) DataBaseManager.getObjFromDB(Account.class, "account", pair.getLeft());
+                c.setAccount(account);
+                c.setChannel(pair.getRight());
+                Server.getInstance().addAccount(account);
+                c.setLoginStatus(LoginStatus.LOGGEDIN);
+                c.announce(LoginPacket.authSuccess(c));
+            }
+        } else if (c.getLoginStatus() == LoginStatus.NOTLOGGEDIN) {
+            c.announce(LoginPacket.loginResult(c, LoginType.AuthFail));
+            return;
+        }
         List<MapleCharacter> characters = c.loadCharacters(worldId, false);
         c.announce(LoginPacket.charList(c, characters, 0));
         c.announce(LoginPacket.account(c.getAccount()));

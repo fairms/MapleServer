@@ -1,5 +1,12 @@
 package im.cave.ms.constants;
 
+import im.cave.ms.client.field.QuickMoveInfo;
+import im.cave.ms.enums.QuickMoveType;
+
+import java.nio.file.attribute.FileTime;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author fair
  * @version V1.0
@@ -7,6 +14,9 @@ package im.cave.ms.constants;
  * @date 11/19 21:48
  */
 public class GameConstants {
+
+    public static final long MAX_TIME = 150842304000000000L;
+    public static final long ZERO_TIME = 94354848000000000L;
 
 
     public static long[] charExp = new long[276];
@@ -39,7 +49,7 @@ public class GameConstants {
 
     //map
     public static final int NO_MAP_ID = 999999999;
-
+    private static List<QuickMoveInfo> quickMoveInfos;
 
     public static int[][][] INC_HP_MP = {
             // first array = per job
@@ -74,6 +84,18 @@ public class GameConstants {
 
     static {
         initCharExp();
+        initQuickMove();
+    }
+
+    private static void initQuickMove() {
+        quickMoveInfos = new ArrayList<>();
+        quickMoveInfos.add(new QuickMoveInfo(0, 9072302, QuickMoveType.Boat, 1, "Warping", false,
+                ZERO_TIME, MAX_TIME));
+        quickMoveInfos.add(new QuickMoveInfo(0, 9010022, QuickMoveType.DimensionalPortal, 1, "Dimensional Portal", false,
+                ZERO_TIME, MAX_TIME));
+        quickMoveInfos.add(new QuickMoveInfo(0, 9071003, QuickMoveType.MonsterPark, 1, "Monster Park", false,
+                ZERO_TIME, MAX_TIME));
+
     }
 
     private static void initCharExp() {
@@ -226,5 +248,9 @@ public class GameConstants {
         }
         return null;// something wrong.
 
+    }
+
+    public static List<QuickMoveInfo> getQuickMoveInfos() {
+        return quickMoveInfos;
     }
 }

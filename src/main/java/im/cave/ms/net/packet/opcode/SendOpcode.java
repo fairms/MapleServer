@@ -9,6 +9,7 @@ public enum SendOpcode {
     SERVERSTATUS(0x05),//CHECK_USER_LIMIT_RESULT
     CHARLIST(0x06),
     SERVER_IP(0x07),
+    AUTH_SUCCESS(0x08),
     PING(0x11),
     CHAR_NAME_RESPONSE(0x0A),
     ADD_NEW_CHAR_ENTRY(0x0B),
@@ -34,14 +35,20 @@ public enum SendOpcode {
     DEBUG_MSG(0xdd),
     RESULT_INSTANCE_TABLE(0xe7),
     RANK(0xF7),
+    CHANGE_CHAR_KEY(0x12E),
     ACCOUNT(0x13C),
     CANCEL_TITLE_EFFECT(0x145),
     UPDATE_VOUCHER(0x201),
     SET_MAP(0x236),
+    SET_CASH_SHOP(0x239),
     FIELD_EFFECT(0x244),
+    FIELD_MESSAGE(0x245),
+    CLOCK(0x24A), //时钟
     QUICKSLOT_INIT(0x258),
+    QUICK_MOVE(0x26b),
     SIT_RESULT(0x29b), //sit
     CHATTEXT(0x2B7),
+    BLACK_BOARD(0x2B9),
     CHECK_ACCOUNT(0x2DC),
     CANCEL_CHAIR(0x2E1),
     HIDDEN_EFFECT_EQUIP(0x316),
@@ -50,6 +57,7 @@ public enum SendOpcode {
     QUEST_RESULT(0x388),
     DISABLE_UI(0x394),
     LOCK_UI(0x395),
+    NOTICE(0x3A2),
     CHAT_MSG(0x3A3),
     FULLSCREEN_MSG(0x3b2),
     DEATH_CONFIRM(0x3cc),
@@ -67,8 +75,11 @@ public enum SendOpcode {
     DROP_ENTER_FIELD(0x569),
     PICK_UP_DROP(0x56b),
     NPC_TALK(0x741),
-    KEYMAP(0x84A);
-
+    TRUNK_OPERATION(0x75A),
+    OPEN_UNITY_PORTAL(0x7f3),
+    KEYMAP_INIT(0x84A),
+    BATTLE_ANALYSIS(0x879),
+    ;
     private final int code;
 
     SendOpcode(int code) {

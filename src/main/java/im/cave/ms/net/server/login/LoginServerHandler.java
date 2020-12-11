@@ -75,7 +75,7 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<SeekableLitt
         }
         switch (opcode) {
             case BEFORE_LOGIN:
-                PasswordLoginHandler.handlePacket(c, slea);
+//                PasswordLoginHandler.handlePacket(c, slea);
                 break;
             case CLIENT_AUTH_REQUEST:
                 c.announce(LoginPacket.clientAuth());

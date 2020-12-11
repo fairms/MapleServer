@@ -4,11 +4,10 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.enums.DropEnterType;
 import im.cave.ms.net.packet.ChannelPacket;
-import im.cave.ms.tools.DateUtil;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.nio.file.attribute.FileTime;
+import static im.cave.ms.constants.GameConstants.ZERO_TIME;
 
 /**
  * @author fair
@@ -21,18 +20,14 @@ import java.nio.file.attribute.FileTime;
 public class Drop extends MapleMapObj {
     private Item item;
     private int money;
-    private boolean isMeso;
     private int ownerID;
-    private boolean explosiveDrop;
     private boolean canBePickedUpByPet;
     private long expireTime;
-    private long mobExp;
 
     public Drop(int templateId, Item item) {
         super(templateId);
         this.item = item;
-        isMeso = false;
-        expireTime = DateUtil.getFileTime(-2);
+        expireTime = ZERO_TIME;
     }
 
     public Drop(int templateId) {
@@ -43,8 +38,7 @@ public class Drop extends MapleMapObj {
     public Drop(int templateId, int money) {
         super(templateId);
         this.money = money;
-        isMeso = true;
-        expireTime = DateUtil.getFileTime(-2);
+        expireTime = ZERO_TIME;
     }
 
 
@@ -56,14 +50,15 @@ public class Drop extends MapleMapObj {
     public boolean canBePickedUpBy(MapleCharacter chr) {
         int owner = getOwnerID();
         return owner == chr.getId();
-//        return owner == chr.getId() ||
-//                (chr.getParty() != null && chr.getParty().hasPartyMember(owner))
-//                || owner == 0;
     }
 
 
     public void setMoney(int money) {
         this.money = money;
-        this.isMeso = true;
     }
+
+    public boolean isMoney() {
+        return money > 0;
+    }
+
 }

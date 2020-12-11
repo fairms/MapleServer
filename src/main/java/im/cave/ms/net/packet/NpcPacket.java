@@ -19,6 +19,7 @@ public class NpcPacket {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         int overrideTemplate = nsi.getOverrideSpeakerTemplateID();
         mplew.writeShort(SendOpcode.NPC_TALK.getValue());
+
         mplew.write(nsi.getSpeakerType()); //always 4
         mplew.writeInt(nsi.getTemplateID());
         mplew.write(1); //override ?
@@ -114,11 +115,13 @@ public class NpcPacket {
                 mplew.writeBool(nsi.isAngelicBuster());
                 mplew.writeBool(nsi.isZeroBeta());
                 mplew.writeMapleAsciiString(nsi.getText());
-                mplew.writeInt(0);// unk
+                mplew.writeZeroBytes(12);
                 mplew.write(options.length);
                 for (int option : options) {
                     mplew.writeInt(option);
                 }
+                mplew.write(0);
+                mplew.writeInt(nsi.getRequireCard());
                 break;
             case AskSlideMenu:
 //                mplew.writeInt(nsi.getDlgType());

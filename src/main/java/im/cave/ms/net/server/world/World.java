@@ -1,6 +1,7 @@
 package im.cave.ms.net.server.world;
 
 import im.cave.ms.config.WorldConfig;
+import im.cave.ms.net.server.cashshop.CashShopServer;
 import im.cave.ms.net.server.channel.MapleChannel;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 public class World {
     private int id;
     private List<MapleChannel> channels = new ArrayList<>();
+    private CashShopServer cashShopServer;
     private String eventMessage;
 
     public World(int id, String eventMessage) {
@@ -57,9 +59,17 @@ public class World {
             MapleChannel channel = new MapleChannel(id, i);
             channels.add(channel);
         }
+        cashShopServer = new CashShopServer(id);
     }
 
     public String getEventMessage() {
         return eventMessage;
+    }
+
+    public CashShopServer getCashShop() {
+        if (cashShopServer == null) {
+            cashShopServer = new CashShopServer(id);
+        }
+        return cashShopServer;
     }
 }

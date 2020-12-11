@@ -83,7 +83,7 @@ public class Effect {
                     mplew.writeInt(item.getLeft()); // Item ID
                     mplew.writeInt(item.getRight()); // Quantity
                 }
-                mplew.write(1); //unk
+                mplew.write(1); //  1=背包 0=消耗
                 if (getList().size() <= 0) mplew.writeMapleAsciiString("");
                 break;
             case TextEffect:

@@ -103,4 +103,8 @@ public class AbstractPlayerInteraction {
         c.getPlayer().getQuestManager().addQuest(questId);
         return true;
     }
+
+    public void openUnityPortal(){
+        c.announce(ChannelPacket.unityPortal());
+    }
 }

@@ -3,9 +3,11 @@ package im.cave.ms.net.server.login;
 import im.cave.ms.net.netty.ServerAcceptor;
 import im.cave.ms.net.server.AbstractServer;
 import im.cave.ms.enums.ServerType;
+import im.cave.ms.tools.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -18,6 +20,7 @@ public class LoginServer extends AbstractServer {
     private static final Logger log = LoggerFactory.getLogger(LoginServer.class);
     private List<Integer> accounts;
     private static LoginServer instance;
+    private HashMap<String, Pair<String, Integer>> loginAuthKey = new HashMap<>();
 
     private LoginServer() {
         super(-1, -1);
@@ -34,5 +37,18 @@ public class LoginServer extends AbstractServer {
             instance = new LoginServer();
         }
         return instance;
+    }
+
+    public HashMap<String, Pair<String, Integer>> getLoginAuthKey() {
+        return loginAuthKey;
+    }
+
+
+    public void setLoginAuthKey(HashMap<String, Pair<String, Integer>> loginAuthKey) {
+        this.loginAuthKey = loginAuthKey;
+    }
+
+    public void putLoginAuthKey(String key, String account, int channel) {
+        loginAuthKey.put(key, new Pair<>(account, channel));
     }
 }

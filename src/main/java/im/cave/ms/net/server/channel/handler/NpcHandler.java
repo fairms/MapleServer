@@ -9,6 +9,8 @@ import im.cave.ms.client.movement.Movement;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.NpcMessageType;
+import im.cave.ms.enums.TrunkOpType;
+import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.NpcPacket;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.provider.data.NpcData;
@@ -28,29 +30,45 @@ import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
  * @date 11/30 19:10
  */
 public class NpcHandler {
-    public static void handleUserSelectNpc(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleUserSelectNPC(SeekableLittleEndianAccessor slea, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         int objId = slea.readInt();
         MapleMap map = player.getMap();
         MapleMapObj obj = map.getObj(objId);
-        Position playerPos = slea.readPos();
         if (!(obj instanceof Npc)) {
             player.chatMessage(ChatType.Purple, "Unknown Error");
             return;
         }
         Npc npc = (Npc) obj;
+        talkToNPC(player, npc);
+    }
+
+
+    public static void talkToNPC(MapleCharacter chr, int npcId) {
+        Npc npc = NpcData.getNpc(npcId);
+        if (npc != null) {
+            talkToNPC(chr, npc);
+        }
+    }
+
+    public static void talkToNPC(MapleCharacter chr, Npc npc) {
         int npcId = npc.getTemplateId();
         String script = npc.getScripts().get(0);
+        if (npc.getTrunkPut() > 0 || npc.getTrunkGet() > 0) {
+            chr.announce(ChannelPacket.openTrunk(npcId, chr.getAccount()));
+            return;
+        }
         if (script == null) {
             if (false) {
                 System.out.println("打开商店");
                 NpcData.getShopById(npcId);
+                return;
             } else {
                 script = String.valueOf(npcId);
             }
         }
         String finalScript = script;
-        EventManager.addEvent(() -> NpcScriptManager.getInstance().start(c, npcId, finalScript), 0);
+        EventManager.addEvent(() -> NpcScriptManager.getInstance().start(chr.getClient(), npcId, finalScript), 0);
     }
 
 
@@ -93,6 +111,20 @@ public class NpcHandler {
                 }
                 int select = slea.readInt();
                 cm.getNpcScriptInfo().addResponse(select);
+                break;
+            case AskAvatar:
+                if (slea.available() >= 4) {
+                    slea.readShort();
+                    byte option = slea.readByte();
+                    byte submit = slea.readByte();
+                    if (submit == 1) {
+                        cm.getNpcScriptInfo().addResponse(((int) option));
+                    } else {
+                        cm.getNpcScriptInfo().addResponse(-1);
+                    }
+                } else {
+                    cm.getNpcScriptInfo().addResponse(-1);
+                }
                 break;
             default:
                 cm.dispose();

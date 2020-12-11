@@ -72,4 +72,8 @@ public enum InventoryType {
     public boolean isStackable() {
         return this != EQUIP && this != EQUIPPED && this != CASH;
     }
+
+    public short getBitfieldEncoding() {
+        return (short) (2 << val);
+    }
 }

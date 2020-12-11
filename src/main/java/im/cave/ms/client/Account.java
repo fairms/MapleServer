@@ -16,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.transaction.Transactional;
 import java.util.HashSet;
@@ -45,11 +46,15 @@ public class Account {
     @JoinColumn(name = "accId")
     private Set<MapleCharacter> characters = new HashSet<>();
     private Long lastLogin;
+    @JoinColumn(name = "trunkId")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Trunk trunk;
 
     public Account(String account, String password) {
         this.account = account;
         this.password = password;
         lastLogin = System.currentTimeMillis();
+        trunk = new Trunk((byte) 20);
     }
 
     public Account() {
@@ -78,4 +83,5 @@ public class Account {
     public MapleCharacter getCharacter(int charId) {
         return characters.stream().filter(character -> character.getId() == charId).findAny().orElse(null);
     }
+
 }
