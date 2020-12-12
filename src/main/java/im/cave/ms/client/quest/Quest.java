@@ -7,7 +7,6 @@ import im.cave.ms.client.quest.progress.QuestProgressMoneyRequirement;
 import im.cave.ms.client.quest.progress.QuestProgressRequirement;
 import im.cave.ms.enums.QuestStatus;
 import im.cave.ms.tools.Util;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;

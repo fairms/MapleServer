@@ -1,12 +1,14 @@
 package im.cave.ms.net.server;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.MapleSignIn;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Npc;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.config.WorldConfig;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.net.packet.ChannelPacket;
@@ -159,6 +161,16 @@ public class CommandHandler {
                 }
                 c.getPlayer().dropMessage(s[1]);
                 break;
+
+            case "mobs":
+                c.getPlayer().dropMessage("当前地图 怪物总数:" + c.getPlayer().getMap().getMobs().size());
+                c.getPlayer().dropMessage("可见数:" + c.getPlayer().getVisibleMapObjs().size());
+                break;
+            case "reload":
+                Server.getInstance().reloadScripts();
+                WorldConfig.reload();
+                MapleSignIn.initSignRewards();
+
         }
     }
 }

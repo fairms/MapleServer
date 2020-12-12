@@ -176,7 +176,6 @@ public abstract class MapleJob {
         if (slea != null && isBuff(skillId)) {
             handleJobLessBuff(c, slea, skillId, slv);
         } else {
-            chr.dropMessage("unhandled skill" + skillId);
         }
     }
 

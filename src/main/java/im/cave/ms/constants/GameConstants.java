@@ -1,7 +1,10 @@
 package im.cave.ms.constants;
 
 import im.cave.ms.client.field.QuickMoveInfo;
+import im.cave.ms.client.items.Equip;
+import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.QuickMoveType;
+import im.cave.ms.provider.data.ItemData;
 
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
@@ -15,9 +18,12 @@ import java.util.List;
  */
 public class GameConstants {
 
+
     public static final long MAX_TIME = 150842304000000000L;
     public static final long ZERO_TIME = 94354848000000000L;
 
+    public static int MAX_VIEW_X = 1366; //1366*768
+    public static int MAX_VIEW_Y = 768;
 
     public static long[] charExp = new long[276];
     public static int maxLevel = 275;
@@ -253,4 +259,128 @@ public class GameConstants {
     public static List<QuickMoveInfo> getQuickMoveInfos() {
         return quickMoveInfos;
     }
+
+
+    public static int getEnchantmentValByChuc(Equip equip, EnchantStat es, short chuc, int curAmount) {
+        if (equip.isCash() || (ItemData.getEquipById(equip.getItemId()).getTuc() <= 0 && !ItemConstants.isTucIgnoreItem(equip.getItemId()))) {
+            return 0;
+        }
+        if (es == EnchantStat.PDD) {
+            return (int) (equip.getIPDD() * (ItemConstants.isOverall(equip.getItemId()) ? 0.10 : 0.05));
+        }
+        if (es == EnchantStat.MDD) {
+            return (int) (equip.getIMDD() * (ItemConstants.isOverall(equip.getItemId()) ? 0.10 : 0.05));
+        }
+        if (!equip.isSuperiorEqp()) {
+            return getEquipStatBoost(equip, es, chuc);
+        } else {
+            if (es == EnchantStat.STR || es == EnchantStat.DEX || es == EnchantStat.INT || es == EnchantStat.LUK) {
+                return getStatForSuperiorEnhancement(equip.getRLevel() + equip.getIIncReq(), chuc);
+            }
+            if (es == EnchantStat.PAD || es == EnchantStat.MAD) {
+                return getAttForSuperiorEnhancement(equip.getRLevel() + equip.getIIncReq(), chuc);
+            }
+        }
+        return 0;
+    }
+
+
+    public static int getStatForSuperiorEnhancement(int reqLevel, short chuc) {
+        if (chuc == 0) {
+            return reqLevel < 110 ? 2 : reqLevel < 149 ? 9 : 19;
+        } else if (chuc == 1) {
+            return reqLevel < 110 ? 3 : reqLevel < 149 ? 10 : 20;
+        } else if (chuc == 2) {
+            return reqLevel < 110 ? 5 : reqLevel < 149 ? 12 : 22;
+        } else if (chuc == 3) {
+            return reqLevel < 149 ? 15 : 25;
+        } else if (chuc == 4) {
+            return reqLevel < 149 ? 19 : 29;
+        }
+        return 0;
+    }
+
+    public static int getAttForSuperiorEnhancement(int reqLevel, short chuc) {
+        if (chuc == 5) {
+            return reqLevel < 150 ? 5 : 9;
+        } else if (chuc == 6) {
+            return reqLevel < 150 ? 6 : 10;
+        } else if (chuc == 7) {
+            return reqLevel < 150 ? 7 : 11;
+        } else {
+            return chuc == 8 ? 12 : chuc == 9 ? 13 : chuc == 10 ? 15 : chuc == 11 ? 17 : chuc == 12 ? 19 : chuc == 13 ? 21 : chuc == 14 ? 23 : 0;
+        }
+    }
+
+
+    public static int getEquipStatBoost(Equip equip, EnchantStat es, short chuc) {
+        int stat = 0;
+        // hp/mp
+        if (es == EnchantStat.MHP || es == EnchantStat.MMP) {
+            stat += chuc <= 2 ? 5 : chuc <= 4 ? 10 : chuc <= 6 ? 15 : chuc <= 8 ? 20 : chuc <= 14 ? 25 : 0;
+        }
+        int reqLevel = equip.getRLevel() + equip.getIIncReq();
+        // all stat
+        if (es == EnchantStat.STR || es == EnchantStat.DEX || es == EnchantStat.INT || es == EnchantStat.LUK) {
+            if (chuc <= 4) {
+                stat += 2;
+            } else if (chuc <= 14) {
+                stat += 3;
+            } else if (chuc <= 21) {
+                stat += reqLevel <= 137 ? 7 : reqLevel <= 149 ? 9 : reqLevel <= 159 ? 11 : reqLevel <= 199 ? 13 : 15;
+            }
+        }
+        // att for all equips
+        if ((es == EnchantStat.PAD || es == EnchantStat.MAD) && chuc >= 15) {
+            if (chuc == 15) {
+                stat += reqLevel <= 137 ? 6 : reqLevel <= 149 ? 7 : reqLevel <= 159 ? 8 : reqLevel <= 199 ? 9 : 12;
+            } else if (chuc == 16) {
+                stat += reqLevel <= 137 ? 7 : reqLevel <= 149 ? 8 : reqLevel <= 159 ? 9 : reqLevel <= 199 ? 9 : 13;
+            } else if (chuc == 17) {
+                stat += reqLevel <= 137 ? 7 : reqLevel <= 149 ? 8 : reqLevel <= 159 ? 9 : reqLevel <= 199 ? 10 : 14;
+            } else if (chuc == 18) {
+                stat += reqLevel <= 137 ? 8 : reqLevel <= 149 ? 9 : reqLevel <= 159 ? 10 : reqLevel <= 199 ? 11 : 14;
+            } else if (chuc == 19) {
+                stat += reqLevel <= 137 ? 9 : reqLevel <= 149 ? 10 : reqLevel <= 159 ? 11 : reqLevel <= 199 ? 12 : 15;
+            } else if (chuc == 20) {
+                stat += reqLevel <= 149 ? 11 : reqLevel <= 159 ? 12 : reqLevel <= 199 ? 13 : 16;
+            } else if (chuc == 21) {
+                stat += reqLevel <= 149 ? 12 : reqLevel <= 159 ? 13 : reqLevel <= 199 ? 14 : 17;
+            } else if (chuc == 22) {
+                stat += reqLevel <= 149 ? 17 : reqLevel <= 159 ? 18 : reqLevel <= 199 ? 19 : 21;
+            } else if (chuc == 23) {
+                stat += reqLevel <= 149 ? 19 : reqLevel <= 159 ? 20 : reqLevel <= 199 ? 21 : 23;
+            } else if (chuc == 24) {
+                stat += reqLevel <= 149 ? 21 : reqLevel <= 159 ? 22 : reqLevel <= 199 ? 23 : 25;
+            }
+        }
+        // att gains for weapons
+        if (ItemConstants.isWeapon(equip.getItemId()) && !ItemConstants.isSecondary(equip.getItemId())) {
+            if (chuc <= 14) {
+                if (es == EnchantStat.PAD) {
+                    stat += equip.getIPad() * 0.02;
+                } else if (es == EnchantStat.MAD) {
+                    stat += equip.getIMad() * 0.02;
+                }
+            } else if (es == EnchantStat.PAD || es == EnchantStat.MAD) {
+                stat += chuc == 22 ? 13 : chuc == 23 ? 12 : chuc == 24 ? 11 : 0;
+                if (reqLevel == 200 && chuc == 15) {
+                    stat += 1;
+                }
+            }
+        }
+        // att gain for gloves, enhancements 4/6/8/10 and 12-14
+        if (ItemConstants.isGlove(equip.getItemId()) && (es == EnchantStat.PAD || es == EnchantStat.MAD)) {
+            if ((chuc <= 10 && chuc % 2 == 0) || (chuc >= 12 && chuc <= 14)) {
+                stat += 1;
+            }
+        }
+        // speed/jump for shoes
+        if (ItemConstants.isShoe(equip.getItemId()) && (es == EnchantStat.SPEED || es == EnchantStat.JUMP) && chuc <= 4) {
+            stat += 1;
+        }
+        return stat;
+    }
+
+
 }

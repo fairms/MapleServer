@@ -43,4 +43,12 @@ public class MobPacket {
         mplew.writeZeroBytes(8);
         return mplew;
     }
+
+    public static MaplePacketLittleEndianWriter removeController(int objectId) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SPAWN_MONSTER_CONTROL.getValue());
+        mplew.write(0);
+        mplew.writeInt(objectId);
+        return mplew;
+    }
 }

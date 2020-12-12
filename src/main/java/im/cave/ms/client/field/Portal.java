@@ -7,7 +7,8 @@ import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.net.server.channel.MapleChannel;
 import im.cave.ms.scripting.portal.PortalScriptManager;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author fair
@@ -15,7 +16,8 @@ import lombok.Data;
  * @Package im.cave.ms.client.map
  * @date 11/25 9:08
  */
-@Data
+@Getter
+@Setter
 public class Portal {
     private PortalType type;
     private String name = "";
@@ -29,10 +31,10 @@ public class Portal {
     private boolean onlyOnce;
     private boolean hideTooltip;
     private int delay;
-    private int id;
+    private byte id;
 
 
-    public Portal(int id, PortalType type, String name, int targetMapId, String targetPortalName, int x, int y,
+    public Portal(byte id, PortalType type, String name, int targetMapId, String targetPortalName, int x, int y,
                   int horizontalImpact, int verticalImpact, String script, boolean onlyOnce, boolean hideTooltip,
                   int delay) {
         this.id = id;
@@ -50,7 +52,7 @@ public class Portal {
         this.delay = delay;
     }
 
-    public Portal(int portalId) {
+    public Portal(byte portalId) {
         id = portalId;
     }
 
@@ -70,7 +72,7 @@ public class Portal {
                 toPortal = toMap.getPortal("sp");
             }
             MapleCharacter player = c.getPlayer();
-            player.changeMap(toMap, toPortal);
+            player.changeMap(toMap, toPortal.getId());
         }
 
         if (!changed) {

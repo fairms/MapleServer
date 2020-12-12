@@ -123,6 +123,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
             case USE_ITEM:
                 InventoryHandler.handleUseItem(slea, c);
                 break;
+            case EQUIP_ENCHANT_REQUEST:
+                InventoryHandler.handleEquipEnchanting(slea, c);
+                break;
             case USER_ABILITY_UP_REQUEST:
                 PlayerHandler.handleAPUpdateRequest(slea, c);
                 break;
@@ -170,6 +173,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
                 break;
             case CHAR_INFO_REQUEST:
                 PlayerHandler.handleCharInfoReq(slea, c);
+                break;
+            case COMBO_KILL:
+                WorldHandler.handleComboKill(slea, c);
                 break;
             case CHANGE_QUICKSLOT:
                 PlayerHandler.handleChangeQuickslot(slea, c);

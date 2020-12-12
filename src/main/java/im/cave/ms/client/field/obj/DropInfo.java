@@ -3,6 +3,8 @@ package im.cave.ms.client.field.obj;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.tools.Util;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,7 +19,8 @@ import javax.persistence.Transient;
  * @Package im.cave.ms.client.field.obj
  * @date 12/10 14:24
  */
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "mob_drops")
 public class DropInfo {
@@ -83,4 +86,14 @@ public class DropInfo {
 
         return di;
     }
+
+    @Override
+    public String toString() {
+        if (getItemID() != 0) {
+            return String.format("Item %d, chance %d", getItemID(), getChance());
+        } else {
+            return String.format("%d mesos.", getMoney());
+        }
+    }
+    
 }

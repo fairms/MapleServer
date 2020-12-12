@@ -17,7 +17,6 @@ import java.util.List;
  */
 public class ServerConfig {
     public static ServerConfig config = loadConfig("server-config.yml");
-
     public boolean AUTOMATIC_REGISTER;
     public List<Short> CLOSED_JOBS;
 

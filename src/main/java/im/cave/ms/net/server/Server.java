@@ -9,6 +9,10 @@ import im.cave.ms.net.server.channel.MapleChannel;
 import im.cave.ms.net.server.login.LoginServer;
 import im.cave.ms.net.server.world.World;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.scripting.map.MapScriptManager;
+import im.cave.ms.scripting.npc.NpcScriptManager;
+import im.cave.ms.scripting.portal.PortalScriptManager;
+import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,5 +134,12 @@ public class Server {
 
     public CashShopServer getCashShop(byte world) {
         return getWorldById(world).getCashShop();
+    }
+
+    public void reloadScripts() {
+        PortalScriptManager.getInstance().reloadPortalScripts();
+        NpcScriptManager.getInstance().reloadNpcScripts();
+        MapScriptManager.getInstance().reloadScripts();
+        QuestScriptManager.getInstance().reloadQuestScripts();
     }
 }

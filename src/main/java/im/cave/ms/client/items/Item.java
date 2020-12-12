@@ -1,6 +1,8 @@
 package im.cave.ms.client.items;
 
+import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.DateUtil;
 import lombok.Data;
@@ -22,6 +24,8 @@ import java.util.Date;
 import java.util.Objects;
 
 import static im.cave.ms.constants.GameConstants.ZERO_TIME;
+import static im.cave.ms.enums.InventoryOperation.ADD;
+import static im.cave.ms.enums.InventoryType.EQUIPPED;
 
 /**
  * @author fair
@@ -87,6 +91,12 @@ public class Item implements Serializable {
 
     public boolean isTradable() {
         return !ItemData.getItemById(getItemId()).isTradeBlock();
+    }
+
+    public void updateToChar(MapleCharacter player) {
+        short bagIndex = (short) (getInvType() == EQUIPPED ? -getPos() : getPos());
+        player.announce(PlayerPacket.inventoryOperation(true, false, ADD,
+                bagIndex, (short) 0, 0, this));
     }
 
 

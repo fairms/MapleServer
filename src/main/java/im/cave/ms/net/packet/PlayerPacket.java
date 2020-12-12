@@ -5,8 +5,10 @@ import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.items.ScrollUpgradeInfo;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.client.skill.Skill;
+import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryOperation;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MessageType;
@@ -372,11 +374,53 @@ public class PlayerPacket {
         return mplew;
     }
 
+    public static MaplePacketLittleEndianWriter stylishKillMessage(long exp, int count) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        mplew.write(MessageType.STYLISH_KILL_MESSAGE.getVal());
+        mplew.write(0); //unk
+        mplew.writeLong(exp);
+        mplew.writeInt(0); //unk
+        mplew.writeInt(count);
+        mplew.writeInt(1); //unk
+        return mplew;
+    }
+
+
     public static MaplePacketLittleEndianWriter inventoryRefresh() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
         mplew.writeBool(true);
         mplew.writeShort(0);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter scrollUpgradeDisplay(boolean feverTime, List<ScrollUpgradeInfo> scrolls) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
+        mplew.write(EquipmentEnchantType.ScrollUpgradeDisplay.getVal());
+        mplew.writeBool(feverTime);
+        mplew.write(scrolls.size());
+        scrolls.forEach(scrollUpgradeInfo -> scrollUpgradeInfo.encode(mplew));
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter showScrollUpgradeResult(boolean feverTime, int result, String desc, Equip prevEquip, Equip equip) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
+        mplew.write(EquipmentEnchantType.ShowScrollUpgradeResult.getVal());
+        mplew.writeBool(feverTime);
+        mplew.writeInt(result);
+        mplew.writeMapleAsciiString(desc);
+        PacketHelper.addItemInfo(mplew, prevEquip);
+        PacketHelper.addItemInfo(mplew, equip);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter updateQuestEx(int questId) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.UPDATE_QUEST_EX.getValue());
+        mplew.writeInt(questId);
         return mplew;
     }
 }

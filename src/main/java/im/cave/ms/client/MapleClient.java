@@ -42,7 +42,6 @@ public class MapleClient {
     private int storeLength = -1;
     private LoginStatus loginStatus = LoginStatus.NOTLOGGEDIN;
     private long lastPong;
-    private final Map<String, NashornScriptEngine> engines = new HashMap<>();
     private final ReentrantLock scriptLock = new ReentrantLock(true);
 
     public MapleClient(Channel ch, int sendIv, int recvIv) {
@@ -195,17 +194,6 @@ public class MapleClient {
         return this.getAccount().getCharacters().stream().filter(character -> character.getWorld() == worldId).collect(Collectors.toList());
     }
 
-    public NashornScriptEngine getScriptEngine(String name) {
-        return engines.getOrDefault(name, null);
-    }
-
-    public void setScriptEngine(String path, NashornScriptEngine engine) {
-        engines.put(path, engine);
-    }
-
-    public void removeScriptEngine(String name) {
-        engines.remove(name);
-    }
 
     public void sendPing() {
         announce(LoginPacket.ping(channel == -1 ? ServerType.LOGIN : ServerType.CHANNEL));

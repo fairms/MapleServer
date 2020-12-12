@@ -1,6 +1,7 @@
 package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.mob.Mob;
@@ -20,8 +21,9 @@ public class MobHandler {
     private static final Logger log = LoggerFactory.getLogger(MobHandler.class);
 
     public static void handleMoveMob(SeekableLittleEndianAccessor slea, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
         int objectId = slea.readInt();
-        MapleMap map = c.getPlayer().getMap();
+        MapleMap map = player.getMap();
         MapleMapObj obj = map.getObj(objectId);
         if (!(obj instanceof Mob)) {
             return;
@@ -34,6 +36,6 @@ public class MobHandler {
         slea.skip(13);
         MovementInfo movementInfo = new MovementInfo(slea);
         movementInfo.applyTo(mob);
-        c.announce(MobPacket.mobMoveResponse(objectId, moveId, useSkill, (int) mob.getMp(), 0, (short) 0));
+        map.broadcastMessage(player, MobPacket.mobMoveResponse(objectId, moveId, useSkill, (int) mob.getMp(), 0, (short) 0), true);
     }
 }

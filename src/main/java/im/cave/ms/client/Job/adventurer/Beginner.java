@@ -50,7 +50,6 @@ public class Beginner extends MapleJob {
         if (isBuff(skillId)) {
             return;
         } else {
-            chr.dropMessage("handle else");
         }
     }
 

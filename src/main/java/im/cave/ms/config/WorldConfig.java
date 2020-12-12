@@ -2,6 +2,7 @@ package im.cave.ms.config;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 import im.cave.ms.MsApplication;
+import im.cave.ms.client.MapleSignIn;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -17,9 +18,10 @@ import java.util.List;
  */
 public class WorldConfig {
 
-    public static final WorldConfig config = loadConfig("world-config.yml");
+    public static WorldConfig config = loadConfig("world-config.yml");
 
     public List<WorldInfo> worlds;
+    public List<MapleSignIn.SignInRewardInfo> signin;
 
     public static WorldConfig loadConfig(String filename) {
         try {
@@ -32,13 +34,22 @@ public class WorldConfig {
             String message = "Could not read config file " + filename + ": " + e.getMessage();
             throw new RuntimeException(message);
         } catch (IOException e) {
+            e.printStackTrace();
             String message = "Could not successfully parse config file " + filename + ": " + e.getMessage();
             throw new RuntimeException(message);
         }
     }
 
-    public WorldInfo getWorldInfo(int id) {
-        return worlds.stream().filter(world -> world.id == id).findAny().orElse(null);
+    public static void reload() {
+        config = loadConfig("world-config.yml");
+    }
+
+    public WorldInfo getWorldInfo(int worldId) {
+        return worlds.stream().filter(world -> world.id == worldId).findAny().orElse(null);
+    }
+
+    public List<MapleSignIn.SignInRewardInfo> getSignInRewards() {
+        return signin;
     }
 
     public static class WorldInfo {

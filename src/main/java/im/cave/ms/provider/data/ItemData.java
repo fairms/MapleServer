@@ -869,7 +869,7 @@ public class ItemData {
         return getDeepCopyByItemInfo(getItemById(itemId));
     }
 
-    public static Item getEquipDeepCopyFromID(int itemId, boolean randomize) {
+    public static Equip getEquipDeepCopyFromID(int itemId, boolean randomize) {
         Equip e = getEquipById(itemId);
         Equip ret = e == null ? null : e.deepCopy();
         if (ret != null) {

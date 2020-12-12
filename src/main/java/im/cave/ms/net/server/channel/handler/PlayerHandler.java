@@ -2,6 +2,7 @@ package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.Job.MapleJob;
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleKeyMap;
 import im.cave.ms.client.character.MapleStat;
@@ -26,6 +27,7 @@ import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.PlayerPacket;
+import im.cave.ms.net.packet.QuestPacket;
 import im.cave.ms.net.packet.opcode.RecvOpcode;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.net.server.channel.MapleChannel;
@@ -75,7 +77,7 @@ public class PlayerHandler {
             slea.skip(4);   //objId
         }
         HashMap<MapleStat, Long> stats = new HashMap<>();
-        int curHp = player.getStat(MapleStat.HP);
+        int curHp = (int) player.getStat(MapleStat.HP);
         int newHp = curHp - damage;
         if (newHp < 0) {
             newHp = 0;
@@ -186,6 +188,7 @@ public class PlayerHandler {
     }
 
     public static void handleAttack(MapleClient c, AttackInfo attackInfo) {
+        int killedCount = 0;
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
@@ -202,6 +205,9 @@ public class PlayerHandler {
             } else if (mob.getHp() > 0) {
                 long totalDamage = Arrays.stream(mobAttackInfo.damages).sum();
                 mob.damage(player, totalDamage);
+                if (mob.getHp() <= 0) {
+                    killedCount++;
+                }
                 //todo handle reflect
             }
 
@@ -209,10 +215,14 @@ public class PlayerHandler {
                 log.warn("mob was dead");
             }
         }
+        if (killedCount >= 3) {
+            //todo
+            player.announce(PlayerPacket.stylishKillMessage(1000, killedCount));
+            player.addExp(1000, null);
+        }
     }
 
     public static void handlePlayerMove(SeekableLittleEndianAccessor slea, MapleClient c) {
-
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
@@ -223,8 +233,10 @@ public class PlayerHandler {
         slea.skip(1);    //unknown
         MovementInfo movementInfo = new MovementInfo(slea);
         movementInfo.applyTo(player);
-        player.chatMessage(ChatType.Tip, player.getPosition().toString() + ", fh:" + player.getFoothold());
-        player.getMap().broadcastMessage(player, PlayerPacket.move(player, movementInfo), true);
+        player.getMap().sendMapObject(player);
+        //        player.chatMessage(ChatType.Tip, player.getPosition().toString() + ", fh:" + player.getFoothold());
+//        player.chatMessage(ChatType.Tip, player.getMap().getMobs().size() + " " + player.getVisibleMapObjs().size());
+        player.getMap().broadcastMessage(player, PlayerPacket.move(player, movementInfo), false);
     }
 
 
@@ -237,7 +249,7 @@ public class PlayerHandler {
         int mapId = slea.readInt();
         MapleChannel channel = c.getMapleChannel();
         MapleMap map = channel.getMap(mapId);
-        player.changeMap(map, map.getDefaultPortal());
+        player.changeMap(map, map.getDefaultPortal() == null ? 0 : map.getDefaultPortal().getId());
     }
 
     public static void handleCharInfoReq(SeekableLittleEndianAccessor slea, MapleClient c) {
@@ -538,11 +550,11 @@ public class PlayerHandler {
         if (charStat == MapleStat.MAXMP || charStat == MapleStat.MAXHP) {
             addStat *= 20;
         }
-        player.setStat(charStat, addStat);
-        player.setStat(MapleStat.AVAILABLEAP, amount);
+        player.addStat(charStat, addStat);
+        player.addStat(MapleStat.AVAILABLEAP, -amount);
         Map<MapleStat, Long> stats = new HashMap<>();
         stats.put(charStat, (long) player.getStat(charStat));
         stats.put(MapleStat.AVAILABLEAP, (long) player.getStat(MapleStat.AVAILABLEAP));
-        c.announce(MaplePacketCreator.updatePlayerStats(stats, player));
+        c.announce(MaplePacketCreator.updatePlayerStats(stats, true, player));
     }
 }

@@ -2,8 +2,12 @@ package im.cave.ms.constants;
 
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.items.ScrollUpgradeInfo;
 import im.cave.ms.enums.BodyPart;
+import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipPrefix;
+import im.cave.ms.enums.RequiredJob;
+import im.cave.ms.enums.SpellTraceScrollType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 
 /**
@@ -1545,143 +1550,142 @@ public class ItemConstants {
                 return false;
         }
     }
-//
-//    public static List<ScrollUpgradeInfo> getScrollUpgradeInfosByEquip(Equip equip) {
-//        // not the most beautiful way to do this, but I'd like to think that it's pretty easy to understand
-//        BodyPart bp = BodyPart.getByVal(ItemConstants.getBodyPartFromItem(equip.getItemId(), 0));
-//        List<ScrollUpgradeInfo> scrolls = new ArrayList<>();
-//        int rLevel = equip.getrLevel() + equip.getiIncReq();
-//        int rJob = equip.getrJob();
-//        Set<EnchantStat> possibleStat = new HashSet<>();
-//        int plusFromLevel;
-//        int[] chances;
-//        int[] attStats = new int[0];
-//        int[] stat;
-//        int[] armorHp = new int[]{5, 20, 30, 70, 120};
-//        int[] armorDef = new int[]{1, 2, 4, 7, 10};
-//        boolean armor = false;
-//        if (bp == BodyPart.Weapon) {
-//            plusFromLevel = rLevel >= 120 ? 2 : rLevel >= 60 ? 1 : 0;
-//            if ((rJob & RequiredJob.Warrior.getVal()) > 0) { // warrior
-//                possibleStat.add(EnchantStat.PAD);
-//                possibleStat.add(EnchantStat.STR);
-//                possibleStat.add(EnchantStat.MHP);
-//            } else if ((rJob & RequiredJob.Magician.getVal()) > 0) { // mage
-//                possibleStat.add(EnchantStat.MAD);
-//                possibleStat.add(EnchantStat.INT);
-//            } else if ((rJob & RequiredJob.Bowman.getVal()) > 0) { // bowman
-//                possibleStat.add(EnchantStat.PAD);
-//                possibleStat.add(EnchantStat.DEX);
-//            } else if ((rJob & RequiredJob.Thief.getVal()) > 0 || (rJob & RequiredJob.Pirate.getVal()) > 0) { // thief/pirate
-//                possibleStat.add(EnchantStat.PAD);
-//                possibleStat.add(EnchantStat.STR);
-//                possibleStat.add(EnchantStat.DEX);
-//                possibleStat.add(EnchantStat.LUK);
-//            } else {
-//                possibleStat.add(EnchantStat.PAD);
-//                possibleStat.add(EnchantStat.MAD);
-//                possibleStat.add(EnchantStat.STR);
-//                possibleStat.add(EnchantStat.DEX);
-//                possibleStat.add(EnchantStat.INT);
-//                possibleStat.add(EnchantStat.LUK);
-//                possibleStat.add(EnchantStat.MHP);
-//            }
-//            chances = new int[]{100, 70, 30, 15};
-//            attStats = new int[]{1, 2, 3, 5, 7, 9};
-//            stat = new int[]{0, 0, 1, 2, 3, 4};
-//        } else if (bp == BodyPart.Gloves) {
-//            plusFromLevel = rLevel <= 70 ? 0 : 1;
-//            if ((rJob & RequiredJob.Magician.getVal()) > 0) {
-//                possibleStat.add(EnchantStat.MAD);
-//            } else {
-//                possibleStat.add(EnchantStat.PAD);
-//            }
-//            possibleStat.add(EnchantStat.PDD);
-//            possibleStat.add(EnchantStat.MDD);
-//            chances = new int[]{100, 70, 30};
-//            attStats = new int[]{0, 1, 2, 3};
-//            stat = new int[]{3, 0, 0, 0};
-//        } else if (ItemConstants.isAccessory(equip.getItemId())) {
-//            plusFromLevel = rLevel >= 120 ? 2 : rLevel >= 60 ? 1 : 0;
-//            if ((rJob & RequiredJob.Warrior.getVal()) > 0) { // warrior
-//                possibleStat.add(EnchantStat.STR);
-//                possibleStat.add(EnchantStat.MHP);
-//            } else if ((rJob & RequiredJob.Magician.getVal()) > 0) { // mage
-//                possibleStat.add(EnchantStat.INT);
-//            } else if ((rJob & RequiredJob.Bowman.getVal()) > 0) { // bowman
-//                possibleStat.add(EnchantStat.DEX);
-//            } else if ((rJob & RequiredJob.Thief.getVal()) > 0 || (rJob & RequiredJob.Pirate.getVal()) > 0) { // thief/pirate
-//                possibleStat.add(EnchantStat.STR);
-//                possibleStat.add(EnchantStat.DEX);
-//                possibleStat.add(EnchantStat.LUK);
-//            } else {
-//                possibleStat.add(EnchantStat.STR);
-//                possibleStat.add(EnchantStat.DEX);
-//                possibleStat.add(EnchantStat.INT);
-//                possibleStat.add(EnchantStat.LUK);
-//                possibleStat.add(EnchantStat.MHP);
-//            }
-//            chances = new int[]{100, 70, 30};
-//            stat = new int[]{1, 1, 2, 3, 5};
-//        } else {
-//            armor = true;
-//            plusFromLevel = rLevel >= 120 ? 2 : rLevel >= 60 ? 1 : 0;
-//            if ((rJob & RequiredJob.Warrior.getVal()) > 0) { // warrior
-//                possibleStat.add(EnchantStat.STR);
-//                possibleStat.add(EnchantStat.MHP);
-//            } else if ((rJob & RequiredJob.Magician.getVal()) > 0) { // mage
-//                possibleStat.add(EnchantStat.INT);
-//            } else if ((rJob & RequiredJob.Bowman.getVal()) > 0) { // bowman
-//                possibleStat.add(EnchantStat.DEX);
-//            } else if ((rJob & RequiredJob.Thief.getVal()) > 0 || (rJob & RequiredJob.Pirate.getVal()) > 0) { // thief/pirate
-//                possibleStat.add(EnchantStat.STR);
-//                possibleStat.add(EnchantStat.DEX);
-//                possibleStat.add(EnchantStat.LUK);
-//            } else {
-//                possibleStat.add(EnchantStat.STR);
-//                possibleStat.add(EnchantStat.DEX);
-//                possibleStat.add(EnchantStat.INT);
-//                possibleStat.add(EnchantStat.LUK);
-//                possibleStat.add(EnchantStat.MHP);
-//            }
-//            chances = new int[]{100, 70, 30};
-//            stat = new int[]{1, 2, 3, 5, 7};
-//        }
-//        for (int i = 0; i < chances.length; i++) { // 4 scroll tiers for weapons
-//            int tier = i + plusFromLevel;
-//            TreeMap<EnchantStat, Integer> stats = new TreeMap<>();
-//            for (EnchantStat es : possibleStat) {
-//                int val;
-//                if (es.isAttackType()) {
-//                    val = attStats[tier];
-//                } else if (es.isHpOrMp()) {
-//                    val = stat[tier] * 50;
-//                } else {
-//                    val = stat[tier];
-//                }
-//                if (val != 0) {
-//                    stats.put(es, val);
-//                }
-//            }
-//            if (armor) {
-//                stats.put(EnchantStat.PDD, armorDef[tier] + stats.getOrDefault(EnchantStat.PDD, 0));
-//                stats.put(EnchantStat.MDD, armorDef[tier] + stats.getOrDefault(EnchantStat.MDD, 0));
-//                stats.put(EnchantStat.MHP, armorHp[tier] + stats.getOrDefault(EnchantStat.MHP, 0));
-//            }
-//            String title = chances[i] + "% ";
-//            title += bp == BodyPart.Weapon ? "Attack" : "Stat";
-//            ScrollUpgradeInfo sui = new ScrollUpgradeInfo(i, title, SpellTraceScrollType.Normal, 0, stats,
-//                    BASE_ST_COST + rLevel * (tier + 1), chances[i]);
-//            scrolls.add(sui);
-//        }
-//        if (equip.hasUsedSlots()) {
-//            scrolls.add(new ScrollUpgradeInfo(4, "Innocence Scroll 30%",
-//                    SpellTraceScrollType.Innocence, 0, new TreeMap<>(), INNOCENCE_ST_COST, 30));
-//            scrolls.add(new ScrollUpgradeInfo(5, "Clean Slate Scroll 5%",
-//                    SpellTraceScrollType.CleanSlate, 0, new TreeMap<>(), CLEAN_SLATE_ST_COST, 5));
-//        }
-//        return scrolls;
-//    }
+
+    public static List<ScrollUpgradeInfo> getScrollUpgradeInfosByEquip(Equip equip) {
+        BodyPart bp = BodyPart.getByVal(ItemConstants.getBodyPartFromItem(equip.getItemId(), 0));
+        List<ScrollUpgradeInfo> scrolls = new ArrayList<>();
+        int rLevel = equip.getRLevel() + equip.getIIncReq();
+        int rJob = equip.getRJob();
+        Set<EnchantStat> possibleStat = new HashSet<>();
+        int plusFromLevel;
+        int[] chances;
+        int[] attStats = new int[0];
+        int[] stat;
+        int[] armorHp = new int[]{5, 20, 30, 70, 120};
+        int[] armorDef = new int[]{1, 2, 4, 7, 10};
+        boolean armor = false;
+        if (bp == BodyPart.Weapon) {
+            plusFromLevel = rLevel >= 120 ? 2 : rLevel >= 60 ? 1 : 0;
+            if ((rJob & RequiredJob.Warrior.getVal()) > 0) { // warrior
+                possibleStat.add(EnchantStat.PAD);
+                possibleStat.add(EnchantStat.STR);
+                possibleStat.add(EnchantStat.MHP);
+            } else if ((rJob & RequiredJob.Magician.getVal()) > 0) { // mage
+                possibleStat.add(EnchantStat.MAD);
+                possibleStat.add(EnchantStat.INT);
+            } else if ((rJob & RequiredJob.Bowman.getVal()) > 0) { // bowman
+                possibleStat.add(EnchantStat.PAD);
+                possibleStat.add(EnchantStat.DEX);
+            } else if ((rJob & RequiredJob.Thief.getVal()) > 0 || (rJob & RequiredJob.Pirate.getVal()) > 0) { // thief/pirate
+                possibleStat.add(EnchantStat.PAD);
+                possibleStat.add(EnchantStat.STR);
+                possibleStat.add(EnchantStat.DEX);
+                possibleStat.add(EnchantStat.LUK);
+            } else {
+                possibleStat.add(EnchantStat.PAD);
+                possibleStat.add(EnchantStat.MAD);
+                possibleStat.add(EnchantStat.STR);
+                possibleStat.add(EnchantStat.DEX);
+                possibleStat.add(EnchantStat.INT);
+                possibleStat.add(EnchantStat.LUK);
+                possibleStat.add(EnchantStat.MHP);
+            }
+            chances = new int[]{100, 70, 30, 15};
+            attStats = new int[]{1, 2, 3, 5, 7, 9};
+            stat = new int[]{0, 0, 1, 2, 3, 4};
+        } else if (bp == BodyPart.Gloves) {
+            plusFromLevel = rLevel <= 70 ? 0 : 1;
+            if ((rJob & RequiredJob.Magician.getVal()) > 0) {
+                possibleStat.add(EnchantStat.MAD);
+            } else {
+                possibleStat.add(EnchantStat.PAD);
+            }
+            possibleStat.add(EnchantStat.PDD);
+            possibleStat.add(EnchantStat.MDD);
+            chances = new int[]{100, 70, 30};
+            attStats = new int[]{0, 1, 2, 3};
+            stat = new int[]{3, 0, 0, 0};
+        } else if (ItemConstants.isAccessory(equip.getItemId())) {
+            plusFromLevel = rLevel >= 120 ? 2 : rLevel >= 60 ? 1 : 0;
+            if ((rJob & RequiredJob.Warrior.getVal()) > 0) { // warrior
+                possibleStat.add(EnchantStat.STR);
+                possibleStat.add(EnchantStat.MHP);
+            } else if ((rJob & RequiredJob.Magician.getVal()) > 0) { // mage
+                possibleStat.add(EnchantStat.INT);
+            } else if ((rJob & RequiredJob.Bowman.getVal()) > 0) { // bowman
+                possibleStat.add(EnchantStat.DEX);
+            } else if ((rJob & RequiredJob.Thief.getVal()) > 0 || (rJob & RequiredJob.Pirate.getVal()) > 0) { // thief/pirate
+                possibleStat.add(EnchantStat.STR);
+                possibleStat.add(EnchantStat.DEX);
+                possibleStat.add(EnchantStat.LUK);
+            } else {
+                possibleStat.add(EnchantStat.STR);
+                possibleStat.add(EnchantStat.DEX);
+                possibleStat.add(EnchantStat.INT);
+                possibleStat.add(EnchantStat.LUK);
+                possibleStat.add(EnchantStat.MHP);
+            }
+            chances = new int[]{100, 70, 30};
+            stat = new int[]{1, 1, 2, 3, 5};
+        } else {
+            armor = true;
+            plusFromLevel = rLevel >= 120 ? 2 : rLevel >= 60 ? 1 : 0;
+            if ((rJob & RequiredJob.Warrior.getVal()) > 0) { // warrior
+                possibleStat.add(EnchantStat.STR);
+                possibleStat.add(EnchantStat.MHP);
+            } else if ((rJob & RequiredJob.Magician.getVal()) > 0) { // mage
+                possibleStat.add(EnchantStat.INT);
+            } else if ((rJob & RequiredJob.Bowman.getVal()) > 0) { // bowman
+                possibleStat.add(EnchantStat.DEX);
+            } else if ((rJob & RequiredJob.Thief.getVal()) > 0 || (rJob & RequiredJob.Pirate.getVal()) > 0) { // thief/pirate
+                possibleStat.add(EnchantStat.STR);
+                possibleStat.add(EnchantStat.DEX);
+                possibleStat.add(EnchantStat.LUK);
+            } else {
+                possibleStat.add(EnchantStat.STR);
+                possibleStat.add(EnchantStat.DEX);
+                possibleStat.add(EnchantStat.INT);
+                possibleStat.add(EnchantStat.LUK);
+                possibleStat.add(EnchantStat.MHP);
+            }
+            chances = new int[]{100, 70, 30};
+            stat = new int[]{1, 2, 3, 5, 7};
+        }
+        for (int i = 0; i < chances.length; i++) { // 4 scroll tiers for weapons
+            int tier = i + plusFromLevel;
+            TreeMap<EnchantStat, Integer> stats = new TreeMap<>();
+            for (EnchantStat es : possibleStat) {
+                int val;
+                if (es.isAttackType()) {
+                    val = attStats[tier];
+                } else if (es.isHpOrMp()) {
+                    val = stat[tier] * 50;
+                } else {
+                    val = stat[tier];
+                }
+                if (val != 0) {
+                    stats.put(es, val);
+                }
+            }
+            if (armor) {
+                stats.put(EnchantStat.PDD, armorDef[tier] + stats.getOrDefault(EnchantStat.PDD, 0));
+                stats.put(EnchantStat.MDD, armorDef[tier] + stats.getOrDefault(EnchantStat.MDD, 0));
+                stats.put(EnchantStat.MHP, armorHp[tier] + stats.getOrDefault(EnchantStat.MHP, 0));
+            }
+            String title = chances[i] + "% ";
+            title += bp == BodyPart.Weapon ? "Attack" : "Stat";
+            ScrollUpgradeInfo sui = new ScrollUpgradeInfo(i, title, SpellTraceScrollType.Normal, 0, stats,
+                    BASE_ST_COST + rLevel * (tier + 1), chances[i]);
+            scrolls.add(sui);
+        }
+        if (equip.hasUsedSlots()) {
+            scrolls.add(new ScrollUpgradeInfo(4, "Innocence Scroll 30%",
+                    SpellTraceScrollType.Innocence, 0, new TreeMap<>(), INNOCENCE_ST_COST, 30));
+            scrolls.add(new ScrollUpgradeInfo(5, "Clean Slate Scroll 5%",
+                    SpellTraceScrollType.CleanSlate, 0, new TreeMap<>(), CLEAN_SLATE_ST_COST, 5));
+        }
+        return scrolls;
+    }
 
     // is_tuc_ignore_item(int nItemID)
     static boolean isTucIgnoreItem(int itemID) {

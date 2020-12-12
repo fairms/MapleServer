@@ -1,32 +1,30 @@
 package im.cave.ms.client.items;
 
+import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.constants.GameConstants;
+import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipBaseStat;
-import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.ItemGrade;
 import im.cave.ms.net.db.InlinedIntArrayConverter;
 import im.cave.ms.provider.data.ItemData;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.Convert;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author fair
@@ -194,9 +192,9 @@ public class Equip extends Item {
     }
 
 
-//    public double getBaseStat(BaseStat baseStat) {
-//        // TODO: Sockets
-//        double res = 0;
+    public double getBaseStat(BaseStat baseStat) {
+        // TODO: Sockets
+        double res = 0;
 //        for (int i = 0; i < getOptions().size() - 1; i++) { // last one is anvil => skipped
 //            int id = getOptions().get(i);
 //            int level = (getRLevel() + getIIncReq()) / 10;
@@ -206,70 +204,152 @@ public class Equip extends Item {
 //                res += valMap.getOrDefault(baseStat, 0D);
 //            }
 //        }
-//        switch (baseStat) {
-//            case str:
-//                res += getTotalStat(EquipBaseStat.iStr);
-//                break;
-//            case dex:
-//                res += getTotalStat(EquipBaseStat.iDex);
-//                break;
-//            case inte:
-//                res += getTotalStat(EquipBaseStat.iInt);
-//                break;
-//            case luk:
-//                res += getTotalStat(EquipBaseStat.iLuk);
-//                break;
-//            case pad:
-//                res += getTotalStat(EquipBaseStat.iPAD);
-//                break;
-//            case mad:
-//                res += getTotalStat(EquipBaseStat.iMAD);
-//                break;
-//            case pdd:
-//                res += getTotalStat(EquipBaseStat.iPDD);
-//                break;
-//            case mdd:
-//                res += getTotalStat(EquipBaseStat.iMDD);
-//                break;
-//            case mhp:
-//                res += getTotalStat(EquipBaseStat.iMaxHP);
-//                break;
-//            case mmp:
-//                res += getTotalStat(EquipBaseStat.iMaxMP);
-//                break;
-//            case fd:
-//                res += getTotalStat(EquipBaseStat.damR);
-//                break;
-//            case bd:
-//                res += getTotalStat(EquipBaseStat.bdr);
-//                break;
-//            case ied:
-//                res += getTotalStat(EquipBaseStat.imdr);
-//                break;
-//            case eva:
-//                res += getTotalStat(EquipBaseStat.iEVA);
-//                break;
-//            case acc:
-//                res += getTotalStat(EquipBaseStat.iACC);
-//                break;
-//            case speed:
-//                res += getTotalStat(EquipBaseStat.iSpeed);
-//                break;
-//            case jump:
-//                res += getTotalStat(EquipBaseStat.iJump);
-//                break;
-//            case booster:
-//                res += getAttackSpeed();
-//                break;
-//            case strR:
-//            case dexR:
-//            case intR:
-//            case lukR:
-//                res += getTotalStat(EquipBaseStat.statR);
-//                break;
-//        }
-//        return res;
-//    }
+        switch (baseStat) {
+            case str:
+                res += getTotalStat(EquipBaseStat.iStr);
+                break;
+            case dex:
+                res += getTotalStat(EquipBaseStat.iDex);
+                break;
+            case inte:
+                res += getTotalStat(EquipBaseStat.iInt);
+                break;
+            case luk:
+                res += getTotalStat(EquipBaseStat.iLuk);
+                break;
+            case pad:
+                res += getTotalStat(EquipBaseStat.iPAD);
+                break;
+            case mad:
+                res += getTotalStat(EquipBaseStat.iMAD);
+                break;
+            case pdd:
+                res += getTotalStat(EquipBaseStat.iPDD);
+                break;
+            case mdd:
+                res += getTotalStat(EquipBaseStat.iMDD);
+                break;
+            case mhp:
+                res += getTotalStat(EquipBaseStat.iMaxHP);
+                break;
+            case mmp:
+                res += getTotalStat(EquipBaseStat.iMaxMP);
+                break;
+            case fd:
+                res += getTotalStat(EquipBaseStat.damR);
+                break;
+            case bd:
+                res += getTotalStat(EquipBaseStat.bdr);
+                break;
+            case ied:
+                res += getTotalStat(EquipBaseStat.imdr);
+                break;
+            case eva:
+                res += getTotalStat(EquipBaseStat.iEVA);
+                break;
+            case acc:
+                res += getTotalStat(EquipBaseStat.iACC);
+                break;
+            case speed:
+                res += getTotalStat(EquipBaseStat.iSpeed);
+                break;
+            case jump:
+                res += getTotalStat(EquipBaseStat.iJump);
+                break;
+            case booster:
+                res += getAttackSpeed();
+                break;
+            case strR:
+            case dexR:
+            case intR:
+            case lukR:
+                res += getTotalStat(EquipBaseStat.statR);
+                break;
+        }
+        return res;
+    }
+
+
+    public int getTotalStat(EquipBaseStat stat) {
+        switch (stat) {
+            case tuc:
+                return getTuc();
+            case cuc:
+                return getCuc();
+            case iStr:
+                return getIStr() + getFSTR() + getEnchantStat(EnchantStat.STR);
+            case iDex:
+                return getIDex() + getFDEX() + getEnchantStat(EnchantStat.DEX);
+            case iInt:
+                return getIInt() + getFINT() + getEnchantStat(EnchantStat.INT);
+            case iLuk:
+                return getILuk() + getFLUK() + getEnchantStat(EnchantStat.LUK);
+            case iMaxHP:
+                return getIMaxHp() + getFHP() + getEnchantStat(EnchantStat.MHP);
+            case iMaxMP:
+                return getIMaxMp() + getFMP() + getEnchantStat(EnchantStat.MMP);
+            case iPAD:
+                return getIPad() + getFATT() + getEnchantStat(EnchantStat.PAD);
+            case iMAD:
+                return getIMad() + getFMATT() + getEnchantStat(EnchantStat.MAD);
+            case iPDD:
+                return getIPDD() + getFDEF() + getEnchantStat(EnchantStat.PDD);
+            case iMDD:
+                return getIMDD() + getFDEF() + getEnchantStat(EnchantStat.MDD);
+            case iACC:
+                return getIAcc() + getEnchantStat(EnchantStat.ACC);
+            case iEVA:
+                return getIEva() + getEnchantStat(EnchantStat.EVA);
+            case iCraft:
+                return getICraft();
+            case iSpeed:
+                return getISpeed() + getFSpeed() + getEnchantStat(EnchantStat.SPEED);
+            case iJump:
+                return getIJump() + getFJump() + getEnchantStat(EnchantStat.JUMP);
+            case attribute:
+                return getAttribute();
+            case levelUpType:
+                return getLevelUpType();
+            case level:
+                return getLevel();
+            case exp:
+                return getExp();
+            case durability:
+                return getDurability();
+            case iuc:
+                return getIuc(); // hammer
+            case iPvpDamage:
+                break;
+//                return getIPvpDamage();
+            case iReduceReq:
+                return (byte) (getIReduceReq() + getFLevel());
+            case specialAttribute:
+                return getSpecialAttribute();
+            case durabilityMax:
+                return getDurabilityMax();
+            case iIncReq:
+                return getIIncReq();
+            case growthEnchant:
+                return getGrowthEnchant(); // ygg
+            case psEnchant:
+                return getPsEnchant(); // final strike
+            case bdr:
+                return getBdr() + getFBoss(); // bd
+            case imdr:
+                return getImdr(); // ied
+            case damR:
+                return getDamR() + getFDamage(); // td
+            case statR:
+                return getStatR() + getFAllStat(); // as
+            case cuttable:
+                return getCuttable(); // sok
+            case exGradeOption:
+                return getExGradeOption();
+            case itemState:
+                return getHyperUpgrade();
+        }
+        return 0;
+    }
 
 
     public int getBaseStat(EquipBaseStat ebs) {
@@ -508,6 +588,171 @@ public class Equip extends Item {
         ret.itemSkills = itemSkills;
         ret.effectItemID = effectItemID;
         return ret;
+    }
+
+    public void addStat(EquipBaseStat stat, int amount) {
+        int cur = getBaseStat(stat);
+        int newStat = Math.max(cur + amount, 0); // stat cannot be negative
+        setBaseStat(stat, newStat);
+    }
+
+    private void setBaseStat(EquipBaseStat stat, int amount) {
+        switch (stat) {
+            case tuc:
+                setTuc((short) amount);
+                break;
+            case cuc:
+                setCuc((short) amount);
+                break;
+            case iStr:
+                setIStr((short) amount);
+                break;
+            case iDex:
+                setIDex((short) amount);
+                break;
+            case iInt:
+                setIInt((short) amount);
+                break;
+            case iLuk:
+                setILuk((short) amount);
+                break;
+            case iMaxHP:
+                setIMaxHp((short) amount);
+                break;
+            case iMaxMP:
+                setIMaxMp((short) amount);
+                break;
+            case iPAD:
+                setIPad((short) amount);
+                break;
+            case iMAD:
+                setIMad((short) amount);
+                break;
+            case iPDD:
+                setIPDD((short) amount);
+                break;
+            case iMDD:
+                setIMDD((short) amount);
+                break;
+            case iACC:
+                setIAcc((short) amount);
+                break;
+            case iEVA:
+                setIEva((short) amount);
+                break;
+            case iCraft:
+                setICraft((short) amount);
+                break;
+            case iSpeed:
+                setISpeed((short) amount);
+                break;
+            case iJump:
+                setIJump((short) amount);
+                break;
+            case attribute:
+                setAttribute((short) amount);
+                break;
+            case levelUpType:
+                setLevelUpType((short) amount);
+                break;
+            case level:
+                setLevel((short) amount);
+                break;
+            case exp:
+                setExp((short) amount);
+                break;
+            case durability:
+                setDurability((short) amount);
+                break;
+            case iuc:
+                setIuc((short) amount);
+                break;
+            case iPvpDamage:
+                break;
+            case iReduceReq:
+                setIReduceReq((byte) amount);
+                break;
+            case specialAttribute:
+                setSpecialAttribute((short) amount);
+                break;
+            case durabilityMax:
+                setDurabilityMax((short) amount);
+                break;
+            case iIncReq:
+                setIIncReq((short) amount);
+                break;
+            case growthEnchant:
+                setGrowthEnchant((short) amount);
+                break;
+            case psEnchant:
+                setPsEnchant((short) amount);
+                break;
+            case bdr:
+                setBdr((short) amount);
+                break;
+            case imdr:
+                setImdr((short) amount);
+                break;
+            case damR:
+                setDamR((short) amount);
+                break;
+            case statR:
+                setStatR((short) amount);
+                break;
+            case cuttable:
+                setCuttable((short) amount);
+                break;
+            case exGradeOption:
+                setExGradeOption((short) amount);
+                break;
+            case itemState:
+                setHyperUpgrade((short) amount);
+                break;
+        }
+
+    }
+
+    //还原卷
+    public void applyInnocenceScroll() {
+        Equip defaultEquip = ItemData.getEquipDeepCopyFromID(getItemId(), false);
+        for (EquipBaseStat ebs : EquipBaseStat.values()) {
+            if (ebs != EquipBaseStat.attribute && ebs != EquipBaseStat.growthEnchant && ebs != EquipBaseStat.psEnchant) {
+                setBaseStat(ebs, defaultEquip.getBaseStat(ebs));
+            }
+        }
+        setChuc((short) 0);
+        reCalcEnchantmentStats();
+    }
+
+    public boolean hasUsedSlots() {
+        Equip defaultEquip = ItemData.getEquipDeepCopyFromID(getItemId(), false);
+        return defaultEquip.getTuc() != getTuc();
+    }
+
+    public void reCalcEnchantmentStats() {
+        getEnchantStats().clear();
+        for (int i = 0; i < getChuc(); i++) {
+            for (EnchantStat es : getHyperUpgradeStats().keySet()) {
+                putEnchantStat(es, getEnchantStats().getOrDefault(es, 0) +
+                        GameConstants.getEnchantmentValByChuc(this, es, (short) i, (int) getBaseStat(es.getEquipBaseStat())));
+            }
+        }
+    }
+
+    public void putEnchantStat(EnchantStat es, int val) {
+        getEnchantStats().put(es, val);
+    }
+
+    public TreeMap<EnchantStat, Integer> getHyperUpgradeStats() {
+        Comparator<EnchantStat> comparator = Comparator.comparingInt(EnchantStat::getVal);
+        TreeMap<EnchantStat, Integer> res = new TreeMap<>(comparator);
+        for (EnchantStat es : EnchantStat.values()) {
+            int curAmount = (int) getBaseStat(es.getEquipBaseStat());
+            if (curAmount > 0 || es == EnchantStat.PAD || es == EnchantStat.MAD || es == EnchantStat.PDD || es == EnchantStat.MDD) {
+                res.put(es, GameConstants.getEnchantmentValByChuc(this, es, getChuc(), curAmount));
+            }
+        }
+        return res;
     }
 
 }

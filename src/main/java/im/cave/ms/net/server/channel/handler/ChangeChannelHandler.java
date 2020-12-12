@@ -22,6 +22,7 @@ public class ChangeChannelHandler {
             c.close(); //hack
             return;
         }
+        //todo
         player.changeChannel(channel);
     }
 }

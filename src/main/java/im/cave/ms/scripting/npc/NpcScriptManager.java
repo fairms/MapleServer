@@ -18,7 +18,7 @@ import java.util.WeakHashMap;
 public class NpcScriptManager extends AbstractScriptManager {
     private static final NpcScriptManager instance = new NpcScriptManager();
     private final Map<MapleClient, NpcConversationManager> cms = new WeakHashMap<>();
-    private final Map<MapleClient, NashornScriptEngine> scripts = new HashMap<>();
+    private final Map<String, NashornScriptEngine> scripts = new HashMap<>();
 
     public synchronized static NpcScriptManager getInstance() {
         return instance;
@@ -28,7 +28,7 @@ public class NpcScriptManager extends AbstractScriptManager {
     public boolean isNpcScriptAvailable(MapleClient c, String fileName) {
         NashornScriptEngine iv = null;
         if (fileName != null) {
-            iv = getScriptEngine("npc/" + fileName + ".js", c);
+            iv = getScriptEngine("npc/" + fileName + ".js");
         }
 
         return iv != null;
@@ -45,10 +45,12 @@ public class NpcScriptManager extends AbstractScriptManager {
                 return;
             }
             NashornScriptEngine nse;
-            if (scripts.containsKey(c)) {
-                nse = scripts.get(c);
+            String scriptPath = String.format("npc/%s.js", script);
+            if (scripts.containsKey(scriptPath)) {
+                nse = scripts.get(scriptPath);
             } else {
-                nse = getScriptEngine("npc/" + script + ".js", c);
+                nse = getScriptEngine("npc/" + script + ".js");
+                scripts.put(scriptPath, nse);
             }
             if (nse == null) {
                 c.getPlayer().dropMessage("NPC: " + npcId + " " + script + " 脚本不存在 地图:" + c.getPlayer().getMapId());
@@ -59,8 +61,6 @@ public class NpcScriptManager extends AbstractScriptManager {
             cms.put(c, ncm);
             nse.put("cm", ncm);
             c.getPlayer().setConversation(true);
-            scripts.put(c, nse);
-
             nse.invokeFunction("start");
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,7 +70,6 @@ public class NpcScriptManager extends AbstractScriptManager {
 
     public void dispose(MapleClient c) {
         NpcConversationManager cm = cms.get(c);
-        scripts.remove(c);
         if (cm != null) {
             cm.getNpcScriptInfo().reset();
             cms.remove(c);
@@ -82,4 +81,8 @@ public class NpcScriptManager extends AbstractScriptManager {
         return cms.get(c);
     }
 
+    public void reloadNpcScripts() {
+        scripts.clear();
+        cms.clear();
+    }
 }

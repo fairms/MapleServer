@@ -16,6 +16,7 @@ import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.MapleTraitType;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+import org.hibernate.query.criteria.internal.expression.function.SqrtFunction;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -349,8 +350,12 @@ public class PacketHelper {
         addRingsInfo(mplew, chr); //CoupleRecord
         addTRocksInfo(mplew, chr); //MapTransfer
 
-        // QuestInfo
-        mplew.writeShort(0); // quest ex
+        // QuestEx
+        mplew.writeShort(chr.getQuestsExStorage().size());
+        chr.getQuestsExStorage().forEach((qrKey, qrValue) -> {
+            mplew.writeInt(qrKey);
+            mplew.writeMapleAsciiString(qrValue);
+        });
 
         mplew.writeInt(0); //unk
         mplew.write(1);

@@ -356,21 +356,22 @@ public class ChannelPacket {
         mplew.writeShort(SendOpcode.OPEN_UNITY_PORTAL.getValue());
         mplew.writeInt(DimensionalMirror.values().length);
         for (DimensionalMirror unityPortal : DimensionalMirror.values()) {
+
             mplew.writeMapleAsciiString(unityPortal.getName());
             mplew.writeMapleAsciiString(unityPortal.getDesc());
             mplew.writeInt(unityPortal.getReqLevel());
-            mplew.writeInt(0);
+            mplew.writeInt(0); //type?
             mplew.writeInt(unityPortal.getId());
-            mplew.writeInt(unityPortal.getReqQuest());
-            mplew.writeInt(unityPortal.getQuestToSave());
-            mplew.writeBool(unityPortal.isSquad());
+            mplew.writeInt(unityPortal.getReqQuest()); // 00 00 00 00
+            mplew.writeInt(unityPortal.getQuestToSave()); //00 00 00 00
+            mplew.writeInt(unityPortal.getQuestToSave()); //00 00 00 00
+            mplew.writeMapleAsciiString("");
+            mplew.writeBool(unityPortal.isSquad()); //00
             mplew.writeInt(unityPortal.getRewards().length);
             for (Integer reward : unityPortal.getRewards()) {
                 mplew.writeInt(reward);
             }
         }
-        mplew.writeShort(0);
-        mplew.writeInt(0);
         return mplew;
     }
 

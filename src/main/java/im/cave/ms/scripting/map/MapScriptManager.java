@@ -25,7 +25,7 @@ public class MapScriptManager extends AbstractScriptManager {
     }
 
     private final Map<String, NashornScriptEngine> scripts = new HashMap<>();
-    private ScriptEngineFactory sef;
+    private final ScriptEngineFactory sef;
 
     private MapScriptManager() {
         ScriptEngineManager sem = new ScriptEngineManager();
@@ -58,7 +58,7 @@ public class MapScriptManager extends AbstractScriptManager {
         }
 
         try {
-            nse = getScriptEngine("map/" + mapScriptPath + ".js", c);
+            nse = getScriptEngine("map/" + mapScriptPath + ".js");
             if (nse == null) {
                 return false;
             }

@@ -9,12 +9,15 @@ import im.cave.ms.client.field.obj.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.config.WorldConfig;
 import im.cave.ms.constants.GameConstants;
+import im.cave.ms.enums.RemoveMobType;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.MobPacket;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Tuple;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,8 +34,8 @@ import static im.cave.ms.enums.RemoveMobType.ANIMATION_DEATH;
  * @Package im.cave.ms.client.life
  * @date 11/28 17:15
  */
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 public class Mob extends MapleMapObj {
     private boolean sealedInsteadDead, patrolMob;
     private int option, effectItemID, range, detectX, senseX, phase, curZoneDataType;
@@ -157,6 +160,13 @@ public class Mob extends MapleMapObj {
         return hp;
     }
 
+
+    @Override
+    public void faraway(MapleCharacter chr) {
+        chr.announce(MobPacket.removeController(getObjectId()));
+        chr.announce(MobPacket.removeMob(getObjectId(), RemoveMobType.STAY));
+
+    }
 
     @Override
     public void sendSpawnData(MapleCharacter chr) {
@@ -348,6 +358,7 @@ public class Mob extends MapleMapObj {
         long hp = getHp();
         hp = hp - damage;
         if (hp <= 0) {
+            setHp(0);
             die();
         } else {
             setHp(hp);

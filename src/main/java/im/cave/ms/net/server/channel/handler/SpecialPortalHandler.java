@@ -24,6 +24,7 @@ public class SpecialPortalHandler {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
+
         portal.enterPortal(c);
     }
 }

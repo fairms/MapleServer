@@ -5,20 +5,26 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Drop;
+import im.cave.ms.client.items.Equip;
+import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemBuffs;
 import im.cave.ms.client.items.ItemInfo;
+import im.cave.ms.client.items.ScrollUpgradeInfo;
 import im.cave.ms.client.items.SpecStat;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
+import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 
+import java.util.List;
 import java.util.Map;
 
+import static im.cave.ms.enums.EquipBaseStat.tuc;
 import static im.cave.ms.enums.InventoryOperation.MOVE;
 import static im.cave.ms.enums.InventoryOperation.REMOVE;
 import static im.cave.ms.enums.InventoryOperation.UPDATE_QUANTITY;
@@ -115,6 +121,50 @@ public class InventoryHandler {
             player.consumeItem(item);
         } else {
             player.consumeItem(item);
+        }
+    }
+
+    public static void handleEquipEnchanting(SeekableLittleEndianAccessor slea, MapleClient c) {
+        byte val = slea.readByte();
+        EquipmentEnchantType type = EquipmentEnchantType.getByVal(val);
+        MapleCharacter player = c.getPlayer();
+        if (type == null) {
+            player.dropMessage("未知的装备强化请求:" + val);
+            return;
+        }
+        switch (type) {
+            case ScrollUpgradeRequest: {
+                player.setTick(slea.readInt());
+                short pos = slea.readShort();
+                int scrollId = slea.readInt();
+                Inventory iv = pos < 0 ? player.getEquippedInventory() : player.getEquipInventory();
+                Equip equip = (Equip) iv.getItem((short) (pos < 0 ? -pos : pos));
+                Equip prevEquip = equip.deepCopy();
+                List<ScrollUpgradeInfo> scrolls = ItemConstants.getScrollUpgradeInfosByEquip(equip);
+                ScrollUpgradeInfo scrollUpgradeInfo = scrolls.get(scrollId);
+                player.consumeItem(ItemConstants.SPELL_TRACE_ID, scrollUpgradeInfo.getCost());
+                boolean success = scrollUpgradeInfo.applyTo(equip);
+                equip.reCalcEnchantmentStats();
+                player.announce(PlayerPacket.showScrollUpgradeResult(false, success ? 1 : 0, scrollUpgradeInfo.getTitle(), prevEquip, equip));
+                equip.updateToChar(player);
+                if (equip.getBaseStat(tuc) > 0) {
+                    scrolls = ItemConstants.getScrollUpgradeInfosByEquip(equip);
+                    c.announce(PlayerPacket.scrollUpgradeDisplay(false, scrolls));
+                }
+                break;
+            }
+            case ScrollUpgradeDisplay:
+                int pos = slea.readInt();
+                Inventory iv = pos < 0 ? player.getEquippedInventory() : player.getEquipInventory();
+                Equip equip = (Equip) iv.getItem((short) (pos < 0 ? -pos : pos));
+                if (equip == null) {
+                    return;
+                }
+                List<ScrollUpgradeInfo> scrolls = ItemConstants.getScrollUpgradeInfosByEquip(equip);
+                c.announce(PlayerPacket.scrollUpgradeDisplay(false, scrolls));
+                break;
+            case ScrollTimerEffective:
+                break;
         }
     }
 }

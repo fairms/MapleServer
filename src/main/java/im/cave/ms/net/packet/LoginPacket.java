@@ -16,6 +16,8 @@ import im.cave.ms.enums.ServerType;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -191,7 +193,7 @@ public class LoginPacket {
         mplew.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
         for (MapleCharacter deletedChar : deletedChars) {
             mplew.writeInt(deletedChar.getId());
-            mplew.writeLong(deletedChar.getDeleteTime());
+            mplew.writeLong(DateUtil.getFileTime(deletedChar.getDeleteTime()));
         }
         mplew.write(0);
         mplew.writeInt(characters.size());
@@ -292,6 +294,25 @@ public class LoginPacket {
         mplew.write(0);
         mplew.writeInt(-1);
         mplew.write(1);
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter deleteTime(int charId) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.DELETE_CHAR_TIME.getValue());
+        mplew.writeInt(charId);
+        mplew.write(0);
+        long deleteTime = LocalDateTime.now().plusDays(3).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+        mplew.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+        mplew.writeLong(DateUtil.getFileTime(deleteTime));
+        return mplew;
+    }
+
+    public static MaplePacketLittleEndianWriter cancelDeleteChar(int charId) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendOpcode.CANCEL_DELETE_CHAR.getValue());
+        mplew.writeInt(charId);
+        mplew.write(0);
         return mplew;
     }
 }

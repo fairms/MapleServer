@@ -20,7 +20,7 @@ public enum EquipAttribute {
     ScrollProtection(0x4000),
     ReturnScroll(0x8000);
 
-    private int val;
+    private final int val;
 
     EquipAttribute(int val) {
         this.val = val;

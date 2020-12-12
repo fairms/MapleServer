@@ -68,4 +68,9 @@ public class Position {
     public int hashCode() {
         return Objects.hash(x, y);
     }
+
+
+    public double getDistance(Position desPos) {
+        return Math.sqrt(Math.abs(desPos.getX() - getX()) + Math.abs(desPos.getY() - getY()));
+    }
 }

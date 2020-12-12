@@ -11,3 +11,97 @@ worlds:
     quest_rate: 5
     fishing_rate: 10
     travel_rate: 10
+
+signin:
+  - rank: 1
+    itemId: 2049116
+    quantity: 10
+    expiredTime: 0
+    isCash: 0
+  - rank: 2
+    itemId: 2049116
+    quantity: 10
+  - rank: 3
+    itemId: 2049116
+    quantity: 10
+  - rank: 4
+    itemId: 2049116
+    quantity: 10
+  - rank: 5
+    itemId: 2049116
+    quantity: 10
+  - rank: 6
+    itemId: 2049116
+    quantity: 10
+  - rank: 7
+    itemId: 2049116
+    quantity: 10
+  - rank: 8
+    itemId: 2049116
+    quantity: 10
+  - rank: 9
+    itemId: 2049116
+    quantity: 10
+  - rank: 10
+    itemId: 2049116
+    quantity: 10
+  - rank: 11
+    itemId: 2049116
+    quantity: 10
+  - rank: 12
+    itemId: 2049116
+    quantity: 10
+  - rank: 13
+    itemId: 2049116
+    quantity: 10
+  - rank: 14
+    itemId: 2049116
+    quantity: 10
+  - rank: 15
+    itemId: 2049116
+    quantity: 10
+  - rank: 16
+    itemId: 2049116
+    quantity: 10
+  - rank: 17
+    itemId: 2049116
+    quantity: 10
+  - rank: 18
+    itemId: 2049116
+    quantity: 10
+  - rank: 19
+    itemId: 2049116
+    quantity: 10
+  - rank: 20
+    itemId: 2049116
+    quantity: 10
+  - rank: 21
+    itemId: 2049116
+    quantity: 10
+  - rank: 22
+    itemId: 2049116
+    quantity: 10
+  - rank: 23
+    itemId: 2049116
+    quantity: 10
+  - rank: 24
+    itemId: 2049116
+    quantity: 10
+  - rank: 25
+    itemId: 2049116
+    quantity: 10
+  - rank: 26
+    itemId: 2049116
+    quantity: 10
+  - rank: 27
+    itemId: 2049116
+    quantity: 10
+  - rank: 28
+    itemId: 2049116
+    quantity: 10
+  - rank: 29
+    itemId: 2049116
+    quantity: 10
+  - rank: 30
+    itemId: 2049116
+    quantity: 10

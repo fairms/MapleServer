@@ -2,9 +2,9 @@ package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.Job.JobManager;
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.MapleSignIn;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
-import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.PlayerPacket;
@@ -66,7 +66,7 @@ public class PlayerLoggedinHandler {
         player.changeMap(player.getMapId(), true);
         player.initBaseStats();
         player.buildQuestEx();
-
+        c.announce(MapleSignIn.getRewardPacket());
         c.announce(MaplePacketCreator.keymapInit(player));
         c.announce(MaplePacketCreator.quickslotInit(player));
         c.announce(LoginPacket.account(player.getAccount()));

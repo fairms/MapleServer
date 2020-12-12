@@ -1,6 +1,7 @@
 package im.cave.ms.scripting.portal;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Portal;
 import im.cave.ms.scripting.AbstractScriptManager;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
@@ -20,13 +21,13 @@ import java.util.Map;
 public class PortalScriptManager extends AbstractScriptManager {
     private static final PortalScriptManager instance = new PortalScriptManager();
 
-    private Map<String, NashornScriptEngine> scripts = new HashMap<>();
+    private final Map<String, NashornScriptEngine> scripts = new HashMap<>();
 
     public static PortalScriptManager getInstance() {
         return instance;
     }
 
-    private ScriptEngineFactory sef;
+    private final ScriptEngineFactory sef;
 
     private PortalScriptManager() {
         ScriptEngineManager sem = new ScriptEngineManager();
@@ -39,7 +40,7 @@ public class PortalScriptManager extends AbstractScriptManager {
         if (nse != null) {
             return nse;
         }
-        nse = getScriptEngine(scriptPath, c);
+        nse = getScriptEngine(scriptPath);
         if (nse == null) {
             return null;
         }
@@ -52,6 +53,9 @@ public class PortalScriptManager extends AbstractScriptManager {
             NashornScriptEngine nse = getPortalScript(portal.getScript(), client);
             if (nse != null) {
                 return (boolean) nse.invokeFunction("enter", new PortalPlayerInteraction(client, portal));
+            } else {
+                MapleCharacter player = client.getPlayer();
+                client.getPlayer().dropMessage("地图:" + player.getMapId() + " 传送口:" + portal.getScript());
             }
         } catch (NoSuchMethodException | ScriptException e) {
             e.printStackTrace();

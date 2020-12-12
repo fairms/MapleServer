@@ -20,6 +20,7 @@ import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.service.EventManager;
 import im.cave.ms.scripting.map.MapScriptManager;
 import im.cave.ms.tools.Position;
+import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Util;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import lombok.Getter;
@@ -75,6 +76,7 @@ public class MapleMap {
     private int bossMobID;
     private int VrTop, VrBottom, VrLeft, VrRight;
     private Map<MapleMapObj, ScheduledFuture> objScheduledFutures;
+    private HashMap<MapleMapObj, MapleCharacter> objControllers;
 
     public MapleMap(int id, int world, int channel) {
         this.id = id;
@@ -114,17 +116,25 @@ public class MapleMap {
             msm.runMapScript(chr.getClient(), "onUserEnter/" + onUserEnter, false);
         }
         broadcastSpawnPlayerMapObjectMessage(chr, chr, true);
-        chr.announce(PlayerPacket.hiddenEffectEquips(chr)); //maybe broadcast
+        chr.announce(PlayerPacket.hiddenEffectEquips(chr)); //broadcast?
         chr.setJob(chr.getJob());
         sendMapObject(chr);
     }
 
-    private void sendMapObject(MapleCharacter chr) {
+    public void sendMapObject(MapleCharacter chr) {
         List<MapleMapObj> objects = new ArrayList<>(objs.values());
         for (MapleMapObj object : objects) {
-            object.sendSpawnData(chr);
+            Rect rectAround = chr.getVisibleRect();
+            if (rectAround.hasPositionInside(object.getPosition()) && !chr.getVisibleMapObjs().contains(object)) {
+                chr.addVisibleMapObj(object);
+                object.sendSpawnData(chr);
+            } else if (!rectAround.hasPositionInside(object.getPosition()) && chr.getVisibleMapObjs().contains(object)) {
+                object.faraway(chr);
+                chr.removeVisibleMapObj(object);
+            }
         }
     }
+
 
     private void broadcastSpawnPlayerMapObjectMessage(MapleCharacter source, MapleCharacter player, boolean enteringField) {
         for (MapleCharacter character : characters) {
@@ -158,6 +168,12 @@ public class MapleMap {
                 .findAny().orElse(null);
     }
 
+    public Portal getPortal(byte portal) {
+        return portals.stream()
+                .filter(p -> p.getId() == portal)
+                .findAny().orElse(null);
+    }
+
     public void addObj(MapleMapObj obj) {
         if (obj.getObjectId() < 0) {
             obj.setObjectId(objectIdCounter.getAndIncrement());
@@ -173,6 +189,7 @@ public class MapleMap {
     }
 
     public void generateMobs(boolean init) {
+        //todo
         if (init || getCharacters().size() > 0) {
             int currentMobs = getMobs().size();
             for (MobGen mg : getMobGens()) {
@@ -311,7 +328,7 @@ public class MapleMap {
         EventManager.addEvent(() -> drop.setOwnerID(0), GameConstants.DROP_REMOVE_OWNERSHIP_TIME, TimeUnit.SECONDS);
         for (MapleCharacter chr : getCharacters()) {
             if (chr.hasAnyQuestsInProgress(quests)) {
-                broadcastMessage(ChannelPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo, 500, drop.canBePickedUpBy(chr)));
+                broadcastMessage(ChannelPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo, 0, drop.canBePickedUpBy(chr)));
             }
         }
     }
@@ -392,5 +409,23 @@ public class MapleMap {
             }
         }
         return res;
+    }
+
+    public Portal getSpawnPortalNearby(Position position) {
+        double des = Double.MAX_VALUE;
+        Portal ret = null;
+        for (Portal spawnPortal : getSpawnPortals()) {
+            Position spPos = new Position(spawnPortal.getX(), spawnPortal.getY());
+            double distance = position.getDistance(spPos);
+            if (distance < des) {
+                des = distance;
+                ret = spawnPortal;
+            }
+        }
+        return ret;
+    }
+
+    public List<Portal> getSpawnPortals() {
+        return getPortals().stream().filter(portal -> portal.getName().equalsIgnoreCase("sp")).collect(Collectors.toList());
     }
 }

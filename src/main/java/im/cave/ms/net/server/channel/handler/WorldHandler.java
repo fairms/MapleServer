@@ -10,17 +10,22 @@ import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.DimensionalMirror;
 import im.cave.ms.enums.InstanceTableType;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
+import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.tools.Util;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+
+import static im.cave.ms.constants.QuestConstants.QUEST_EX_COMBO_KILL;
 
 /**
  * @author fair
@@ -163,5 +168,18 @@ public class WorldHandler {
             return;
         }
         c.announce(LoginPacket.changePlayer(c));
+    }
+
+    public static void handleComboKill(SeekableLittleEndianAccessor slea, MapleClient c) {
+        int questId = slea.readInt();
+        int combo = slea.readInt();
+        slea.readInt();//unk
+        MapleCharacter player = c.getPlayer();
+        HashMap<String, String> options = new HashMap<>();
+        options.put("ComboK", String.valueOf(combo));
+        player.addQuestEx(questId, options);
+        c.announce(PlayerPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_COMBO_KILL, player.getQuestsExStorage().get(QUEST_EX_COMBO_KILL), (byte) 0));
+        c.announce(PlayerPacket.updateQuestEx(QUEST_EX_COMBO_KILL));
+
     }
 }

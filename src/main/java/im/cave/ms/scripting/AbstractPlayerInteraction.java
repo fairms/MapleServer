@@ -104,7 +104,11 @@ public class AbstractPlayerInteraction {
         return true;
     }
 
-    public void openUnityPortal(){
+    public void openUnityPortal() {
         c.announce(ChannelPacket.unityPortal());
+    }
+
+    public void warp(int mapId) {
+        c.getPlayer().changeMap(mapId);
     }
 }

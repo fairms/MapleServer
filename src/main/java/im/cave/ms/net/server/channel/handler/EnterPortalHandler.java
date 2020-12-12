@@ -3,6 +3,7 @@ package im.cave.ms.net.server.channel.handler;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Portal;
+import im.cave.ms.scripting.portal.PortalScriptManager;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 
 /**

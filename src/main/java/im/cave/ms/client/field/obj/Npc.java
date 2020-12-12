@@ -2,10 +2,13 @@ package im.cave.ms.client.field.obj;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.net.packet.MaplePacketCreator;
+import im.cave.ms.net.packet.NpcPacket;
 import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +20,8 @@ import java.util.Map;
  * @date 11/28 13:00
  */
 @EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 public class Npc extends MapleMapObj {
     private boolean enabled = true;
     private int presentItemID;
@@ -42,6 +46,11 @@ public class Npc extends MapleMapObj {
         int x = getPosition().getX();
         int y = getPosition().getY();
         return new Rect((x + npcRect.getLeft()), (y + npcRect.getTop()), (x + npcRect.getRight()), (y + npcRect.getBottom()));
+    }
+
+    @Override
+    public void faraway(MapleCharacter chr) {
+        chr.announce(NpcPacket.removeNpc(getObjectId()));
     }
 
     @Override

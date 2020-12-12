@@ -1,6 +1,5 @@
 package im.cave.ms.scripting;
 
-import im.cave.ms.client.MapleClient;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
 
 import javax.script.ScriptEngineFactory;
@@ -34,19 +33,5 @@ public abstract class AbstractScriptManager {
         }
 
         return engine;
-    }
-
-    protected NashornScriptEngine getScriptEngine(String path, MapleClient c) {
-        NashornScriptEngine engine = c.getScriptEngine(path);
-        if (engine == null) {
-            engine = getScriptEngine(path);
-            c.setScriptEngine(path, engine);
-        }
-
-        return engine;
-    }
-
-    protected void resetContext(String path, MapleClient c) {
-        c.removeScriptEngine("scripts/" + path);
     }
 }

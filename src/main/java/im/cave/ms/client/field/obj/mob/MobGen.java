@@ -79,9 +79,8 @@ public class MobGen extends MapleMapObj {
     }
 
     public boolean canSpawnOnField(MapleMap map) {
+
         int currentMobs = map.getMobs().size();
-        // not over max mobs, delay of spawn ended, if mobtime == -1 (not respawnable) must not have yet spawned
-        // no mob in area around this, unless kishin is active
         return currentMobs < map.getMobCapacity() &&
                 getNextPossibleSpawnTime() < System.currentTimeMillis() &&
                 (getMob().getMobTime() != -1 || !hasSpawned());

@@ -177,7 +177,7 @@ public class MapData {
         if (portals != null) {
             for (MapleData portalData : portals.getChildren()) {
                 int portalId = Integer.parseInt(portalData.getName());
-                Portal portal = new Portal(portalId);
+                Portal portal = new Portal((byte) portalId);
                 for (MapleData attr : portalData.getChildren()) {
                     String name = attr.getName();
                     switch (name) {

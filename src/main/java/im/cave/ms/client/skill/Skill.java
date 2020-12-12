@@ -5,6 +5,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Objects;
 
 
 @Entity
@@ -80,5 +81,19 @@ public class Skill {
     @Override
     public String toString() {
         return "id = " + getSkillId() + ", cur = " + getCurrentLevel() + ", master = " + getMasterLevel();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(charId, skillId, id);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Skill skill = (Skill) obj;
+        return skill.getCharId() == getCharId() && getSkillId() == skill.getSkillId();
     }
 }

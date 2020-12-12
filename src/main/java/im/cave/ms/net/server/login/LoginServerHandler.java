@@ -2,10 +2,9 @@ package im.cave.ms.net.server.login;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.net.server.ErrorPacketHandler;
-import im.cave.ms.net.server.login.handler.CharSelectedHandler;
+import im.cave.ms.net.server.login.handler.CharOperationHandler;
 import im.cave.ms.net.server.login.handler.CharlistRequestHandler;
 import im.cave.ms.net.server.login.handler.CreateCharHandler;
 import im.cave.ms.net.server.login.handler.OfficialLoginHandler;
@@ -75,7 +74,7 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<SeekableLitt
         }
         switch (opcode) {
             case BEFORE_LOGIN:
-//                PasswordLoginHandler.handlePacket(c, slea);
+                PasswordLoginHandler.handlePacket(c, slea);
                 break;
             case CLIENT_AUTH_REQUEST:
                 c.announce(LoginPacket.clientAuth());
@@ -90,7 +89,7 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<SeekableLitt
                 CharlistRequestHandler.handlePacket(slea, c);
                 break;
             case CHAR_SELECTED:
-                CharSelectedHandler.handlePacket(slea, c);
+                CharOperationHandler.handleSelectChar(slea, c);
                 break;
             case AFTER_CHAR_CREATED:
                 CreateCharHandler.afterCreate(slea, c);
@@ -103,6 +102,12 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<SeekableLitt
                 break;
             case CREATE_CHAR_REQUEST:
                 CreateCharHandler.createChar(slea, c);
+                break;
+            case DELETE_CHAR:
+                CharOperationHandler.handleDeleteChar(slea, c);
+                break;
+            case CANCEL_DELETE_CHAR:
+                CharOperationHandler.handleCancelDelete(slea, c);
                 break;
             case PONG:
                 c.pongReceived();

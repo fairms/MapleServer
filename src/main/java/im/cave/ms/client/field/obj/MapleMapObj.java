@@ -7,7 +7,10 @@ import im.cave.ms.client.field.obj.mob.MobGen;
 import im.cave.ms.provider.data.MobData;
 import im.cave.ms.provider.data.NpcData;
 import im.cave.ms.tools.Position;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Objects;
 
 /**
  * @author fair
@@ -15,7 +18,8 @@ import lombok.Data;
  * @Package im.cave.ms.client.life
  * @date 11/28 17:14
  */
-@Data
+@Getter
+@Setter
 public class MapleMapObj {
     private Position position;
     private int objectId = -1;
@@ -136,6 +140,22 @@ public class MapleMapObj {
 
 
     public void sendSpawnData(MapleCharacter chr) {
+    }
 
+    public void faraway(MapleCharacter chr) {
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(templateId, objectId, map);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Mob) {
+            Mob mob = (Mob) obj;
+            return mob.getTemplateId() == getTemplateId() && mob.getObjectId() == getObjectId() && mob.getMap().equals(getMap());
+        }
+        return false;
     }
 }

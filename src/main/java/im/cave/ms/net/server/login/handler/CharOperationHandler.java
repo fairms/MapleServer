@@ -6,9 +6,10 @@ import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.server.Server;
-import im.cave.ms.net.server.channel.MapleChannel;
-import im.cave.ms.net.server.world.World;
 import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 /**
  * @author fair
@@ -16,8 +17,8 @@ import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
  * @Package im.cave.ms.connection.handler.login
  * @date 11/20 21:46
  */
-public class CharSelectedHandler {
-    public static void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+public class CharOperationHandler {
+    public static void handleSelectChar(SeekableLittleEndianAccessor slea, MapleClient c) {
         int charId = slea.readInt();
         byte invisible = slea.readByte();
         if (c.getLoginStatus().equals(LoginStatus.LOGGEDIN) && c.getAccount().getCharacter(charId) != null) {
@@ -30,5 +31,24 @@ public class CharSelectedHandler {
         } else {
             c.announce(LoginPacket.selectCharacterResult(LoginType.UnauthorizedUser, (byte) 0, 0, 0));
         }
+    }
+
+    public static void handleDeleteChar(SeekableLittleEndianAccessor slea, MapleClient c) {
+        slea.readByte();
+        slea.readByte();
+        int charId = slea.readInt();
+        MapleCharacter character = c.getAccount().getCharacter(charId);
+        character.setDeleted(true);
+        long deleteTime = LocalDateTime.now().plusDays(3).toInstant(ZoneOffset.of("+8")).toEpochMilli();
+        character.setDeleteTime(deleteTime);
+        c.announce(LoginPacket.deleteTime(charId));
+    }
+
+    public static void handleCancelDelete(SeekableLittleEndianAccessor slea, MapleClient c) {
+        int charId = slea.readInt();
+        MapleCharacter character = c.getAccount().getCharacter(charId);
+        character.setDeleted(false);
+        character.setDeleteTime(0L);
+        c.announce(LoginPacket.cancelDeleteChar(charId));
     }
 }
