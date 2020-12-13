@@ -2,8 +2,8 @@ package im.cave.ms.client;
 
 import im.cave.ms.config.WorldConfig;
 import im.cave.ms.constants.QuestConstants;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.opcode.SendOpcode;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,33 +26,33 @@ public class MapleSignIn {
     }
 
 
-    public static MaplePacketLittleEndianWriter getRewardPacket() {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SIGNIN_REWARDS.getValue());
-        mplew.write(0);
-        mplew.write(1);
-        mplew.writeLong(ZERO_TIME);
-        mplew.writeLong(MAX_TIME);
-        mplew.writeLong(signRewards.size());
-        mplew.writeInt(QuestConstants.QUEST_EX_MOB_KILL_COUNT);
-        mplew.writeInt(QuestConstants.MOB_KILL_COUNT_MAX);
-        mplew.writeInt(signRewards.size());
+    public static OutPacket getRewardPacket() {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SIGNIN_REWARDS.getValue());
+        outPacket.write(0);
+        outPacket.write(1);
+        outPacket.writeLong(ZERO_TIME);
+        outPacket.writeLong(MAX_TIME);
+        outPacket.writeLong(signRewards.size());
+        outPacket.writeInt(QuestConstants.QUEST_EX_MOB_KILL_COUNT);
+        outPacket.writeInt(QuestConstants.MOB_KILL_COUNT_MAX);
+        outPacket.writeInt(signRewards.size());
         for (SignInRewardInfo signReward : signRewards) {
-            mplew.writeInt(signReward.getRank());
-            mplew.writeInt(signReward.getItemId());
-            mplew.writeInt(signReward.getQuantity());
+            outPacket.writeInt(signReward.getRank());
+            outPacket.writeInt(signReward.getItemId());
+            outPacket.writeInt(signReward.getQuantity());
             if (signReward.getExpiredTime() > 0) {
-                mplew.writeInt(1);
-                mplew.writeInt(signReward.getExpiredTime());
+                outPacket.writeInt(1);
+                outPacket.writeInt(signReward.getExpiredTime());
             } else {
-                mplew.writeLong(0);
+                outPacket.writeLong(0);
             }
-            mplew.writeInt(signReward.isCash);
-            mplew.writeZeroBytes(6);
+            outPacket.writeInt(signReward.isCash);
+            outPacket.writeZeroBytes(6);
         }
-        mplew.writeInt(MIN_LEVEL);
-        mplew.writeZeroBytes(12);
-        return mplew;
+        outPacket.writeInt(MIN_LEVEL);
+        outPacket.writeZeroBytes(12);
+        return outPacket;
     }
 
     public static void initSignRewards() {

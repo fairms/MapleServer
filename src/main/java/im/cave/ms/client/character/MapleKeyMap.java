@@ -1,7 +1,7 @@
 package im.cave.ms.client.character;
 
 import im.cave.ms.constants.GameConstants;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+import im.cave.ms.net.netty.OutPacket;
 import lombok.Data;
 
 import javax.persistence.CascadeType;
@@ -41,19 +41,19 @@ public class MapleKeyMap {
     public MapleKeyMap() {
     }
 
-    public void encode(MaplePacketLittleEndianWriter mplew) {
+    public void encode(OutPacket outPacket) {
         if (getKeymap().size() == 0) {
-            mplew.writeBool(true);
+            outPacket.writeBool(true);
         } else {
-            mplew.writeBool(false);
+            outPacket.writeBool(false);
             for (int i = 0; i < MAX_KEYBINDS; i++) {
                 KeyBind tuple = getMappingAt(i);
                 if (tuple == null) {
-                    mplew.write(0);
-                    mplew.writeInt(0);
+                    outPacket.write(0);
+                    outPacket.writeInt(0);
                 } else {
-                    mplew.write(tuple.getType());
-                    mplew.writeInt(tuple.getAction());
+                    outPacket.write(tuple.getType());
+                    outPacket.writeInt(tuple.getAction());
                 }
             }
         }

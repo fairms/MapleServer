@@ -1,8 +1,8 @@
 package im.cave.ms.client.character.potential;
 
 import im.cave.ms.client.skill.Skill;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.provider.data.SkillData;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -80,11 +80,11 @@ public class CharacterPotential {
         this.grade = grade;
     }
 
-    public void encode(MaplePacketLittleEndianWriter mplew) {
-        mplew.write(getKey());
-        mplew.writeInt(getSkillID());
-        mplew.write(getSlv());
-        mplew.write(getGrade());
+    public void encode(OutPacket outPacket) {
+        outPacket.write(getKey());
+        outPacket.writeInt(getSkillID());
+        outPacket.write(getSlv());
+        outPacket.write(getGrade());
     }
 
     @Override

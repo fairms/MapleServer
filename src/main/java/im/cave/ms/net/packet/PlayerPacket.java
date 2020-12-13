@@ -12,9 +12,8 @@ import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryOperation;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MessageType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.opcode.SendOpcode;
-import im.cave.ms.tools.DateUtil;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,31 +33,31 @@ import static im.cave.ms.net.packet.PacketHelper.MAX_TIME;
 public class PlayerPacket {
 
 
-    public static MaplePacketLittleEndianWriter inventoryOperation(boolean exclRequestSent, boolean notRemoveAddInfo, InventoryOperation type, short oldPos, short newPos,
-                                                                   int bagPos, Item item) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static OutPacket inventoryOperation(boolean exclRequestSent, boolean notRemoveAddInfo, InventoryOperation type, short oldPos, short newPos,
+                                               int bagPos, Item item) {
+        OutPacket outPacket = new OutPacket();
         InventoryType invType = item.getInvType();
         if ((oldPos > 0 && newPos < 0 && invType == EQUIPPED) || (invType == EQUIPPED && oldPos < 0)) {
             invType = InventoryType.EQUIP;
         }
-        mplew.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
-        mplew.writeBool(exclRequestSent);
-        mplew.write(1); //size
-        mplew.writeBool(notRemoveAddInfo);
+        outPacket.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
+        outPacket.writeBool(exclRequestSent);
+        outPacket.write(1); //size
+        outPacket.writeBool(notRemoveAddInfo);
 
         boolean addMovementInfo = false;
-        mplew.write(type.getVal());
-        mplew.write(invType.getVal());
-        mplew.writeShort(oldPos);
+        outPacket.write(type.getVal());
+        outPacket.write(invType.getVal());
+        outPacket.writeShort(oldPos);
         switch (type) {
             case ADD:
-                PacketHelper.addItemInfo(mplew, item);
+                PacketHelper.addItemInfo(outPacket, item);
                 break;
             case UPDATE_QUANTITY:
-                mplew.writeShort(item.getQuantity());
+                outPacket.writeShort(item.getQuantity());
                 break;
             case MOVE:
-                mplew.writeShort(newPos);
+                outPacket.writeShort(newPos);
                 if (invType == InventoryType.EQUIP && (oldPos < 0 || newPos < 0)) {
                     addMovementInfo = true;
                 }
@@ -69,18 +68,18 @@ public class PlayerPacket {
                 }
                 break;
             case ITEM_EXP:
-                mplew.writeLong(((Equip) item).getExp());
+                outPacket.writeLong(((Equip) item).getExp());
                 break;
             case UPDATE_BAG_POS:
-                mplew.writeInt(bagPos);
+                outPacket.writeInt(bagPos);
                 break;
             case UPDATE_BAG_QUANTITY:
-                mplew.writeShort(newPos);
+                outPacket.writeShort(newPos);
                 break;
             case UNK_1:
                 break;
             case UNK_2:
-                mplew.writeShort(bagPos); // ?
+                outPacket.writeShort(bagPos); // ?
                 break;
             case UPDATE_ITEM_INFO:
 //                item.encode(outPacket);
@@ -89,142 +88,142 @@ public class PlayerPacket {
                 break;
         }
         if (addMovementInfo) {
-            mplew.writeBool(true);
+            outPacket.writeBool(true);
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter move(MapleCharacter player, MovementInfo movementInfo) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.MOVE_PLAYER.getValue());
-        mplew.writeInt(player.getId());
-        movementInfo.encode(mplew);
-        return mplew;
+    public static OutPacket move(MapleCharacter player, MovementInfo movementInfo) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.MOVE_PLAYER.getValue());
+        outPacket.writeInt(player.getId());
+        movementInfo.encode(outPacket);
+        return outPacket;
     }
 
 
-    public static MaplePacketLittleEndianWriter lockUI(boolean enable) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.LOCK_UI.getValue());
-        mplew.writeBool(enable);
-        return mplew;
+    public static OutPacket lockUI(boolean enable) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.LOCK_UI.getValue());
+        outPacket.writeBool(enable);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter disableUI(boolean disable) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.DISABLE_UI.getValue());
-        mplew.writeBool(disable);
-        mplew.writeBool(disable);
+    public static OutPacket disableUI(boolean disable) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.DISABLE_UI.getValue());
+        outPacket.writeBool(disable);
+        outPacket.writeBool(disable);
         if (disable) {
-            mplew.writeBool(false);
-            mplew.writeBool(false);
+            outPacket.writeBool(false);
+            outPacket.writeBool(false);
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter updateVoucher(MapleCharacter chr) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.UPDATE_VOUCHER.getValue());
-        mplew.writeInt(chr.getId());
-        mplew.writeInt(chr.getAccount().getVoucher());
-        return mplew;
+    public static OutPacket updateVoucher(MapleCharacter chr) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.UPDATE_VOUCHER.getValue());
+        outPacket.writeInt(chr.getId());
+        outPacket.writeInt(chr.getAccount().getVoucher());
+        return outPacket;
     }
 
     //角色信息面板
-    public static MaplePacketLittleEndianWriter charInfo(MapleCharacter chr) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.CHAR_INFO.getValue());
-        mplew.writeInt(chr.getId());
-        mplew.writeInt(chr.getLevel());
-        mplew.writeShort(chr.getJobId());
-        mplew.writeShort(0);//sub job
-        mplew.write(0x0A); //pvp grade
-        mplew.writeInt(chr.getFame());
-        mplew.writeBool(false); //marriage
+    public static OutPacket charInfo(MapleCharacter chr) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CHAR_INFO.getValue());
+        outPacket.writeInt(chr.getId());
+        outPacket.writeInt(chr.getLevel());
+        outPacket.writeShort(chr.getJobId());
+        outPacket.writeShort(0);//sub job
+        outPacket.write(0x0A); //pvp grade
+        outPacket.writeInt(chr.getFame());
+        outPacket.writeBool(false); //marriage
         //todo marriage = true
-        mplew.write(0); //making skill size
-        mplew.writeMapleAsciiString("-"); //party name
-        mplew.writeMapleAsciiString(""); // 联盟
-        mplew.write(-1); //unk
-        mplew.write(0);  //unk
-        mplew.write(0); //pet size
+        outPacket.write(0); //making skill size
+        outPacket.writeMapleAsciiString("-"); //party name
+        outPacket.writeMapleAsciiString(""); // 联盟
+        outPacket.write(-1); //unk
+        outPacket.write(0);  //unk
+        outPacket.write(0); //pet size
         //todo pet info
-        mplew.write(0);
-        mplew.writeInt(0); //装备的的勋章
-        mplew.writeShort(0); //收藏数目
+        outPacket.write(0);
+        outPacket.writeInt(0); //装备的的勋章
+        outPacket.writeShort(0); //收藏数目
         //todo 收藏任务id+完成时间
-        mplew.writeBool(true);//hasDamageSkins always true
+        outPacket.writeBool(true);//hasDamageSkins always true
 
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeBool(false);
-        mplew.writeInt(0);
-        mplew.writeMapleAsciiString("");
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeBool(false);
+        outPacket.writeInt(0);
+        outPacket.writeMapleAsciiString("");
 
-        mplew.writeInt(-1);
-        mplew.writeInt(0);
-        mplew.writeBool(true); //notSave
-        mplew.writeInt(0);
-        mplew.writeMapleAsciiString("");
+        outPacket.writeInt(-1);
+        outPacket.writeInt(0);
+        outPacket.writeBool(true); //notSave
+        outPacket.writeInt(0);
+        outPacket.writeMapleAsciiString("");
 
-        mplew.writeInt(-1);
-        mplew.writeInt(0);
-        mplew.writeBool(true);
-        mplew.writeInt(0);
-        mplew.writeMapleAsciiString("");
+        outPacket.writeInt(-1);
+        outPacket.writeInt(0);
+        outPacket.writeBool(true);
+        outPacket.writeInt(0);
+        outPacket.writeMapleAsciiString("");
 
 
-        mplew.writeShort(1); //damage skins slots
-        mplew.writeShort(0); //damage skins count
+        outPacket.writeShort(1); //damage skins slots
+        outPacket.writeShort(0); //damage skins count
         //倾向
-        mplew.write(1);
-        mplew.write(2);
-        mplew.write(3);
-        mplew.write(4);
-        mplew.write(5);
-        mplew.write(6);
+        outPacket.write(1);
+        outPacket.write(2);
+        outPacket.write(3);
+        outPacket.write(4);
+        outPacket.write(5);
+        outPacket.write(6);
         //
-        mplew.write(0);
-        mplew.writeZeroBytes(8);
+        outPacket.write(0);
+        outPacket.writeZeroBytes(8);
 
-        mplew.writeInt(0);//椅子数
-        mplew.writeInt(0);//勋章数
+        outPacket.writeInt(0);//椅子数
+        outPacket.writeInt(0);//勋章数
 
-        return mplew;
+        return outPacket;
     }
 
 
-    public static MaplePacketLittleEndianWriter cancelChair(int charId, short id) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.CANCEL_CHAIR.getValue());
-        mplew.writeInt(charId);
+    public static OutPacket cancelChair(int charId, short id) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CANCEL_CHAIR.getValue());
+        outPacket.writeInt(charId);
         if (id != -1) {
-            mplew.write(1);
-            mplew.writeShort(id);
+            outPacket.write(1);
+            outPacket.writeShort(id);
         } else {
-            mplew.write(0);
+            outPacket.write(0);
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter hiddenEffectEquips(MapleCharacter player) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.HIDDEN_EFFECT_EQUIP.getValue());
-        mplew.writeInt(player.getId());
+    public static OutPacket hiddenEffectEquips(MapleCharacter player) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.HIDDEN_EFFECT_EQUIP.getValue());
+        outPacket.writeInt(player.getId());
         List<Item> items = player.getEquippedInventory().getItems();
         List<Item> equips = items.stream().filter(item -> !((Equip) item).isShowEffect()).collect(Collectors.toList());
-        mplew.writeInt(equips.size());
+        outPacket.writeInt(equips.size());
         for (Item equip : equips) {
-            mplew.writeInt(equip.getPos());
+            outPacket.writeInt(equip.getPos());
         }
-        mplew.writeBool(true);
-        return mplew;
+        outPacket.writeBool(true);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter sendRebirthConfirm(boolean onDeadRevive, boolean onDeadProtectForBuff, boolean onDeadProtectBuffMaplePoint,
+    public static OutPacket sendRebirthConfirm(boolean onDeadRevive, boolean onDeadProtectForBuff, boolean onDeadProtectBuffMaplePoint,
                                                                    boolean onDeadProtectExpMaplePoint, boolean anniversary, int reviveType, int protectType) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.DEATH_CONFIRM.getValue());
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.DEATH_CONFIRM.getValue());
         int reviveMask = 0;
         if (onDeadRevive) {
             reviveMask |= 0x1;
@@ -238,189 +237,201 @@ public class PlayerPacket {
         if (onDeadProtectExpMaplePoint) {
             reviveMask |= 0x8;
         }
-        mplew.writeInt(reviveMask);
-        mplew.writeBool(anniversary);
-        mplew.writeInt(reviveType);
+        outPacket.writeInt(reviveMask);
+        outPacket.writeBool(anniversary);
+        outPacket.writeInt(reviveType);
         if (onDeadProtectForBuff || onDeadProtectExpMaplePoint) {
-            mplew.writeInt(protectType);
+            outPacket.writeInt(protectType);
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter changeSkillRecordResult(Skill skill) {
+    public static OutPacket changeSkillRecordResult(Skill skill) {
         List<Skill> skills = new ArrayList<>();
         skills.add(skill);
         return changeSkillRecordResult(skills, true, false, false, false);
     }
 
-    public static MaplePacketLittleEndianWriter changeSkillRecordResult(List<Skill> skills, boolean exclRequestSent, boolean showResult
+    public static OutPacket changeSkillRecordResult(List<Skill> skills, boolean exclRequestSent, boolean showResult
             , boolean removeLinkSkill, boolean sn) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.CHANGE_SKILL_RESULT.getValue());
-        mplew.writeBool(exclRequestSent);
-        mplew.writeBool(showResult);
-        mplew.writeBool(removeLinkSkill);
-        mplew.writeShort(skills.size());
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CHANGE_SKILL_RESULT.getValue());
+        outPacket.writeBool(exclRequestSent);
+        outPacket.writeBool(showResult);
+        outPacket.writeBool(removeLinkSkill);
+        outPacket.writeShort(skills.size());
         for (Skill skill : skills) {
-            mplew.writeInt(skill.getSkillId());
-            mplew.writeInt(skill.getCurrentLevel());
-            mplew.writeInt(skill.getMasterLevel());
-            mplew.writeLong(MAX_TIME);
+            outPacket.writeInt(skill.getSkillId());
+            outPacket.writeInt(skill.getCurrentLevel());
+            outPacket.writeInt(skill.getMasterLevel());
+            outPacket.writeLong(MAX_TIME);
         }
-        mplew.writeBool(sn);
-        return mplew;
+        outPacket.writeBool(sn);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter skillCoolTimes(Map<Integer, Integer> cooltimes) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SKILL_COOLTIME.getValue());
-        mplew.writeInt(cooltimes.size());
+    public static OutPacket skillCoolTimes(Map<Integer, Integer> cooltimes) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SKILL_COOLTIME.getValue());
+        outPacket.writeInt(cooltimes.size());
         cooltimes.forEach((id, cooltime) -> {
-            mplew.writeInt(id);
-            mplew.writeInt(cooltime);
+            outPacket.writeInt(id);
+            outPacket.writeInt(cooltime);
         });
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter skillCoolDown(int skillId) {
+    public static OutPacket skillCoolDown(int skillId) {
         HashMap<Integer, Integer> skills = new HashMap<>();
         skills.put(skillId, 0);
         return skillCoolTimes(skills);
     }
 
 
-    public static MaplePacketLittleEndianWriter removeBuff(TemporaryStatManager tsm, boolean demount) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.REMOVE_BUFF.getValue());
-        mplew.writeInt(0);
-        mplew.write(1);
-        mplew.write(1);
+    public static OutPacket removeBuff(TemporaryStatManager tsm, boolean demount) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.REMOVE_BUFF.getValue());
+        outPacket.writeInt(0);
+        outPacket.write(1);
+        outPacket.write(1);
         for (int i : tsm.getRemovedMask()) {
-            mplew.writeInt(i);
+            outPacket.writeInt(i);
         }
         tsm.getRemovedStats().forEach((characterTemporaryStat, options) -> {
-            mplew.writeInt(0);
+            outPacket.writeInt(0);
         });
         if (demount) {
-            mplew.writeBool(true);
+            outPacket.writeBool(true);
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter giveBuff(TemporaryStatManager tsm) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.GIVE_BUFF.getValue());
-        mplew.writeZeroBytes(8);
-        tsm.encodeForLocal(mplew);
+    public static OutPacket giveBuff(TemporaryStatManager tsm) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.GIVE_BUFF.getValue());
+        outPacket.writeZeroBytes(8);
+        tsm.encodeForLocal(outPacket);
         //unk
-        mplew.write(1);
-        mplew.write(1);
-        mplew.write(1);
-        mplew.writeInt(0);
-        mplew.write(0);  //sometimes
-        return mplew;
+        outPacket.write(1);
+        outPacket.write(1);
+        outPacket.write(1);
+        outPacket.writeInt(0);
+        outPacket.write(0);  //sometimes
+        return outPacket;
     }
 
 
-    public static MaplePacketLittleEndianWriter effect(Effect effect) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.EFFECT.getValue());
-        effect.encode(mplew);
-        return mplew;
+    public static OutPacket effect(Effect effect) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.EFFECT.getValue());
+        effect.encode(outPacket);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter incMoneyMessage(int amount) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        mplew.write(MessageType.INC_MONEY_MESSAGE.getVal());
-        mplew.writeInt(amount);
-        mplew.writeInt(amount > 0 ? 1 : -1);
-        return mplew;
+    public static OutPacket incMoneyMessage(int amount) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        outPacket.write(MessageType.INC_MONEY_MESSAGE.getVal());
+        outPacket.writeInt(amount);
+        outPacket.writeInt(amount > 0 ? 1 : -1);
+        return outPacket;
     }
 
     // todo 纯复制
-    public static MaplePacketLittleEndianWriter message(MessageType mt, int i, String string, byte type) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        mplew.write(mt.getVal());
+    public static OutPacket message(MessageType mt, int i, String string, byte type) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        outPacket.write(mt.getVal());
         switch (mt) {
             case CASH_ITEM_EXPIRE_MESSAGE:
             case INC_POP_MESSAGE:
             case INC_GP_MESSAGE:
             case GIVE_BUFF_MESSAGE:
-                mplew.writeInt(i);
+                outPacket.writeInt(i);
                 break;
             case INC_COMMITMENT_MESSAGE:
-                mplew.writeInt(i);
-                mplew.write(i < 0 ? 1 : i == 0 ? 2 : 0); // gained = 0, lost = 1, cap = 2
+                outPacket.writeInt(i);
+                outPacket.write(i < 0 ? 1 : i == 0 ? 2 : 0); // gained = 0, lost = 1, cap = 2
                 break;
             case SYSTEM_MESSAGE:
-                mplew.writeMapleAsciiString(string);
+                outPacket.writeMapleAsciiString(string);
                 break;
             case QUEST_RECORD_EX_MESSAGE:
             case WORLD_SHARE_RECORD_MESSAGE:
             case COLLECTION_RECORD_MESSAGE:
-                mplew.writeInt(i);
-                mplew.writeMapleAsciiString(string);
+                outPacket.writeInt(i);
+                outPacket.writeMapleAsciiString(string);
                 break;
             case INC_HARDCORE_EXP_MESSAGE:
-                mplew.writeInt(i); //You have gained x EXP
-                mplew.writeInt(i); //Field Bonus Exp
+                outPacket.writeInt(i); //You have gained x EXP
+                outPacket.writeInt(i); //Field Bonus Exp
                 break;
             case BARRIER_EFFECT_IGNORE_MESSAGE:
-                mplew.write(type); //protection/shield scroll pop-up Message
+                outPacket.write(type); //protection/shield scroll pop-up Message
                 break;
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter stylishKillMessage(long exp, int count) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        mplew.write(MessageType.STYLISH_KILL_MESSAGE.getVal());
-        mplew.write(0); //unk
-        mplew.writeLong(exp);
-        mplew.writeInt(0); //unk
-        mplew.writeInt(count);
-        mplew.writeInt(1); //unk
-        return mplew;
+    public static OutPacket stylishKillMessage(long exp, int count) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        outPacket.write(MessageType.STYLISH_KILL_MESSAGE.getVal());
+        outPacket.write(0);
+        outPacket.writeLong(exp);
+        outPacket.writeInt(0); //unk
+        outPacket.writeInt(count);
+        outPacket.writeInt(1); //unk
+        return outPacket;
+    }
+
+    public static OutPacket comboKillMessage(int objId, int combo) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        outPacket.write(MessageType.STYLISH_KILL_MESSAGE.getVal());
+        outPacket.write(1);
+        outPacket.writeInt(combo);
+        outPacket.writeInt(objId);
+        outPacket.writeInt(0); //unk
+        outPacket.writeInt(1); //unk
+        return outPacket;
     }
 
 
-    public static MaplePacketLittleEndianWriter inventoryRefresh() {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
-        mplew.writeBool(true);
-        mplew.writeShort(0);
-        return mplew;
+    public static OutPacket inventoryRefresh() {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
+        outPacket.writeBool(true);
+        outPacket.writeShort(0);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter scrollUpgradeDisplay(boolean feverTime, List<ScrollUpgradeInfo> scrolls) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
-        mplew.write(EquipmentEnchantType.ScrollUpgradeDisplay.getVal());
-        mplew.writeBool(feverTime);
-        mplew.write(scrolls.size());
-        scrolls.forEach(scrollUpgradeInfo -> scrollUpgradeInfo.encode(mplew));
-        return mplew;
+    public static OutPacket scrollUpgradeDisplay(boolean feverTime, List<ScrollUpgradeInfo> scrolls) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
+        outPacket.write(EquipmentEnchantType.ScrollUpgradeDisplay.getVal());
+        outPacket.writeBool(feverTime);
+        outPacket.write(scrolls.size());
+        scrolls.forEach(scrollUpgradeInfo -> scrollUpgradeInfo.encode(outPacket));
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter showScrollUpgradeResult(boolean feverTime, int result, String desc, Equip prevEquip, Equip equip) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
-        mplew.write(EquipmentEnchantType.ShowScrollUpgradeResult.getVal());
-        mplew.writeBool(feverTime);
-        mplew.writeInt(result);
-        mplew.writeMapleAsciiString(desc);
-        PacketHelper.addItemInfo(mplew, prevEquip);
-        PacketHelper.addItemInfo(mplew, equip);
-        return mplew;
+    public static OutPacket showScrollUpgradeResult(boolean feverTime, int result, String desc, Equip prevEquip, Equip equip) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
+        outPacket.write(EquipmentEnchantType.ShowScrollUpgradeResult.getVal());
+        outPacket.writeBool(feverTime);
+        outPacket.writeInt(result);
+        outPacket.writeMapleAsciiString(desc);
+        PacketHelper.addItemInfo(outPacket, prevEquip);
+        PacketHelper.addItemInfo(outPacket, equip);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter updateQuestEx(int questId) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.UPDATE_QUEST_EX.getValue());
-        mplew.writeInt(questId);
-        return mplew;
+    public static OutPacket updateQuestEx(int questId) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.UPDATE_QUEST_EX.getValue());
+        outPacket.writeInt(questId);
+        return outPacket;
     }
 }

@@ -2,9 +2,10 @@ package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.net.server.CommandHandler;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+import im.cave.ms.net.server.CommandHandler;
+
 
 /**
  * @author fair
@@ -14,15 +15,15 @@ import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
  */
 public class GeneralChatHandler {
 
-    public static void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        int tick = slea.readInt();
+    public static void handlePacket(InPacket inPacket, MapleClient c) {
+        int tick = inPacket.readInt();
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             c.close();
             return;
         }
         player.setTick(tick);
-        String content = slea.readMapleAsciiString();
+        String content = inPacket.readMapleAsciiString();
 
         if (content.startsWith("@")) {
             CommandHandler.handle(c, content);

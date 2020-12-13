@@ -7,13 +7,10 @@ import im.cave.ms.client.items.Inventory;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.InventoryType;
-import im.cave.ms.enums.LoginStatus;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.LoginPacket;
-import im.cave.ms.net.server.Server;
-import im.cave.ms.net.server.channel.MapleChannel;
-import im.cave.ms.net.server.world.World;
 import im.cave.ms.provider.data.ItemData;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+
 
 /**
  * @author fair
@@ -22,36 +19,36 @@ import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
  * @date 11/20 21:46
  */
 public class CreateCharHandler {
-    public static void afterCreate(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void afterCreate(InPacket inPacket, MapleClient c) {
 
     }
 
-    public static void checkName(SeekableLittleEndianAccessor slea, MapleClient c) {
-        String name = slea.readMapleAsciiString();
+    public static void checkName(InPacket inPacket, MapleClient c) {
+        String name = inPacket.readMapleAsciiString();
         int state = MapleCharacter.nameCheck(name);
         c.announce(LoginPacket.checkNameResponse(name, (byte) state));
     }
 
-    public static void createChar(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void createChar(InPacket inPacket, MapleClient c) {
         String name;
         byte gender, skin;
         short subcategory;
-        name = slea.readMapleAsciiString();
-        int keyMode = slea.readInt(); //默认键盘布局
+        name = inPacket.readMapleAsciiString();
+        int keyMode = inPacket.readInt(); //默认键盘布局
         if (keyMode != 0 && keyMode != 1) {
             c.announce(LoginPacket.checkNameResponse(name, (byte) 3));
             return;
         }
-        slea.skip(4);
-        int curSelectedRace = slea.readInt();
+        inPacket.skip(4);
+        int curSelectedRace = inPacket.readInt();
         JobConstants.JobEnum job = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginJob();
-        subcategory = slea.readShort();
-        gender = slea.readByte();
-        skin = slea.readByte();
-        byte itemLength = slea.readByte();
+        subcategory = inPacket.readShort();
+        gender = inPacket.readByte();
+        skin = inPacket.readByte();
+        byte itemLength = inPacket.readByte();
         int[] items = new int[itemLength];
         for (byte i = 0; i < itemLength; i++) {
-            items[i] = slea.readInt();
+            items[i] = inPacket.readInt();
         }
         if (job == null) {
             return;

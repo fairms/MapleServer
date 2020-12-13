@@ -9,9 +9,9 @@ import im.cave.ms.client.skill.Skill;
 import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.client.skill.SkillStat;
 import im.cave.ms.constants.JobConstants;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Util;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -69,15 +69,16 @@ public class Warrior extends Beginner {
     }
 
     @Override
-    public void handleSkill(MapleClient c, int skillId, int skillLevel, SeekableLittleEndianAccessor slea) {
-        super.handleSkill(c, skillId, skillLevel, slea);
+    public void handleSkill(MapleClient c, int skillId, int skillLevel, InPacket inPacket) {
+        super.handleSkill(c, skillId, skillLevel, inPacket);
         if (isBuff(skillId)) {
-            handleBuff(c, slea, skillId, skillLevel);
+            handleBuff(c, inPacket, skillId, skillLevel);
         }
     }
 
     @Override
     public void handleAttack(MapleClient c, AttackInfo attackInfo) {
+        super.handleAttack(c, attackInfo);
         MapleCharacter player = c.getPlayer();
         TemporaryStatManager tsm = player.getTemporaryStatManager();
         Skill skill = player.getSkill(attackInfo.skillId);
@@ -114,8 +115,8 @@ public class Warrior extends Beginner {
     }
 
     @Override
-    public void handleBuff(MapleClient c, SeekableLittleEndianAccessor slea, int skillId, int slv) {
-        super.handleBuff(c, slea, skillId, slv);
+    public void handleBuff(MapleClient c, InPacket inPacket, int skillId, int slv) {
+        super.handleBuff(c, inPacket, skillId, slv);
         MapleCharacter player = c.getPlayer();
         TemporaryStatManager tsm = player.getTemporaryStatManager();
         SkillInfo skillInfo = SkillData.getSkillInfo(skillId);

@@ -12,11 +12,11 @@ import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.service.EventManager;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -159,7 +159,7 @@ public abstract class MapleJob {
 //        }
     }
 
-    public void handleSkill(MapleClient c, int skillId, int slv, SeekableLittleEndianAccessor slea) {
+    public void handleSkill(MapleClient c, int skillId, int slv, InPacket inPacket) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         MapleCharacter chr = c.getPlayer();
         SkillInfo si = SkillData.getSkillInfo(skillId);
@@ -173,13 +173,13 @@ public abstract class MapleJob {
             //todo
             EventManager.addEvent(() -> c.announce(PlayerPacket.skillCoolDown(skillId)), cooltime, TimeUnit.SECONDS);
         }
-        if (slea != null && isBuff(skillId)) {
-            handleJobLessBuff(c, slea, skillId, slv);
+        if (inPacket != null && isBuff(skillId)) {
+            handleJobLessBuff(c, inPacket, skillId, slv);
         } else {
         }
     }
 
-    public void handleJobLessBuff(MapleClient c, SeekableLittleEndianAccessor slea, int skillId, int slv) {
+    public void handleJobLessBuff(MapleClient c, InPacket inPacket, int skillId, int slv) {
         MapleCharacter player = c.getPlayer();
         SkillInfo skillInfo = SkillData.getSkillInfo(skillId);
         TemporaryStatManager tsm = player.getTemporaryStatManager();

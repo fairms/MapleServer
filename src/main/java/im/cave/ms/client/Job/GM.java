@@ -3,7 +3,8 @@ package im.cave.ms.client.Job;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.skill.AttackInfo;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+import im.cave.ms.net.netty.InPacket;
+
 
 /**
  * @author fair
@@ -25,13 +26,13 @@ public class GM extends MapleJob {
     }
 
     @Override
-    public void handleSkill(MapleClient c, int skillId, int slv, SeekableLittleEndianAccessor slea) {
-        super.handleSkill(c, skillId, slv, slea);
+    public void handleSkill(MapleClient c, int skillId, int slv, InPacket inPacket) {
+        super.handleSkill(c, skillId, slv, inPacket);
     }
 
     @Override
-    public void handleJobLessBuff(MapleClient c, SeekableLittleEndianAccessor slea, int skillId, int slv) {
-        super.handleJobLessBuff(c, slea, skillId, slv);
+    public void handleJobLessBuff(MapleClient c, InPacket inPacket, int skillId, int slv) {
+        super.handleJobLessBuff(c, inPacket, skillId, slv);
     }
 
     @Override

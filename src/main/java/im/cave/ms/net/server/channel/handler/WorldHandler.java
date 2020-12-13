@@ -12,13 +12,13 @@ import im.cave.ms.enums.InstanceTableType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.TrunkOpType;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.tools.Util;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +36,10 @@ import static im.cave.ms.constants.QuestConstants.QUEST_EX_COMBO_KILL;
 public class WorldHandler {
     private static final Logger log = LoggerFactory.getLogger(WorldHandler.class);
 
-    public static void handleInstanceTableRequest(SeekableLittleEndianAccessor slea, MapleClient c) {
-        String requestStr = slea.readMapleAsciiString();
-        int type = slea.readInt();
-        int subType = slea.readInt();
+    public static void handleInstanceTableRequest(InPacket inPacket, MapleClient c) {
+        String requestStr = inPacket.readMapleAsciiString();
+        int type = inPacket.readInt();
+        int subType = inPacket.readInt();
         InstanceTableType itt = InstanceTableType.getByStr(requestStr);
         if (itt == null) {
             log.error(String.format("Unknown instance table type request %s, type %d, subType %d", requestStr, type, subType));
@@ -81,15 +81,15 @@ public class WorldHandler {
 
     }
 
-    public static void handleMigrateToCashShopRequest(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleMigrateToCashShopRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        player.setTick(slea.readInt());
-        slea.readByte(); // 00
+        player.setTick(inPacket.readInt());
+        inPacket.readByte(); // 00
         c.announce(MaplePacketCreator.getChannelChange(Server.getInstance().getCashShop(c.getWorld()).getPort()));
     }
 
-    public static void handleBattleAnalysis(SeekableLittleEndianAccessor slea, MapleClient c) {
-        byte opt = slea.readByte();
+    public static void handleBattleAnalysis(InPacket inPacket, MapleClient c) {
+        byte opt = inPacket.readByte();
         if (opt == 1) {
             c.announce(MaplePacketCreator.startBattleAnalysis());
         }
@@ -106,13 +106,13 @@ public class WorldHandler {
         NpcHandler.talkToNPC(c.getPlayer(), npcId);
     }
 
-    public static void handleUnityPortalSelect(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleUnityPortalSelect(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        player.setTick(slea.readInt());
-        int unityPortalId = slea.readInt();
+        player.setTick(inPacket.readInt());
+        int unityPortalId = inPacket.readInt();
         DimensionalMirror[] unityPortals = DimensionalMirror.values();
         DimensionalMirror unityPortal = Util.findWithPred(unityPortals, u -> u.getId() == unityPortalId);
         if (unityPortal == null) {
@@ -122,10 +122,10 @@ public class WorldHandler {
         player.changeMap(unityPortal.getMapId());
     }
 
-    public static void handleTrunkOperation(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleTrunkOperation(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         Trunk trunk = player.getAccount().getTrunk();
-        byte type = slea.readByte();
+        byte type = inPacket.readByte();
         TrunkOpType trunkOpType = TrunkOpType.getByVal(type);
         if (trunkOpType == null) {
             log.error(String.format("Unknown trunk request type %d.", type));
@@ -133,8 +133,8 @@ public class WorldHandler {
         }
         switch (trunkOpType) {
             case TrunkReq_GetItem:
-                int pos = slea.readShort() - 1;
-                short quantity = slea.readShort(); //todo
+                int pos = inPacket.readShort() - 1;
+                short quantity = inPacket.readShort(); //todo
                 if (pos >= 0 && pos < trunk.getItems().size()) {
                     Item item = trunk.getItems().get(pos);
                     if (player.getInventory(item.getInvType()).canPickUp(item)) {
@@ -149,7 +149,7 @@ public class WorldHandler {
                 }
                 break;
             case TrunkReq_Money:
-                long amount = slea.readLong();
+                long amount = inPacket.readLong();
                 if (trunk.getMoney() >= amount) {
                     trunk.addMoney(-amount);
                     player.addMeso(amount);
@@ -161,8 +161,8 @@ public class WorldHandler {
         }
     }
 
-    public static void handleChangeCharRequest(SeekableLittleEndianAccessor slea, MapleClient c) {
-        String account = slea.readMapleAsciiString();
+    public static void handleChangeCharRequest(InPacket inPacket, MapleClient c) {
+        String account = inPacket.readMapleAsciiString();
         if (!account.equals(c.getAccount().getAccount())) {
             c.getPlayer().dropMessage("有问题");
             return;
@@ -170,10 +170,10 @@ public class WorldHandler {
         c.announce(LoginPacket.changePlayer(c));
     }
 
-    public static void handleComboKill(SeekableLittleEndianAccessor slea, MapleClient c) {
-        int questId = slea.readInt();
-        int combo = slea.readInt();
-        slea.readInt();//unk
+    public static void handleComboKill(InPacket inPacket, MapleClient c) {
+        int questId = inPacket.readInt();
+        int combo = inPacket.readInt();
+        inPacket.readInt();//unk
         MapleCharacter player = c.getPlayer();
         HashMap<String, String> options = new HashMap<>();
         options.put("ComboK", String.valueOf(combo));

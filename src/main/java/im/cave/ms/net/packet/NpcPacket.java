@@ -2,10 +2,9 @@ package im.cave.ms.net.packet;
 
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.NpcMessageType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.scripting.npc.NpcScriptInfo;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
-import io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueue;
 
 /**
  * @author fair
@@ -15,134 +14,134 @@ import io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueue;
  */
 public class NpcPacket {
 
-    public static MaplePacketLittleEndianWriter npcTalk(NpcMessageType type, NpcScriptInfo nsi) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static OutPacket npcTalk(NpcMessageType type, NpcScriptInfo nsi) {
+        OutPacket outPacket = new OutPacket();
         int overrideTemplate = nsi.getOverrideSpeakerTemplateID();
-        mplew.writeShort(SendOpcode.NPC_TALK.getValue());
+        outPacket.writeShort(SendOpcode.NPC_TALK.getValue());
 
-        mplew.write(nsi.getSpeakerType()); //always 4
-        mplew.writeInt(nsi.getTemplateID());
-        mplew.write(1); //override ?
-        mplew.writeInt(0); //override id;
-        mplew.write(type.getVal());  //type
-        mplew.writeShort(nsi.getParam()); //mask
-        mplew.write(nsi.getColor()); // 0 or 1
+        outPacket.write(nsi.getSpeakerType()); //always 4
+        outPacket.writeInt(nsi.getTemplateID());
+        outPacket.write(1); //override ?
+        outPacket.writeInt(0); //override id;
+        outPacket.write(type.getVal());  //type
+        outPacket.writeShort(nsi.getParam()); //mask
+        outPacket.write(nsi.getColor()); // 0 or 1
         switch (type) {
             case Say:
             case SayOk:
             case SayNext:
             case SayPrev:
                 if ((nsi.getParam() & 4) != 0) {
-                    mplew.writeInt(nsi.getOverrideSpeakerTemplateID());
+                    outPacket.writeInt(nsi.getOverrideSpeakerTemplateID());
                 }
-                mplew.writeMapleAsciiString(nsi.getText());
-                mplew.writeBool(type.isPrevPossible());
-                mplew.writeBool(type.isNextPossible());
-                mplew.writeInt(type.getDelay());
-                mplew.write(1);
+                outPacket.writeMapleAsciiString(nsi.getText());
+                outPacket.writeBool(type.isPrevPossible());
+                outPacket.writeBool(type.isNextPossible());
+                outPacket.writeInt(type.getDelay());
+                outPacket.write(1);
                 break;
             case Say_2:
             case SayOk_2:
             case SayNext_2:
             case SayPrev_2:
-                mplew.writeMapleAsciiString(nsi.getText());
-                mplew.writeBool(type.isPrevPossible());
-                mplew.writeBool(type.isNextPossible());
-                mplew.writeInt(type.getDelay());
+                outPacket.writeMapleAsciiString(nsi.getText());
+                outPacket.writeBool(type.isPrevPossible());
+                outPacket.writeBool(type.isNextPossible());
+                outPacket.writeInt(type.getDelay());
                 break;
             case SayImage:
                 String[] images = nsi.getImages();
-                mplew.write(images.length);
+                outPacket.write(images.length);
                 for (String image : images) {
-                    mplew.writeMapleAsciiString(image);
+                    outPacket.writeMapleAsciiString(image);
                 }
                 break;
             case AskMenu:
             case AskAccept:
             case AskYesNo:
                 if ((nsi.getParam() & 4) != 0) {
-                    mplew.writeInt(nsi.getOverrideSpeakerTemplateID());
+                    outPacket.writeInt(nsi.getOverrideSpeakerTemplateID());
                 }
-                mplew.writeMapleAsciiString(nsi.getText());
+                outPacket.writeMapleAsciiString(nsi.getText());
                 break;
             case AskText:
             case AskBoxtext:
                 if ((nsi.getParam() & 4) != 0) {
-                    mplew.writeInt(nsi.getOverrideSpeakerTemplateID());
+                    outPacket.writeInt(nsi.getOverrideSpeakerTemplateID());
                 }
-                mplew.writeMapleAsciiString(nsi.getText());
-                mplew.writeMapleAsciiString(nsi.getDefaultText());
-                mplew.writeShort(nsi.getMin());
-                mplew.writeShort(nsi.getMax());
+                outPacket.writeMapleAsciiString(nsi.getText());
+                outPacket.writeMapleAsciiString(nsi.getDefaultText());
+                outPacket.writeShort(nsi.getMin());
+                outPacket.writeShort(nsi.getMax());
                 break;
             case AskNumber:
-                mplew.writeMapleAsciiString(nsi.getText());
-                mplew.writeInt(nsi.getDefaultNumber());
-                mplew.writeInt(nsi.getMin());
-                mplew.writeInt(nsi.getMax());
+                outPacket.writeMapleAsciiString(nsi.getText());
+                outPacket.writeInt(nsi.getDefaultNumber());
+                outPacket.writeInt(nsi.getMin());
+                outPacket.writeInt(nsi.getMax());
                 break;
             case InitialQuiz:
-                mplew.write(nsi.getType());
+                outPacket.write(nsi.getType());
                 if (nsi.getType() != 1) {
-                    mplew.writeMapleAsciiString(nsi.getTitle());
-                    mplew.writeMapleAsciiString(nsi.getProblemText());
-                    mplew.writeMapleAsciiString(nsi.getHintText());
-                    mplew.writeInt(nsi.getMin());
-                    mplew.writeInt(nsi.getMax());
-                    mplew.writeInt(nsi.getTime()); // in seconds
+                    outPacket.writeMapleAsciiString(nsi.getTitle());
+                    outPacket.writeMapleAsciiString(nsi.getProblemText());
+                    outPacket.writeMapleAsciiString(nsi.getHintText());
+                    outPacket.writeInt(nsi.getMin());
+                    outPacket.writeInt(nsi.getMax());
+                    outPacket.writeInt(nsi.getTime()); // in seconds
                 }
                 break;
             case InitialSpeedQuiz:
-                mplew.write(nsi.getType());
+                outPacket.write(nsi.getType());
                 if (nsi.getType() != 1) {
-                    mplew.writeInt(nsi.getQuizType());
-                    mplew.writeInt(nsi.getAnswer());
-                    mplew.writeInt(nsi.getCorrectAnswers());
-                    mplew.writeInt(nsi.getRemaining());
-                    mplew.writeInt(nsi.getTime()); // in seconds
+                    outPacket.writeInt(nsi.getQuizType());
+                    outPacket.writeInt(nsi.getAnswer());
+                    outPacket.writeInt(nsi.getCorrectAnswers());
+                    outPacket.writeInt(nsi.getRemaining());
+                    outPacket.writeInt(nsi.getTime()); // in seconds
                 }
                 break;
             case ICQuiz:
-                mplew.write(nsi.getType());
+                outPacket.write(nsi.getType());
                 if (nsi.getType() != 1) {
-                    mplew.writeMapleAsciiString(nsi.getText());
-                    mplew.writeMapleAsciiString(nsi.getHintText());
-                    mplew.writeInt(nsi.getTime()); // in seconds
+                    outPacket.writeMapleAsciiString(nsi.getText());
+                    outPacket.writeMapleAsciiString(nsi.getHintText());
+                    outPacket.writeInt(nsi.getTime()); // in seconds
                 }
                 break;
             case AskAvatar:
                 int[] options = nsi.getOptions();
-                mplew.writeBool(nsi.isAngelicBuster());
-                mplew.writeBool(nsi.isZeroBeta());
-                mplew.writeMapleAsciiString(nsi.getText());
-                mplew.writeZeroBytes(12);
-                mplew.write(options.length);
+                outPacket.writeBool(nsi.isAngelicBuster());
+                outPacket.writeBool(nsi.isZeroBeta());
+                outPacket.writeMapleAsciiString(nsi.getText());
+                outPacket.writeZeroBytes(12);
+                outPacket.write(options.length);
                 for (int option : options) {
-                    mplew.writeInt(option);
+                    outPacket.writeInt(option);
                 }
-                mplew.write(0);
-                mplew.writeInt(nsi.getRequireCard());
+                outPacket.write(0);
+                outPacket.writeInt(nsi.getRequireCard());
                 break;
             case AskSlideMenu:
-//                mplew.writeInt(nsi.getDlgType());
+//                outPacket.writeInt(nsi.getDlgType());
 //                // start CSlideMenuDlg::SetSlideMenuDlg
-//                mplew.writeInt(0); // last selected
+//                outPacket.writeInt(0); // last selected
 //                StringBuilder sb = new StringBuilder();
 //                for (DimensionalPortalType dpt : DimensionalPortalType.values()) {
 //                    if (dpt.getMapID() != 0) {
 //                        sb.append("#").append(dpt.getVal()).append("#").append(dpt.getDesc());
 //                    }
 //                }
-//                mplew.writeMapleAsciiString(sb.toString());
-//                mplew.writeInt(0);
+//                outPacket.writeMapleAsciiString(sb.toString());
+//                outPacket.writeInt(0);
                 break;
             case AskSelectMenu:
-                mplew.writeInt(nsi.getDlgType());
+                outPacket.writeInt(nsi.getDlgType());
                 if (nsi.getDlgType() <= 0 || nsi.getDlgType() == 1) {
-                    mplew.writeInt(nsi.getDefaultSelect());
-                    mplew.writeInt(nsi.getSelectText().length);
+                    outPacket.writeInt(nsi.getDefaultSelect());
+                    outPacket.writeInt(nsi.getSelectText().length);
                     for (String selectText : nsi.getSelectText()) {
-                        mplew.writeMapleAsciiString(selectText);
+                        outPacket.writeMapleAsciiString(selectText);
                     }
                 }
                 break;
@@ -151,41 +150,41 @@ public class NpcPacket {
             case SayIllustrationNext:
             case SayIllustrationPrev:
                 if ((nsi.getParam() & 4) != 0) {
-                    mplew.writeInt(nsi.getOverrideSpeakerTemplateID());
+                    outPacket.writeInt(nsi.getOverrideSpeakerTemplateID());
                 }
-                mplew.writeMapleAsciiString(nsi.getText());
-                mplew.writeBool(type.isPrevPossible());
-                mplew.writeBool(type.isNextPossible());
-                mplew.writeInt((nsi.getParam() & 4) != 0 ? nsi.getOverrideSpeakerTemplateID() : overrideTemplate != 0 ? overrideTemplate : nsi.getTemplateID());
-                mplew.writeInt(nsi.getFaceIndex());
-                mplew.writeBool(nsi.isLeft());
+                outPacket.writeMapleAsciiString(nsi.getText());
+                outPacket.writeBool(type.isPrevPossible());
+                outPacket.writeBool(type.isNextPossible());
+                outPacket.writeInt((nsi.getParam() & 4) != 0 ? nsi.getOverrideSpeakerTemplateID() : overrideTemplate != 0 ? overrideTemplate : nsi.getTemplateID());
+                outPacket.writeInt(nsi.getFaceIndex());
+                outPacket.writeBool(nsi.isLeft());
                 break;
         }
         if ((nsi.getParam() & 4) != 0) {
             nsi.setParam((byte) (nsi.getParam() ^ 4));
         }
 
-        return mplew;
+        return outPacket;
     }
 
 
-    public static MaplePacketLittleEndianWriter removeNpc(int objId) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.REMOVE_NPC.getValue());
-        mplew.writeInt(objId);
-        return mplew;
+    public static OutPacket removeNpc(int objId) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.REMOVE_NPC.getValue());
+        outPacket.writeInt(objId);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter npcMove(int npcId, byte oneTimeAction, byte chatIdx, int duration, MovementInfo movement, byte keyPadState) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.NPC_ANIMATION.getValue());
-        mplew.writeInt(npcId);
-        mplew.write(oneTimeAction);
-        mplew.write(chatIdx);
-        mplew.writeInt(duration);
+    public static OutPacket npcMove(int npcId, byte oneTimeAction, byte chatIdx, int duration, MovementInfo movement, byte keyPadState) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.NPC_ANIMATION.getValue());
+        outPacket.writeInt(npcId);
+        outPacket.write(oneTimeAction);
+        outPacket.write(chatIdx);
+        outPacket.writeInt(duration);
         if (movement != null) {
-            movement.encode(mplew);
+            movement.encode(outPacket);
         }
-        return mplew;
+        return outPacket;
     }
 }

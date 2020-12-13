@@ -2,8 +2,9 @@ package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.field.Portal;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+
 
 /**
  * @author fair
@@ -12,9 +13,9 @@ import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
  * @date 11/28 14:05
  */
 public class SpecialPortalHandler {
-    public static void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        byte type = slea.readByte();
-        String portalName = slea.readMapleAsciiString();
+    public static void handlePacket(InPacket inPacket, MapleClient c) {
+        byte type = inPacket.readByte();
+        String portalName = inPacket.readMapleAsciiString();
         Portal portal = c.getPlayer().getMap().getPortal(portalName);
         if (portal == null) {
             c.announce(MaplePacketCreator.enableActions());

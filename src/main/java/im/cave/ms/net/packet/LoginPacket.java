@@ -4,17 +4,17 @@ import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.config.ServerConfig;
+import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.ServerConstants;
+import im.cave.ms.enums.LoginType;
+import im.cave.ms.enums.ServerType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.net.server.channel.MapleChannel;
 import im.cave.ms.net.server.login.LoginServer;
 import im.cave.ms.net.server.world.World;
-import im.cave.ms.constants.JobConstants;
-import im.cave.ms.enums.LoginType;
-import im.cave.ms.enums.ServerType;
 import im.cave.ms.tools.DateUtil;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -35,221 +35,221 @@ import static im.cave.ms.enums.ServerType.LOGIN;
 public class LoginPacket {
 
 
-    public static MaplePacketLittleEndianWriter clientAuth() {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(0x2C);
-        mplew.write(0);
-        return mplew;
+    public static OutPacket clientAuth() {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(0x2C);
+        outPacket.write(0);
+        return outPacket;
     }
 
 
-    public static MaplePacketLittleEndianWriter getHello(int sendIv, int recvIv, ServerType type) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static OutPacket getHello(int sendIv, int recvIv, ServerType type) {
+        OutPacket outPacket = new OutPacket();
         if (type == LOGIN) {
-            mplew.writeShort(0x1E);
+            outPacket.writeShort(0x1E);
             for (int i = 0; i < 2; i++) {
-                mplew.writeShort(VERSION);
-                mplew.writeMapleAsciiString(PATH);
-                mplew.writeInt(recvIv);
-                mplew.writeInt(sendIv);
-                mplew.writeShort(4);
+                outPacket.writeShort(VERSION);
+                outPacket.writeMapleAsciiString(PATH);
+                outPacket.writeInt(recvIv);
+                outPacket.writeInt(sendIv);
+                outPacket.writeShort(4);
             }
         } else if (type == ServerType.CHANNEL) {
-            mplew.writeShort(0x0E);
-            mplew.writeShort(VERSION);
-            mplew.writeMapleAsciiString(PATH);
-            mplew.writeInt(recvIv);
-            mplew.writeInt(sendIv);
-            mplew.write(4);
+            outPacket.writeShort(0x0E);
+            outPacket.writeShort(VERSION);
+            outPacket.writeMapleAsciiString(PATH);
+            outPacket.writeInt(recvIv);
+            outPacket.writeInt(sendIv);
+            outPacket.write(4);
         }
-        return mplew;
+        return outPacket;
     }
 
 
-    public static MaplePacketLittleEndianWriter getOpenCreateChar() {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.OPEN_CREATE_CHAR.getValue());
-        mplew.write(4);
-        return mplew;
+    public static OutPacket getOpenCreateChar() {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.OPEN_CREATE_CHAR.getValue());
+        outPacket.write(4);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter checkNameResponse(String name, byte state) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.CHAR_NAME_RESPONSE.getValue());
-        mplew.writeMapleAsciiString(name);
-        mplew.write(state);
-        return mplew;
+    public static OutPacket checkNameResponse(String name, byte state) {
+        final OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CHAR_NAME_RESPONSE.getValue());
+        outPacket.writeMapleAsciiString(name);
+        outPacket.write(state);
+        return outPacket;
     }
 
     private static int num = 1;
 
-    public static MaplePacketLittleEndianWriter loginResult(MapleClient c, LoginType result) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.LOGIN_STATUS.getValue());
+    public static OutPacket loginResult(MapleClient c, LoginType result) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.LOGIN_STATUS.getValue());
         if (result == LoginType.Success) {
-            mplew.write(0);
-            mplew.writeMapleAsciiString(c.getAccount().getAccount());
-            mplew.writeLong(0);
-            mplew.writeInt(c.getAccount().getId());
-            mplew.writeBool(false);
-            mplew.writeLong(128);
-            mplew.writeShort(3);
-            mplew.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
-            mplew.writeZeroBytes(11);
-            mplew.writeShort(8449);
+            outPacket.write(0);
+            outPacket.writeMapleAsciiString(c.getAccount().getAccount());
+            outPacket.writeLong(0);
+            outPacket.writeInt(c.getAccount().getId());
+            outPacket.writeBool(false);
+            outPacket.writeLong(128);
+            outPacket.writeShort(3);
+            outPacket.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
+            outPacket.writeZeroBytes(11);
+            outPacket.writeShort(8449);
             for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
-                mplew.write(ServerConfig.config.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
-                mplew.writeShort(1);
+                outPacket.write(ServerConfig.config.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
+                outPacket.writeShort(1);
             }
-            mplew.write(0);
-            mplew.writeInt(-1);
-            mplew.writeBool(true);
-            mplew.writeShort(0);
-            mplew.writeMapleAsciiString(c.getAccount().getAccount());
-            mplew.write(1);
-            mplew.write(1);
-            mplew.write(1);
-            mplew.write(0);
+            outPacket.write(0);
+            outPacket.writeInt(-1);
+            outPacket.writeBool(true);
+            outPacket.writeShort(0);
+            outPacket.writeMapleAsciiString(c.getAccount().getAccount());
+            outPacket.write(1);
+            outPacket.write(1);
+            outPacket.write(1);
+            outPacket.write(0);
         } else {
-            mplew.write(result.getValue());
+            outPacket.write(result.getValue());
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter serverListBg() {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SERVER_LIST_BG.getValue());
-        mplew.write(0);
-        mplew.writeMapleAsciiString("default");
-        mplew.write(1);
-        mplew.writeLong(0);
-        return mplew;
+    public static OutPacket serverListBg() {
+        final OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SERVER_LIST_BG.getValue());
+        outPacket.write(0);
+        outPacket.writeMapleAsciiString("default");
+        outPacket.write(1);
+        outPacket.writeLong(0);
+        return outPacket;
     }
 
-    public static List<MaplePacketLittleEndianWriter> serverList() {
+    public static List<OutPacket> serverList() {
         Server server = Server.getInstance();
         List<World> worlds = server.getWorlds();
-        List<MaplePacketLittleEndianWriter> serverList = new ArrayList<>();
+        List<OutPacket> serverList = new ArrayList<>();
         for (World world : worlds) {
-            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-            mplew.writeShort(SendOpcode.SERVERLIST.getValue());
-            mplew.writeShort(world.getId());
-            mplew.writeMapleAsciiString("World-" + world.getId());
-            mplew.writeZeroBytes(8);
-            mplew.writeShort(512);
-            mplew.writeMapleAsciiString(world.getEventMessage());
-            mplew.write(world.getChannelsSize());
-            mplew.writeInt(500);
+            OutPacket outPacket = new OutPacket();
+            outPacket.writeShort(SendOpcode.SERVERLIST.getValue());
+            outPacket.writeShort(world.getId());
+            outPacket.writeMapleAsciiString("World-" + world.getId());
+            outPacket.writeZeroBytes(8);
+            outPacket.writeShort(512);
+            outPacket.writeMapleAsciiString(world.getEventMessage());
+            outPacket.write(world.getChannelsSize());
+            outPacket.writeInt(500);
             List<MapleChannel> worldChannels = world.getChannels();
             for (MapleChannel ch : worldChannels) {
-                mplew.writeMapleAsciiString("World-" + world.getId() + "-" + ch.getChannelId());
-                mplew.writeInt(ch.getChannelCapacity());
-                mplew.write(world.getId());
-                mplew.writeShort(ch.getChannelId());
+                outPacket.writeMapleAsciiString("World-" + world.getId() + "-" + ch.getChannelId());
+                outPacket.writeInt(ch.getChannelCapacity());
+                outPacket.write(world.getId());
+                outPacket.writeShort(ch.getChannelId());
             }
-            mplew.writeZeroBytes(12);
-            serverList.add(mplew);
+            outPacket.writeZeroBytes(12);
+            serverList.add(outPacket);
         }
         return serverList;
 
     }
 
-    public static MaplePacketLittleEndianWriter serverListEnd() {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SERVERLIST.getValue());
-        mplew.writeShort(-1);
-        mplew.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
-        mplew.writeLong(0);
-        mplew.writeShort(0);
-        return mplew;
+    public static OutPacket serverListEnd() {
+        final OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SERVERLIST.getValue());
+        outPacket.writeShort(-1);
+        outPacket.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
+        outPacket.writeLong(0);
+        outPacket.writeShort(0);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter serverStatus(int worldId) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SERVERSTATUS.getValue());
-        mplew.write(0);
-        mplew.writeInt(worldId);
-        mplew.writeInt(2);
-        return mplew;
+    public static OutPacket serverStatus(int worldId) {
+        final OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SERVERSTATUS.getValue());
+        outPacket.write(0);
+        outPacket.writeInt(worldId);
+        outPacket.writeInt(2);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter account(Account account) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.ACCOUNT.getValue());
-        mplew.writeLong(0);
-        mplew.writeMapleAsciiString(account.getAccount());
-        return mplew;
+    public static OutPacket account(Account account) {
+        final OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.ACCOUNT.getValue());
+        outPacket.writeLong(0);
+        outPacket.writeMapleAsciiString(account.getAccount());
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter charList(MapleClient c, List<MapleCharacter> characters, int status) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.CHARLIST.getValue());
-        mplew.write(status);
-        mplew.writeMapleAsciiString("Normal");
-        mplew.writeMapleAsciiString("Normal");
-        mplew.writeZeroBytes(6);
+    public static OutPacket charList(MapleClient c, List<MapleCharacter> characters, int status) {
+        final OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CHARLIST.getValue());
+        outPacket.write(status);
+        outPacket.writeMapleAsciiString("Normal");
+        outPacket.writeMapleAsciiString("Normal");
+        outPacket.writeZeroBytes(6);
         List<MapleCharacter> deletedChars = characters.stream().filter(MapleCharacter::isDeleted).collect(Collectors.toList());
-        mplew.writeInt(deletedChars.size());
-        mplew.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
+        outPacket.writeInt(deletedChars.size());
+        outPacket.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
         for (MapleCharacter deletedChar : deletedChars) {
-            mplew.writeInt(deletedChar.getId());
-            mplew.writeLong(DateUtil.getFileTime(deletedChar.getDeleteTime()));
+            outPacket.writeInt(deletedChar.getId());
+            outPacket.writeLong(DateUtil.getFileTime(deletedChar.getDeleteTime()));
         }
-        mplew.write(0);
-        mplew.writeInt(characters.size());
+        outPacket.write(0);
+        outPacket.writeInt(characters.size());
         for (MapleCharacter character : characters) {
-            mplew.writeInt(character.getId());
+            outPacket.writeInt(character.getId());
         }
-        mplew.writeZeroBytes(9);
-        mplew.write(characters.size());
-        characters.forEach(chr -> PacketHelper.addCharEntry(mplew, chr));
-        mplew.writeShort(0);
-        mplew.writeLong(c.getAccount().getCharacterSlots());
-        mplew.writeInt(-1);
-        mplew.writeReversedLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
-        mplew.write(0);
-        mplew.write(1);
-        mplew.write(0);
-        mplew.writeZeroBytes(8);
-        mplew.writeInt(327680);
-        mplew.writeInt(553713664);
+        outPacket.writeZeroBytes(9);
+        outPacket.write(characters.size());
+        characters.forEach(chr -> PacketHelper.addCharEntry(outPacket, chr));
+        outPacket.writeShort(0);
+        outPacket.writeLong(c.getAccount().getCharacterSlots());
+        outPacket.writeInt(-1);
+        outPacket.writeReversedLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
+        outPacket.write(0);
+        outPacket.write(1);
+        outPacket.write(0);
+        outPacket.writeZeroBytes(8);
+        outPacket.writeInt(327680);
+        outPacket.writeInt(553713664);
         for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
-            mplew.write(ServerConfig.config.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
-            mplew.writeShort(1);
+            outPacket.write(ServerConfig.config.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
+            outPacket.writeShort(1);
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter selectCharacterResult(LoginType loginType, byte errorCode, int port, int charId) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SERVER_IP.getValue());
-        mplew.write(loginType.getValue());
-        mplew.write(errorCode);
+    public static OutPacket selectCharacterResult(LoginType loginType, byte errorCode, int port, int charId) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SERVER_IP.getValue());
+        outPacket.write(loginType.getValue());
+        outPacket.write(errorCode);
         if (loginType.equals(LoginType.Success)) {
-            mplew.write(ServerConstants.NEXON_IP);
-            mplew.writeShort(port);
-            mplew.writeInt(0);
-            mplew.writeInt(charId);
-            mplew.writeInt(0);
-            mplew.writeShort(5120);
-            mplew.writeShort(1000);
-            mplew.writeZeroBytes(6);
+            outPacket.write(ServerConstants.NEXON_IP);
+            outPacket.writeShort(port);
+            outPacket.writeInt(0);
+            outPacket.writeInt(charId);
+            outPacket.writeInt(0);
+            outPacket.writeShort(5120);
+            outPacket.writeShort(1000);
+            outPacket.writeZeroBytes(6);
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter ping(ServerType type) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static OutPacket ping(ServerType type) {
+        OutPacket outPacket = new OutPacket();
         if (type == LOGIN) {
-            mplew.writeShort(SendOpcode.PING.getValue());
+            outPacket.writeShort(SendOpcode.PING.getValue());
         } else {
-            mplew.writeShort(SendOpcode.CPING.getValue());
+            outPacket.writeShort(SendOpcode.CPING.getValue());
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter changePlayer(MapleClient c) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    public static OutPacket changePlayer(MapleClient c) {
+        OutPacket outPacket = new OutPacket();
         char[] ss = new char[256];
         int i = 0;
         while (i < ss.length) {
@@ -265,54 +265,54 @@ public class LoginPacket {
         }
         String key = new String(ss);
         LoginServer.getInstance().putLoginAuthKey(key, c.getAccount().getAccount(), c.getChannel());
-        mplew.writeShort(SendOpcode.CHANGE_CHAR_KEY.getValue());
-        mplew.writeMapleAsciiString(key);
-        return mplew;
+        outPacket.writeShort(SendOpcode.CHANGE_CHAR_KEY.getValue());
+        outPacket.writeMapleAsciiString(key);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter authSuccess(MapleClient c) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.AUTH_SUCCESS.getValue());
-        mplew.write(0);
-        mplew.writeInt(c.getAccount().getId());
-        mplew.write(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.write(3);
-        mplew.write(0);
-        mplew.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
-        mplew.writeLong(0);
-        mplew.write(0);
-        mplew.writeMapleAsciiString(c.getAccount().getAccount());
-        mplew.writeShort(0);
-        mplew.write(1);
-        mplew.write(33);
+    public static OutPacket authSuccess(MapleClient c) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.AUTH_SUCCESS.getValue());
+        outPacket.write(0);
+        outPacket.writeInt(c.getAccount().getId());
+        outPacket.write(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.write(3);
+        outPacket.write(0);
+        outPacket.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
+        outPacket.writeLong(0);
+        outPacket.write(0);
+        outPacket.writeMapleAsciiString(c.getAccount().getAccount());
+        outPacket.writeShort(0);
+        outPacket.write(1);
+        outPacket.write(33);
         for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
-            mplew.write(ServerConfig.config.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
-            mplew.writeShort(1);
+            outPacket.write(ServerConfig.config.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
+            outPacket.writeShort(1);
         }
-        mplew.write(0);
-        mplew.writeInt(-1);
-        mplew.write(1);
-        return mplew;
+        outPacket.write(0);
+        outPacket.writeInt(-1);
+        outPacket.write(1);
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter deleteTime(int charId) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.DELETE_CHAR_TIME.getValue());
-        mplew.writeInt(charId);
-        mplew.write(0);
+    public static OutPacket deleteTime(int charId) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.DELETE_CHAR_TIME.getValue());
+        outPacket.writeInt(charId);
+        outPacket.write(0);
         long deleteTime = LocalDateTime.now().plusDays(3).toInstant(ZoneOffset.of("+8")).toEpochMilli();
-        mplew.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
-        mplew.writeLong(DateUtil.getFileTime(deleteTime));
-        return mplew;
+        outPacket.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+        outPacket.writeLong(DateUtil.getFileTime(deleteTime));
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter cancelDeleteChar(int charId) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.CANCEL_DELETE_CHAR.getValue());
-        mplew.writeInt(charId);
-        mplew.write(0);
-        return mplew;
+    public static OutPacket cancelDeleteChar(int charId) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CANCEL_DELETE_CHAR.getValue());
+        outPacket.writeInt(charId);
+        outPacket.write(0);
+        return outPacket;
     }
 }

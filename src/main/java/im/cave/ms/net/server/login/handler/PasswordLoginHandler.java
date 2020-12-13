@@ -4,9 +4,9 @@ import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.config.ServerConfig;
 import im.cave.ms.enums.LoginType;
+import im.cave.ms.net.netty.InPacket;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.LoginPacket;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class PasswordLoginHandler {
     private static final Logger log = LoggerFactory.getLogger(PasswordLoginHandler.class);
 
-    public static void handlePacket(MapleClient c, SeekableLittleEndianAccessor slea) {
+    public static void handlePacket(MapleClient c, InPacket inPacket) {
         String username = "3378690678";
         String password = "3378690678!";
         c.setMachineID(new byte[16]);
@@ -28,7 +28,7 @@ public class PasswordLoginHandler {
         if (loginResult == LoginType.Success) {
             c.announce(LoginPacket.loginResult(c, loginResult));
             c.announce(LoginPacket.serverListBg());
-            for (MaplePacketLittleEndianWriter serverInfo : LoginPacket.serverList()) {
+            for (OutPacket serverInfo : LoginPacket.serverList()) {
                 c.announce(serverInfo);
             }
             c.announce(LoginPacket.serverListEnd());
@@ -37,7 +37,7 @@ public class PasswordLoginHandler {
             account.saveToDb();
             c.announce(LoginPacket.loginResult(c, LoginType.Success));
             c.announce(LoginPacket.serverListBg());
-            for (MaplePacketLittleEndianWriter serverInfo : LoginPacket.serverList()) {
+            for (OutPacket serverInfo : LoginPacket.serverList()) {
                 c.announce(serverInfo);
             }
             c.announce(LoginPacket.serverListEnd());

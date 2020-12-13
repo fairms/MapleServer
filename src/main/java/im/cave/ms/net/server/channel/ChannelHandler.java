@@ -4,6 +4,7 @@ import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.ServerType;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.opcode.RecvOpcode;
@@ -20,7 +21,6 @@ import im.cave.ms.net.server.channel.handler.QuestHandler;
 import im.cave.ms.net.server.channel.handler.SpecialPortalHandler;
 import im.cave.ms.net.server.channel.handler.WorldHandler;
 import im.cave.ms.provider.service.EventManager;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ import static im.cave.ms.client.MapleClient.CLIENT_KEY;
  * @Package im.cave.ms.handler
  * @date 11/19 19:40
  */
-public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEndianAccessor> {
+public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
     private static final Logger log = LoggerFactory.getLogger("Channel");
     private final int channel;
     private final int world;
@@ -72,146 +72,146 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, SeekableLittleEndianAccessor slea) {
+    protected void channelRead0(ChannelHandlerContext ctx, InPacket inPacket) {
         MapleClient c = ctx.channel().attr(CLIENT_KEY).get();
-        int op = slea.readShort();
+        int op = inPacket.readShort();
         if (c.mEncryptedOpcode.containsKey(op)) {
             op = c.mEncryptedOpcode.get(op);
         }
         RecvOpcode opcode = RecvOpcode.getOpcode(op);
         if (opcode == null) {
-            handleUnknown(slea, (short) op);
+            handleUnknown(inPacket, (short) op);
             return;
         }
         switch (opcode) {
             case PLAYER_LOGIN:
-                PlayerLoggedinHandler.handlePacket(slea, c);
+                PlayerLoggedinHandler.handlePacket(inPacket, c);
                 break;
             case ERROR_PACKET:
-                ErrorPacketHandler.handlePacket(slea);
+                ErrorPacketHandler.handlePacket(inPacket);
                 break;
             case GENERAL_CHAT:
-                GeneralChatHandler.handlePacket(slea, c);
+                GeneralChatHandler.handlePacket(inPacket, c);
                 break;
             case OPEN_WORLD_MAP:
                 c.announce(MaplePacketCreator.openWorldMap());
                 break;
             case PORTAL_SPECIAL:
-                SpecialPortalHandler.handlePacket(slea, c);
+                SpecialPortalHandler.handlePacket(inPacket, c);
                 break;
             case USER_QUEST_REQUEST:
-                EventManager.addEvent(() -> QuestHandler.handleQuestRequest(slea, c), 0);
+                EventManager.addEvent(() -> QuestHandler.handleQuestRequest(inPacket, c), 0);
                 break;
             case ENTER_PORTAL:
-                EnterPortalHandler.handlePacket(slea, c);
+                EnterPortalHandler.handlePacket(inPacket, c);
                 break;
             case REQUEST_INSTANCE_TABLE:
-                WorldHandler.handleInstanceTableRequest(slea, c);
+                WorldHandler.handleInstanceTableRequest(inPacket, c);
                 break;
             case CHANGE_CHANNEL:
-                ChangeChannelHandler.handlePacket(slea, c);
+                ChangeChannelHandler.handlePacket(inPacket, c);
                 break;
             case MOB_MOVE:
-                MobHandler.handleMoveMob(slea, c);
+                MobHandler.handleMoveMob(inPacket, c);
                 break;
             case NPC_ANIMATION:
-                NpcHandler.handleNpcAnimation(slea, c);
+                NpcHandler.handleNpcAnimation(inPacket, c);
                 break;
             case ITEM_MOVE:
-                InventoryHandler.handleChangeInvPos(c, slea);
+                InventoryHandler.handleChangeInvPos(c, inPacket);
                 break;
             case USE_ITEM:
-                InventoryHandler.handleUseItem(slea, c);
+                InventoryHandler.handleUseItem(inPacket, c);
                 break;
             case EQUIP_ENCHANT_REQUEST:
-                InventoryHandler.handleEquipEnchanting(slea, c);
+                InventoryHandler.handleEquipEnchanting(inPacket, c);
                 break;
             case USER_ABILITY_UP_REQUEST:
-                PlayerHandler.handleAPUpdateRequest(slea, c);
+                PlayerHandler.handleAPUpdateRequest(inPacket, c);
                 break;
             case USER_ABILITY_MASS_UP_REQUEST:
-                PlayerHandler.handleAPMassUpdateRequest(slea, c);
+                PlayerHandler.handleAPMassUpdateRequest(inPacket, c);
                 break;
             case SELECT_NPC:
-                NpcHandler.handleUserSelectNPC(slea, c);
+                NpcHandler.handleUserSelectNPC(inPacket, c);
                 break;
             case TALK_ACTION:
-                NpcHandler.handleAction(slea, c);
+                NpcHandler.handleAction(inPacket, c);
                 break;
             case TRUNK_OPERATION:
-                WorldHandler.handleTrunkOperation(slea, c);
+                WorldHandler.handleTrunkOperation(inPacket, c);
                 break;
             case CHAR_HIT:
-                PlayerHandler.handleHit(slea, c);
+                PlayerHandler.handleHit(inPacket, c);
                 break;
             case PLAYER_MOVE:
-                PlayerHandler.handlePlayerMove(slea, c);
+                PlayerHandler.handlePlayerMove(inPacket, c);
                 break;
             case MIGRATE_TO_CASH_SHOP_REQUEST:
-                WorldHandler.handleMigrateToCashShopRequest(slea, c);
+                WorldHandler.handleMigrateToCashShopRequest(inPacket, c);
             case CLOSE_RANGE_ATTACK:
             case RANGED_ATTACK:
             case MAGIC_ATTACK:
 //            case SUMMON_ATTACK:
 //            case TOUCH_MONSTER_ATTACK:
-                PlayerHandler.handleAttack(slea, c, opcode);
+                PlayerHandler.handleAttack(inPacket, c, opcode);
                 break;
             case WORLD_MAP_TRANSFER:
-                PlayerHandler.handleWorldMapTransfer(slea, c);
+                PlayerHandler.handleWorldMapTransfer(inPacket, c);
                 break;
             case CHANGE_STAT_REQUEST:
-                PlayerHandler.handleChangeStatRequest(slea, c);
+                PlayerHandler.handleChangeStatRequest(inPacket, c);
                 break;
             case SKILL_UP:
-                PlayerHandler.handleSkillUp(slea, c);
+                PlayerHandler.handleSkillUp(inPacket, c);
                 break;
             case USE_SKILL:
-                PlayerHandler.handleUseSkill(slea, c);
+                PlayerHandler.handleUseSkill(inPacket, c);
                 break;
             case CANCEL_BUFF:
-                PlayerHandler.handleCancelBuff(slea, c);
+                PlayerHandler.handleCancelBuff(inPacket, c);
                 break;
             case CHAR_INFO_REQUEST:
-                PlayerHandler.handleCharInfoReq(slea, c);
+                PlayerHandler.handleCharInfoReq(inPacket, c);
                 break;
             case COMBO_KILL:
-                WorldHandler.handleComboKill(slea, c);
+                WorldHandler.handleComboKill(inPacket, c);
                 break;
             case CHANGE_QUICKSLOT:
-                PlayerHandler.handleChangeQuickslot(slea, c);
+                PlayerHandler.handleChangeQuickslot(inPacket, c);
                 break;
             case CHANGE_KEYMAP:
-                PlayerHandler.handleChangeKeyMap(slea, c);
+                PlayerHandler.handleChangeKeyMap(inPacket, c);
                 break;
             case CHANGE_CHAR_REQUEST:
-                WorldHandler.handleChangeCharRequest(slea, c);
+                WorldHandler.handleChangeCharRequest(inPacket, c);
                 break;
             case UPDATE_TICK:
-                c.getPlayer().setTick(slea.readInt());
+                c.getPlayer().setTick(inPacket.readInt());
                 break;
             case UNITY_PORTAL_SELECT:
-                WorldHandler.handleUnityPortalSelect(slea, c);
+                WorldHandler.handleUnityPortalSelect(inPacket, c);
                 break;
             case SKILL_OPT:
-                c.getPlayer().changeSkillState(slea.readInt());
+                c.getPlayer().changeSkillState(inPacket.readInt());
                 break;
             case CANCEL_CHAIR:
-                PlayerHandler.cancelChair(slea, c);
+                PlayerHandler.cancelChair(inPacket, c);
                 break;
             case USE_CHAIR:
-                PlayerHandler.handleUseChair(slea, c);
+                PlayerHandler.handleUseChair(inPacket, c);
                 break;
             case PICK_UP:
-                PlayerHandler.handlePickUp(slea, c);
+                PlayerHandler.handlePickUp(inPacket, c);
                 break;
             case QUICK_MOVE_SELECT:
-                WorldHandler.handleQuickMove(slea.readInt(), c);
+                WorldHandler.handleQuickMove(inPacket.readInt(), c);
                 break;
             case BATTLE_ANALYSIS:
-                WorldHandler.handleBattleAnalysis(slea, c);
+                WorldHandler.handleBattleAnalysis(inPacket, c);
                 break;
             case EQUIP_EFFECT_OPT:
-                PlayerHandler.handleEquipEffectOpt(slea.readInt(), c);
+                PlayerHandler.handleEquipEffectOpt(inPacket.readInt(), c);
                 break;
             case CPONG:
                 c.pongReceived();
@@ -226,9 +226,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<SeekableLittleEn
     }
 
 
-    private void handleUnknown(SeekableLittleEndianAccessor slea, short op) {
+    private void handleUnknown(InPacket inPacket, short op) {
         log.warn("Unhandled opcode {}, packet {}",
                 Integer.toHexString(op & 0xFFFF),
-                slea);
+                inPacket);
     }
 }

@@ -14,6 +14,7 @@ import im.cave.ms.enums.DropEnterType;
 import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.FieldOption;
 import im.cave.ms.enums.FieldType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.provider.data.ItemData;
@@ -22,7 +23,6 @@ import im.cave.ms.scripting.map.MapScriptManager;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Util;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -144,16 +144,16 @@ public class MapleMap {
         }
     }
 
-    public void broadcastMessage(MaplePacketLittleEndianWriter packet) {
+    public void broadcastMessage(OutPacket packet) {
         broadcastMessage(null, packet);
     }
 
-    public void broadcastMessage(MapleCharacter source, MaplePacketLittleEndianWriter packet, boolean repeatToSource) {
+    public void broadcastMessage(MapleCharacter source, OutPacket packet, boolean repeatToSource) {
         broadcastMessage(repeatToSource ? null : source, packet);
     }
 
 
-    public void broadcastMessage(MapleCharacter source, MaplePacketLittleEndianWriter packet) {
+    public void broadcastMessage(MapleCharacter source, OutPacket packet) {
         for (MapleCharacter chr : characters) {
             if (chr != source) {
                 chr.getClient().announce(packet);

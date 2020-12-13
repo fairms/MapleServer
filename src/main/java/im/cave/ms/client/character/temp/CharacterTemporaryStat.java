@@ -1,8 +1,5 @@
 package im.cave.ms.client.character.temp;
 
-import im.cave.ms.client.quest.QuestInfo;
-import im.cave.ms.provider.data.QuestData;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -1113,8 +1110,8 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
 
     public static void main(String[] args) {
-//        for (CharacterTemporaryStat stat : CharacterTemporaryStat.values()) {
-//            System.out.println(stat.getBitPos() + " " + stat.getVal() + " " + stat.getPos());
-//        }
+        for (CharacterTemporaryStat stat : CharacterTemporaryStat.values()) {
+            System.out.println(stat.getBitPos() + " " + stat.getVal() + " " + stat.getPos());
+        }
     }
 }

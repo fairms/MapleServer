@@ -2,9 +2,9 @@ package im.cave.ms.client.movement;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.obj.MapleMapObj;
+import im.cave.ms.net.netty.InPacket;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.tools.Position;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +28,8 @@ public class MovementInfo {
         this.oldVPos = oldVPos;
     }
 
-    public MovementInfo(SeekableLittleEndianAccessor slea) {
-        decode(slea);
+    public MovementInfo(InPacket inPacket) {
+        decode(inPacket);
     }
 
     public void applyTo(MapleCharacter chr) {
@@ -50,31 +50,31 @@ public class MovementInfo {
 //        }
 //    }
 
-    public void decode(SeekableLittleEndianAccessor slea) {
-        encodedGatherDuration = slea.readLong();
-        oldPos = slea.readPos();
-        oldVPos = slea.readPos();
-        movements = parseMovement(slea);
+    public void decode(InPacket inPacket) {
+        encodedGatherDuration = inPacket.readLong();
+        oldPos = inPacket.readPos();
+        oldVPos = inPacket.readPos();
+        movements = parseMovement(inPacket);
     }
 
 
-    public void encode(MaplePacketLittleEndianWriter mplew) {
-        mplew.writeLong(encodedGatherDuration);
-        mplew.writePos(oldPos);
-        mplew.writePos(oldVPos);
-        mplew.write(movements.size());
+    public void encode(OutPacket outPacket) {
+        outPacket.writeLong(encodedGatherDuration);
+        outPacket.writePos(oldPos);
+        outPacket.writePos(oldVPos);
+        outPacket.write(movements.size());
         for (Movement m : movements) {
-            m.encode(mplew);
+            m.encode(outPacket);
         }
     }
 
-    private static List<Movement> parseMovement(SeekableLittleEndianAccessor slea) {
+    private static List<Movement> parseMovement(InPacket inPacket) {
         // Taken from mushy when my IDA wasn't able to show this properly
         // Made by Maxcloud
         List<Movement> res = new ArrayList<>();
-        byte size = slea.readByte();
+        byte size = inPacket.readByte();
         for (int i = 0; i < size; i++) {
-            byte type = slea.readByte();
+            byte type = inPacket.readByte();
             switch (type) {
                 case 0:
                 case 8:
@@ -88,7 +88,7 @@ public class MovementInfo {
                 case 73:
                 case 74:
                 case 92:
-                    res.add(new MovementNormal(slea, type));
+                    res.add(new MovementNormal(inPacket, type));
                     break;
                 case 1:
                 case 2:
@@ -103,7 +103,7 @@ public class MovementInfo {
                 case 65:
                 case 66:
                 case 67:
-                    res.add(new MovementJump(slea, type));
+                    res.add(new MovementJump(inPacket, type));
                     break;
                 case 3:
                 case 4:
@@ -126,20 +126,20 @@ public class MovementInfo {
                 case 85:
                 case 87:
                 case 96:
-                    res.add(new MovementTeleport(slea, type));
+                    res.add(new MovementTeleport(inPacket, type));
                     break;
                 case 12:
-                    res.add(new MovementStatChange(slea, type));
+                    res.add(new MovementStatChange(inPacket, type));
                     break;
                 case 14:
                 case 16:
-                    res.add(new MovementStartFallDown(slea, type));
+                    res.add(new MovementStartFallDown(inPacket, type));
                     break;
                 case 23:
-                    res.add(new MovementFlyingBlock(slea, type));
+                    res.add(new MovementFlyingBlock(inPacket, type));
                     break;
                 case 29:
-                    res.add(new MovementUNK(slea, type));
+                    res.add(new MovementUNK(inPacket, type));
                     break;
                 case 30:
                 case 31:
@@ -177,12 +177,12 @@ public class MovementInfo {
                 case 89:
                 case 90:
                 case 91:
-                    res.add(new MovementAction(slea, type));
+                    res.add(new MovementAction(inPacket, type));
                     break;
                 case 56:
                 case 68:
                 case 95:
-                    res.add(new MovementAngle(slea, type)); // probably not a good name
+                    res.add(new MovementAngle(inPacket, type)); // probably not a good name
                     break;
                 default:
                     log.warn(String.format("Unhandled move path attribute %s.", type));

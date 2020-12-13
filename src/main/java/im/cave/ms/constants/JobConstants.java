@@ -631,7 +631,7 @@ public class JobConstants {
         return jobId / 100 == 24 || jobId == 2003;
     }
 
-    public static boolean isLeader(short jobId) {
+    public static boolean iinPacketder(short jobId) {
         return jobId / 1000 == 5;
     }
 

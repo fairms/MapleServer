@@ -4,8 +4,8 @@ import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.SpellTraceScrollType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.tools.Util;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -139,18 +139,18 @@ public class ScrollUpgradeInfo {
         this.chance = chance;
     }
 
-    public void encode(MaplePacketLittleEndianWriter mplew) {
-        mplew.writeInt(getIconID());
-        mplew.writeMapleAsciiString(getTitle());
-        mplew.writeInt(getType().ordinal());
-        mplew.writeInt(getOption());
-        mplew.writeInt(getMask());
+    public void encode(OutPacket outPacket) {
+        outPacket.writeInt(getIconID());
+        outPacket.writeMapleAsciiString(getTitle());
+        outPacket.writeInt(getType().ordinal());
+        outPacket.writeInt(getOption());
+        outPacket.writeInt(getMask());
         for (Map.Entry<EnchantStat, Integer> entry : getStats().entrySet()) {
-            mplew.writeInt(entry.getValue());
+            outPacket.writeInt(entry.getValue());
         }
-        mplew.writeInt(getCost());
-        mplew.writeInt(getCost());
-        mplew.write(0);
+        outPacket.writeInt(getCost());
+        outPacket.writeInt(getCost());
+        outPacket.write(0);
 
     }
 }

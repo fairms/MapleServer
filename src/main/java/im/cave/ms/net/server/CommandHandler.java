@@ -11,6 +11,7 @@ import im.cave.ms.client.items.Item;
 import im.cave.ms.config.WorldConfig;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.server.channel.MapleChannel;
@@ -22,7 +23,6 @@ import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.HexTool;
 import im.cave.ms.tools.StringUtil;
 import im.cave.ms.tools.Util;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
 import java.util.List;
 
@@ -62,13 +62,15 @@ public class CommandHandler {
                     if (mob == null) {
                         return;
                     }
-                    Mob copy = mob.deepCopy();
-                    copy.setHp(mob.getMaxHp());
-                    copy.setMp(mob.getMaxMp());
-                    copy.setPosition(c.getPlayer().getPosition());
-                    c.getPlayer().getMap().addObj(copy);
-                    c.announce(MaplePacketCreator.spawnMob(copy));
-                    c.announce(MaplePacketCreator.mobChangeController(copy));
+                    for (int i = 0; i < 999; i++) {
+                        Mob copy = mob.deepCopy();
+                        copy.setHp(mob.getMaxHp());
+                        copy.setMp(mob.getMaxMp());
+                        copy.setPosition(c.getPlayer().getPosition());
+                        c.getPlayer().getMap().addObj(copy);
+                        c.announce(MaplePacketCreator.spawnMob(copy));
+                        c.announce(MaplePacketCreator.mobChangeController(copy));
+                    }
                 }
                 break;
             case "npc":
@@ -123,9 +125,9 @@ public class CommandHandler {
                 int i = content.indexOf(" ");
                 String substring = content.substring(i);
                 byte[] byteArrayFromHexString = HexTool.getByteArrayFromHexString(substring);
-                MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-                mplew.write(byteArrayFromHexString);
-                c.announce(mplew);
+                OutPacket outPacket = new OutPacket();
+                outPacket.write(byteArrayFromHexString);
+                c.announce(outPacket);
                 break;
             case "debug":
                 MapleCharacter player = c.getPlayer();

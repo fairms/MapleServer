@@ -4,16 +4,48 @@ package im.cave.ms.client.field;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.TextEffectType;
 import im.cave.ms.enums.UserEffectType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Tuple;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static im.cave.ms.enums.UserEffectType.*;
+import static im.cave.ms.enums.UserEffectType.AswanSiegeAttack;
+import static im.cave.ms.enums.UserEffectType.AvatarOriented;
+import static im.cave.ms.enums.UserEffectType.BlindEffect;
+import static im.cave.ms.enums.UserEffectType.BuffItemEffect;
+import static im.cave.ms.enums.UserEffectType.EffectUOL;
+import static im.cave.ms.enums.UserEffectType.ExpItemConsumed;
+import static im.cave.ms.enums.UserEffectType.FadeInOut;
+import static im.cave.ms.enums.UserEffectType.FieldExpItemConsumed;
+import static im.cave.ms.enums.UserEffectType.ItemLevelUp;
+import static im.cave.ms.enums.UserEffectType.ItemMaker;
+import static im.cave.ms.enums.UserEffectType.JewelCraft;
+import static im.cave.ms.enums.UserEffectType.JobChanged;
+import static im.cave.ms.enums.UserEffectType.LeftMonsterNumber;
+import static im.cave.ms.enums.UserEffectType.LevelUp;
+import static im.cave.ms.enums.UserEffectType.PetBuff;
+import static im.cave.ms.enums.UserEffectType.PlayExclSoundWithDownBGM;
+import static im.cave.ms.enums.UserEffectType.Quest;
+import static im.cave.ms.enums.UserEffectType.QuestComplete;
+import static im.cave.ms.enums.UserEffectType.ReservedEffect;
+import static im.cave.ms.enums.UserEffectType.ReservedEffectRepeat;
+import static im.cave.ms.enums.UserEffectType.ResetOnStateForOnOffSkill;
+import static im.cave.ms.enums.UserEffectType.Resist;
+import static im.cave.ms.enums.UserEffectType.RobbinsBomb;
+import static im.cave.ms.enums.UserEffectType.SkillAffected;
+import static im.cave.ms.enums.UserEffectType.SkillAffected_Select;
+import static im.cave.ms.enums.UserEffectType.SkillMode;
+import static im.cave.ms.enums.UserEffectType.SkillSpecial;
+import static im.cave.ms.enums.UserEffectType.SkillSpecialAffected;
+import static im.cave.ms.enums.UserEffectType.SkillUse;
+import static im.cave.ms.enums.UserEffectType.SkillUseBySummoned;
+import static im.cave.ms.enums.UserEffectType.SoulStoneUse;
+import static im.cave.ms.enums.UserEffectType.SpeechBalloon;
+import static im.cave.ms.enums.UserEffectType.TextEffect;
 
 public class Effect {
 
@@ -33,87 +65,87 @@ public class Effect {
     private int arg10;
     private int arg11;
 
-    public void encode(MaplePacketLittleEndianWriter mplew) {
-        mplew.write(getUserEffectType().getVal());
+    public void encode(OutPacket outPacket) {
+        outPacket.write(getUserEffectType().getVal());
 
         switch (getUserEffectType()) {
             case SkillUse:
             case SkillUseBySummoned:
-                writeSkillUse(mplew); // too long to put here
+                writeSkillUse(outPacket); // too long to put here
                 break;
             case SkillAffected:
                 int skillID = getArg1();
-                mplew.writeInt(getArg1()); // skill id
-                mplew.writeInt(getArg2()); // slv
+                outPacket.writeInt(getArg1()); // skill id
+                outPacket.writeInt(getArg2()); // slv
 //                if (skillID == Demon.RAVEN_STORM || skillID == Shade.DEATH_MARK) {
-//                    mplew.writeInt(getArg3()); // nDelta
+//                    outPacket.writeInt(getArg3()); // nDelta
 //                }
                 break;
             case SkillAffected_Select:
-                mplew.writeInt(getArg1());
-                mplew.writeInt(getArg2());
-                mplew.writeInt(getArg3());
-                mplew.write(getArg4());
-                mplew.write(getArg5());
+                outPacket.writeInt(getArg1());
+                outPacket.writeInt(getArg2());
+                outPacket.writeInt(getArg3());
+                outPacket.write(getArg4());
+                outPacket.write(getArg5());
                 break;
             case SkillSpecial:
-                mplew.writeInt(getArg1()); // skill id
+                outPacket.writeInt(getArg1()); // skill id
                 if (getArg1() == 36110005 || getArg1() == 65101006 || getArg1() == 13121009 || getArg1() == 11121013 || getArg1() == 12100029) {
-                    mplew.writeInt(0);
-                    mplew.writeInt(0);
-                    mplew.writeInt(0);
+                    outPacket.writeInt(0);
+                    outPacket.writeInt(0);
+                    outPacket.writeInt(0);
 //                } else if (getArg1() == BattleMage.DARK_SHOCK) {
-//                    mplew.writeInt(getArg2()); // char lvl
-//                    mplew.write(getArg3()); // slv
-//                    mplew.writePositionInt(new Position(getArg4(), getArg5())); // Origin Position -  arg4 = x, arg5 = y
-//                    mplew.writePositionInt(new Position(getArg6(), getArg7())); // Destination Position -  arg6 = x, arg7 = y
+//                    outPacket.writeInt(getArg2()); // char lvl
+//                    outPacket.write(getArg3()); // slv
+//                    outPacket.writePositionInt(new Position(getArg4(), getArg5())); // Origin Position -  arg4 = x, arg5 = y
+//                    outPacket.writePositionInt(new Position(getArg6(), getArg7())); // Destination Position -  arg6 = x, arg7 = y
 //                } else if (getArg1() == 80002206 || getArg1() == 80000257 || getArg1() == 80000260 || getArg1() == 80002599) {
-//                    mplew.writeInt(0);
-//                    mplew.writeInt(0);
-//                    mplew.writeInt(0);
+//                    outPacket.writeInt(0);
+//                    outPacket.writeInt(0);
+//                    outPacket.writeInt(0);
                 }
                 break;
             case SkillSpecialAffected:
-                mplew.writeInt(getArg1()); // skill id
-                mplew.write(getArg2());// slv
+                outPacket.writeInt(getArg1()); // skill id
+                outPacket.write(getArg2());// slv
                 break;
             case Quest:
-                mplew.write(getList().size());
+                outPacket.write(getList().size());
                 for (Tuple<Integer, Integer> item : getList()) {
-                    mplew.writeInt(item.getLeft()); // Item ID
-                    mplew.writeInt(item.getRight()); // Quantity
+                    outPacket.writeInt(item.getLeft()); // Item ID
+                    outPacket.writeInt(item.getRight()); // Quantity
                 }
-                mplew.write(1); //  1=背包 0=消耗
-                if (getList().size() <= 0) mplew.writeMapleAsciiString("");
+                outPacket.write(1); //  1=背包 0=消耗
+                if (getList().size() <= 0) outPacket.writeMapleAsciiString("");
                 break;
             case TextEffect:
-                mplew.writeMapleAsciiString(getString());
-                mplew.writeInt(getArg1()); // letter delay
-                mplew.writeInt(getArg2()); // box duration
-                mplew.writeInt(getArg3()); // Positioning on Client  ( 4 = middle )
+                outPacket.writeMapleAsciiString(getString());
+                outPacket.writeInt(getArg1()); // letter delay
+                outPacket.writeInt(getArg2()); // box duration
+                outPacket.writeInt(getArg3()); // Positioning on Client  ( 4 = middle )
 
-                mplew.writeInt(getArg4()); // xPos
-                mplew.writeInt(getArg5()); // yPos
+                outPacket.writeInt(getArg4()); // xPos
+                outPacket.writeInt(getArg5()); // yPos
 
-                mplew.writeInt(getArg6()); // Align
-                mplew.writeInt(getArg7()); // Line space
-                mplew.writeInt(getArg8()); // Enter type (0 = fade in)
-                mplew.writeInt(getArg9()); // Leave type?
-                mplew.writeInt(getArg10()); // Type
-                mplew.writeMapleAsciiString("");
+                outPacket.writeInt(getArg6()); // Align
+                outPacket.writeInt(getArg7()); // Line space
+                outPacket.writeInt(getArg8()); // Enter type (0 = fade in)
+                outPacket.writeInt(getArg9()); // Leave type?
+                outPacket.writeInt(getArg10()); // Type
+                outPacket.writeMapleAsciiString("");
                 break;
             case FieldExpItemConsumed:
-                mplew.writeInt(getArg1()); // Exp Gained
+                outPacket.writeInt(getArg1()); // Exp Gained
                 break;
             case SkillMode:
-                mplew.writeInt(getArg1()); // Skill ID
-                mplew.writeInt(getArg2()); // Rotate (?)
-                mplew.writeInt(getArg3()); // Skip Frame (?)
+                outPacket.writeInt(getArg1()); // Skill ID
+                outPacket.writeInt(getArg2()); // Rotate (?)
+                outPacket.writeInt(getArg3()); // Skip Frame (?)
                 break;
             case RobbinsBomb:
-                mplew.write(getArg1()); // Reset/Delete
-                mplew.writeInt(getArg2()); // BombCount
-                mplew.write(getArg3()); // number (unknown)
+                outPacket.write(getArg1()); // Reset/Delete
+                outPacket.writeInt(getArg2()); // BombCount
+                outPacket.write(getArg3()); // number (unknown)
                 break;
             case PetBuff:
             case ResetOnStateForOnOffSkill:
@@ -127,82 +159,82 @@ public class Effect {
             case LevelUp:
                 break;
             case EffectUOL:
-                mplew.writeMapleAsciiString(getString());
-                mplew.write(getArg1());
-                mplew.writeInt(getArg2());
-                mplew.writeInt(getArg3());
+                outPacket.writeMapleAsciiString(getString());
+                outPacket.write(getArg1());
+                outPacket.writeInt(getArg2());
+                outPacket.writeInt(getArg3());
                 if (getArg3() == 2) { // item sound
-                    mplew.writeInt(getArg4()); // nItemID
+                    outPacket.writeInt(getArg4()); // nItemID
                 }
                 break;
             case FadeInOut:
-                mplew.writeInt(getArg1());// tFadeIn
-                mplew.writeInt(getArg2());// tDelay
-                mplew.writeInt(getArg3());// tFadeOut
-                mplew.write(getArg4()); // nAlpha
+                outPacket.writeInt(getArg1());// tFadeIn
+                outPacket.writeInt(getArg2());// tDelay
+                outPacket.writeInt(getArg3());// tFadeOut
+                outPacket.write(getArg4()); // nAlpha
                 break;
             case LeftMonsterNumber:
-                mplew.writeInt(getArg1()); // Number on Arrow
+                outPacket.writeInt(getArg1()); // Number on Arrow
                 break;
             case JewelCraft:
-                mplew.write(getArg1()); // Result  0,2 = Success,     5 = Unk error,      Other = Fail
-                mplew.writeInt(getArg2()); // Item ID
+                outPacket.write(getArg1()); // Result  0,2 = Success,     5 = Unk error,      Other = Fail
+                outPacket.writeInt(getArg2()); // Item ID
                 break;
             case AswanSiegeAttack:
-                mplew.write(getArg1()); // 0 = Red Colour,     1 = Orange Colour
+                outPacket.write(getArg1()); // 0 = Red Colour,     1 = Orange Colour
                 break;
             case BlindEffect:
-                mplew.write(getArg1()); //  true/false
+                outPacket.write(getArg1()); //  true/false
                 break;
             case ItemMaker:
-                mplew.writeInt(getArg1());  // success or failure      0 = Success,  1 = Failure
+                outPacket.writeInt(getArg1());  // success or failure      0 = Success,  1 = Failure
                 break;
             case IncDecHPEffect:
-                mplew.write(getArg1()); // amount being healed     0 = Miss
+                outPacket.write(getArg1()); // amount being healed     0 = Miss
                 break;
             case AvatarOriented:
-                mplew.writeMapleAsciiString(getString());
+                outPacket.writeMapleAsciiString(getString());
                 break;
             case ReservedEffect:
-                mplew.write(getArg1());
-                mplew.writeInt(getArg2());
-                mplew.writeInt(getArg3());
-                mplew.writeMapleAsciiString(getString());
+                outPacket.write(getArg1());
+                outPacket.writeInt(getArg2());
+                outPacket.writeInt(getArg3());
+                outPacket.writeMapleAsciiString(getString());
                 break;
             case PlayExclSoundWithDownBGM:
-                mplew.writeMapleAsciiString(getString());
-                mplew.writeInt(getArg1());
+                outPacket.writeMapleAsciiString(getString());
+                outPacket.writeInt(getArg1());
                 break;
             case ReservedEffectRepeat:
-                mplew.writeMapleAsciiString(getString());// effect
-                mplew.write(1);
-                mplew.write(getArg1());
+                outPacket.writeMapleAsciiString(getString());// effect
+                outPacket.write(1);
+                outPacket.write(getArg1());
                 if (getArg1() == 1) {
-                    mplew.write(1);
-                    mplew.writeInt(0);
-                    mplew.writeInt(0);
+                    outPacket.write(1);
+                    outPacket.writeInt(0);
+                    outPacket.writeInt(0);
                 }
                 break;
             case SpeechBalloon:
-                mplew.write(getArg1());// bNormal
-                mplew.writeInt(getArg2());// nRange
-                mplew.writeInt(getArg3());// nNameHeight
-                mplew.writeMapleAsciiString(getString());// sSpeech
-                mplew.writeInt(getArg4());// tTime
-                mplew.writeInt(getArg5());// pOrigin
-                mplew.writeInt(getArg6());// x
-                mplew.writeInt(getArg7());// y
-                mplew.writeInt(getArg8());// z
-                mplew.writeInt(getArg9());// nLineSpace
+                outPacket.write(getArg1());// bNormal
+                outPacket.writeInt(getArg2());// nRange
+                outPacket.writeInt(getArg3());// nNameHeight
+                outPacket.writeMapleAsciiString(getString());// sSpeech
+                outPacket.writeInt(getArg4());// tTime
+                outPacket.writeInt(getArg5());// pOrigin
+                outPacket.writeInt(getArg6());// x
+                outPacket.writeInt(getArg7());// y
+                outPacket.writeInt(getArg8());// z
+                outPacket.writeInt(getArg9());// nLineSpace
                 if (getString() != null && !getString().isEmpty()) {
-                    mplew.writeInt(getArg10());// nTemplateID
+                    outPacket.writeInt(getArg10());// nTemplateID
                 }
-                mplew.writeInt(getArg11());// nCharID
+                outPacket.writeInt(getArg11());// nCharID
                 break;
         }
     }
 
-    private void writeSkillUse(MaplePacketLittleEndianWriter mplew) {
+    private void writeSkillUse(OutPacket outPacket) {
         // Arg 1 => skillID
         // Arg 2 => slv
         // Arg 3 => slv
@@ -215,72 +247,72 @@ public class Effect {
         // Arg 10 => posY
 //        int skillID = getArg1();
 //        if (getUserEffectType() == SkillUseBySummoned) {
-//            mplew.writeInt(getArg4()); // Summon ID
+//            outPacket.writeInt(getArg4()); // Summon ID
 //        }
-//        mplew.writeInt(skillID); // Skill id
-//        mplew.writeInt(getArg2()); // chr level
-//        mplew.write(getArg3()); // slv
+//        outPacket.writeInt(skillID); // Skill id
+//        outPacket.writeInt(getArg2()); // chr level
+//        outPacket.write(getArg3()); // slv
 //        if (skillID == Evan.DRAGON_FURY) { // Dragon Fury
-//            mplew.write(getArg5()); // bCreate
+//            outPacket.write(getArg5()); // bCreate
 //        } else if (skillID == Warrior.FINAL_PACT) {
-//            mplew.write(getArg5()); // bLoadReincarnationEffect
+//            outPacket.write(getArg5()); // bLoadReincarnationEffect
 //        } else if (skillID == Thief.CHAINS_OF_HELL) {
-//            mplew.write(getArg5()); // bLeft
-//            mplew.writeInt(getArg6()); // dwMobID
+//            outPacket.write(getArg5()); // bLeft
+//            outPacket.writeInt(getArg6()); // dwMobID
 //        } else if (skillID == 3211010 || skillID == 3111010 || skillID == 1100012) { // Hooks (Warrior combo fury/archer skills)
-//            mplew.write(getArg5()); // bLeft
-//            mplew.writeInt(getArg6()); // dwMobID
-//            mplew.writeInt(getArg7()); // nMobPosX
-//            mplew.writeInt(getArg8()); // nMobPosY
+//            outPacket.write(getArg5()); // bLeft
+//            outPacket.writeInt(getArg6()); // dwMobID
+//            outPacket.writeInt(getArg7()); // nMobPosX
+//            outPacket.writeInt(getArg8()); // nMobPosY
 //        } else if (skillID == 64001000 || skillID == 64001007 || skillID == 64001008) {
-//            mplew.write(getArg5());
+//            outPacket.write(getArg5());
 //        } else if (skillID == 64001009 || skillID == 64001010 || skillID == 64001011 || skillID == 64001012) {
-//            mplew.write(getArg5()); // bLeft
-//            mplew.writeInt(getArg6()); // dwMobID
-//            mplew.writeInt(getArg7()); // UNK
-//            mplew.writeInt(getArg8()); // UNK
+//            outPacket.write(getArg5()); // bLeft
+//            outPacket.writeInt(getArg6()); // dwMobID
+//            outPacket.writeInt(getArg7()); // UNK
+//            outPacket.writeInt(getArg8()); // UNK
 //        } else if (skillID == WildHunter.CALL_OF_THE_HUNTER) {
-//            mplew.write(getArg5()); // bLeft
-//            mplew.writeShort(getArg7()); // nPosX
-//            mplew.writeShort(getArg8()); // nPosY
+//            outPacket.write(getArg5()); // bLeft
+//            outPacket.writeShort(getArg7()); // nPosX
+//            outPacket.writeShort(getArg8()); // nPosY
 //        } else if (skillID == WildHunter.CAPTURE) {
-//            mplew.write(getArg5()); // nType: 0 = Success, 1 = mob hp too high, 2 = mob cannot be captured
+//            outPacket.write(getArg5()); // nType: 0 = Success, 1 = mob hp too high, 2 = mob cannot be captured
 //        } else if (skillID == Kaiser.VERTICAL_GRAPPLE || skillID == AngelicBuster.GRAPPLING_HEART || skillID == 400001000) {
-//            mplew.writeInt(getArg5()); // nStartPosY
-//            mplew.writeInt(getArg7()); // ptRopeConnectDest.x
-//            mplew.writeInt(getArg8()); // ptRopeConnectDest.y
+//            outPacket.writeInt(getArg5()); // nStartPosY
+//            outPacket.writeInt(getArg7()); // ptRopeConnectDest.x
+//            outPacket.writeInt(getArg8()); // ptRopeConnectDest.y
 //        } else if (skillID == Luminous.FLASH_BLINK || skillID == 15001021 || skillID == Shade.FOX_TROT || skillID == 4211016 || skillID == 5081021 || skillID == 400041026 || skillID == 152001004) { // Flash
-//            mplew.writeInt(getArg7()); // ptBlinkLightOrigin.x
-//            mplew.writeInt(getArg8()); // ptBlinkLightOrigin.y
-//            mplew.writeInt(getArg9()); // ptBlinkLightDest.x
-//            mplew.writeInt(getArg10()); // ptBlinkLightDest.y
+//            outPacket.writeInt(getArg7()); // ptBlinkLightOrigin.x
+//            outPacket.writeInt(getArg8()); // ptBlinkLightOrigin.y
+//            outPacket.writeInt(getArg9()); // ptBlinkLightDest.x
+//            outPacket.writeInt(getArg10()); // ptBlinkLightDest.y
 //        } else if (SkillConstants.isSuperNovaSkill(skillID)) {
-//            mplew.writeInt(getArg7()); // ptStartX
-//            mplew.writeInt(getArg8()); // ptStartY
+//            outPacket.writeInt(getArg7()); // ptStartX
+//            outPacket.writeInt(getArg8()); // ptStartY
 //        } else if (skillID == 37110004 || skillID == 37111000 || skillID == 37111003 || skillID == 37110001 || skillID == 37101001 || skillID == 37100002 || skillID == 37000010 || skillID == 37000985) {
-//            mplew.writeInt(getArg5());// unk
+//            outPacket.writeInt(getArg5());// unk
 //        } else if (skillID == 400041019) {
-//            mplew.writeInt(getArg7()); // ptStartX
-//            mplew.writeInt(getArg8()); // ptStartY
+//            outPacket.writeInt(getArg7()); // ptStartX
+//            outPacket.writeInt(getArg8()); // ptStartY
 //        } else if (skillID == 400041009) {
-//            mplew.writeInt(getArg5());// unk
+//            outPacket.writeInt(getArg5());// unk
 //        } else if (skillID == 400041011 || skillID == 400041012 || skillID == 400041013 || skillID == 400041014 || skillID == 400041015) {
-//            mplew.writeInt(getArg5());// unk
+//            outPacket.writeInt(getArg5());// unk
 //        } else if (skillID == 400041036) {
-//            mplew.writeInt(0);
-//            mplew.writeInt(0);
-//            mplew.writeInt(0);
-//            mplew.writeInt(0);
-//            mplew.writeInt(0);
-//            mplew.writeInt(0);
-//            mplew.writeInt(0);
-//            mplew.writeInt(0);
+//            outPacket.writeInt(0);
+//            outPacket.writeInt(0);
+//            outPacket.writeInt(0);
+//            outPacket.writeInt(0);
+//            outPacket.writeInt(0);
+//            outPacket.writeInt(0);
+//            outPacket.writeInt(0);
+//            outPacket.writeInt(0);
 //        } else if (skillID == 80002393 || skillID == 80002394 || skillID == 80002395 || skillID == 80002421) {
-//            mplew.writeInt(getArg5());// unk
+//            outPacket.writeInt(getArg5());// unk
 //        } else if (skillID == 80001132) {
-//            mplew.write(getArg5());// 0 = sucessfuly catch 1 = failed too high hp 2 = cannot be captured
+//            outPacket.write(getArg5());// 0 = sucessfuly catch 1 = failed too high hp 2 = cannot be captured
 //        } else if (SkillConstants.isUnregisteredSkill(skillID)) {
-//            mplew.write(getArg5()); // bLeft
+//            outPacket.write(getArg5()); // bLeft
 //        }
     }
 

@@ -9,12 +9,12 @@ import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.TSIndex;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.service.EventManager;
 import im.cave.ms.tools.Tuple;
 import im.cave.ms.tools.Util;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,14 @@ import java.util.TreeMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.*;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.CombatOrders;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ComboCounter;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOver;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOverR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.LifeTidal;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicle;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicleExpire;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Speed;
 
 /**
  * Created on 1/3/2018.
@@ -282,10 +289,10 @@ public class TemporaryStatManager {
         return getMaskByCollection(getRemovedStats());
     }
 
-    public void encodeForLocal(MaplePacketLittleEndianWriter mplew) {
+    public void encodeForLocal(OutPacket outPacket) {
         int[] mask = getNewMask();
         for (int i = 0; i < getNewMask().length; i++) {
-            mplew.writeInt(mask[i]);
+            outPacket.writeInt(mask[i]);
         }
         List<CharacterTemporaryStat> orderedAndFilteredCtsList = new ArrayList<>(getNewStats().keySet()).stream()
                 .filter(cts -> cts.getOrder() != -1)
@@ -295,48 +302,48 @@ public class TemporaryStatManager {
             if (cts.getOrder() != -1) {
                 Option o = getOption(cts);
                 if (cts.isEncodeInt()) {
-                    mplew.writeInt(o.nOption);
+                    outPacket.writeInt(o.nOption);
                 } else {
-                    mplew.writeShort(o.nOption);
+                    outPacket.writeShort(o.nOption);
                 }
-                mplew.writeInt(o.rOption);
-                mplew.writeInt(o.tOption);
+                outPacket.writeInt(o.rOption);
+                outPacket.writeInt(o.tOption);
             }
         }
 
         if (hasNewStat(ComboCounter)) {
-            mplew.writeInt(0);
+            outPacket.writeInt(0);
         }
 
-        mplew.writeZeroBytes(13);
-        encodeIndieTempStat(mplew);
+        outPacket.writeZeroBytes(13);
+        encodeIndieTempStat(outPacket);
         getNewStats().clear();
     }
 
-    private void encodeIndieTempStat(MaplePacketLittleEndianWriter mplew) {
+    private void encodeIndieTempStat(OutPacket outPacket) {
         Map<CharacterTemporaryStat, List<Option>> stats = getCurrentStats().entrySet().stream()
                 .filter(stat -> stat.getKey().isIndie() && getNewStats().containsKey(stat.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         TreeMap<CharacterTemporaryStat, List<Option>> sortedStats = new TreeMap<>(stats);
         if (sortedStats.size() == 0) {
-            mplew.writeInt(0);
+            outPacket.writeInt(0);
         }
         for (Map.Entry<CharacterTemporaryStat, List<Option>> stat : sortedStats.entrySet()) {
             int curTime = (int) System.currentTimeMillis();
             List<Option> options = stat.getValue();
             if (options == null) {
-                mplew.writeInt(0);
+                outPacket.writeInt(0);
                 continue;
             }
-            mplew.writeInt(options.size());
+            outPacket.writeInt(options.size());
             for (Option option : options) {
-                mplew.writeInt(option.nReason);
-                mplew.writeInt(option.nValue);
-                mplew.writeInt(curTime);
-                mplew.writeInt(0);
-                mplew.writeInt(option.tTerm);
-                mplew.writeZeroBytes(16);
+                outPacket.writeInt(option.nReason);
+                outPacket.writeInt(option.nValue);
+                outPacket.writeInt(curTime);
+                outPacket.writeInt(0);
+                outPacket.writeInt(option.tTerm);
+                outPacket.writeZeroBytes(16);
             }
         }
     }

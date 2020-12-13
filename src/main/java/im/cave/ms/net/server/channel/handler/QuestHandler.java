@@ -8,12 +8,12 @@ import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.constants.QuestConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.QuestType;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.QuestPacket;
 import im.cave.ms.provider.data.QuestData;
 import im.cave.ms.provider.service.EventManager;
 import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.Position;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 public class QuestHandler {
     private static final Logger log = LoggerFactory.getLogger(QuestHandler.class);
 
-    public static void handleQuestRequest(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleQuestRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         QuestManager questManager = player.getQuestManager();
-        QuestType type = QuestType.getType(slea.readByte());
+        QuestType type = QuestType.getType(inPacket.readByte());
         int questId = 0;
         int npcTemplateId = 0;
         Position position = null;
@@ -40,18 +40,18 @@ public class QuestHandler {
                 case QuestReq_CompleteQuest: // Quest end
                 case QuestReq_OpeningScript: // Scripted quest start
                 case QuestReq_CompleteScript: // Scripted quest end
-                    questId = slea.readInt();
-                    npcTemplateId = slea.readInt();
-                    if (slea.available() > 4) {
-                        position = slea.readPos();
+                    questId = inPacket.readInt();
+                    npcTemplateId = inPacket.readInt();
+                    if (inPacket.available() > 4) {
+                        position = inPacket.readPos();
                     }
                     break;
                 case QuestReq_ResignQuest: //Quest forfeit
-                    questId = slea.readInt();
+                    questId = inPacket.readInt();
                     player.getQuestManager().removeQuest(questId);
                     break;
                 case QuestReq_LaterStep:
-                    questId = slea.readInt();
+                    questId = inPacket.readInt();
                     break;
                 default:
                     log.error(String.format("Unhandled quest request %s!", type));

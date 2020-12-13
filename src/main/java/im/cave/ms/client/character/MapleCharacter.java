@@ -33,6 +33,7 @@ import im.cave.ms.enums.MapleTraitType;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.net.db.DataBaseManager;
 import im.cave.ms.net.db.InlinedIntArrayConverter;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.PlayerPacket;
@@ -41,11 +42,11 @@ import im.cave.ms.net.server.channel.MapleChannel;
 import im.cave.ms.net.server.world.World;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Pair;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Util;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -82,6 +83,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.regex.Pattern;
 
 import static im.cave.ms.constants.GameConstants.NO_MAP_ID;
+import static im.cave.ms.constants.QuestConstants.QUEST_EX_MOB_KILL_COUNT;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
 import static im.cave.ms.enums.InventoryOperation.REMOVE;
 import static im.cave.ms.enums.InventoryOperation.UPDATE_QUANTITY;
@@ -207,6 +209,10 @@ public class MapleCharacter implements Serializable {
     private int combatOrders;
     @Transient
     private Set<MapleMapObj> visibleMapObjs = new HashSet<>();
+    @Transient
+    private long lastKill;
+    @Transient
+    private int combo;
 
 
     public MapleCharacter() {
@@ -483,8 +489,8 @@ public class MapleCharacter implements Serializable {
         announce(ChannelPacket.quickMove(map.isTown()));
     }
 
-    public void announce(MaplePacketLittleEndianWriter mplew) {
-        client.announce(mplew);
+    public void announce(OutPacket outPacket) {
+        client.announce(outPacket);
     }
 
     public boolean equip(Item item) {
@@ -1157,4 +1163,26 @@ public class MapleCharacter implements Serializable {
         return new Rect(x - GameConstants.MAX_VIEW_X, y - GameConstants.MAX_VIEW_Y, x + GameConstants.MAX_VIEW_X, y + GameConstants.MAX_VIEW_Y);
     }
 
+    public void addDailyMobKillCount() {
+        Map<String, String> options = getQuestExs().get(QUEST_EX_MOB_KILL_COUNT);
+        if (options == null) {
+            options = new HashMap<>();
+            options.put("date", String.valueOf(DateUtil.getDate()));
+            options.put("count", "1");
+            addQuestEx(QUEST_EX_MOB_KILL_COUNT, options);
+        } else if (options.get("date").equals(String.valueOf(DateUtil.getDate()))) {
+            options.put("count", String.valueOf(Integer.parseInt(options.get("count")) + 1));
+            buildQuestExStorage();
+        } else {
+            options.put("date", String.valueOf(DateUtil.getDate()));
+            options.put("count", "1");
+            buildQuestExStorage();
+        }
+        announce(PlayerPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_MOB_KILL_COUNT, questsExStorage.get(QUEST_EX_MOB_KILL_COUNT), (byte) 0));
+    }
+
+    public void comboKill(int objectId) {
+        combo++;
+        announce(PlayerPacket.comboKillMessage(objectId, combo));
+    }
 }

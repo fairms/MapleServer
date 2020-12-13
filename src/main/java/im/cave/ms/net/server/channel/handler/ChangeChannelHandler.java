@@ -2,7 +2,8 @@ package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+import im.cave.ms.net.netty.InPacket;
+
 
 /**
  * @author fair
@@ -11,13 +12,13 @@ import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
  * @date 11/28 15:32
  */
 public class ChangeChannelHandler {
-    public static void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handlePacket(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        byte channel = slea.readByte();
-        slea.readInt();
+        byte channel = inPacket.readByte();
+        inPacket.readInt();
         if (c.getChannel() == channel) {
             c.close(); //hack
             return;

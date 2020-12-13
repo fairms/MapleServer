@@ -8,15 +8,14 @@ import im.cave.ms.client.items.Item;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.client.skill.Skill;
+import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.InventoryType;
-import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.MapleTraitType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.tools.DateUtil;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
-import org.hibernate.query.criteria.internal.expression.function.SqrtFunction;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -63,23 +62,23 @@ public class PacketHelper {
     public static final long PERMANENT = 150841440000000000L;
 
 
-    public static void addCharEntry(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        addCharStats(mplew, chr);
-        addCharLook(mplew, chr, true, false);
+    public static void addCharEntry(OutPacket outPacket, MapleCharacter chr) {
+        addCharStats(outPacket, chr);
+        addCharLook(outPacket, chr, true, false);
     }
 
-    private static void addCharLook(MaplePacketLittleEndianWriter mplew, MapleCharacter chr, boolean mega, boolean second) {
-        mplew.writeZeroBytes(12);
+    private static void addCharLook(OutPacket outPacket, MapleCharacter chr, boolean mega, boolean second) {
+        outPacket.writeZeroBytes(12);
         //todo
-//      mplew.write(second ? chr.getSecondGender() : chr.getGender());
-        mplew.write(chr.getGender());
-        mplew.write(chr.getSkin());
-        mplew.writeInt(chr.getFace());
-//        mplew.writeInt(second ? chr.getSecondFace() : chr.getFace());
-        mplew.writeInt(chr.getJob().getJobId());
-        mplew.write(mega ? 0 : 1);
-//        mplew.writeInt(second ? chr.getSecondHair() : chr.getHair());
-        mplew.writeInt(chr.getHair());
+//      outPacket.write(second ? chr.getSecondGender() : chr.getGender());
+        outPacket.write(chr.getGender());
+        outPacket.write(chr.getSkin());
+        outPacket.writeInt(chr.getFace());
+//        outPacket.writeInt(second ? chr.getSecondFace() : chr.getFace());
+        outPacket.writeInt(chr.getJob().getJobId());
+        outPacket.write(mega ? 0 : 1);
+//        outPacket.writeInt(second ? chr.getSecondHair() : chr.getHair());
+        outPacket.writeInt(chr.getHair());
 
 
         Map<Byte, Integer> myEquip = new LinkedHashMap<>();
@@ -126,141 +125,141 @@ public class PacketHelper {
 //        }
         //遍历玩家身上装备的位置
         for (Map.Entry<Byte, Integer> entry : myEquip.entrySet()) {
-            mplew.write(entry.getKey()); //装备的位置
-            mplew.writeInt(entry.getValue()); //装备ID
+            outPacket.write(entry.getKey()); //装备的位置
+            outPacket.writeInt(entry.getValue()); //装备ID
             //System.err.println("身上装备 - > " + entry.getKey() + " " + entry.getValue());
         }
-        mplew.write(0xFF); // 加载身上装备结束
+        outPacket.write(0xFF); // 加载身上装备结束
         //背包里的装备
         for (Map.Entry<Byte, Integer> entry : maskedEquip.entrySet()) {
-            mplew.write(entry.getKey()); //装备栏的位置
-            mplew.writeInt(entry.getValue()); //装备ID
+            outPacket.write(entry.getKey()); //装备栏的位置
+            outPacket.writeInt(entry.getValue()); //装备ID
             //System.err.println("背包装备 - > " + entry.getKey() + " " + entry.getValue());
         }
-        mplew.write(0xFF); // 加载背包装备结束
+        outPacket.write(0xFF); // 加载背包装备结束
         //加载玩家图腾信息 图腾的KEY位置从0开始计算 0 1 2 共三个
         for (Map.Entry<Byte, Integer> entry : totemEquip.entrySet()) {
-            mplew.write(entry.getKey()); //装备的位置
-            mplew.writeInt(entry.getValue()); //装备ID
+            outPacket.write(entry.getKey()); //装备的位置
+            outPacket.writeInt(entry.getValue()); //装备ID
             //System.err.println("图腾装备 - > " + entry.getKey() + " " + entry.getValue());
         }
-        mplew.write(0xFF); // 图腾
+        outPacket.write(0xFF); // 图腾
         //todo 神秘珠子
-        mplew.write(0xFF);
+        outPacket.write(0xFF);
 
         //点装武器
         Item cWeapon = equip.getItem((byte) 111);
-        mplew.writeInt(cWeapon != null ? cWeapon.getItemId() : 0);
+        outPacket.writeInt(cWeapon != null ? cWeapon.getItemId() : 0);
         //角色武器
         Item weapon = equip.getItem(second ? (byte) 10 : (byte) 11); //神之子第2角色 显示的武器是盾牌的
-        mplew.writeInt(weapon != null ? weapon.getItemId() : 0);
+        outPacket.writeInt(weapon != null ? weapon.getItemId() : 0);
         //角色副手或者盾牌
         Item subWeapon = equip.getItem((byte) 10);
-        mplew.writeInt(subWeapon != null ? subWeapon.getItemId() : 0);
+        outPacket.writeInt(subWeapon != null ? subWeapon.getItemId() : 0);
         //是否显示精灵耳朵
-        mplew.writeBool(false);
-        mplew.writeZeroBytes(20);
+        outPacket.writeBool(false);
+        outPacket.writeZeroBytes(20);
 
         if (JobConstants.isXenon(chr.getJobId()) || JobConstants.isDemon(chr.getJobId())) {
-            mplew.writeInt(chr.getDecorate());
+            outPacket.writeInt(chr.getDecorate());
         }
-        mplew.writeLong(0);
+        outPacket.writeLong(0);
         //todo
 //        if (MapleJob.is林之灵(chr.getJob())) {
 //            chr.checkTailAndEar();
-//            mplew.write(Integer.valueOf(chr.getOneInfo(59300, "bEar")));
-//            mplew.writeInt(Integer.valueOf(chr.getOneInfo(59300, "EarID")));
-//            mplew.write(Integer.valueOf(chr.getOneInfo(59300, "bTail")));
-//            mplew.writeInt(Integer.valueOf(chr.getOneInfo(59300, "TailID")));
+//            outPacket.write(Integer.valueOf(chr.getOneInfo(59300, "bEar")));
+//            outPacket.writeInt(Integer.valueOf(chr.getOneInfo(59300, "EarID")));
+//            outPacket.write(Integer.valueOf(chr.getOneInfo(59300, "bTail")));
+//            outPacket.writeInt(Integer.valueOf(chr.getOneInfo(59300, "TailID")));
 //        }
 
     }
 
-    private static void addCharStats(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        mplew.writeInt(chr.getId());
-        mplew.writeInt(chr.getId());
-        mplew.writeInt(chr.getWorld());
-        mplew.writeAsciiString(chr.getName(), 13);
-        mplew.write(chr.getGender());
-        mplew.write(chr.getSkin());
-        mplew.writeInt(chr.getFace());
-        mplew.writeInt(chr.getHair());
+    private static void addCharStats(OutPacket outPacket, MapleCharacter chr) {
+        outPacket.writeInt(chr.getId());
+        outPacket.writeInt(chr.getId());
+        outPacket.writeInt(chr.getWorld());
+        outPacket.writeAsciiString(chr.getName(), 13);
+        outPacket.write(chr.getGender());
+        outPacket.write(chr.getSkin());
+        outPacket.writeInt(chr.getFace());
+        outPacket.writeInt(chr.getHair());
 
-        mplew.write(chr.getHairColorBase());
-        mplew.write(chr.getHairColorMixed());
-        mplew.write(chr.getHairColorProb());
+        outPacket.write(chr.getHairColorBase());
+        outPacket.write(chr.getHairColorMixed());
+        outPacket.write(chr.getHairColorProb());
 
-        mplew.writeInt(chr.getLevel());
-        mplew.writeShort(chr.getJob().getJobId());
+        outPacket.writeInt(chr.getLevel());
+        outPacket.writeShort(chr.getJob().getJobId());
 
-        mplew.writeShort(chr.getStr());
-        mplew.writeShort(chr.getDex());
-        mplew.writeShort(chr.getInt_());
-        mplew.writeShort(chr.getLuk());
+        outPacket.writeShort(chr.getStr());
+        outPacket.writeShort(chr.getDex());
+        outPacket.writeShort(chr.getInt_());
+        outPacket.writeShort(chr.getLuk());
 
-        mplew.writeInt(chr.getHp());
-        mplew.writeInt(chr.getMaxHP());
-        mplew.writeInt(chr.getMp());
-        mplew.writeInt(chr.getMaxMP());
+        outPacket.writeInt(chr.getHp());
+        outPacket.writeInt(chr.getMaxHP());
+        outPacket.writeInt(chr.getMp());
+        outPacket.writeInt(chr.getMaxMP());
 
-        mplew.writeShort(chr.getRemainingAp());
-        addCharSP(mplew, chr);
-        mplew.writeLong(chr.getExp());
-        mplew.writeInt(chr.getFame());
-        mplew.writeInt(chr.getWeaponPoint());
-        mplew.writeLong(0); // gach exp  pos map
-        mplew.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
-        mplew.writeInt(chr.getMapId());
-        mplew.write(chr.getSpawnPoint()); //portal
-        mplew.writeShort(0); //sub job
+        outPacket.writeShort(chr.getRemainingAp());
+        addCharSP(outPacket, chr);
+        outPacket.writeLong(chr.getExp());
+        outPacket.writeInt(chr.getFame());
+        outPacket.writeInt(chr.getWeaponPoint());
+        outPacket.writeLong(0); // gach exp  pos map
+        outPacket.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
+        outPacket.writeInt(chr.getMapId());
+        outPacket.write(chr.getSpawnPoint()); //portal
+        outPacket.writeShort(0); //sub job
         if (JobConstants.isXenon(chr.getJobId()) || JobConstants.isDemon(chr.getJobId())) {
-            mplew.writeInt(chr.getDecorate());
+            outPacket.writeInt(chr.getDecorate());
         }
-        mplew.write(0);
-        mplew.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis())); //账号创建时间?
-        mplew.writeShort(chr.getFatigue());  //2
-        mplew.writeInt(DateUtil.getTime()); // 年月日时  //上次登录时间? //lastfatigueupdatetime
+        outPacket.write(0);
+        outPacket.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis())); //账号创建时间?
+        outPacket.writeShort(chr.getFatigue());  //2
+        outPacket.writeInt(DateUtil.getTime()); // 年月日时  //上次登录时间? //lastfatigueupdatetime
         /*
          * charisma, sense, insight, volition, hands, charm;
          */
         for (MapleTraitType t : MapleTraitType.values()) {
-            mplew.writeInt(chr.getTraitTotalExp(t));
+            outPacket.writeInt(chr.getTraitTotalExp(t));
         }
-        mplew.writeZeroBytes(13); //getNonCombatStatDayLimit
-        mplew.writeLong(getTime(-2));
+        outPacket.writeZeroBytes(13); //getNonCombatStatDayLimit
+        outPacket.writeLong(getTime(-2));
         /*
          * PVP
          */
-        mplew.writeInt(0); //pvp exp
-        mplew.write(10); //pvp grade
-        mplew.writeInt(0); // pvp point
-        mplew.write(5); // unk
-        mplew.write(5); // pvp mode type
-        mplew.writeInt(0); //event point
+        outPacket.writeInt(0); //pvp exp
+        outPacket.write(10); //pvp grade
+        outPacket.writeInt(0); // pvp point
+        outPacket.write(5); // unk
+        outPacket.write(5); // pvp mode type
+        outPacket.writeInt(0); //event point
 
-        mplew.writeReversedLong(getTime(System.currentTimeMillis())); //last log out
-        mplew.writeLong(getTime(-1));
-        mplew.writeLong(getTime(-2));
+        outPacket.writeReversedLong(getTime(System.currentTimeMillis())); //last log out
+        outPacket.writeLong(getTime(-1));
+        outPacket.writeLong(getTime(-2));
         // todo
-        mplew.writeZeroBytes(14);
-        mplew.writeInt(-1);
-        mplew.writeInt(0);
+        outPacket.writeZeroBytes(14);
+        outPacket.writeInt(-1);
+        outPacket.writeInt(0);
 
     }
 
     //todo
-    public static void addCharSP(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+    public static void addCharSP(OutPacket outPacket, MapleCharacter chr) {
         int[] remainingSps = chr.getRemainingSps();
         if (JobConstants.isExtendSpJob(chr.getJobId())) {
-            mplew.write(chr.getRemainingSpsSize());
+            outPacket.write(chr.getRemainingSpsSize());
             for (int i = 0; i < remainingSps.length; i++) {
                 if (remainingSps[i] > 0) {
-                    mplew.write(i + 1);
-                    mplew.writeInt(remainingSps[i]);
+                    outPacket.write(i + 1);
+                    outPacket.writeInt(remainingSps[i]);
                 }
             }
         } else {
-            mplew.writeShort(remainingSps[0]);
+            outPacket.writeShort(remainingSps[0]);
         }
     }
 
@@ -281,242 +280,242 @@ public class PacketHelper {
         return DateUtil.getFileTimestamp(realTimestamp);
     }
 
-    public static void addCharInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        mplew.writeLong(-1); // 开始生成角色信息 mask  0xFFFFFFFFFFFFFFFFL
-        mplew.write(0); //getCombatOrders
-        mplew.writeInt(-1); // pet getActiveSkillCoolTime
-        mplew.writeInt(-1);
-        mplew.writeInt(-1);
-        mplew.writeZeroBytes(6);
+    public static void addCharInfo(OutPacket outPacket, MapleCharacter chr) {
+        outPacket.writeLong(-1); // 开始生成角色信息 mask  0xFFFFFFFFFFFFFFFFL
+        outPacket.write(0); //getCombatOrders
+        outPacket.writeInt(-1); // pet getActiveSkillCoolTime
+        outPacket.writeInt(-1);
+        outPacket.writeInt(-1);
+        outPacket.writeZeroBytes(6);
         //角色信息
-        addCharStats(mplew, chr);
-        mplew.write(chr.getBuddyCapacity()); //friend
+        addCharStats(outPacket, chr);
+        outPacket.write(chr.getBuddyCapacity()); //friend
         // 精灵的祝福
         if (chr.getBlessOfFairyOrigin() != null) {
-            mplew.write(1);
-            mplew.writeMapleAsciiString(chr.getBlessOfFairyOrigin());
+            outPacket.write(1);
+            outPacket.writeMapleAsciiString(chr.getBlessOfFairyOrigin());
         } else {
-            mplew.write(0);
+            outPacket.write(0);
         }
         // 女皇的祝福
         if (chr.getBlessOfEmpressOrigin() != null) {
-            mplew.write(1);
-            mplew.writeMapleAsciiString(chr.getBlessOfEmpressOrigin());
+            outPacket.write(1);
+            outPacket.writeMapleAsciiString(chr.getBlessOfEmpressOrigin());
         } else {
-            mplew.write(0);
+            outPacket.write(0);
         }
         //终极冒险家
-        mplew.writeBool(false);
+        outPacket.writeBool(false);
 
         //未知
-        mplew.writeInt(0);
-        mplew.write(-1);
-        mplew.writeInt(0);
-        mplew.write(-1);
+        outPacket.writeInt(0);
+        outPacket.write(-1);
+        outPacket.writeInt(0);
+        outPacket.write(-1);
 
-        mplew.writeLong(chr.getMeso());
-        mplew.writeInt(chr.getId());
-        mplew.writeInt(0); //打豆豆.豆子
-        mplew.writeInt(0);
-        mplew.writeInt(0);
+        outPacket.writeLong(chr.getMeso());
+        outPacket.writeInt(chr.getId());
+        outPacket.writeInt(0); //打豆豆.豆子
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
 
-        mplew.writeInt(0); //todo
-//        mplew.writeInt(chr.getPotionPot() != null ? 1 : 0); //药剂罐信息
+        outPacket.writeInt(0); //todo
+//        outPacket.writeInt(chr.getPotionPot() != null ? 1 : 0); //药剂罐信息
 //        if (chr.getPotionPot() != null) {
-//            addPotionPotInfo(mplew, chr.getPotionPot());
+//            addPotionPotInfo(outPacket, chr.getPotionPot());
 //        }
 
         //背包容量
-        mplew.write(chr.getInventory(InventoryType.EQUIP).getSlots());
-        mplew.write(chr.getInventory(InventoryType.CONSUME).getSlots());
-        mplew.write(chr.getInventory(InventoryType.INSTALL).getSlots());
-        mplew.write(chr.getInventory(InventoryType.ETC).getSlots());
-        mplew.write(chr.getInventory(InventoryType.CASH).getSlots());
+        outPacket.write(chr.getInventory(InventoryType.EQUIP).getSlots());
+        outPacket.write(chr.getInventory(InventoryType.CONSUME).getSlots());
+        outPacket.write(chr.getInventory(InventoryType.INSTALL).getSlots());
+        outPacket.write(chr.getInventory(InventoryType.ETC).getSlots());
+        outPacket.write(chr.getInventory(InventoryType.CASH).getSlots());
 
 //        //扩充吊坠栏
 //        MapleQuestStatus stat = chr.getQuestNoAdd(MapleQuest.getInstance(122700));
 //        if (stat != null && stat.getCustomData() != null && Long.parseLong(stat.getCustomData()) > System.currentTimeMillis()) {
-//            mplew.writeLong(getTime(Long.parseLong(stat.getCustomData())));
+//            outPacket.writeLong(getTime(Long.parseLong(stat.getCustomData())));
 //        } else {
-//            mplew.writeLong(getTime(-2));
+//            outPacket.writeLong(getTime(-2));
 //        }
-        mplew.writeLong(getTime(-2)); //todo
+        outPacket.writeLong(getTime(-2)); //todo
 
 
-        mplew.write(0); //未知
-        addInventoryInfo(mplew, chr);
-        addSkillInfo(mplew, chr);
-        addQuestInfo(mplew, chr);
-        addRingsInfo(mplew, chr); //CoupleRecord
-        addTRocksInfo(mplew, chr); //MapTransfer
+        outPacket.write(0); //未知
+        addInventoryInfo(outPacket, chr);
+        addSkillInfo(outPacket, chr);
+        addQuestInfo(outPacket, chr);
+        addRingsInfo(outPacket, chr); //CoupleRecord
+        addTRocksInfo(outPacket, chr); //MapTransfer
 
         // QuestEx
-        mplew.writeShort(chr.getQuestsExStorage().size());
+        outPacket.writeShort(chr.getQuestsExStorage().size());
         chr.getQuestsExStorage().forEach((qrKey, qrValue) -> {
-            mplew.writeInt(qrKey);
-            mplew.writeMapleAsciiString(qrValue);
+            outPacket.writeInt(qrKey);
+            outPacket.writeMapleAsciiString(qrValue);
         });
 
-        mplew.writeInt(0); //unk
-        mplew.write(1);
-        mplew.writeInt(0);
-        mplew.writeInt(1);
-        mplew.writeInt(chr.getAccId());
-        mplew.writeInt(-1);
-        mplew.writeInt(0);
+        outPacket.writeInt(0); //unk
+        outPacket.write(1);
+        outPacket.writeInt(0);
+        outPacket.writeInt(1);
+        outPacket.writeInt(chr.getAccId());
+        outPacket.writeInt(-1);
+        outPacket.writeInt(0);
         for (int i = 0; i < 20; i++) {
-            mplew.writeInt(0);
+            outPacket.writeInt(0);
         }
         //内在能力
-        mplew.writeShort(chr.getCharacterPotential().size());
+        outPacket.writeShort(chr.getCharacterPotential().size());
         for (CharacterPotential characterPotential : chr.getCharacterPotential()) {
-            characterPotential.encode(mplew);
+            characterPotential.encode(outPacket);
         }
 
-        mplew.writeShort(0);
-        mplew.writeInt(1); //荣耀等级
-        mplew.writeInt(0); // 声望
-        mplew.write(1);
-        mplew.writeShort(0);
-        mplew.write(0);
+        outPacket.writeShort(0);
+        outPacket.writeInt(1); //荣耀等级
+        outPacket.writeInt(0); // 声望
+        outPacket.write(1);
+        outPacket.writeShort(0);
+        outPacket.write(0);
         // 天使变身外观
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.write(0);
-        mplew.writeInt(-1);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.write(0);
+        outPacket.writeInt(-1);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
 
-        mplew.writeLong(0);
-        mplew.writeLong(getTime(-2));
+        outPacket.writeLong(0);
+        outPacket.writeLong(getTime(-2));
 
         // 未知
-        mplew.writeZeroBytes(33);
+        outPacket.writeZeroBytes(33);
 
-        mplew.writeLong(getTime(-2));
-        mplew.writeInt(0);
-        mplew.writeInt(chr.getId());
-        mplew.writeZeroBytes(12);
-        mplew.writeLong(getTime(-2));
-        mplew.writeInt(0x0A);
-        mplew.writeZeroBytes(20);
+        outPacket.writeLong(getTime(-2));
+        outPacket.writeInt(0);
+        outPacket.writeInt(chr.getId());
+        outPacket.writeZeroBytes(12);
+        outPacket.writeLong(getTime(-2));
+        outPacket.writeInt(0x0A);
+        outPacket.writeZeroBytes(20);
 
         //角色共享任务数据
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
 
-        mplew.writeZeroBytes(13);
+        outPacket.writeZeroBytes(13);
 
         //未知
         int ffff = 19;
-        mplew.writeInt(ffff);
+        outPacket.writeInt(ffff);
         for (int i = 0; i < ffff; i++) {
-            mplew.writeInt(-1);
-            mplew.write(i);
-            mplew.writeLong(0);
+            outPacket.writeInt(-1);
+            outPacket.write(i);
+            outPacket.writeLong(0);
         }
 
 
-        mplew.writeInt(chr.getAccId());
-        mplew.writeInt(chr.getId());
-        mplew.writeInt(0);
-        mplew.writeLong(getTime(-2));
+        outPacket.writeInt(chr.getAccId());
+        outPacket.writeInt(chr.getId());
+        outPacket.writeInt(0);
+        outPacket.writeLong(getTime(-2));
 
-        mplew.writeZeroBytes(82);
+        outPacket.writeZeroBytes(82);
 
-        mplew.writeShort(0);
-//        mplew.writeShort(ItemConstants.COMMODITY.length);
+        outPacket.writeShort(0);
+//        outPacket.writeShort(ItemConstants.COMMODITY.length);
 //        for (int i : ItemConstants.COMMODITY) {
-//            mplew.writeInt(i);
-//            mplew.writeInt(0);
-//            mplew.writeLong(getTime(System.currentTimeMillis()));
+//            outPacket.writeInt(i);
+//            outPacket.writeInt(0);
+//            outPacket.writeLong(getTime(System.currentTimeMillis()));
 //        }
 
-        mplew.writeZeroBytes(69);
-        mplew.writeLong(getTime(System.currentTimeMillis()));
-        mplew.write(0);
-        mplew.writeBool(true); //Can Use Familiar ?
-        mplew.writeInt(0);
-        mplew.writeInt(chr.getAccId());
-        mplew.writeInt(chr.getId());
+        outPacket.writeZeroBytes(69);
+        outPacket.writeLong(getTime(System.currentTimeMillis()));
+        outPacket.write(0);
+        outPacket.writeBool(true); //Can Use Familiar ?
+        outPacket.writeInt(0);
+        outPacket.writeInt(chr.getAccId());
+        outPacket.writeInt(chr.getId());
         int[] idarr = new int[]{9410165, 9410166, 9410167, 9410168, 9410198};
-        mplew.writeLong(idarr.length);
+        outPacket.writeLong(idarr.length);
         for (int i : idarr) {
-            mplew.writeInt(i);
-            mplew.writeInt(0);
+            outPacket.writeInt(i);
+            outPacket.writeInt(0);
         }
-        mplew.writeZeroBytes(22);
-        mplew.writeLong(getTime(-2));
-        mplew.write(0);
-        mplew.write(0);
-        mplew.write(1);
-        mplew.write(1);
-        mplew.write(0);
-        mplew.writeLong(getTime(-2));
-        mplew.writeZeroBytes(16);
+        outPacket.writeZeroBytes(22);
+        outPacket.writeLong(getTime(-2));
+        outPacket.write(0);
+        outPacket.write(0);
+        outPacket.write(1);
+        outPacket.write(1);
+        outPacket.write(0);
+        outPacket.writeLong(getTime(-2));
+        outPacket.writeZeroBytes(16);
     }
 
-    private static void addTRocksInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+    private static void addTRocksInfo(OutPacket outPacket, MapleCharacter chr) {
         for (int i = 0; i < 5; i++) {
-            mplew.writeInt(999999999);
+            outPacket.writeInt(999999999);
         }
         for (int i = 0; i < 10; i++) {
-            mplew.writeInt(999999999);
+            outPacket.writeInt(999999999);
         }
         for (int i = 0; i < 13; i++) {
-            mplew.writeInt(999999999);
+            outPacket.writeInt(999999999);
         }
     }
 
-    private static void addRingsInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        mplew.writeShort(0); //couple
+    private static void addRingsInfo(OutPacket outPacket, MapleCharacter chr) {
+        outPacket.writeShort(0); //couple
 
-        mplew.writeShort(0); //friend
+        outPacket.writeShort(0); //friend
 
-        mplew.writeShort(0); //marriage
+        outPacket.writeShort(0); //marriage
     }
 
-    private static void addQuestInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        mplew.writeBool(true);//started quests
+    private static void addQuestInfo(OutPacket outPacket, MapleCharacter chr) {
+        outPacket.writeBool(true);//started quests
         QuestManager questManager = chr.getQuestManager();
         int size = questManager.getQuestsInProgress().size();
-        mplew.writeShort(size);
+        outPacket.writeShort(size);
         for (Quest quest : questManager.getQuestsInProgress()) {
-            mplew.writeInt(quest.getQrKey());
-            mplew.writeMapleAsciiString(quest.getQRValue());
+            outPacket.writeInt(quest.getQrKey());
+            outPacket.writeMapleAsciiString(quest.getQRValue());
         }
-        mplew.writeBool(true); //completed quest
+        outPacket.writeBool(true); //completed quest
         Set<Quest> completedQuests = questManager.getCompletedQuests();
-        mplew.writeShort(completedQuests.size());
+        outPacket.writeShort(completedQuests.size());
         for (Quest quest : completedQuests) {
-            mplew.writeInt(quest.getQrKey());
-            mplew.writeLong(getTime(quest.getCompletedTime()));
+            outPacket.writeInt(quest.getQrKey());
+            outPacket.writeLong(getTime(quest.getCompletedTime()));
         }
-        mplew.writeShort(0); //mini game
+        outPacket.writeShort(0); //mini game
     }
 
-    private static void addSkillInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        mplew.write(1); //mask
-//        mplew.writeShort(0); // skills size       short size = (short) (getSkills().size() + linkSkills.size());
+    private static void addSkillInfo(OutPacket outPacket, MapleCharacter chr) {
+        outPacket.write(1); //mask
+//        outPacket.writeShort(0); // skills size       short size = (short) (getSkills().size() + linkSkills.size());
         Set<Skill> skills = chr.getSkills();
-        mplew.writeShort(skills.size());
+        outPacket.writeShort(skills.size());
         for (Skill skill : skills) {
-            mplew.writeInt(skill.getSkillId());
-            mplew.writeInt(skill.getCurrentLevel());
-            mplew.writeLong(MAX_TIME);
+            outPacket.writeInt(skill.getSkillId());
+            outPacket.writeInt(skill.getCurrentLevel());
+            outPacket.writeLong(MAX_TIME);
             if (SkillConstants.isSkillNeedMasterLevel(skill.getSkillId())) {
-                mplew.writeInt(skill.getMasterLevel());
+                outPacket.writeInt(skill.getMasterLevel());
             }
         }
 
-        mplew.writeShort(0); //link skill
+        outPacket.writeShort(0); //link skill
 
-        mplew.writeInt(0); //son of linked skill
+        outPacket.writeInt(0); //son of linked skill
 
-        mplew.writeShort(0); //skills in cd  size
+        outPacket.writeShort(0); //skills in cd  size
     }
 
-    private static void addInventoryInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+    private static void addInventoryInfo(OutPacket outPacket, MapleCharacter chr) {
         Inventory iv = chr.getInventory(EQUIPPED);
         List<Item> equippedItems = new ArrayList<>(iv.getItems());
         equippedItems.sort(Comparator.comparingInt(Item::getPos));
@@ -563,109 +562,109 @@ public class PacketHelper {
             }
         }
         for (Item item : normalEquip) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
 
         for (Item item : cashEquip) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
 
         for (Item item : chr.getInventory(InventoryType.EQUIP).getItems()) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
 
         for (Item item : evanEquip) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
 
         for (Item item : petConsumeEquip) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
 
         for (Item item : androidEquip) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
 
         for (Item item : totems) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
 
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
         //todo
-        mplew.writeShort(0);
+        outPacket.writeShort(0);
 
 
         for (Item item : chr.getConsumeInventory().getItems()) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.write(0);
+        outPacket.write(0);
 
         for (Item item : chr.getInstallInventory().getItems()) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.write(0);
+        outPacket.write(0);
 
         for (Item item : chr.getEtcInventory().getItems()) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.write(0);
+        outPacket.write(0);
 
         for (Item item : chr.getCashInventory().getItems()) {
-            addItemPos(mplew, item, false, false);
-            addItemInfo(mplew, item);
+            addItemPos(outPacket, item, false, false);
+            addItemInfo(outPacket, item);
         }
-        mplew.write(0);
+        outPacket.write(0);
 
         //todo 矿物背包
-        mplew.writeZeroBytes(12);
+        outPacket.writeZeroBytes(12);
 
-        mplew.write(0);
-        mplew.writeLong(0);
+        outPacket.write(0);
+        outPacket.writeLong(0);
     }
 
-    private static void addItemPos(MaplePacketLittleEndianWriter mplew, Item item, boolean trade, boolean bag) {
+    private static void addItemPos(OutPacket outPacket, Item item, boolean trade, boolean bag) {
         if (item == null) {
-            mplew.write(0);
+            outPacket.write(0);
             return;
         }
         short pos = (short) item.getPos();
@@ -675,173 +674,173 @@ public class PacketHelper {
             }
         }
         if (bag) {
-            mplew.writeInt(pos % 100 - 1);
+            outPacket.writeInt(pos % 100 - 1);
         } else if (!trade && item.getType() == Item.Type.EQUIP) {
-            mplew.writeShort(pos);
+            outPacket.writeShort(pos);
         } else {
-            mplew.write(pos);
+            outPacket.write(pos);
         }
     }
 
-    public static void addItemInfo(MaplePacketLittleEndianWriter mplew, Item item) {
-        mplew.write(item.getType().getVal());
-        mplew.writeInt(item.getItemId());
-        mplew.write(0); //hasSN
-//        mplew.writeLong(item.getId());
-        mplew.writeLong(item.getExpireTime());
-        mplew.writeInt(-1);//pos?
-        mplew.write(0);
+    public static void addItemInfo(OutPacket outPacket, Item item) {
+        outPacket.write(item.getType().getVal());
+        outPacket.writeInt(item.getItemId());
+        outPacket.write(0); //hasSN
+//        outPacket.writeLong(item.getId());
+        outPacket.writeLong(item.getExpireTime());
+        outPacket.writeInt(-1);//pos?
+        outPacket.write(0);
         if (item instanceof Equip) {
             Equip equip = (Equip) item;
-            mplew.writeInt(equip.getEquipStatMask(0));
+            outPacket.writeInt(equip.getEquipStatMask(0));
             if (equip.hasStat(EquipBaseStat.tuc)) {
-                mplew.write(equip.getTuc());
+                outPacket.write(equip.getTuc());
             }
             if (equip.hasStat(EquipBaseStat.cuc)) {
-                mplew.write(equip.getCuc());
+                outPacket.write(equip.getCuc());
             }
             if (equip.hasStat(EquipBaseStat.iStr)) {
-                mplew.writeShort(equip.getIStr() + equip.getFSTR() + equip.getEnchantStat(EnchantStat.STR));
+                outPacket.writeShort(equip.getIStr() + equip.getFSTR() + equip.getEnchantStat(EnchantStat.STR));
             }
             if (equip.hasStat(EquipBaseStat.iDex)) {
-                mplew.writeShort(equip.getIDex() + equip.getFDEX() + equip.getEnchantStat(EnchantStat.DEX));
+                outPacket.writeShort(equip.getIDex() + equip.getFDEX() + equip.getEnchantStat(EnchantStat.DEX));
             }
             if (equip.hasStat(EquipBaseStat.iInt)) {
-                mplew.writeShort(equip.getIInt() + equip.getFINT() + equip.getEnchantStat(EnchantStat.INT));
+                outPacket.writeShort(equip.getIInt() + equip.getFINT() + equip.getEnchantStat(EnchantStat.INT));
             }
             if (equip.hasStat(EquipBaseStat.iLuk)) {
-                mplew.writeShort(equip.getILuk() + equip.getFLUK() + equip.getEnchantStat(EnchantStat.LUK));
+                outPacket.writeShort(equip.getILuk() + equip.getFLUK() + equip.getEnchantStat(EnchantStat.LUK));
             }
             if (equip.hasStat(EquipBaseStat.iMaxHP)) {
-                mplew.writeShort(equip.getIMaxHp() + equip.getFHP() + equip.getEnchantStat(EnchantStat.MHP));
+                outPacket.writeShort(equip.getIMaxHp() + equip.getFHP() + equip.getEnchantStat(EnchantStat.MHP));
             }
             if (equip.hasStat(EquipBaseStat.iMaxMP)) {
-                mplew.writeShort(equip.getIMaxMp() + equip.getFMP() + equip.getEnchantStat(EnchantStat.MMP));
+                outPacket.writeShort(equip.getIMaxMp() + equip.getFMP() + equip.getEnchantStat(EnchantStat.MMP));
             }
             if (equip.hasStat(EquipBaseStat.iPAD)) {
-                mplew.writeShort(equip.getIPad() + equip.getFATT() + equip.getEnchantStat(EnchantStat.PAD));
+                outPacket.writeShort(equip.getIPad() + equip.getFATT() + equip.getEnchantStat(EnchantStat.PAD));
             }
             if (equip.hasStat(EquipBaseStat.iMAD)) {
-                mplew.writeShort(equip.getIMad() + equip.getFMATT() + equip.getEnchantStat(EnchantStat.MAD));
+                outPacket.writeShort(equip.getIMad() + equip.getFMATT() + equip.getEnchantStat(EnchantStat.MAD));
             }
             if (equip.hasStat(EquipBaseStat.iPDD)) {
-                mplew.writeShort(equip.getIPDD() + equip.getFDEF() + equip.getEnchantStat(EnchantStat.PDD));
+                outPacket.writeShort(equip.getIPDD() + equip.getFDEF() + equip.getEnchantStat(EnchantStat.PDD));
             }
             if (equip.hasStat(EquipBaseStat.iCraft)) {
-                mplew.writeShort(equip.getICraft());
+                outPacket.writeShort(equip.getICraft());
             }
             if (equip.hasStat(EquipBaseStat.iSpeed)) {
-                mplew.writeShort(equip.getISpeed() + equip.getFSpeed() + equip.getEnchantStat(EnchantStat.SPEED));
+                outPacket.writeShort(equip.getISpeed() + equip.getFSpeed() + equip.getEnchantStat(EnchantStat.SPEED));
             }
             if (equip.hasStat(EquipBaseStat.iJump)) {
-                mplew.writeShort(equip.getIJump() + equip.getFJump() + equip.getEnchantStat(EnchantStat.JUMP));
+                outPacket.writeShort(equip.getIJump() + equip.getFJump() + equip.getEnchantStat(EnchantStat.JUMP));
             }
             if (equip.hasStat(EquipBaseStat.attribute)) {
-                mplew.writeInt(equip.getAttribute());
+                outPacket.writeInt(equip.getAttribute());
             }
             if (equip.hasStat(EquipBaseStat.levelUpType)) {
-                mplew.write(equip.getLevelUpType());
+                outPacket.write(equip.getLevelUpType());
             }
             if (equip.hasStat(EquipBaseStat.level)) {
-                mplew.write(equip.getLevel());
+                outPacket.write(equip.getLevel());
             }
             if (equip.hasStat(EquipBaseStat.exp)) {
-                mplew.writeLong(equip.getExp());
+                outPacket.writeLong(equip.getExp());
             }
             if (equip.hasStat(EquipBaseStat.durability)) {
-                mplew.writeInt(equip.getDurability());
+                outPacket.writeInt(equip.getDurability());
             }
             if (equip.hasStat(EquipBaseStat.iuc)) {
-                mplew.writeInt(equip.getIuc()); // 金锤子
+                outPacket.writeInt(equip.getIuc()); // 金锤子
             }
 //            if (equip.hasStat(EquipBaseStat.iPvpDamage)) {
-//                mplew.writeShort(equip.getIPvpDamage());
+//                outPacket.writeShort(equip.getIPvpDamage());
 //            }
             if (equip.hasStat(EquipBaseStat.iReduceReq)) {
                 byte bLevel = (byte) (equip.getIReduceReq() + equip.getFLevel());
                 if (equip.getRLevel() + equip.getIIncReq() - bLevel < 0) {
                     bLevel = (byte) (equip.getRLevel() + equip.getIIncReq());
                 }
-                mplew.write(bLevel);
+                outPacket.write(bLevel);
             }
             if (equip.hasStat(EquipBaseStat.specialAttribute)) {
-                mplew.writeShort(equip.getSpecialAttribute());
+                outPacket.writeShort(equip.getSpecialAttribute());
             }
             if (equip.hasStat(EquipBaseStat.durabilityMax)) {
-                mplew.writeInt(equip.getDurabilityMax());
+                outPacket.writeInt(equip.getDurabilityMax());
             }
             if (equip.hasStat(EquipBaseStat.iIncReq)) {
-                mplew.write(equip.getIIncReq());
+                outPacket.write(equip.getIIncReq());
             }
             if (equip.hasStat(EquipBaseStat.growthEnchant)) {
-                mplew.write(equip.getGrowthEnchant()); // ygg
+                outPacket.write(equip.getGrowthEnchant()); // ygg
             }
             if (equip.hasStat(EquipBaseStat.psEnchant)) {
-                mplew.write(equip.getPsEnchant()); // final strike
+                outPacket.write(equip.getPsEnchant()); // final strike
             }
             if (equip.hasStat(EquipBaseStat.bdr)) {
-                mplew.write(equip.getBdr() + equip.getFBoss()); // bd
+                outPacket.write(equip.getBdr() + equip.getFBoss()); // bd
             }
             if (equip.hasStat(EquipBaseStat.imdr)) {
-                mplew.write(equip.getImdr()); // ied
+                outPacket.write(equip.getImdr()); // ied
             }
             //28 00 00 00
-            mplew.writeInt(equip.getEquipStatMask(1)); // mask 2
+            outPacket.writeInt(equip.getEquipStatMask(1)); // mask 2
             if (equip.hasStat(EquipBaseStat.damR)) {
-                mplew.write(equip.getDamR() + equip.getFDamage()); // td
+                outPacket.write(equip.getDamR() + equip.getFDamage()); // td
             }
             if (equip.hasStat(EquipBaseStat.statR)) {
-                mplew.write(equip.getStatR() + equip.getFAllStat()); // as
+                outPacket.write(equip.getStatR() + equip.getFAllStat()); // as
             }
             if (equip.hasStat(EquipBaseStat.cuttable)) {
-                mplew.write(equip.getCuttable());  //剪刀 FF
+                outPacket.write(equip.getCuttable());  //剪刀 FF
             }
             if (equip.hasStat(EquipBaseStat.exGradeOption)) {
-                mplew.writeLong(equip.getExGradeOption());  // 经验
+                outPacket.writeLong(equip.getExGradeOption());  // 经验
             }
             if (equip.hasStat(EquipBaseStat.itemState)) {
-                mplew.writeInt(equip.getItemState());  // 00 01 00 00
+                outPacket.writeInt(equip.getItemState());  // 00 01 00 00
             }
 
-            mplew.writeMapleAsciiString(equip.getOwner());
-            mplew.write(equip.getGrade());
-            mplew.write(equip.getChuc());
+            outPacket.writeMapleAsciiString(equip.getOwner());
+            outPacket.write(equip.getGrade());
+            outPacket.write(equip.getChuc());
             for (int i = 0; i < 7; i++) {
-                mplew.writeShort(equip.getOptions().get(i)); // 7x, last is fusion anvil
+                outPacket.writeShort(equip.getOptions().get(i)); // 7x, last is fusion anvil
             }
             // sockets
-            mplew.writeShort(0); //mask
-            mplew.writeShort(-1); //socket 1
-            mplew.writeShort(-1);
-            mplew.writeShort(-1); //socket 3
+            outPacket.writeShort(0); //mask
+            outPacket.writeShort(-1); //socket 1
+            outPacket.writeShort(-1);
+            outPacket.writeShort(-1); //socket 3
 
 
-            mplew.writeInt(0);
-            mplew.writeLong(equip.getId());
-            mplew.writeLong(getTime(-2));
-            mplew.writeInt(-1);
-            mplew.writeLong(equip.getCashItemSerialNumber());
-            mplew.writeLong((getTime(equip.getExpireTime())));
-            mplew.writeZeroBytes(16); //grade
+            outPacket.writeInt(0);
+            outPacket.writeLong(equip.getId());
+            outPacket.writeLong(getTime(-2));
+            outPacket.writeInt(-1);
+            outPacket.writeLong(equip.getCashItemSerialNumber());
+            outPacket.writeLong((getTime(equip.getExpireTime())));
+            outPacket.writeZeroBytes(16); //grade
 
-            mplew.writeShort(equip.getSoulOptionId());
-            mplew.writeShort(equip.getSoulSocketId());
-            mplew.writeShort(equip.getSoulOption());
+            outPacket.writeShort(equip.getSoulOptionId());
+            outPacket.writeShort(equip.getSoulSocketId());
+            outPacket.writeShort(equip.getSoulOption());
             if (equip.getItemId() / 10000 == 171) {
-                mplew.writeShort(0); //ARC
-                mplew.writeInt(0); //ARC EXP
-                mplew.writeShort(0); //ARC LEVEL
+                outPacket.writeShort(0); //ARC
+                outPacket.writeInt(0); //ARC EXP
+                outPacket.writeShort(0); //ARC LEVEL
             }
-            mplew.writeShort(-1);
-            mplew.writeLong(getTime(-1));
-            mplew.writeLong(getTime(-2));
-            mplew.writeLong(getTime(-1));
-            mplew.writeLong(equip.getLimitBreak());
+            outPacket.writeShort(-1);
+            outPacket.writeLong(getTime(-1));
+            outPacket.writeLong(getTime(-2));
+            outPacket.writeLong(getTime(-1));
+            outPacket.writeLong(equip.getLimitBreak());
         } else {
-            mplew.writeShort(item.getQuantity());
-            mplew.writeMapleAsciiString(item.getOwner());
-            mplew.writeShort(0);
-            mplew.writeZeroBytes(23);
+            outPacket.writeShort(item.getQuantity());
+            outPacket.writeMapleAsciiString(item.getOwner());
+            outPacket.writeShort(0);
+            outPacket.writeZeroBytes(23);
         }
     }
 }

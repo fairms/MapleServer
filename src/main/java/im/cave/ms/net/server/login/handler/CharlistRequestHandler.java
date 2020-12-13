@@ -6,11 +6,11 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.net.db.DataBaseManager;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.net.server.login.LoginServer;
 import im.cave.ms.tools.Pair;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 
 import java.util.List;
 
@@ -21,15 +21,15 @@ import java.util.List;
  * @date 11/20 21:46
  */
 public class CharlistRequestHandler {
-    public static void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        slea.skip(1);
-        int worldId = slea.readByte();
-        int channel = slea.readByte();
+    public static void handlePacket(InPacket inPacket, MapleClient c) {
+        inPacket.skip(1);
+        int worldId = inPacket.readByte();
+        int channel = inPacket.readByte();
         c.setWorld(worldId);
         c.setChannel(channel);
-        if (c.getLoginStatus() == LoginStatus.NOTLOGGEDIN && slea.available() == 284) {
-            slea.skip(2);
-            String key = slea.readMapleAsciiString();
+        if (c.getLoginStatus() == LoginStatus.NOTLOGGEDIN && inPacket.available() == 284) {
+            inPacket.skip(2);
+            String key = inPacket.readMapleAsciiString();
             LoginServer instance = LoginServer.getInstance();
             if (instance.getLoginAuthKey().containsKey(key)) {
                 Pair<String, Integer> pair = instance.getLoginAuthKey().get(key);

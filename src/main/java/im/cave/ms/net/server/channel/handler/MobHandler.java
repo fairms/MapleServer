@@ -6,8 +6,8 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.movement.MovementInfo;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.MobPacket;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,21 +20,21 @@ import org.slf4j.LoggerFactory;
 public class MobHandler {
     private static final Logger log = LoggerFactory.getLogger(MobHandler.class);
 
-    public static void handleMoveMob(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleMoveMob(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        int objectId = slea.readInt();
+        int objectId = inPacket.readInt();
         MapleMap map = player.getMap();
         MapleMapObj obj = map.getObj(objectId);
         if (!(obj instanceof Mob)) {
             return;
         }
         Mob mob = (Mob) obj;
-        short moveId = slea.readShort();
-        boolean useSkill = (slea.readByte() & 0xFF) > 0;
-        byte mode = (byte) (slea.readByte() >> 1);
-        slea.skip(60);
-        slea.skip(13);
-        MovementInfo movementInfo = new MovementInfo(slea);
+        short moveId = inPacket.readShort();
+        boolean useSkill = (inPacket.readByte() & 0xFF) > 0;
+        byte mode = (byte) (inPacket.readByte() >> 1);
+        inPacket.skip(60);
+        inPacket.skip(13);
+        MovementInfo movementInfo = new MovementInfo(inPacket);
         movementInfo.applyTo(mob);
         map.broadcastMessage(player, MobPacket.mobMoveResponse(objectId, moveId, useSkill, (int) mob.getMp(), 0, (short) 0), true);
     }

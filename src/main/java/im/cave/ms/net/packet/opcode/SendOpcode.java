@@ -1,5 +1,7 @@
 package im.cave.ms.net.packet.opcode;
 
+import im.cave.ms.tools.Util;
+
 public enum SendOpcode {
 
 
@@ -91,7 +93,12 @@ public enum SendOpcode {
         this.code = code;
     }
 
-    public int getValue() {
-        return code;
+    public short getValue() {
+        return (short) code;
     }
+
+    public static Object getByValue(short op) {
+        return Util.findWithPred(values(), sendOpcode -> sendOpcode.code == op);
+    }
+
 }

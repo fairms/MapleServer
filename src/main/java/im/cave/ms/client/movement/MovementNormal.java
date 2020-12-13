@@ -3,58 +3,60 @@ package im.cave.ms.client.movement;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.obj.MapleMapObj;
+import im.cave.ms.net.netty.InPacket;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.tools.Position;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+
+
 
 /**
  * Created on 1/2/2018.
  * These classes + children/parents are basically the same as Mushy, credits to @MaxCloud.
  */
 public class MovementNormal extends MovementBase {
-    public MovementNormal(SeekableLittleEndianAccessor slea, byte command) {
+    public MovementNormal(InPacket inPacket, byte command) {
         super();
         this.command = command;
 
-        short x = slea.readShort();
-        short y = slea.readShort();
+        short x = inPacket.readShort();
+        short y = inPacket.readShort();
         position = new Position(x, y);
 
-        short xv = slea.readShort();
-        short yv = slea.readShort();
+        short xv = inPacket.readShort();
+        short yv = inPacket.readShort();
         vPosition = new Position(xv, yv);
 
-        fh = slea.readShort();
+        fh = inPacket.readShort();
 
         if (command == 15 || command == 17) {
-            footStart = slea.readShort();
+            footStart = inPacket.readShort();
         }
 
-        short xoffset = slea.readShort();
-        short yoffset = slea.readShort();
+        short xoffset = inPacket.readShort();
+        short yoffset = inPacket.readShort();
         offset = new Position(xoffset, yoffset);
 
-        unk = slea.readShort();
+        unk = inPacket.readShort();
 
-        moveAction = slea.readByte();
-        elapse = slea.readShort();
-        forcedStop = slea.readByte();
+        moveAction = inPacket.readByte();
+        elapse = inPacket.readShort();
+        forcedStop = inPacket.readByte();
     }
 
     @Override
-    public void encode(MaplePacketLittleEndianWriter mplew) {
-        mplew.write(getCommand());
-        mplew.writePos(getPosition());
-        mplew.writePos(getVPosition());
-        mplew.writeShort(getFh());
+    public void encode(OutPacket outPacket) {
+        outPacket.write(getCommand());
+        outPacket.writePos(getPosition());
+        outPacket.writePos(getVPosition());
+        outPacket.writeShort(getFh());
         if (getCommand() == 15 || getCommand() == 17) {
-            mplew.writeShort(getFootStart());
+            outPacket.writeShort(getFootStart());
         }
-        mplew.writePos(getOffset());
-        mplew.writeShort(getUNK());
-        mplew.write(getMoveAction());
-        mplew.writeShort(getDuration());
-        mplew.write(getForcedStop());
+        outPacket.writePos(getOffset());
+        outPacket.writeShort(getUNK());
+        outPacket.write(getMoveAction());
+        outPacket.writeShort(getDuration());
+        outPacket.write(getForcedStop());
     }
 
     @Override

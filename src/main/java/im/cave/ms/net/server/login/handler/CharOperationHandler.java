@@ -4,9 +4,9 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.server.Server;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -18,9 +18,9 @@ import java.time.ZoneOffset;
  * @date 11/20 21:46
  */
 public class CharOperationHandler {
-    public static void handleSelectChar(SeekableLittleEndianAccessor slea, MapleClient c) {
-        int charId = slea.readInt();
-        byte invisible = slea.readByte();
+    public static void handleSelectChar(InPacket inPacket, MapleClient c) {
+        int charId = inPacket.readInt();
+        byte invisible = inPacket.readByte();
         if (c.getLoginStatus().equals(LoginStatus.LOGGEDIN) && c.getAccount().getCharacter(charId) != null) {
             MapleCharacter player = c.getAccount().getCharacter(charId);
             c.setPlayer(player);
@@ -33,10 +33,10 @@ public class CharOperationHandler {
         }
     }
 
-    public static void handleDeleteChar(SeekableLittleEndianAccessor slea, MapleClient c) {
-        slea.readByte();
-        slea.readByte();
-        int charId = slea.readInt();
+    public static void handleDeleteChar(InPacket inPacket, MapleClient c) {
+        inPacket.readByte();
+        inPacket.readByte();
+        int charId = inPacket.readInt();
         MapleCharacter character = c.getAccount().getCharacter(charId);
         character.setDeleted(true);
         long deleteTime = LocalDateTime.now().plusDays(3).toInstant(ZoneOffset.of("+8")).toEpochMilli();
@@ -44,8 +44,8 @@ public class CharOperationHandler {
         c.announce(LoginPacket.deleteTime(charId));
     }
 
-    public static void handleCancelDelete(SeekableLittleEndianAccessor slea, MapleClient c) {
-        int charId = slea.readInt();
+    public static void handleCancelDelete(InPacket inPacket, MapleClient c) {
+        int charId = inPacket.readInt();
         MapleCharacter character = c.getAccount().getCharacter(charId);
         character.setDeleted(false);
         character.setDeleteTime(0L);

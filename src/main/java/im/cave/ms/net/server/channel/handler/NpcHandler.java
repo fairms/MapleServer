@@ -9,7 +9,8 @@ import im.cave.ms.client.movement.Movement;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.NpcMessageType;
-import im.cave.ms.enums.TrunkOpType;
+import im.cave.ms.net.netty.InPacket;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.NpcPacket;
 import im.cave.ms.net.packet.opcode.SendOpcode;
@@ -20,8 +21,8 @@ import im.cave.ms.scripting.npc.NpcScriptManager;
 import im.cave.ms.scripting.quest.QuestActionManager;
 import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.Position;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+
+
 
 /**
  * @author fair
@@ -30,9 +31,9 @@ import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
  * @date 11/30 19:10
  */
 public class NpcHandler {
-    public static void handleUserSelectNPC(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleUserSelectNPC(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        int objId = slea.readInt();
+        int objId = inPacket.readInt();
         MapleMap map = player.getMap();
         MapleMapObj obj = map.getObj(objId);
         if (!(obj instanceof Npc)) {
@@ -72,7 +73,7 @@ public class NpcHandler {
     }
 
 
-    public static void handleAction(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleAction(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
@@ -85,8 +86,8 @@ public class NpcHandler {
         if (cm == null) {
             cm = qm;
         }
-        byte lastType = slea.readByte();
-        byte action = slea.readByte();
+        byte lastType = inPacket.readByte();
+        byte action = inPacket.readByte();
         if (action == -1) {
             cm.dispose();
             return;
@@ -95,7 +96,7 @@ public class NpcHandler {
         switch (messageType) {
             case AskText:
                 if (action == 1) {
-                    String response = slea.readMapleAsciiString();
+                    String response = inPacket.readMapleAsciiString();
                     cm.getNpcScriptInfo().addResponse(response);
                 } else {
                     cm.dispose();
@@ -109,14 +110,14 @@ public class NpcHandler {
                     cm.getNpcScriptInfo().addResponse(-1);
                     return;
                 }
-                int select = slea.readInt();
+                int select = inPacket.readInt();
                 cm.getNpcScriptInfo().addResponse(select);
                 break;
             case AskAvatar:
-                if (slea.available() >= 4) {
-                    slea.readShort();
-                    byte option = slea.readByte();
-                    byte submit = slea.readByte();
+                if (inPacket.available() >= 4) {
+                    inPacket.readShort();
+                    byte option = inPacket.readByte();
+                    byte submit = inPacket.readByte();
                     if (submit == 1) {
                         cm.getNpcScriptInfo().addResponse(((int) option));
                     } else {
@@ -131,21 +132,21 @@ public class NpcHandler {
         }
     }
 
-    public static void handleNpcAnimation(SeekableLittleEndianAccessor slea, MapleClient c) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.NPC_ANIMATION.getValue());
-        int objectID = slea.readInt();
-        byte oneTimeAction = slea.readByte();
-        byte chatIdx = slea.readByte();
-        int duration = slea.readInt();
+    public static void handleNpcAnimation(InPacket inPacket, MapleClient c) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.NPC_ANIMATION.getValue());
+        int objectID = inPacket.readInt();
+        byte oneTimeAction = inPacket.readByte();
+        byte chatIdx = inPacket.readByte();
+        int duration = inPacket.readInt();
         byte keyPadState = 0;
         MovementInfo movement = null;
         MapleMapObj obj = c.getPlayer().getMap().getObj(objectID);
         if (obj instanceof Npc && ((Npc) obj).isMove()) {
             Npc npc = (Npc) obj;
-            if (slea.available() > 0) {
+            if (inPacket.available() > 0) {
                 movement = new MovementInfo(npc.getPosition(), npc.getVPosition());
-                movement.decode(slea);
+                movement.decode(inPacket);
                 for (Movement m : movement.getMovements()) {
                     Position pos = m.getPosition();
                     Position vPos = m.getVPosition();
@@ -158,8 +159,8 @@ public class NpcHandler {
                     npc.setMoveAction(m.getMoveAction());
                     npc.setFh(m.getFh());
                 }
-                if (slea.available() > 0) {
-                    keyPadState = slea.readByte();
+                if (inPacket.available() > 0) {
+                    keyPadState = inPacket.readByte();
                 }
             }
         }

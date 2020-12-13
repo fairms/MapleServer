@@ -3,9 +3,6 @@ package im.cave.ms.net.netty;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.net.crypto.AESCipher;
 import im.cave.ms.net.crypto.CIGCipher;
-import im.cave.ms.tools.data.input.ByteArrayByteStream;
-import im.cave.ms.tools.data.input.GenericSeekableLittleEndianAccessor;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -24,7 +21,6 @@ import static im.cave.ms.client.MapleClient.CLIENT_KEY;
  */
 public class MaplePacketDecoder extends ByteToMessageDecoder {
     private static final Logger log = LoggerFactory.getLogger(MaplePacketDecoder.class);
-
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
@@ -59,9 +55,8 @@ public class MaplePacketDecoder extends ByteToMessageDecoder {
             AESCipher.Crypt(dec, uSeqRcv);
             client.setRecvIv(CIGCipher.InnoHash(uSeqRcv, 4, 0));
             client.setStoreLength(-1);
-            SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(dec));
-            out.add(slea);
+            InPacket inPacket = new InPacket(dec);
+            out.add(inPacket);
         }
-
     }
 }

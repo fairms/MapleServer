@@ -3,11 +3,10 @@ package im.cave.ms.client.Job;
 import im.cave.ms.client.Job.adventurer.Beginner;
 import im.cave.ms.client.Job.adventurer.Warrior;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.character.CharStats;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.constants.JobConstants;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+import im.cave.ms.net.netty.InPacket;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -83,7 +82,7 @@ public class JobManager {
         }
     }
 
-    public static void handleSkill(MapleClient c, SeekableLittleEndianAccessor slea) {
+    public static void handleSkill(MapleClient c, InPacket inPacket) {
         for (Class clazz : jobClasses) {
             MapleJob job = null;
             try {
@@ -92,11 +91,11 @@ public class JobManager {
                 e.printStackTrace();
             }
             if (job != null && job.isHandlerOfJob(c.getPlayer().getJobId())) {
-                slea.readInt(); // crc
-                slea.readInt(); // 00 00 00 00
-                int skillID = slea.readInt();
-                int slv = slea.readInt();
-                job.handleSkill(c, skillID, slv, slea);
+                inPacket.readInt(); // crc
+                inPacket.readInt(); // 00 00 00 00
+                int skillID = inPacket.readInt();
+                int slv = inPacket.readInt();
+                job.handleSkill(c, skillID, slv, inPacket);
             }
         }
     }

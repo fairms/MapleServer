@@ -16,10 +16,10 @@ import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.Position;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 
 import java.util.List;
 import java.util.Map;
@@ -38,16 +38,16 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
  * @date 11/29 22:00
  */
 public class InventoryHandler {
-    public static void handleChangeInvPos(MapleClient c, SeekableLittleEndianAccessor slea) {
+    public static void handleChangeInvPos(MapleClient c, InPacket inPacket) {
         MapleCharacter player = c.getPlayer();
-        player.setTick(slea.readInt());
-        InventoryType invType = InventoryType.getTypeById(slea.readByte());
+        player.setTick(inPacket.readInt());
+        InventoryType invType = InventoryType.getTypeById(inPacket.readByte());
         if (invType == null) {
             return;
         }
-        short oldPos = slea.readShort();
-        short newPos = slea.readShort();
-        short quantity = slea.readShort();
+        short oldPos = inPacket.readShort();
+        short newPos = inPacket.readShort();
+        short quantity = inPacket.readShort();
         InventoryType invTypeFrom = invType == EQUIP ? oldPos < 0 ? EQUIPPED : EQUIP : invType;
         InventoryType invTypeTo = invType == EQUIP ? newPos < 0 ? EQUIPPED : EQUIP : invType;
         Item item = player.getInventory(invTypeFrom).getItem(oldPos < 0 ? (short) -oldPos : oldPos);
@@ -102,14 +102,14 @@ public class InventoryHandler {
 
     }
 
-    public static void handleUseItem(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleUseItem(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        player.setTick(slea.readInt());
-        short pos = slea.readShort();
-        int itemId = slea.readInt();
+        player.setTick(inPacket.readInt());
+        short pos = inPacket.readShort();
+        int itemId = inPacket.readInt();
         Item item = player.getConsumeInventory().getItem(pos);
         if (item == null || item.getItemId() != itemId) {
             return;
@@ -124,8 +124,8 @@ public class InventoryHandler {
         }
     }
 
-    public static void handleEquipEnchanting(SeekableLittleEndianAccessor slea, MapleClient c) {
-        byte val = slea.readByte();
+    public static void handleEquipEnchanting(InPacket inPacket, MapleClient c) {
+        byte val = inPacket.readByte();
         EquipmentEnchantType type = EquipmentEnchantType.getByVal(val);
         MapleCharacter player = c.getPlayer();
         if (type == null) {
@@ -134,9 +134,9 @@ public class InventoryHandler {
         }
         switch (type) {
             case ScrollUpgradeRequest: {
-                player.setTick(slea.readInt());
-                short pos = slea.readShort();
-                int scrollId = slea.readInt();
+                player.setTick(inPacket.readInt());
+                short pos = inPacket.readShort();
+                int scrollId = inPacket.readInt();
                 Inventory iv = pos < 0 ? player.getEquippedInventory() : player.getEquipInventory();
                 Equip equip = (Equip) iv.getItem((short) (pos < 0 ? -pos : pos));
                 Equip prevEquip = equip.deepCopy();
@@ -154,7 +154,7 @@ public class InventoryHandler {
                 break;
             }
             case ScrollUpgradeDisplay:
-                int pos = slea.readInt();
+                int pos = inPacket.readInt();
                 Inventory iv = pos < 0 ? player.getEquippedInventory() : player.getEquipInventory();
                 Equip equip = (Equip) iv.getItem((short) (pos < 0 ? -pos : pos));
                 if (equip == null) {

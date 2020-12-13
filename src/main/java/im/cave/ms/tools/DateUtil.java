@@ -2,8 +2,6 @@ package im.cave.ms.tools;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -92,6 +90,12 @@ public class DateUtil {
         String time = new SimpleDateFormat("yyyy-MM-dd-HH").format(new Date()).replace("-", "");
         return Integer.parseInt(time);
     }
+
+    public static int getDate() {
+        String time = new SimpleDateFormat("yyyy-MM-dd").format(new Date()).replace("-", "");
+        return Integer.parseInt(time);
+    }
+
 
     public static int getTime(long realTimestamp) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmm");

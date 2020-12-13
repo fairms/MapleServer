@@ -11,8 +11,8 @@ import im.cave.ms.client.skill.Skill;
 import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.client.skill.SkillStat;
 import im.cave.ms.constants.JobConstants;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.provider.data.SkillData;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
 
 import java.util.Arrays;
 
@@ -39,8 +39,8 @@ public class Beginner extends MapleJob {
     }
 
     @Override
-    public void handleSkill(MapleClient c, int skillId, int skillLevel, SeekableLittleEndianAccessor slea) {
-        super.handleSkill(c, skillId, skillLevel, slea);
+    public void handleSkill(MapleClient c, int skillId, int skillLevel, InPacket inPacket) {
+        super.handleSkill(c, skillId, skillLevel, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillId);
         SkillInfo si = null;
@@ -53,7 +53,7 @@ public class Beginner extends MapleJob {
         }
     }
 
-    public void handleBuff(MapleClient c, SeekableLittleEndianAccessor slea, int skillId, int slv) {
+    public void handleBuff(MapleClient c, InPacket inPacket, int skillId, int slv) {
         MapleCharacter player = c.getPlayer();
         TemporaryStatManager tsm = player.getTemporaryStatManager();
         SkillInfo skillInfo = SkillData.getSkillInfo(skillId);

@@ -2,7 +2,6 @@ package im.cave.ms.net.server.channel.handler;
 
 import im.cave.ms.client.Job.MapleJob;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleKeyMap;
 import im.cave.ms.client.character.MapleStat;
@@ -21,21 +20,19 @@ import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
-import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.ServerMsgType;
+import im.cave.ms.net.netty.InPacket;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.PlayerPacket;
-import im.cave.ms.net.packet.QuestPacket;
 import im.cave.ms.net.packet.opcode.RecvOpcode;
 import im.cave.ms.net.packet.opcode.SendOpcode;
 import im.cave.ms.net.server.channel.MapleChannel;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,22 +56,22 @@ import static im.cave.ms.net.packet.opcode.RecvOpcode.RANGED_ATTACK;
 public class PlayerHandler {
     private static final Logger log = LoggerFactory.getLogger(PlayerHandler.class);
 
-    public static void handleHit(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleHit(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        slea.skip(4);
-        slea.skip(4);
-        player.setTick(slea.readInt());
-        byte type = slea.readByte();
-        byte element = slea.readByte();
-        int damage = slea.readInt();
+        inPacket.skip(4);
+        inPacket.skip(4);
+        player.setTick(inPacket.readInt());
+        byte type = inPacket.readByte();
+        byte element = inPacket.readByte();
+        int damage = inPacket.readInt();
         if (JobConstants.isGmJob(player.getJobId())) {
             return;
         }
-        slea.skip(2);
-        if (slea.available() >= 13) {
-            int objId = slea.readInt();
-            int mobId = slea.readInt();
-            slea.skip(4);   //objId
+        inPacket.skip(2);
+        if (inPacket.available() >= 13) {
+            int objId = inPacket.readInt();
+            int mobId = inPacket.readInt();
+            inPacket.skip(4);   //objId
         }
         HashMap<MapleStat, Long> stats = new HashMap<>();
         int curHp = (int) player.getStat(MapleStat.HP);
@@ -90,7 +87,7 @@ public class PlayerHandler {
         c.announce(MaplePacketCreator.updatePlayerStats(stats, player));
     }
 
-    public static void handleAttack(SeekableLittleEndianAccessor slea, MapleClient c, RecvOpcode opcode) {
+    public static void handleAttack(InPacket inPacket, MapleClient c, RecvOpcode opcode) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
@@ -98,89 +95,89 @@ public class PlayerHandler {
         AttackInfo attackInfo = new AttackInfo();
         attackInfo.attackHeader = opcode;
         if (opcode == RANGED_ATTACK) {
-            attackInfo.boxAttack = slea.readByte() != 0;
+            attackInfo.boxAttack = inPacket.readByte() != 0;
         }
-        attackInfo.fieldKey = slea.readByte(); //map key
-        byte mask = slea.readByte();
+        attackInfo.fieldKey = inPacket.readByte(); //map key
+        byte mask = inPacket.readByte();
         attackInfo.hits = (byte) (mask & 0xF);
         attackInfo.mobCount = (mask >>> 4) & 0xF;
-        slea.readInt(); //00 00 00 00
-        attackInfo.skillId = slea.readInt();
-        attackInfo.skillLevel = slea.readInt();
-        slea.readLong(); // crc
+        inPacket.readInt(); //00 00 00 00
+        attackInfo.skillId = inPacket.readInt();
+        attackInfo.skillLevel = inPacket.readInt();
+        inPacket.readLong(); // crc
         if (attackInfo.attackHeader != MAGIC_ATTACK) {
-            slea.readByte();//unk
+            inPacket.readByte();//unk
         }
-        slea.skip(18);
-        short pX = slea.readShort(); // int?
-        slea.readShort();
-        short pY = slea.readShort();
-        slea.readShort();
+        inPacket.skip(18);
+        short pX = inPacket.readShort(); // int?
+        inPacket.readShort();
+        short pY = inPacket.readShort();
+        inPacket.readShort();
 
-        slea.readInt(); // 00 00 00 00
-        slea.readInt(); // DF 2B 9E 22 固定的
-        slea.skip(3);
+        inPacket.readInt(); // 00 00 00 00
+        inPacket.readInt(); // DF 2B 9E 22 固定的
+        inPacket.skip(3);
         if (attackInfo.attackHeader == RANGED_ATTACK) {
-            slea.readInt();
-            slea.readByte();
+            inPacket.readInt();
+            inPacket.readByte();
         }
-        attackInfo.attackAction = slea.readByte();
-        attackInfo.direction = slea.readByte();
-        attackInfo.requestTime = slea.readInt();
-        attackInfo.attackActionType = slea.readByte(); // 武器类型
-        attackInfo.attackSpeed = slea.readByte();
-        player.setTick(slea.readInt());
-        slea.readInt();
+        attackInfo.attackAction = inPacket.readByte();
+        attackInfo.direction = inPacket.readByte();
+        attackInfo.requestTime = inPacket.readInt();
+        attackInfo.attackActionType = inPacket.readByte(); // 武器类型
+        attackInfo.attackSpeed = inPacket.readByte();
+        player.setTick(inPacket.readInt());
+        inPacket.readInt();
         if (attackInfo.attackHeader == CLOSE_RANGE_ATTACK) {
-            slea.readInt();
+            inPacket.readInt();
         }
         if (attackInfo.attackHeader == RANGED_ATTACK) {
-            slea.readInt(); // 00
-            slea.readShort(); // 00
-            slea.readByte(); // 30
-            attackInfo.rect = slea.readShortRect();
+            inPacket.readInt(); // 00
+            inPacket.readShort(); // 00
+            inPacket.readByte(); // 30
+            attackInfo.rect = inPacket.readShortRect();
         }
         for (int i = 0; i < attackInfo.mobCount; i++) {
             MobAttackInfo mobAttackInfo = new MobAttackInfo();
-            mobAttackInfo.objectId = slea.readInt();
-            mobAttackInfo.hitAction = slea.readByte();
-            slea.readShort();
-            mobAttackInfo.left = slea.readByte();
-            slea.readByte();
-            mobAttackInfo.templateID = slea.readInt();
-            mobAttackInfo.calcDamageStatIndex = slea.readByte();
-            mobAttackInfo.hitX = slea.readShort();
-            mobAttackInfo.hitY = slea.readShort();
-            slea.readShort(); //x
-            slea.readShort(); //y
+            mobAttackInfo.objectId = inPacket.readInt();
+            mobAttackInfo.hitAction = inPacket.readByte();
+            inPacket.readShort();
+            mobAttackInfo.left = inPacket.readByte();
+            inPacket.readByte();
+            mobAttackInfo.templateID = inPacket.readInt();
+            mobAttackInfo.calcDamageStatIndex = inPacket.readByte();
+            mobAttackInfo.hitX = inPacket.readShort();
+            mobAttackInfo.hitY = inPacket.readShort();
+            inPacket.readShort(); //x
+            inPacket.readShort(); //y
             if (attackInfo.attackHeader == MAGIC_ATTACK) {
-                mobAttackInfo.hpPerc = slea.readByte();
-                short unk = slea.readShort(); //unk
+                mobAttackInfo.hpPerc = inPacket.readByte();
+                short unk = inPacket.readShort(); //unk
             } else {
-                byte unk1 = slea.readByte();
-                byte unk2 = slea.readByte(); //1 正常 2 趴着
+                byte unk1 = inPacket.readByte();
+                byte unk2 = inPacket.readByte(); //1 正常 2 趴着
             }
-            slea.readLong(); // 00
+            inPacket.readLong(); // 00
             mobAttackInfo.damages = new long[attackInfo.hits];
             for (byte j = 0; j < attackInfo.hits; j++) {
-                mobAttackInfo.damages[j] = slea.readLong();
+                mobAttackInfo.damages[j] = inPacket.readLong();
             }
-            slea.readInt(); // 00 00 00 00
-            slea.readInt(); // crc E7 DA 52 9A
-            mobAttackInfo.type = slea.readByte();
+            inPacket.readInt(); // 00 00 00 00
+            inPacket.readInt(); // crc E7 DA 52 9A
+            mobAttackInfo.type = inPacket.readByte();
             if (mobAttackInfo.type == 1) {
-                mobAttackInfo.currentAnimationName = slea.readMapleAsciiString();
-                slea.readMapleAsciiString();
-                mobAttackInfo.animationDeltaL = slea.readInt();
-                mobAttackInfo.hitPartRunTimesSize = slea.readInt();
+                mobAttackInfo.currentAnimationName = inPacket.readMapleAsciiString();
+                inPacket.readMapleAsciiString();
+                mobAttackInfo.animationDeltaL = inPacket.readInt();
+                mobAttackInfo.hitPartRunTimesSize = inPacket.readInt();
                 mobAttackInfo.hitPartRunTimes = new String[mobAttackInfo.hitPartRunTimesSize];
                 for (int j = 0; j < mobAttackInfo.hitPartRunTimesSize; j++) {
-                    mobAttackInfo.hitPartRunTimes[j] = slea.readMapleAsciiString();
+                    mobAttackInfo.hitPartRunTimes[j] = inPacket.readMapleAsciiString();
                 }
             } else if (mobAttackInfo.type == 2) {
                 player.dropMessage("mobAttackInfo.type == 2 !!!");
             }
-            slea.skip(14); //unk pos
+            inPacket.skip(14); //unk pos
             attackInfo.mobAttackInfo.add(mobAttackInfo);
         }
         player.getJobHandler().handleAttack(c, attackInfo);
@@ -207,6 +204,15 @@ public class PlayerHandler {
                 mob.damage(player, totalDamage);
                 if (mob.getHp() <= 0) {
                     killedCount++;
+                    if (player.getLevel() - mob.getForcedMobStat().getLevel() <= 15) {
+                        player.addDailyMobKillCount();
+                    }
+                    if (System.currentTimeMillis() - player.getLastKill() < 10000) {
+                        player.comboKill(mob.getObjectId());
+                    } else {
+                        player.setCombo(0);
+                    }
+                    player.setLastKill(System.currentTimeMillis());
                 }
                 //todo handle reflect
             }
@@ -222,16 +228,16 @@ public class PlayerHandler {
         }
     }
 
-    public static void handlePlayerMove(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handlePlayerMove(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        slea.skip(1);    //unknown
-        slea.skip(4);    //map relate
-        slea.skip(4);    //tick
-        slea.skip(1);    //unknown
-        MovementInfo movementInfo = new MovementInfo(slea);
+        inPacket.skip(1);    //unknown
+        inPacket.skip(4);    //map relate
+        inPacket.skip(4);    //tick
+        inPacket.skip(1);    //unknown
+        MovementInfo movementInfo = new MovementInfo(inPacket);
         movementInfo.applyTo(player);
         player.getMap().sendMapObject(player);
         //        player.chatMessage(ChatType.Tip, player.getPosition().toString() + ", fh:" + player.getFoothold());
@@ -240,25 +246,25 @@ public class PlayerHandler {
     }
 
 
-    public static void handleWorldMapTransfer(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleWorldMapTransfer(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        player.setTick(slea.readInt());
-        int mapId = slea.readInt();
+        player.setTick(inPacket.readInt());
+        int mapId = inPacket.readInt();
         MapleChannel channel = c.getMapleChannel();
         MapleMap map = channel.getMap(mapId);
         player.changeMap(map, map.getDefaultPortal() == null ? 0 : map.getDefaultPortal().getId());
     }
 
-    public static void handleCharInfoReq(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleCharInfoReq(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        player.setTick(slea.readInt());
-        int charId = slea.readInt();
+        player.setTick(inPacket.readInt());
+        int charId = inPacket.readInt();
         MapleCharacter chr = player.getMap().getPlayer(charId);
         if (chr == null) {
             c.announce(ChannelPacket.serverMsg("角色不存在", ServerMsgType.ALERT));
@@ -270,8 +276,8 @@ public class PlayerHandler {
     /*
     取消椅子/城镇椅子
      */
-    public static void cancelChair(SeekableLittleEndianAccessor slea, MapleClient c) {
-        short id = slea.readShort();
+    public static void cancelChair(InPacket inPacket, MapleClient c) {
+        short id = inPacket.readShort();
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
@@ -280,23 +286,23 @@ public class PlayerHandler {
         c.announce(PlayerPacket.cancelChair(player.getId(), id));
     }
 
-    public static void handleUseChair(SeekableLittleEndianAccessor slea, MapleClient c) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeInt(SendOpcode.SIT_RESULT.getValue());
-        mplew.writeInt(0);
-        c.announce(mplew);
+    public static void handleUseChair(InPacket inPacket, MapleClient c) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeInt(SendOpcode.SIT_RESULT.getValue());
+        outPacket.writeInt(0);
+        c.announce(outPacket);
         c.announce(MaplePacketCreator.enableActions());
     }
 
-    public static void handlePickUp(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handlePickUp(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        byte mapKey = slea.readByte();
-        player.setTick(slea.readInt());
-        Position position = slea.readPos();
-        int dropId = slea.readInt();
+        byte mapKey = inPacket.readByte();
+        player.setTick(inPacket.readInt());
+        Position position = inPacket.readPos();
+        int dropId = inPacket.readInt();
         MapleMap map = player.getMap();
         MapleMapObj obj = map.getObj(dropId);
         if (obj instanceof Drop) {
@@ -321,14 +327,14 @@ public class PlayerHandler {
         c.announce(PlayerPacket.hiddenEffectEquips(player));
     }
 
-    public static void handleSkillUp(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleSkillUp(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        player.setTick(slea.readInt());
-        int skillId = slea.readInt();
-        int level = slea.readInt();
+        player.setTick(inPacket.readInt());
+        int skillId = inPacket.readInt();
+        int level = inPacket.readInt();
         if (level < 1) {
             c.close();
             return;
@@ -412,18 +418,18 @@ public class PlayerHandler {
 
 
     //自动回复
-    public static void handleChangeStatRequest(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleChangeStatRequest(InPacket inPacket, MapleClient c) {
 
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        player.setTick(slea.readInt());
-        long mask = slea.readLong();
+        player.setTick(inPacket.readInt());
+        long mask = inPacket.readLong();
         List<MapleStat> stats = MapleStat.getStatsByMask(mask);
         HashMap<MapleStat, Long> updatedStats = new HashMap<>();
         for (MapleStat stat : stats) {
-            updatedStats.put(stat, (long) slea.readShort());
+            updatedStats.put(stat, (long) inPacket.readShort());
         }
         if (updatedStats.containsKey(MapleStat.HP)) {
             player.heal(Math.toIntExact(updatedStats.get(MapleStat.HP)));
@@ -434,45 +440,45 @@ public class PlayerHandler {
 //        c.announce(MaplePacketCreator.updatePlayerStats(updatedStats, player));
     }
 
-    public static void handleChangeQuickslot(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleChangeQuickslot(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
         ArrayList<Integer> aKeys = new ArrayList<>();
-        if (slea.available() == QUICKSLOT_SIZE * 4) {
+        if (inPacket.available() == QUICKSLOT_SIZE * 4) {
             for (int i = 0; i < QUICKSLOT_SIZE - 1; i++) {
-                aKeys.add(slea.readInt());
+                aKeys.add(inPacket.readInt());
             }
         }
         player.setQuickslots(aKeys);
     }
 
-    public static void handleChangeKeyMap(SeekableLittleEndianAccessor slea, MapleClient c) {
-        slea.skip(4);
-        int size = slea.readInt();
+    public static void handleChangeKeyMap(InPacket inPacket, MapleClient c) {
+        inPacket.skip(4);
+        int size = inPacket.readInt();
         MapleKeyMap keyMap = c.getPlayer().getKeyMap();
         if (keyMap == null) {
             keyMap = new MapleKeyMap();
             keyMap.setDefault(false);
         }
         for (int i = 0; i < size; i++) {
-            int key = slea.readInt();
-            byte type = slea.readByte();
-            int action = slea.readInt();
+            int key = inPacket.readInt();
+            byte type = inPacket.readByte();
+            int action = inPacket.readInt();
             keyMap.putKeyBinding(key, type, action);
         }
         c.getPlayer().setKeyMap(keyMap);
     }
 
-    public static void handleUseSkill(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleUseSkill(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        slea.readInt(); //crc
-        int skillId = slea.readInt();
-        int skillLevel = slea.readInt();
+        inPacket.readInt(); //crc
+        int skillId = inPacket.readInt();
+        int skillLevel = inPacket.readInt();
         if (player.applyMpCon(skillId, skillLevel) && player.isSkillInCd(skillId)) {
             SkillInfo skillInfo = SkillData.getSkillInfo(skillId);
             MapleJob sourceJobHandler = player.getJobHandler();
@@ -482,30 +488,30 @@ public class PlayerHandler {
 //                    playxer.getRectAround(rect);
 //                }
                 //组队BUFF
-                sourceJobHandler.handleSkill(c, skillId, skillLevel, slea);
+                sourceJobHandler.handleSkill(c, skillId, skillLevel, inPacket);
 
             } else {
-                sourceJobHandler.handleSkill(c, skillId, skillLevel, slea);
+                sourceJobHandler.handleSkill(c, skillId, skillLevel, inPacket);
             }
 
         }
     }
 
-    public static void handleCancelBuff(SeekableLittleEndianAccessor slea, MapleClient c) {
-        int skillId = slea.readInt();
-        slea.readByte();
+    public static void handleCancelBuff(InPacket inPacket, MapleClient c) {
+        int skillId = inPacket.readInt();
+        inPacket.readByte();
         MapleCharacter player = c.getPlayer();
         TemporaryStatManager tsm = player.getTemporaryStatManager();
         tsm.removeStatsBySkill(skillId);
     }
 
-    public static void handleAPUpdateRequest(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleAPUpdateRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null || player.getRemainingAp() <= 0) {
             return;
         }
-        player.setTick(slea.readInt());
-        short stat = slea.readShort();
+        player.setTick(inPacket.readInt());
+        short stat = inPacket.readShort();
         MapleStat charStat = MapleStat.getByValue(stat);
         if (charStat == null) {
             return;
@@ -522,27 +528,27 @@ public class PlayerHandler {
         c.announce(MaplePacketCreator.updatePlayerStats(stats, true, player));
     }
 
-    public static void handleAPMassUpdateRequest(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handleAPMassUpdateRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null || player.getRemainingAp() <= 0) {
             return;
         }
-        player.setTick(slea.readInt());
-        int type = slea.readInt();
+        player.setTick(inPacket.readInt());
+        int type = inPacket.readInt();
         int amount;
         MapleStat charStat = null;
         if (type == 1) {
-            charStat = MapleStat.getByValue(slea.readLong());
+            charStat = MapleStat.getByValue(inPacket.readLong());
         } else if (type == 2) {
-            slea.readInt();
-            slea.readInt();
-            slea.readInt();
-            charStat = MapleStat.getByValue(slea.readLong());
+            inPacket.readInt();
+            inPacket.readInt();
+            inPacket.readInt();
+            charStat = MapleStat.getByValue(inPacket.readLong());
         }
         if (charStat == null) {
             return;
         }
-        amount = slea.readInt();
+        amount = inPacket.readInt();
         int addStat = amount;
         if (player.getRemainingAp() < amount) {
             return;

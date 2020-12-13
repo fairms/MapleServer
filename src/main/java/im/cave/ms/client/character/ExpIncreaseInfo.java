@@ -1,8 +1,39 @@
 package im.cave.ms.client.character;
 
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
-import static im.cave.ms.enums.ExpIncreaseInfoFlags.*;
+import im.cave.ms.net.netty.OutPacket;
+
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.AswanWinnerBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.BaseAddExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.BloodAllianceBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.BoomUpEventBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.ExpByIncExpR;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.ExpByIncPQExpR;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.FieldValueBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.FreezeHotEventBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.IndieBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.InstallItemBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.ItemBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.LiveEventBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.MobKillBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.PartyBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.PartyBonusPercentage;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.PlusExpBuffBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.PremiumIPBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.PsdBonusExpRate;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.RainbowWeekEventBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.RelaxBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.RestField;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.SelectedMobBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.Unk10000000;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.Unk1000000000;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.Unk20000000;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.Unk40000000;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.Unk8000000;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.Unk80000000;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.UserHPRateBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.ValuePackBonusExp;
+import static im.cave.ms.enums.ExpIncreaseInfoFlags.WeddingBonusExp;
 
 /**
  * Created on 1/25/2018.
@@ -369,111 +400,111 @@ public class ExpIncreaseInfo {
         return mask;
     }
 
-    public void encode(MaplePacketLittleEndianWriter mplew) {
-        mplew.writeBool(isLastHit());
-        mplew.writeLong(getIncEXP());
-        mplew.writeBool(isOnQuest());
+    public void encode(OutPacket outPacket) {
+        outPacket.writeBool(isLastHit());
+        outPacket.writeLong(getIncEXP());
+        outPacket.writeBool(isOnQuest());
         long mask = getMask();
-        mplew.writeLong(mask);
+        outPacket.writeLong(mask);
         if ((mask & SelectedMobBonusExp.getVal()) != 0) {
-            mplew.writeInt(getSelectedMobBonusExp());
+            outPacket.writeInt(getSelectedMobBonusExp());
         }
         if ((mask & PartyBonusPercentage.getVal()) != 0) {
-            mplew.write(getPartyBonusPercentage());
+            outPacket.write(getPartyBonusPercentage());
         }
         if (isOnQuest()) {
-            mplew.write(getQuestBonusRate());
+            outPacket.write(getQuestBonusRate());
         }
         if (getQuestBonusRemainCount() > 0) {
-            mplew.write(getQuestBonusRemainCount());
+            outPacket.write(getQuestBonusRemainCount());
         }
         if ((mask & WeddingBonusExp.getVal()) != 0) {
-            mplew.writeInt(getWeddingBonusExp());
+            outPacket.writeInt(getWeddingBonusExp());
         }
         if ((mask & PartyBonusExp.getVal()) != 0) {
-            mplew.writeInt(getPartyBonusExp());
+            outPacket.writeInt(getPartyBonusExp());
         }
         if ((mask & ItemBonusExp.getVal()) != 0) {
-            mplew.writeInt(getItemBonusExp());
+            outPacket.writeInt(getItemBonusExp());
         }
         if ((mask & PremiumIPBonusExp.getVal()) != 0) {
-            mplew.writeInt(getPremiumIPBonusExp());
+            outPacket.writeInt(getPremiumIPBonusExp());
         }
         if ((mask & RainbowWeekEventBonusExp.getVal()) != 0) {
-            mplew.writeInt(getRainbowWeekEventBonusExp());
+            outPacket.writeInt(getRainbowWeekEventBonusExp());
         }
         if ((mask & BoomUpEventBonusExp.getVal()) != 0) {
-            mplew.writeInt(getBoomupEventBonusExp());
+            outPacket.writeInt(getBoomupEventBonusExp());
         }
         if ((mask & PlusExpBuffBonusExp.getVal()) != 0) {
-            mplew.writeInt(getPlusExpBuffBonusExp());
+            outPacket.writeInt(getPlusExpBuffBonusExp());
         }
         if ((mask & PsdBonusExpRate.getVal()) != 0) {
-            mplew.writeInt(getPsdBonusExpRate());
+            outPacket.writeInt(getPsdBonusExpRate());
         }
         if ((mask & IndieBonusExp.getVal()) != 0) {
-            mplew.writeInt(getIndieBonusExp());
+            outPacket.writeInt(getIndieBonusExp());
         }
         if ((mask & RelaxBonusExp.getVal()) != 0) {
-            mplew.writeInt(getRelaxBonusExp());
+            outPacket.writeInt(getRelaxBonusExp());
         }
         if ((mask & InstallItemBonusExp.getVal()) != 0) {
-            mplew.writeInt(getInstallItemBonusExp());
+            outPacket.writeInt(getInstallItemBonusExp());
         }
         //if ((mask & AswanWinnerBonusExp.getVal()) != 0) {
-        //    mplew.writeInt(getAswanWinnerBonusExp());
+        //    outPacket.writeInt(getAswanWinnerBonusExp());
         //}
         if ((mask & ExpByIncExpR.getVal()) != 0) {
-            mplew.writeInt(getExpByIncExpR());
+            outPacket.writeInt(getExpByIncExpR());
         }
         if ((mask & ValuePackBonusExp.getVal()) != 0) {
-            mplew.writeInt(getValuePackBonusExp());
+            outPacket.writeInt(getValuePackBonusExp());
         }
         if ((mask & ExpByIncPQExpR.getVal()) != 0) {
-            mplew.writeInt(getExpByIncPQExpR());
+            outPacket.writeInt(getExpByIncPQExpR());
         }
         if ((mask & BaseAddExp.getVal()) != 0) {
-            mplew.writeInt(getBaseAddExp());
+            outPacket.writeInt(getBaseAddExp());
         }
         if ((mask & BloodAllianceBonusExp.getVal()) != 0) {
-            mplew.writeInt(getBloodAllianceBonusExp());
+            outPacket.writeInt(getBloodAllianceBonusExp());
         }
         if ((mask & FreezeHotEventBonusExp.getVal()) != 0) {
-            mplew.writeInt(getFreezeHotEventBonusExp());
+            outPacket.writeInt(getFreezeHotEventBonusExp());
         }
         if ((mask & RestField.getVal()) != 0) {
-            mplew.writeInt(getRestFieldBonusExp());
-            mplew.writeInt(getRestFieldExpRate());
+            outPacket.writeInt(getRestFieldBonusExp());
+            outPacket.writeInt(getRestFieldExpRate());
         }
         if ((mask & UserHPRateBonusExp.getVal()) != 0) {
-            mplew.writeInt(getUserHPRateBonusExp());
+            outPacket.writeInt(getUserHPRateBonusExp());
         }
         if ((mask & FieldValueBonusExp.getVal()) != 0) {
-            mplew.writeInt(getFieldValueBonusExp());
+            outPacket.writeInt(getFieldValueBonusExp());
         }
         if ((mask & MobKillBonusExp.getVal()) != 0) {
-            mplew.writeInt(getMobKillBonusExp());
+            outPacket.writeInt(getMobKillBonusExp());
         }
         if ((mask & LiveEventBonusExp.getVal()) != 0) {
-            mplew.writeInt(getLiveEventBonusExp());
+            outPacket.writeInt(getLiveEventBonusExp());
         }
         if ((mask & Unk8000000.getVal()) != 0) {
-            mplew.writeInt(0);
+            outPacket.writeInt(0);
         }
         if ((mask & Unk10000000.getVal()) != 0) {
-            mplew.writeInt(0);
+            outPacket.writeInt(0);
         }
         if ((mask & Unk20000000.getVal()) != 0) {
-            mplew.writeInt(0);
+            outPacket.writeInt(0);
         }
         if ((mask & Unk40000000.getVal()) != 0) {
-            mplew.writeInt(0);
+            outPacket.writeInt(0);
         }
         if ((mask & Unk80000000.getVal()) != 0) {
-            mplew.write(0);
+            outPacket.write(0);
         }
         if ((mask & Unk1000000000.getVal()) != 0) {
-            mplew.writeInt(0);
+            outPacket.writeInt(0);
         }
     }
 }

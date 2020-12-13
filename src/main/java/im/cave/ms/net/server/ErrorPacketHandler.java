@@ -1,6 +1,7 @@
 package im.cave.ms.net.server;
 
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+
+import im.cave.ms.net.netty.InPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,12 +14,12 @@ import org.slf4j.LoggerFactory;
 public class ErrorPacketHandler {
     private static final Logger log = LoggerFactory.getLogger(ErrorPacketHandler.class);
 
-    public static void handlePacket(SeekableLittleEndianAccessor slea) {
-        slea.skip(6);
-        short packetLength = slea.readShort();
-        slea.skip(4);
-        int op = slea.readShort();
-        byte[] packet = slea.read(packetLength - 6);
+    public static void handlePacket(InPacket inPacket) {
+        inPacket.skip(6);
+        short packetLength = inPacket.readShort();
+        inPacket.skip(4);
+        int op = inPacket.readShort();
+        byte[] packet = inPacket.read(packetLength - 6);
         log.error("Send error opcode {} packet {} ", Integer.toHexString(op), packet);
     }
 }

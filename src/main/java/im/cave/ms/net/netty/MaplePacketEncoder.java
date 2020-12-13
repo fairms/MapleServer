@@ -3,7 +3,6 @@ package im.cave.ms.net.netty;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.net.crypto.AESCipher;
 import im.cave.ms.net.crypto.CIGCipher;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -20,16 +19,16 @@ import static im.cave.ms.constants.ServerConstants.VERSION;
  * @Package im.cave.ms.connection.netty
  * @date 11/19 19:32
  */
-public class MaplePacketEncoder extends MessageToByteEncoder<MaplePacketLittleEndianWriter> {
+public class MaplePacketEncoder extends MessageToByteEncoder<OutPacket> {
     private static final Logger log = LoggerFactory.getLogger(MaplePacketEncoder.class);
     private static final int uSeqBase = (short) ((((0xFFFF - VERSION) >> 8) & 0xFF) | (((0xFFFF - VERSION) << 8) & 0xFF00));
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, MaplePacketLittleEndianWriter mplew, ByteBuf byteBuf) {
-        byte[] data = mplew.getPacket();
+    protected void encode(ChannelHandlerContext ctx, OutPacket outPacket, ByteBuf byteBuf) {
+        byte[] data = outPacket.getData();
         MapleClient client = ctx.channel().attr(CLIENT_KEY).get();
         if (client != null) {
-            log.debug("[Send]\t|{}", mplew);
+            log.debug("[Send]\t|{}", outPacket);
             int uSeqSend = client.getSendIv();
             short uDataLen = (short) (((data.length << 8) & 0xFF00) | (data.length >>> 8));
             short uRawSeq = (short) ((((uSeqSend >> 24) & 0xFF) | (((uSeqSend >> 16) << 8) & 0xFF00)) ^ uSeqBase);
@@ -49,7 +48,7 @@ public class MaplePacketEncoder extends MessageToByteEncoder<MaplePacketLittleEn
             byteBuf.writeShort(uDataLen);
             byteBuf.writeBytes(data);
         } else {
-            log.debug("[PacketEncoder] | Plain sending {}", mplew);
+            log.debug("[PacketEncoder] | Plain sending {}", outPacket);
             byteBuf.writeBytes(data);
         }
     }

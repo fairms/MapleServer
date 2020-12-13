@@ -3,8 +3,8 @@ package im.cave.ms.net.server.channel.handler;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Portal;
-import im.cave.ms.scripting.portal.PortalScriptManager;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+import im.cave.ms.net.netty.InPacket;
+
 
 /**
  * @author fair
@@ -13,15 +13,15 @@ import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
  * @date 11/28 15:29
  */
 public class EnterPortalHandler {
-    public static void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void handlePacket(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        if (slea.available() != 0) {
-            byte type = slea.readByte();
-            int targetId = slea.readInt();
-            String portalName = slea.readMapleAsciiString();
+        if (inPacket.available() != 0) {
+            byte type = inPacket.readByte();
+            int targetId = inPacket.readInt();
+            String portalName = inPacket.readMapleAsciiString();
             if (portalName != null && !"".equals(portalName)) {
                 Portal portal = player.getMap().getPortal(portalName);
                 portal.enterPortal(c);

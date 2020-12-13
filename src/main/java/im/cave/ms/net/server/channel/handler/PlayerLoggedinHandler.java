@@ -5,13 +5,14 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.MapleSignIn;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
+import im.cave.ms.net.netty.InPacket;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.PlayerPacket;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.net.server.channel.MapleChannel;
 import im.cave.ms.tools.Pair;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+
 
 /**
  * @author fair
@@ -21,10 +22,10 @@ import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
  */
 public class PlayerLoggedinHandler {
 
-    public static void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        int worldId = slea.readInt();
-        int charId = slea.readInt();
-        byte[] machineId = slea.read(16);
+    public static void handlePacket(InPacket inPacket, MapleClient c) {
+        int worldId = inPacket.readInt();
+        int charId = inPacket.readInt();
+        byte[] machineId = inPacket.read(16);
         Pair<Byte, MapleClient> transInfo = Server.getInstance().getClientTransInfo(charId);
         if (transInfo == null) {
             c.close();

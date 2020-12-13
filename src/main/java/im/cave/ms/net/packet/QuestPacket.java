@@ -4,8 +4,9 @@ import im.cave.ms.client.quest.Quest;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.QuestStatus;
 import im.cave.ms.enums.QuestType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.opcode.SendOpcode;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+
 
 /**
  * @author fair
@@ -14,36 +15,36 @@ import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
  * @date 11/20 21:59
  */
 public class QuestPacket {
-    public static MaplePacketLittleEndianWriter questRecordMessage(Quest quest) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        mplew.write(MessageType.QUEST_RECORD_MESSAGE.getVal());
-        mplew.writeInt(quest.getQrKey());
+    public static OutPacket questRecordMessage(Quest quest) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        outPacket.write(MessageType.QUEST_RECORD_MESSAGE.getVal());
+        outPacket.writeInt(quest.getQrKey());
         QuestStatus state = quest.getStatus();
-        mplew.write(state.getVal());
+        outPacket.write(state.getVal());
         switch (state) {
             case NotStarted:
-                mplew.write(0); // If quest is completed, but should never be true?
+                outPacket.write(0); // If quest is completed, but should never be true?
                 break;
             case Started:
-                mplew.writeMapleAsciiString(quest.getQRValue());
+                outPacket.writeMapleAsciiString(quest.getQRValue());
                 break;
             case Completed:
-                mplew.writeLong(quest.getCompletedTime());
+                outPacket.writeLong(quest.getCompletedTime());
                 break;
         }
-        return mplew;
+        return outPacket;
     }
 
-    public static MaplePacketLittleEndianWriter questResult(QuestType type, int questId, int npcTemplateId, int secondQuestID, boolean startNavigation) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.QUEST_RESULT.getValue());
-        mplew.write(type.getVal());
-        mplew.writeInt(questId);
-        mplew.writeInt(npcTemplateId);
-        mplew.writeInt(secondQuestID);
-        mplew.writeBool(startNavigation);
-        return mplew;
+    public static OutPacket questResult(QuestType type, int questId, int npcTemplateId, int secondQuestID, boolean startNavigation) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.QUEST_RESULT.getValue());
+        outPacket.write(type.getVal());
+        outPacket.writeInt(questId);
+        outPacket.writeInt(npcTemplateId);
+        outPacket.writeInt(secondQuestID);
+        outPacket.writeBool(startNavigation);
+        return outPacket;
     }
 
 }

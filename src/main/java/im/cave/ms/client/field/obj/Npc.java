@@ -1,11 +1,10 @@
 package im.cave.ms.client.field.obj;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.net.packet.NpcPacket;
 import im.cave.ms.tools.Rect;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -60,19 +59,19 @@ public class Npc extends MapleMapObj {
     }
 
 
-    public void encode(MaplePacketLittleEndianWriter mplew) {
-        mplew.writeShort(getPosition().getX());
-        mplew.writeShort(getPosition().getY());
-        mplew.writeBool(isMove());
-        mplew.writeBool(!isFlip());
-        mplew.writeShort(getFh());
-        mplew.writeShort(getRx0());
-        mplew.writeShort(getRx1());
-        mplew.writeBool(!isHide());
+    public void encode(OutPacket outPacket) {
+        outPacket.writeShort(getPosition().getX());
+        outPacket.writeShort(getPosition().getY());
+        outPacket.writeBool(isMove());
+        outPacket.writeBool(!isFlip());
+        outPacket.writeShort(getFh());
+        outPacket.writeShort(getRx0());
+        outPacket.writeShort(getRx1());
+        outPacket.writeBool(!isHide());
         //todo
-        mplew.writeZeroBytes(9);
-        mplew.writeInt(-1);
-        mplew.writeZeroBytes(12);
+        outPacket.writeZeroBytes(9);
+        outPacket.writeInt(-1);
+        outPacket.writeZeroBytes(12);
     }
 
     public Npc deepCopy() {

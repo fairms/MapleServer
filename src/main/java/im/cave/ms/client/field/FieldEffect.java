@@ -3,8 +3,9 @@ package im.cave.ms.client.field;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.enums.FieldEffectType;
 import im.cave.ms.enums.GreyFieldType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.tools.Util;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+
 
 /**
  * Created on 3/26/2018.
@@ -25,147 +26,147 @@ public class FieldEffect {
     private int arg8;
     private int arg9;
 
-    public void encode(MaplePacketLittleEndianWriter mplew) {
-        mplew.write(getFieldEffectType().getVal());
+    public void encode(OutPacket outPacket) {
+        outPacket.write(getFieldEffectType().getVal());
         switch (getFieldEffectType()) {
             case Summon:
-                mplew.write(getArg1());// nType
-                mplew.writeInt(getArg2());// x1
-                mplew.writeInt(getArg3());// y1
+                outPacket.write(getArg1());// nType
+                outPacket.writeInt(getArg2());// x1
+                outPacket.writeInt(getArg3());// y1
                 break;
             case Tremble:
-                mplew.write(getArg1());
-                mplew.writeInt(getArg2());
-                mplew.writeShort(getArg3());
+                outPacket.write(getArg1());
+                outPacket.writeInt(getArg2());
+                outPacket.writeShort(getArg3());
                 break;
             case ObjectStateByString:
-                mplew.writeMapleAsciiString(getString());// sName
+                outPacket.writeMapleAsciiString(getString());// sName
                 break;
             case DisableEffectObject:
-                mplew.writeMapleAsciiString(getString());// sName
-                mplew.write(getArg1());    // bCheckPreWord
+                outPacket.writeMapleAsciiString(getString());// sName
+                outPacket.write(getArg1());    // bCheckPreWord
                 break;
             case Screen:
-                mplew.writeMapleAsciiString(getString());// String
+                outPacket.writeMapleAsciiString(getString());// String
                 break;
             case PlaySound:
-                mplew.writeMapleAsciiString(getString());// Sound
-                mplew.writeInt(getArg1());// Volume
+                outPacket.writeMapleAsciiString(getString());// Sound
+                outPacket.writeInt(getArg1());// Volume
                 break;
             case MobHPTag:
-                mplew.writeInt(getArg1());     // Mob Template ID
-                mplew.writeLong(getArg2());     // Mob HP
-                mplew.writeLong(getArg3());     // Mob max HP
-                mplew.write(getArg4());    // HP Tag Colour
-                mplew.write(getArg5());    // HP Tab BG Colour
+                outPacket.writeInt(getArg1());     // Mob Template ID
+                outPacket.writeLong(getArg2());     // Mob HP
+                outPacket.writeLong(getArg3());     // Mob max HP
+                outPacket.write(getArg4());    // HP Tag Colour
+                outPacket.write(getArg5());    // HP Tab BG Colour
                 break;
             case ChangeBGM:
-                mplew.writeMapleAsciiString(getString());// sound
-                mplew.writeInt(getArg1());// start time
-                mplew.writeInt(getArg2());// unk
+                outPacket.writeMapleAsciiString(getString());// sound
+                outPacket.writeInt(getArg1());// start time
+                outPacket.writeInt(getArg2());// unk
                 break;
             case BGMVolumeOnly:
-                mplew.write(getArg1());// m_bBGMVolumeOnly
+                outPacket.write(getArg1());// m_bBGMVolumeOnly
                 break;
             case SetBGMVolume:
-                mplew.writeInt(getArg1());// m_uBGMVolume
-                mplew.writeInt(getArg2());// uFadingDuration
+                outPacket.writeInt(getArg1());// m_uBGMVolume
+                outPacket.writeInt(getArg2());// uFadingDuration
                 break;
             case RewardRoulette:
-                mplew.writeInt(getArg1());     // Reward Job ID
-                mplew.writeInt(getArg2());     // Reward Part ID
-                mplew.writeInt(getArg3());     // Reward Level ID
+                outPacket.writeInt(getArg1());     // Reward Job ID
+                outPacket.writeInt(getArg2());     // Reward Part ID
+                outPacket.writeInt(getArg3());     // Reward Level ID
                 break;
             case TopScreen:
-                mplew.writeMapleAsciiString(getString());// Directory to the Effect
+                outPacket.writeMapleAsciiString(getString());// Directory to the Effect
                 break;
             case BackScreen:
-                mplew.writeMapleAsciiString(getString());// Directory to the Effect
-                mplew.writeInt(getArg1());     // Delay in ms
+                outPacket.writeMapleAsciiString(getString());// Directory to the Effect
+                outPacket.writeInt(getArg1());     // Delay in ms
                 break;
             case TopScreenEffect:                   // Goes over other effects
-                mplew.writeMapleAsciiString(getString());// Directory to the Effect
-                mplew.writeInt(getArg1());     // Delay in ms
+                outPacket.writeMapleAsciiString(getString());// Directory to the Effect
+                outPacket.writeInt(getArg1());     // Delay in ms
                 break;
             case ScreenEffect:
-                mplew.writeMapleAsciiString(getString());// Path to the Effect
-                mplew.writeInt(getArg1());     // Delay in ms
+                outPacket.writeMapleAsciiString(getString());// Path to the Effect
+                outPacket.writeInt(getArg1());     // Delay in ms
                 break;
             case ScreenFloatingEffect:
-                mplew.writeMapleAsciiString(getString());
-                mplew.write(getArg1());
-                mplew.write(getArg2());
+                outPacket.writeMapleAsciiString(getString());
+                outPacket.write(getArg1());
+                outPacket.write(getArg2());
                 break;
             case Blind:
-                mplew.write(getArg1());// bEnable
-                mplew.writeShort(getArg2());// x
-                mplew.writeShort(getArg3());
-                mplew.writeShort(getArg4());
-                mplew.writeShort(getArg5());
-                mplew.writeInt(getArg6());
-                mplew.writeInt(getArg7());
+                outPacket.write(getArg1());// bEnable
+                outPacket.writeShort(getArg2());// x
+                outPacket.writeShort(getArg3());
+                outPacket.writeShort(getArg4());
+                outPacket.writeShort(getArg5());
+                outPacket.writeInt(getArg6());
+                outPacket.writeInt(getArg7());
                 break;
             case SetGrey:
-                mplew.writeShort(getArg1());   // GreyField Type
-                mplew.write(getArg2());    // boolean: ON/OFF
+                outPacket.writeShort(getArg1());   // GreyField Type
+                outPacket.write(getArg2());    // boolean: ON/OFF
                 break;
             case OnOffLayer:
-                mplew.write(getArg1());// type
-                mplew.writeInt(getArg2());
-                mplew.writeMapleAsciiString(getString());
+                outPacket.write(getArg1());// type
+                outPacket.writeInt(getArg2());
+                outPacket.writeMapleAsciiString(getString());
                 if (getArg1() == 0) {
-                    mplew.writeInt(getArg3());
-                    mplew.writeInt(getArg4());
-                    mplew.writeInt(getArg5());
-                    mplew.writeMapleAsciiString(getString2());
-                    mplew.writeInt(getArg6());
-                    mplew.write(getArg7());
-                    mplew.writeInt(getArg8());
-                    mplew.write(getArg9());
+                    outPacket.writeInt(getArg3());
+                    outPacket.writeInt(getArg4());
+                    outPacket.writeInt(getArg5());
+                    outPacket.writeMapleAsciiString(getString2());
+                    outPacket.writeInt(getArg6());
+                    outPacket.write(getArg7());
+                    outPacket.writeInt(getArg8());
+                    outPacket.write(getArg9());
                 } else if (getArg1() == 1) {
-                    mplew.writeInt(getArg3());
-                    mplew.writeInt(getArg4());
+                    outPacket.writeInt(getArg3());
+                    outPacket.writeInt(getArg4());
                 } else if (getArg1() == 2) {
-                    mplew.write(getArg3());
+                    outPacket.write(getArg3());
                 }
                 break;
             case OverlapScreen:                    // Takes a Snapshot of the Client and slowly fades away
-                mplew.writeInt(getArg1());     // Duration of the overlap (ms)
+                outPacket.writeInt(getArg1());     // Duration of the overlap (ms)
                 break;
             case OverlapScreenDetail:
-                mplew.writeInt(getArg1());     // Fade In
-                mplew.writeInt(getArg2());     // wait time
-                mplew.writeInt(getArg3());     // Fade Out
-                mplew.write(getArg4());    // some boolean
+                outPacket.writeInt(getArg1());     // Fade In
+                outPacket.writeInt(getArg2());     // wait time
+                outPacket.writeInt(getArg3());     // Fade Out
+                outPacket.write(getArg4());    // some boolean
                 break;
             case RemoveOverlapScreen:
-                mplew.writeInt(getArg1());     // Fade Out duration
+                outPacket.writeInt(getArg1());     // Fade Out duration
                 break;
             case ChangeColor:
-                mplew.writeShort(getArg1());   // GreyField Type (but doesn't contain Reactor
-                mplew.writeShort(getArg2());   // red      (250 is normal value)
-                mplew.writeShort(getArg3());   // green    (250 is normal value)
-                mplew.writeShort(getArg4());   // blue     (250 is normal value)
-                mplew.writeInt(getArg5());     // time in ms, that it takes to transition from old colours to the new colours
-                mplew.writeInt(0);          // is in queue
+                outPacket.writeShort(getArg1());   // GreyField Type (but doesn't contain Reactor
+                outPacket.writeShort(getArg2());   // red      (250 is normal value)
+                outPacket.writeShort(getArg3());   // green    (250 is normal value)
+                outPacket.writeShort(getArg4());   // blue     (250 is normal value)
+                outPacket.writeInt(getArg5());     // time in ms, that it takes to transition from old colours to the new colours
+                outPacket.writeInt(0);          // is in queue
                 if (getArg1() == 4) {
-                    mplew.writeInt(0);
+                    outPacket.writeInt(0);
                 }
                 break;
             case StageClearExpOnly:
-                mplew.writeInt(getArg1());     // Exp Number given
+                outPacket.writeInt(getArg1());     // Exp Number given
                 break;
             case SpineScreen:
-                mplew.write(getArg1());// bBinary
-                mplew.write(getArg2());// bLoop
-                mplew.write(getArg3());// bPostRender
-                mplew.writeInt(getArg4());// tEndDelay
-                mplew.writeMapleAsciiString(getString());// sPath
-                mplew.writeMapleAsciiString(getString2());// Animation Name
+                outPacket.write(getArg1());// bBinary
+                outPacket.write(getArg2());// bLoop
+                outPacket.write(getArg3());// bPostRender
+                outPacket.writeInt(getArg4());// tEndDelay
+                outPacket.writeMapleAsciiString(getString());// sPath
+                outPacket.writeMapleAsciiString(getString2());// Animation Name
 
-                mplew.writeBool(getString3() != null);
+                outPacket.writeBool(getString3() != null);
                 if (getString3() != null) {
-                    mplew.writeMapleAsciiString(getString3());// sKeyName
+                    outPacket.writeMapleAsciiString(getString3());// sKeyName
                 }
                 break;
             case OffSpineScreen:
@@ -175,12 +176,12 @@ public class FieldEffect {
                     OffSpineScr_Alpha = 0x1,
                     OffSpineScr_Ani = 0x2,
                 };*/
-                mplew.writeMapleAsciiString(getString());// pLayer
-                mplew.writeInt(getArg1());// nType
+                outPacket.writeMapleAsciiString(getString());// pLayer
+                outPacket.writeInt(getArg1());// nType
                 if (getArg1() == 1) {// PROCESS_HITPARTS
-                    mplew.writeInt(getArg2());// tAlpha
+                    outPacket.writeInt(getArg2());// tAlpha
                 } else if (getArg1() == 2) {// PROCESS_SKELETON
-                    mplew.writeMapleAsciiString(getString2());// Animation Name
+                    outPacket.writeMapleAsciiString(getString2());// Animation Name
                 }
                 break;
         }

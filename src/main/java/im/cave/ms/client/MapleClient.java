@@ -4,16 +4,14 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.enums.ServerType;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.LoginPacket;
 import im.cave.ms.net.server.Server;
 import im.cave.ms.net.server.channel.MapleChannel;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
-import jdk.nashorn.api.scripting.NashornScriptEngine;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,8 +157,8 @@ public class MapleClient {
         return Integer.parseInt(ch.localAddress().toString().split(":")[1]);
     }
 
-    public void announce(MaplePacketLittleEndianWriter mplew) {
-        ch.writeAndFlush(mplew);
+    public void announce(OutPacket outPacket) {
+        ch.writeAndFlush(outPacket);
     }
 
     public void pongReceived() {

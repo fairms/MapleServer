@@ -1,6 +1,7 @@
 package im.cave.ms.net.server.cashshop;
 
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
+
+import im.cave.ms.net.netty.InPacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * @Package im.cave.ms.net.server.cashshop
  * @date 12/10 22:56
  */
-public class CashShopHandler extends SimpleChannelInboundHandler<SeekableLittleEndianAccessor> {
+public class CashShopHandler extends SimpleChannelInboundHandler<InPacket> {
 
     private static final Logger log = LoggerFactory.getLogger("Channel");
 
@@ -23,7 +24,7 @@ public class CashShopHandler extends SimpleChannelInboundHandler<SeekableLittleE
     }
     
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, SeekableLittleEndianAccessor msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, InPacket msg) throws Exception {
 
     }
 }

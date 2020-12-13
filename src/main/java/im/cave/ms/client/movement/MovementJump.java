@@ -2,49 +2,51 @@ package im.cave.ms.client.movement;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.obj.MapleMapObj;
+import im.cave.ms.net.netty.InPacket;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.tools.Position;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
+
+
 
 /**
  * Created on 1/2/2018.
  */
 public class MovementJump extends MovementBase {
 
-    public MovementJump(SeekableLittleEndianAccessor slea, byte command) {
+    public MovementJump(InPacket inPacket, byte command) {
         super();
         this.command = command;
 
-        short vx = slea.readShort();
-        short vy = slea.readShort();
+        short vx = inPacket.readShort();
+        short vy = inPacket.readShort();
         position = new Position(vx, vy);
 
         if (command == 21 || command == 22) {
-            footStart = slea.readShort();
+            footStart = inPacket.readShort();
         }
         if (command == 60) {
-            short xoffset = slea.readShort();
-            short yoffset = slea.readShort();
+            short xoffset = inPacket.readShort();
+            short yoffset = inPacket.readShort();
             offset = new Position(xoffset, yoffset);
         }
-        moveAction = slea.readByte();
-        elapse = slea.readShort();
-        forcedStop = slea.readByte();
+        moveAction = inPacket.readByte();
+        elapse = inPacket.readShort();
+        forcedStop = inPacket.readByte();
     }
 
     @Override
-    public void encode(MaplePacketLittleEndianWriter mplew) {
-        mplew.write(getCommand());
-        mplew.writePos(getVPosition());
+    public void encode(OutPacket outPacket) {
+        outPacket.write(getCommand());
+        outPacket.writePos(getVPosition());
         if (getCommand() == 21 || getCommand() == 22) {
-            mplew.writeShort(getFootStart());
+            outPacket.writeShort(getFootStart());
         }
         if (getCommand() == 60) {
-            mplew.writePos(getOffset());
+            outPacket.writePos(getOffset());
         }
-        mplew.write(getMoveAction());
-        mplew.writeShort(getDuration());
-        mplew.write(getForcedStop());
+        outPacket.write(getMoveAction());
+        outPacket.writeShort(getDuration());
+        outPacket.write(getForcedStop());
     }
 
     @Override

@@ -1,9 +1,9 @@
 package im.cave.ms.net.server.login.handler;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.net.netty.InPacket;
+import im.cave.ms.net.netty.OutPacket;
 import im.cave.ms.net.packet.LoginPacket;
-import im.cave.ms.tools.data.input.SeekableLittleEndianAccessor;
-import im.cave.ms.tools.data.output.MaplePacketLittleEndianWriter;
 
 import static im.cave.ms.enums.LoginStatus.LOGGEDIN;
 
@@ -14,15 +14,15 @@ import static im.cave.ms.enums.LoginStatus.LOGGEDIN;
  * @date 11/20 21:50
  */
 public class ServerListHandler {
-    public static void serverStatus(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public static void serverStatus(InPacket inPacket, MapleClient c) {
         validate(c);
-        slea.skip(1);
-        int worldId = slea.readInt();
+        inPacket.skip(1);
+        int worldId = inPacket.readInt();
         c.announce(LoginPacket.serverStatus(worldId));
     }
 
-    public static void serverList(SeekableLittleEndianAccessor slea, MapleClient c) {
-        for (MaplePacketLittleEndianWriter server : LoginPacket.serverList()) {
+    public static void serverList(InPacket inPacket, MapleClient c) {
+        for (OutPacket server : LoginPacket.serverList()) {
             c.announce(server);
         }
         c.announce(LoginPacket.serverListEnd());
