@@ -2,7 +2,7 @@ package im.cave.ms.client.quest.reward;
 
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.net.packet.PlayerPacket;
+import im.cave.ms.network.packet.PlayerPacket;
 
 /**
  * Created on 3/2/2018.

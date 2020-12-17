@@ -22,28 +22,14 @@
 package im.cave.ms.scripting;
 
 
-import com.esotericsoftware.yamlbeans.YamlConfig;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
-import im.cave.ms.client.items.Equip;
-import im.cave.ms.client.items.Item;
-import im.cave.ms.constants.GameConstants;
-import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
-import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.ChatType;
-import im.cave.ms.net.packet.ChannelPacket;
-import im.cave.ms.net.packet.MaplePacketCreator;
-import im.cave.ms.net.server.Server;
+import im.cave.ms.network.packet.ChannelPacket;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 public class AbstractPlayerInteraction {
 

@@ -1,9 +1,8 @@
 package im.cave.ms.client.field.obj;
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.net.netty.OutPacket;
-import im.cave.ms.net.packet.MaplePacketCreator;
-import im.cave.ms.net.packet.NpcPacket;
+import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.NpcPacket;
 import im.cave.ms.tools.Rect;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -37,7 +36,7 @@ public class Npc extends MapleMapObj {
     private Rect npcRect = new Rect();
 
     public Npc(int npcId) {
-        this.templateId = npcId;
+        super(npcId);
     }
 
 
@@ -48,16 +47,21 @@ public class Npc extends MapleMapObj {
     }
 
     @Override
-    public void faraway(MapleCharacter chr) {
+    public void sendLeavePacket(MapleCharacter chr) {
         chr.announce(NpcPacket.removeNpc(getObjectId()));
     }
 
     @Override
-    public void sendSpawnData(MapleCharacter chr) {
-        chr.announce(MaplePacketCreator.spawnNpc(this));
-        chr.announce(MaplePacketCreator.spawnNpcController(this));
+    public void sendSpawnPacket(MapleCharacter chr) {
+        chr.announce(NpcPacket.spawnNpc(this));
     }
 
+    @Override
+    public void notifyControllerChange(MapleCharacter controller) {
+        for (MapleCharacter chr : getMap().getCharInRect(getVisibleRect())) {
+            chr.announce(NpcPacket.changeNpcController(this, controller == chr, false));
+        }
+    }
 
     public void encode(OutPacket outPacket) {
         outPacket.writeShort(getPosition().getX());

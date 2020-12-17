@@ -1,25 +1,30 @@
 package im.cave.ms.client;
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.net.db.DataBaseManager;
-import im.cave.ms.net.server.Server;
-import lombok.Data;
+import im.cave.ms.network.db.DataBaseManager;
+import im.cave.ms.network.server.Server;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.transaction.Transactional;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -49,6 +54,13 @@ public class Account {
     @JoinColumn(name = "trunkId")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Trunk trunk;
+    @ElementCollection
+    @CollectionTable(name = "shared_quest_ex", joinColumns = @JoinColumn(name = "accId"))
+    @MapKeyColumn(name = "qrKey")
+    @Column(name = "qrValue")
+    private Map<Integer, String> sharedQuestExStorage;
+    @Transient
+    private Map<Integer, Map<String, String>> sharedQuestEx;
 
     public Account(String account, String password) {
         this.account = account;
@@ -82,6 +94,45 @@ public class Account {
 
     public MapleCharacter getCharacter(int charId) {
         return characters.stream().filter(character -> character.getId() == charId).findAny().orElse(null);
+    }
+
+
+    public void buildSharedQuestEx() {
+        getSharedQuestExStorage().forEach((qrKey, qrValue) ->
+                {
+                    HashMap<String, String> value = new HashMap<>();
+                    for (String option : qrValue.split(";")) {
+                        String[] pair = option.split("=");
+                        value.put(pair[0], pair[1]);
+                    }
+                    addSharedQuestEx(qrKey, value, false);
+                }
+        );
+    }
+
+
+    public void buildQuestExStorage() {
+        getSharedQuestEx().forEach((questId, options) -> {
+            StringBuilder value = new StringBuilder();
+            for (String key : options.keySet()) {
+                value.append(key).append("=").append(options.get(key)).append(";");
+            }
+            sharedQuestExStorage.put(questId, value.substring(0, value.length() - 1));
+        });
+    }
+
+
+    public void addSharedQuestEx(int questId, Map<String, String> value, boolean sendPacket) {
+        Map<String, String> options = sharedQuestEx.getOrDefault(questId, null);
+        if (options == null) {
+            sharedQuestEx.put(questId, value);
+        } else {
+            sharedQuestEx.get(questId).putAll(value);
+        }
+        buildQuestExStorage();
+        if (sendPacket) {
+            //todo
+        }
     }
 
 }

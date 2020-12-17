@@ -4,10 +4,10 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.enums.ServerType;
-import im.cave.ms.net.netty.OutPacket;
-import im.cave.ms.net.packet.LoginPacket;
-import im.cave.ms.net.server.Server;
-import im.cave.ms.net.server.channel.MapleChannel;
+import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.LoginPacket;
+import im.cave.ms.network.server.Server;
+import im.cave.ms.network.server.channel.MapleChannel;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import org.mindrot.jbcrypt.BCrypt;
@@ -200,4 +200,5 @@ public class MapleClient {
     public MapleChannel getMapleChannel() {
         return Server.getInstance().getChannel(world, channel);
     }
+
 }

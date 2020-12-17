@@ -2,13 +2,10 @@ package im.cave.ms.client.character;
 
 import lombok.Data;
 
-import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
 import javax.persistence.Table;
 
 
@@ -40,7 +37,7 @@ public class CharStats {
     private int mp = 5;
     private int maxMP = 5;
     private int fame = 0;
-    private int prestige = 0;
+    private int honerPoint = 0;
     private int fatigue = 0;
     private int charismaExp;
     private int insightExp;

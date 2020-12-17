@@ -4,13 +4,14 @@ package im.cave.ms.client.items;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.enums.SpecStat;
 import im.cave.ms.provider.data.ItemData;
 
 import java.util.Map;
 
 public class ItemBuffs {
     public static void giveItemBuffsFromItemID(MapleCharacter chr, int itemID) {
-        Map<SpecStat, Integer> specStats = ItemData.getItemById(itemID).getSpecStats();
+        Map<SpecStat, Integer> specStats = ItemData.getItemInfoById(itemID).getSpecStats();
         long time = specStats.getOrDefault(SpecStat.time, 0) / 1000;
         for (Map.Entry<SpecStat, Integer> entry : specStats.entrySet()) {
             SpecStat ss = entry.getKey();

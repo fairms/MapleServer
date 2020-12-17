@@ -1,9 +1,9 @@
 package im.cave.ms.client;
 
-import im.cave.ms.config.WorldConfig;
+import im.cave.ms.configs.WorldConfig;
 import im.cave.ms.constants.QuestConstants;
-import im.cave.ms.net.netty.OutPacket;
-import im.cave.ms.net.packet.opcode.SendOpcode;
+import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.opcode.SendOpcode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,11 @@ public class MapleSignIn {
 
     static {
         initSignRewards();
+    }
+
+
+    public static SignInRewardInfo getSignRewardInfo(int day) {
+        return signRewards.get(day);
     }
 
 
@@ -57,6 +62,14 @@ public class MapleSignIn {
 
     public static void initSignRewards() {
         signRewards = WorldConfig.config.getSignInRewards();
+    }
+
+    public static OutPacket getSignInRewardPacket(int type, int itemId) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.write(2);
+        outPacket.writeInt(type);
+        outPacket.writeInt(itemId);
+        return outPacket;
     }
 
     public static class SignInRewardInfo {

@@ -19,5 +19,7 @@ public class QuestConstants {
     public static final int QUEST_EX_COMBO_KILL = 16027;
     // 宠物自动喂养
     public static final int QUEST_EX_PET_AUTO_EAT_FOOD = 1;
+    //签到记录
+    public static final int SHARE_QUEST_EX_SIGNIN_LOG = 7;
 
 }

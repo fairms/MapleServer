@@ -12,11 +12,11 @@ import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.ChatType;
-import im.cave.ms.net.netty.InPacket;
-import im.cave.ms.net.packet.MaplePacketCreator;
-import im.cave.ms.net.packet.PlayerPacket;
+import im.cave.ms.network.netty.InPacket;
+import im.cave.ms.network.packet.MaplePacketCreator;
+import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.SkillData;
-import im.cave.ms.provider.service.EventManager;
 
 import java.util.Arrays;
 import java.util.HashMap;

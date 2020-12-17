@@ -1,12 +1,67 @@
 package im.cave.ms.client.character;
 
 import im.cave.ms.client.character.temp.TemporaryStatManager;
-import im.cave.ms.client.items.SpecStat;
+import im.cave.ms.enums.SpecStat;
 import im.cave.ms.provider.data.ItemData;
 
 import java.util.Map;
 
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.*;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ACC;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ACCR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.AsrRByItem;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.BdR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Booster;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.CombatOrders;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.DEX;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.EVA;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.EVAR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ExpBuffRate;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.INT;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieACC;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieAllStat;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieBDR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieBooster;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieDEX;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieEVA;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieForceJump;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieForceSpeed;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieINT;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieIgnoreMobpdpR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieJump;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieLUK;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMAD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMADR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMDD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMDDR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMHP;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMHPR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMMP;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMMPR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePAD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePADR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePDD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePDDR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieQrPointTerm;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieSTR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieSpeed;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieStance;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieStatR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieUnk1;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Inflation;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ItemUpByItem;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Jump;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.LUK;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MAD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MDD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MaxHP;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MaxMP;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MesoUpByItem;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Morph;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.PAD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.PDD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RepeatEffect;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.STR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Speed;
 
 /**
  * @author fair
@@ -16,7 +71,7 @@ import static im.cave.ms.client.character.temp.CharacterTemporaryStat.*;
  */
 public class ItemBuffs {
     public static void giveItemBuffsFromItemID(MapleCharacter chr, TemporaryStatManager tsm, int itemID) {
-        Map<SpecStat, Integer> specStats = ItemData.getItemById(itemID).getSpecStats();
+        Map<SpecStat, Integer> specStats = ItemData.getItemInfoById(itemID).getSpecStats();
         long time = specStats.getOrDefault(SpecStat.time, 0) / 1000;
         for (Map.Entry<SpecStat, Integer> entry : specStats.entrySet()) {
             SpecStat ss = entry.getKey();

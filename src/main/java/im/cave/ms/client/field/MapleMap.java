@@ -4,6 +4,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
+import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobGen;
 import im.cave.ms.client.items.Item;
@@ -14,11 +15,10 @@ import im.cave.ms.enums.DropEnterType;
 import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.FieldOption;
 import im.cave.ms.enums.FieldType;
-import im.cave.ms.net.netty.OutPacket;
-import im.cave.ms.net.packet.ChannelPacket;
-import im.cave.ms.net.packet.PlayerPacket;
+import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.ChannelPacket;
+import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.ItemData;
-import im.cave.ms.provider.service.EventManager;
 import im.cave.ms.scripting.map.MapScriptManager;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
@@ -76,7 +76,7 @@ public class MapleMap {
     private int bossMobID;
     private int VrTop, VrBottom, VrLeft, VrRight;
     private Map<MapleMapObj, ScheduledFuture> objScheduledFutures;
-    private HashMap<MapleMapObj, MapleCharacter> objControllers;
+    private ConcurrentHashMap<MapleMapObj, MapleCharacter> objControllers = new ConcurrentHashMap();
 
     public MapleMap(int id, int world, int channel) {
         this.id = id;
@@ -103,46 +103,37 @@ public class MapleMap {
     }
 
     public void addPlayer(MapleCharacter chr) {
-        characters.add(chr);
-        chr.setMapId(id);
-        MapScriptManager msm = MapScriptManager.getInstance();
-        int charSize = characters.size();
-        if (charSize == 1) {
-            if (onFirstUserEnter.length() != 0) {
-                msm.runMapScript(chr.getClient(), "onFirstUserEnter/" + onFirstUserEnter, true);
+        if (!getCharacters().contains(chr)) {
+            characters.add(chr);
+            chr.setMapId(id);
+            MapScriptManager msm = MapScriptManager.getInstance();
+            int charSize = characters.size();
+            if (charSize == 1) {
+                if (onFirstUserEnter.length() != 0) {
+                    msm.runMapScript(chr.getClient(), "onFirstUserEnter/" + onFirstUserEnter, true);
+                }
             }
+            if (onUserEnter.length() != 0) {
+                msm.runMapScript(chr.getClient(), "onUserEnter/" + onUserEnter, false);
+            }
+            broadcastMessage(chr, ChannelPacket.charEnterMap(chr), false);
         }
-        if (onUserEnter.length() != 0) {
-            msm.runMapScript(chr.getClient(), "onUserEnter/" + onUserEnter, false);
-        }
-        broadcastSpawnPlayerMapObjectMessage(chr, chr, true);
-        chr.announce(PlayerPacket.hiddenEffectEquips(chr)); //broadcast?
-        chr.setJob(chr.getJob());
-        sendMapObject(chr);
     }
 
-    public void sendMapObject(MapleCharacter chr) {
+    public void sendMapObjectPackets(MapleCharacter chr) {
         List<MapleMapObj> objects = new ArrayList<>(objs.values());
         for (MapleMapObj object : objects) {
             Rect rectAround = chr.getVisibleRect();
             if (rectAround.hasPositionInside(object.getPosition()) && !chr.getVisibleMapObjs().contains(object)) {
                 chr.addVisibleMapObj(object);
-                object.sendSpawnData(chr);
+                spawnObj(object, chr);
             } else if (!rectAround.hasPositionInside(object.getPosition()) && chr.getVisibleMapObjs().contains(object)) {
-                object.faraway(chr);
+                objFarawayChr(object, chr);
                 chr.removeVisibleMapObj(object);
             }
         }
     }
 
-
-    private void broadcastSpawnPlayerMapObjectMessage(MapleCharacter source, MapleCharacter player, boolean enteringField) {
-        for (MapleCharacter character : characters) {
-            if (character != source) {
-//                character.announce(MaplePacketCreator.spawnPlayer);
-            }
-        }
-    }
 
     public void broadcastMessage(OutPacket packet) {
         broadcastMessage(null, packet);
@@ -156,7 +147,7 @@ public class MapleMap {
     public void broadcastMessage(MapleCharacter source, OutPacket packet) {
         for (MapleCharacter chr : characters) {
             if (chr != source) {
-                chr.getClient().announce(packet);
+                chr.announce(packet);
             }
         }
     }
@@ -235,6 +226,12 @@ public class MapleMap {
 
     public void removePlayer(MapleCharacter player) {
         characters.removeIf(character -> character.getId().equals(player.getId()));
+        for (Map.Entry<MapleMapObj, MapleCharacter> entry : getObjControllers().entrySet()) {
+            if (entry.getValue() != null && entry.getValue().equals(player)) {
+                getObjControllers().remove(entry.getKey());
+                setRandomController(entry.getKey());
+            }
+        }
     }
 
 
@@ -278,19 +275,24 @@ public class MapleMap {
         int diff = 0;
         for (DropInfo drop : drops) {
             if (drop.willDrop(dropRate)) {
-                x = (x + diff) > maxX ? maxX - 10 : (x + diff) < minX ? minX + 10 : x + diff;
+                x = x + diff;
                 Position posTo;
                 if (fh == null) {
                     posTo = position.deepCopy();
                 } else {
-                    posTo = new Position(x, fh.getYFromX(x));
+                    int y;
+                    if (x > maxX || x < minX) {
+                        y = getFootholdBelow(new Position(x, position.getY())).getYFromX(x);
+                    } else {
+                        y = fh.getYFromX(x);
+                    }
+                    posTo = new Position(x, y);
                 }
                 DropInfo copy = null;
                 if (drop.isMoney()) {
                     copy = drop.deepCopy();
                     copy.setMoney((int) (drop.getMoney() * ((100 + mesoRate) / 100D)));
                 }
-
                 drop(copy != null ? copy : drop, position, posTo, ownerId);
                 diff = diff < 0 ? Math.abs(diff - GameConstants.DROP_DIFF) : -(diff + GameConstants.DROP_DIFF);
                 drop.generateNextDrop();
@@ -311,7 +313,7 @@ public class MapleMap {
             if (item != null) {
                 item.setQuantity(dropInfo.getQuantity());
                 drop.setItem(item);
-                ItemInfo itemInfo = ItemData.getItemById(itemID);
+                ItemInfo itemInfo = ItemData.getItemInfoById(itemID);
                 if (itemInfo != null && itemInfo.isQuest()) {
                     quests = itemInfo.getQuestIDs();
                 }
@@ -341,7 +343,7 @@ public class MapleMap {
         Item item = drop.getItem();
         boolean isTradable = true;
         if (item != null) {
-            ItemInfo itemInfo = ItemData.getItemById(item.getItemId());
+            ItemInfo itemInfo = ItemData.getItemInfoById(item.getItemId());
             isTradable = ignoreTradability ||
                     (item.isTradable() && (ItemConstants.isEquip(item.getItemId()) || itemInfo != null
                             && !itemInfo.isQuest()));
@@ -427,5 +429,65 @@ public class MapleMap {
 
     public List<Portal> getSpawnPortals() {
         return getPortals().stream().filter(portal -> portal.getName().equalsIgnoreCase("sp")).collect(Collectors.toList());
+    }
+
+    public void spawnSummon(Summon summon) {
+        Summon oldSummon = (Summon) getObjs().values().stream()
+                .filter(s -> s instanceof Summon &&
+                        ((Summon) s).getChr() == summon.getChr() &&
+                        ((Summon) s).getSkillID() == summon.getSkillID()).findFirst().orElse(null);
+        if (oldSummon != null) {
+            removeObj(oldSummon.getObjectId(), false);
+        }
+        spawnObj(summon, null);
+    }
+
+
+    private void objFarawayChr(MapleMapObj object, MapleCharacter chr) {
+        if (getObjControllers().get(object) == chr) {
+            getObjControllers().remove(object);
+            object.sendLeavePacket(chr);
+            setRandomController(object);
+        }
+    }
+
+
+    public void spawnObj(MapleMapObj obj, MapleCharacter chr) {
+        addObj(obj);
+        if (getCharacters().size() > 0) {
+            if (chr == null) {
+                getCharInRect(obj.getVisibleRect()).forEach(obj::sendSpawnPacket);
+            } else {
+                obj.sendSpawnPacket(chr);
+            }
+            MapleCharacter controller = null;
+            if (getObjControllers().containsKey(obj)) {
+                controller = getObjControllers().get(obj);
+            }
+            if (controller == null) {
+                setRandomController(obj);
+            }
+        }
+    }
+
+    private void setRandomController(MapleMapObj obj) {
+        MapleCharacter controller;
+        if (getCharacters().size() > 0) {
+            List<MapleCharacter> characters = getCharInRect(obj.getVisibleRect());
+            if (characters.size() > 0) {
+                controller = Util.getRandomFromCollection(characters);
+                putObjController(obj, controller);
+                obj.notifyControllerChange(controller);
+            }
+        }
+    }
+
+    private void putObjController(MapleMapObj obj, MapleCharacter controller) {
+        getObjControllers().put(obj, controller);
+    }
+
+
+    public List<MapleCharacter> getCharInRect(Rect rect) {
+        return getCharacters().stream().filter(character -> rect.hasPositionInside(character.getPosition())).collect(Collectors.toList());
     }
 }

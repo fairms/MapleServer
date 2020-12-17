@@ -2,16 +2,16 @@ package im.cave.ms.scripting.npc;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.enums.NpcMessageType;
-import im.cave.ms.net.packet.NpcPacket;
+import im.cave.ms.network.packet.NpcPacket;
 import im.cave.ms.scripting.AbstractPlayerInteraction;
 
-
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
-import static im.cave.ms.enums.NpcMessageType.*;
+import static im.cave.ms.enums.NpcMessageType.AskAvatar;
+import static im.cave.ms.enums.NpcMessageType.AskMenu;
+import static im.cave.ms.enums.NpcMessageType.AskText;
+import static im.cave.ms.enums.NpcMessageType.AskYesNo;
+import static im.cave.ms.enums.NpcMessageType.SayOk;
 
 /**
  * @author fair

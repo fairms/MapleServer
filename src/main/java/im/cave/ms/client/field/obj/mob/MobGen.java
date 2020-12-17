@@ -1,9 +1,7 @@
 package im.cave.ms.client.field.obj.mob;
 
-import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.MapleMapObj;
-import im.cave.ms.net.packet.MaplePacketCreator;
 import im.cave.ms.tools.Position;
 
 /**
@@ -29,39 +27,6 @@ public class MobGen extends MapleMapObj {
         this.setPosition(mob.getHomePosition().deepCopy());
     }
 
-    /**
-     * Spawns a Mob at the position of this MobGen.
-     */
-    @Override
-    public void sendSpawnData(MapleCharacter chr) {
-        Position pos = mob.getHomePosition();
-        mob.setPosition(pos);
-        mob.setHomePosition(pos);
-        mob.setObjectId(getObjectId());
-        mob.sendSpawnData(chr);
-        setNextPossibleSpawnTime(System.currentTimeMillis() + (getMob().getMobTime() * 1000));
-        setHasSpawned(true);
-    }
-
-
-    //    public MobGen deepCopy() {
-//        MobGen mobGen = new MobGen(getTemplateId());
-//        if (getMob() != null) {
-//            mobGen.setMob(getMob().deepCopy());
-//        }
-//        return mobGen;
-//    }
-
-    //    public boolean canSpawnOnField(Field field) {
-//        int currentMobs = field.getMobs().size();
-//        // not over max mobs, delay of spawn ended, if mobtime == -1 (not respawnable) must not have yet spawned
-//        // no mob in area around this, unless kishin is active
-//        return currentMobs < field.getMobCapacity() &&
-//                getNextPossibleSpawnTime() < System.currentTimeMillis() &&
-//                (getMob().getMobTime() != -1 || !hasSpawned()) &&
-//                (field.hasKishin() ||
-//                        field.getMobsInRect(getPosition().getRectAround(GameConstants.MOB_CHECK_RECT)).size() == 0);
-//    }
     public long getNextPossibleSpawnTime() {
         return nextPossibleSpawnTime;
     }
@@ -91,9 +56,7 @@ public class MobGen extends MapleMapObj {
         Position pos = mob.getHomePosition();
         mob.setPosition(pos.deepCopy());
         mob.setHomePosition(pos.deepCopy());
-        map.addObj(mob);
-        map.broadcastMessage(null, MaplePacketCreator.spawnMob(mob));
-        map.broadcastMessage(null, MaplePacketCreator.mobChangeController(mob));
+        map.spawnObj(mob, null);
         setNextPossibleSpawnTime(System.currentTimeMillis() + (getMob().getMobTime() * 1000));
         setHasSpawned(true);
     }

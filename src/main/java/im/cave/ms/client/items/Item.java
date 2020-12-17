@@ -2,13 +2,10 @@ package im.cave.ms.client.items;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.InventoryType;
-import im.cave.ms.net.packet.PlayerPacket;
+import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.provider.data.ItemData;
-import im.cave.ms.tools.DateUtil;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.util.unit.DataUnit;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,8 +16,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Objects;
 
 import static im.cave.ms.constants.GameConstants.ZERO_TIME;
@@ -37,10 +35,11 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 @Setter
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "item")
 public class Item implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private int id;
 
     protected int itemId;
     protected int pos;
@@ -55,6 +54,8 @@ public class Item implements Serializable {
     protected Type type;
     protected int quantity = 1;
     protected boolean isCash;
+    @Transient
+    private short flag;
     private String owner = "";
 
     public void drop() {
@@ -90,7 +91,7 @@ public class Item implements Serializable {
     }
 
     public boolean isTradable() {
-        return !ItemData.getItemById(getItemId()).isTradeBlock();
+        return !ItemData.getItemInfoById(getItemId()).isTradeBlock();
     }
 
     public void updateToChar(MapleCharacter player) {

@@ -6,7 +6,7 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.constants.JobConstants;
-import im.cave.ms.net.netty.InPacket;
+import im.cave.ms.network.netty.InPacket;
 
 import java.lang.reflect.InvocationTargetException;
 

@@ -4,8 +4,8 @@ package im.cave.ms.client.field;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.TextEffectType;
 import im.cave.ms.enums.UserEffectType;
-import im.cave.ms.net.netty.OutPacket;
-import im.cave.ms.net.packet.PlayerPacket;
+import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Tuple;
 
@@ -76,7 +76,7 @@ public class Effect {
             case SkillAffected:
                 int skillID = getArg1();
                 outPacket.writeInt(getArg1()); // skill id
-                outPacket.writeInt(getArg2()); // slv
+                outPacket.write(getArg2()); // slv
 //                if (skillID == Demon.RAVEN_STORM || skillID == Shade.DEATH_MARK) {
 //                    outPacket.writeInt(getArg3()); // nDelta
 //                }

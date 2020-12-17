@@ -10,15 +10,14 @@ import im.cave.ms.client.quest.reward.QuestItemReward;
 import im.cave.ms.client.quest.reward.QuestReward;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.QuestStatus;
-import im.cave.ms.net.packet.PlayerPacket;
-import im.cave.ms.net.packet.QuestPacket;
+import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.QuestPacket;
 import im.cave.ms.provider.data.QuestData;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

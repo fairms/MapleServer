@@ -9,10 +9,10 @@ import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.TSIndex;
-import im.cave.ms.net.netty.OutPacket;
-import im.cave.ms.net.packet.PlayerPacket;
+import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.SkillData;
-import im.cave.ms.provider.service.EventManager;
 import im.cave.ms.tools.Tuple;
 import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
@@ -63,25 +63,26 @@ public class TemporaryStatManager {
 
     public TemporaryStatManager(MapleCharacter chr) {
         this.chr = chr;
-        for (CharacterTemporaryStat cts : TSIndex.getAllCTS()) {
-            switch (cts) {
-                case PartyBooster:
-//                    twoStates.add(new PartyBooster());
-                    break;
-                case GuidedBullet:
-//                    twoStates.add(new GuidedBullet());
-                    break;
-                case EnergyCharged:
-                    twoStates.add(new TemporaryStatBase(true));
-                    break;
-                case RideVehicle:
-                    twoStates.add(new TwoStateTemporaryStat(false));
-                    break;
-                default:
-                    twoStates.add(new TwoStateTemporaryStat(true));
-                    break;
-            }
-        }
+//        for (CharacterTemporaryStat cts : TSIndex.getAllCTS()) {
+//            switch (cts) {
+//                case PartyBooster:
+////                    twoStates.add(new PartyBooster());
+//                    break;
+//                case GuidedBullet:
+////                    twoStates.add(new GuidedBullet());
+//                    break;
+//                case EnergyCharged:
+//                    twoStates.add(new TemporaryStatBase(true));
+//                    break;
+//                case RideVehicle:
+//                    twoStates.add(new TwoStateTemporaryStat(false));
+//                    break;
+//                default:
+//                    twoStates.add(new TwoStateTemporaryStat(true));
+//                    break;
+//            }
+//        }
+
     }
 
     public List<TemporaryStatBase> getTwoStates() {
@@ -311,12 +312,18 @@ public class TemporaryStatManager {
             }
         }
 
-        if (hasNewStat(ComboCounter)) {
-            outPacket.writeInt(0);
-        }
-
         outPacket.writeZeroBytes(13);
+        if (hasNewStat(ComboCounter)) { //todo
+            outPacket.writeInt(getOption(ComboCounter).bOption);
+        }
         encodeIndieTempStat(outPacket);
+
+        outPacket.write(1);
+        outPacket.write(1);
+        outPacket.write(1);
+        outPacket.writeInt(0);
+        outPacket.write(0);  //sometimes
+
         getNewStats().clear();
     }
 
@@ -349,185 +356,61 @@ public class TemporaryStatManager {
     }
 
 
-//    public void encodeForRemote(OutPacket outPacket, Map<CharacterTemporaryStat, List<Option>> collection) {
-//        int[] mask = getMaskByCollection(collection);
-//        for (int maskElem : mask) {
-//            outPacket.encodeInt(maskElem);
-//        }
-//        List<CharacterTemporaryStat> orderedAndFilteredCtsList = new ArrayList<>(collection.keySet()).stream()
-//                .filter(cts -> cts.getOrder() != -1)
-//                .sorted(Comparator.comparingInt(CharacterTemporaryStat::getOrder))
-//                .collect(Collectors.toList());
-//        for (CharacterTemporaryStat cts : orderedAndFilteredCtsList) {
-//            if (cts.getRemoteOrder() != -1) {
-//                Option o = getOption(cts);
-//                switch (cts) {
-//                    case Unk82: // Why does this get encoded, then immediately overwritten?
-//                        outPacket.encodeShort(o.nOption);
-//                        break;
-//                }
-//                if (!cts.isNotEncodeAnything()) {
-//                    if (cts.isRemoteEncode1()) {
-//                        outPacket.encodeByte(o.nOption);
-//                    } else if (cts.isRemoteEncode4()) {
-//                        outPacket.encodeInt(o.nOption);
-//                    } else {
-//                        outPacket.encodeShort(o.nOption);
-//                    }
-//                    if (!cts.isNotEncodeReason()) {
-//                        outPacket.encodeInt(o.rOption);
-//                    }
-//                }
-//                switch (cts) {
-//                    case Contagion:
-//                        outPacket.encodeInt(o.tOption);
-//                        break;
-//                    case BladeStance:
-//                    case ImmuneBarrier:
-//                    case Unk530:
-//                    case Unk531:
-//                    case Unk586:
-//                        outPacket.encodeInt(o.xOption);
-//                        break;
-//                    case FullSoulMP:
-//                        outPacket.encodeInt(o.rOption);
-//                        outPacket.encodeInt(o.xOption);
-//                        break;
-//                    case AntiMagicShellBool:
-//                    case PoseTypeBool:
-//                        outPacket.encodeByte(o.bOption);
-//                        break;
-//                }
-//            }
-//        }
-//        outPacket.encodeByte(getDefenseAtt());
-//        outPacket.encodeByte(getDefenseState());
-//        outPacket.encodeByte(getPvpDamage());
-//        outPacket.encodeInt(0);// unknown
-//        outPacket.encodeInt(0);
-//        Set<CharacterTemporaryStat> ctsSet = collection.keySet();
-//        if (ctsSet.contains(Unk526)) {
-//            outPacket.encodeInt(collection.get(Unk526).get(0).xOption);
-//        }
-//        if (ctsSet.contains(Unk527)) {
-//            outPacket.encodeInt(collection.get(Unk527).get(0).xOption);
-//        }
-//        if (ctsSet.contains(ZeroAuraStr)) {
-//            outPacket.encodeByte(collection.get(ZeroAuraStr).get(0).bOption);
-//        }
-//        if (ctsSet.contains(ZeroAuraSpd)) {
-//            outPacket.encodeByte(collection.get(ZeroAuraSpd).get(0).bOption);
-//        }
-//        if (ctsSet.contains(BMageAura)) {
-//            outPacket.encodeByte(collection.get(BMageAura).get(0).bOption);
-//        }
-//        if (ctsSet.contains(BattlePvPHelenaMark)) {
-//            outPacket.encodeInt(collection.get(BattlePvPHelenaMark).get(0).nOption);
-//            outPacket.encodeInt(collection.get(BattlePvPHelenaMark).get(0).rOption);
-//            outPacket.encodeInt(collection.get(BattlePvPHelenaMark).get(0).cOption);
-//        }
-//        if (ctsSet.contains(BattlePvPLangEProtection)) {
-//            outPacket.encodeInt(collection.get(BattlePvPLangEProtection).get(0).nOption);
-//            outPacket.encodeInt(collection.get(BattlePvPLangEProtection).get(0).rOption);
-//        }
-//        if (ctsSet.contains(MichaelSoulLink)) {
-//            outPacket.encodeInt(collection.get(MichaelSoulLink).get(0).xOption);
-//            outPacket.encodeByte(collection.get(MichaelSoulLink).get(0).bOption);
-//            outPacket.encodeInt(collection.get(MichaelSoulLink).get(0).cOption);
-//            outPacket.encodeInt(collection.get(MichaelSoulLink).get(0).yOption);
-//        }
-//        if (ctsSet.contains(AdrenalinBoost)) {
-//            outPacket.encodeByte(collection.get(AdrenalinBoost).get(0).cOption);
-//        }
-//        if (ctsSet.contains(Stigma)) {
-//            outPacket.encodeInt(collection.get(Stigma).get(0).bOption);
-//        }
-//        if (ctsSet.contains(DivineEcho)) {
-//            outPacket.encodeShort(collection.get(DivineEcho).get(0).xOption);
-//        }
-//        if (ctsSet.contains(Unk423)) {
-//            outPacket.encodeShort(collection.get(Unk423).get(0).xOption);
-//        }
-//        if (ctsSet.contains(Unk424)) {
-//            outPacket.encodeShort(collection.get(Unk424).get(0).xOption);
-//        }
-//        if (ctsSet.contains(Unk503)) {
-//            outPacket.encodeInt(collection.get(Unk503).get(0).xOption);
-//            outPacket.encodeInt(collection.get(Unk503).get(0).bOption);
-//            outPacket.encodeInt(collection.get(Unk503).get(0).cOption);
-//            outPacket.encodeInt(collection.get(Unk503).get(0).yOption);
-//        }
-//        if (ctsSet.contains(VampDeath)) {
-//            outPacket.encodeInt(collection.get(VampDeath).get(0).xOption);
-//        }
-//        if (ctsSet.contains(Unk520)) {
-//            outPacket.encodeInt(collection.get(Unk520).get(0).bOption);
-//            outPacket.encodeInt(collection.get(Unk520).get(0).xOption);
-//        }
-//        if (ctsSet.contains(Unk255)) {
-//            outPacket.encodeInt(collection.get(Unk255).get(0).bOption);
-//            outPacket.encodeInt(collection.get(Unk255).get(0).xOption);
-//        }
-//        if (ctsSet.contains(Unk538)) {
-//            outPacket.encodeInt(collection.get(Unk538).get(0).xOption);
-//            outPacket.encodeInt(collection.get(Unk538).get(0).bOption);
-//            outPacket.encodeInt(collection.get(Unk538).get(0).cOption);
-//        }
-//        if (getStopForceAtom() != null) {
-//            getStopForceAtom().encode(outPacket);
-//        } else {
-//            new StopForceAtom().encode(outPacket);
-//        }
-//        outPacket.encodeInt(getViperEnergyCharge());
-//        for (int i = 0; i < 7; i++) {// 7=>8 v202 maybe more ts index ?
-//            if (hasNewStat(TSIndex.getCTSFromTwoStatIndex(i))) {
-//                getTwoStates().get(i).encode(outPacket);
-//            }
-//        }
-//        if (ctsSet.contains(NewFlying)) {
-//            outPacket.encodeInt(collection.get(NewFlying).get(0).xOption);
-//        }
-//        if (ctsSet.contains(Unk517)) {
-//            outPacket.encodeInt(collection.get(Unk517).get(0).xOption);
-//        }
-//        if (ctsSet.contains(KeyDownMoving)) {
-//            outPacket.encodeInt(collection.get(KeyDownMoving).get(0).xOption);
-//        }
-//        if (ctsSet.contains(Unk556)) {
-//            outPacket.encodeInt(collection.get(Unk556).get(0).xOption);
-//        }
-//        outPacket.encodeInt(0);
-//    }
-//
-//    private void encodeIndieTempStat(OutPacket outPacket) {
-//        Map<CharacterTemporaryStat, List<Option>> stats = getCurrentStats().entrySet().stream()
-//                .filter(stat -> stat.getKey().isIndie() && getNewStats().containsKey(stat.getKey()))
-//                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-//
-//        TreeMap<CharacterTemporaryStat, List<Option>> sortedStats = new TreeMap<>(stats);
-//        for (Map.Entry<CharacterTemporaryStat, List<Option>> stat : sortedStats.entrySet()) {
-//            int curTime = (int) System.currentTimeMillis();
-//            List<Option> options = stat.getValue();
-//            if (options == null) {
-//                outPacket.encodeInt(0);
-//                continue;
-//            }
-//            outPacket.encodeInt(options.size());
-//            for (Option option : options) {
-//                outPacket.encodeInt(option.nReason);
-//                outPacket.encodeInt(option.nValue);
-//                outPacket.encodeInt(option.nKey);
-//                outPacket.encodeInt(curTime - option.tStart); // elapsedTime
-//                outPacket.encodeInt(option.tTerm);
-//                int size = 0;
-//                outPacket.encodeInt(size);
-//                for (int i = 0; i < size; i++) {
-//                    outPacket.encodeInt(0); // MValueKey
-//                    outPacket.encodeInt(0); // MValue
-//                }
-//            }
-//        }
-//    }
+    public void encodeForRemote(OutPacket outPacket, Map<CharacterTemporaryStat, List<Option>> collection) {
+        int[] mask = getMaskByCollection(collection);
+        for (int maskElem : mask) {
+            outPacket.writeInt(maskElem);
+        }
+        List<CharacterTemporaryStat> orderedAndFilteredCtsList = new ArrayList<>(collection.keySet()).stream()
+                .filter(cts -> cts.getOrder() != -1)
+                .sorted(Comparator.comparingInt(CharacterTemporaryStat::getOrder))
+                .collect(Collectors.toList());
+        for (CharacterTemporaryStat cts : orderedAndFilteredCtsList) {
+            if (cts.getRemoteOrder() != -1) {
+                Option o = getOption(cts);
+                if (cts == CharacterTemporaryStat.Unk82) {
+                    outPacket.writeShort(o.nOption);
+                }
+                if (!cts.isNotEncodeAnything()) {
+                    if (cts.isRemoteEncode1()) {
+                        outPacket.writeShort(o.nOption);
+                    } else if (cts.isRemoteEncode4()) {
+                        outPacket.writeInt(o.nOption);
+                    } else {
+                        outPacket.writeShort(o.nOption);
+                    }
+                    if (!cts.isNotEncodeReason()) {
+                        outPacket.writeInt(o.rOption);
+                    }
+                }
+                switch (cts) {
+                    case Contagion:
+                        outPacket.writeInt(o.tOption);
+                        break;
+                    case BladeStance:
+                    case ImmuneBarrier:
+                    case Unk530:
+                    case Unk531:
+                    case Unk586:
+                        outPacket.writeInt(o.xOption);
+                        break;
+                    case FullSoulMP:
+                        outPacket.writeInt(o.rOption);
+                        outPacket.writeInt(o.xOption);
+                        break;
+                    case AntiMagicShellBool:
+                    case PoseTypeBool:
+                        outPacket.write(o.bOption);
+                        break;
+                }
+            }
+        }
+        outPacket.writeInt(-1);
+//        outPacket.writeZeroBytes(45);
+//        outPacket.write(1);
+//        outPacket.writeZeroBytes(73); //todo
+    }
+
 
 //    public void encodeRemovedIndieTempStat(OutPacket outPacket) {
 //        Map<CharacterTemporaryStat, List<Option>> stats = getRemovedStats().entrySet().stream()

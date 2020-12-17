@@ -3,7 +3,7 @@ package im.cave.ms.client.field.obj;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.enums.DropEnterType;
-import im.cave.ms.net.packet.ChannelPacket;
+import im.cave.ms.network.packet.ChannelPacket;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,7 +43,7 @@ public class Drop extends MapleMapObj {
 
 
     @Override
-    public void sendSpawnData(MapleCharacter chr) {
+    public void sendSpawnPacket(MapleCharacter chr) {
         chr.announce(ChannelPacket.dropEnterField(this, DropEnterType.Instant, getPosition()));
     }
 

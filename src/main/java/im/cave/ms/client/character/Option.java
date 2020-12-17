@@ -1,5 +1,6 @@
 package im.cave.ms.client.character;
 
+import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.client.skill.SkillStat;
 import im.cave.ms.provider.data.SkillData;
@@ -36,7 +37,7 @@ public class Option {
     public int tTerm;
     public int pOption;
     public int slv;
-    //    public Summon summon;
+    public Summon summon;
     public List<Option> extraOpts = new ArrayList<>();
     public boolean isInMillis = false;
 

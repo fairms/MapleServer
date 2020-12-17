@@ -1,6 +1,8 @@
 package im.cave.ms.client.items;
 
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.ScrollStat;
+import im.cave.ms.enums.SpecStat;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -49,6 +51,7 @@ public class ItemInfo {
     private int skillId;
     private int grade;
     private int android;
+    private int familiarID;
 
     public void putScrollStat(ScrollStat scrollStat, int val) {
         getScrollStats().put(scrollStat, val);

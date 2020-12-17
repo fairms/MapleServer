@@ -1,7 +1,7 @@
 package im.cave.ms.client.character.potential;
 
 import im.cave.ms.client.skill.Skill;
-import im.cave.ms.net.netty.OutPacket;
+import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.provider.data.SkillData;
 
 import javax.persistence.Column;

@@ -4,7 +4,7 @@ import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.SpellTraceScrollType;
-import im.cave.ms.net.netty.OutPacket;
+import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.tools.Util;
 
 import java.util.Map;

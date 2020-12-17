@@ -28,7 +28,6 @@ public abstract class AbstractScriptManager {
             engine.eval("load('nashorn:mozilla_compat.js');" + System.lineSeparator());
             engine.eval(fr);
         } catch (final ScriptException | IOException t) {
-//            FilePrinter.printError(FilePrinter.INVOCABLE + path.substring(12), t, path);
             return null;
         }
 

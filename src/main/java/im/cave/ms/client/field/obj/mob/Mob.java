@@ -1,21 +1,17 @@
 package im.cave.ms.client.field.obj.mob;
 
-import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
-import im.cave.ms.config.WorldConfig;
-import im.cave.ms.constants.GameConstants;
+import im.cave.ms.configs.WorldConfig;
 import im.cave.ms.enums.RemoveMobType;
-import im.cave.ms.net.packet.MaplePacketCreator;
-import im.cave.ms.net.packet.MobPacket;
+import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.MobPacket;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Tuple;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -147,7 +143,7 @@ public class Mob extends MapleMapObj {
     }
 
     public Mob(int id) {
-        templateId = id;
+        super(id);
         forcedMobStat = new MobStat();
     }
 
@@ -160,18 +156,22 @@ public class Mob extends MapleMapObj {
         return hp;
     }
 
+    @Override
+    public void notifyControllerChange(MapleCharacter controller) {
+        for (MapleCharacter chr : getMap().getCharInRect(getVisibleRect())) {
+            chr.announce(MobPacket.changeMobController(this, false, controller == chr));
+        }
+    }
+
 
     @Override
-    public void faraway(MapleCharacter chr) {
-        chr.announce(MobPacket.removeController(getObjectId()));
+    public void sendLeavePacket(MapleCharacter chr) {
         chr.announce(MobPacket.removeMob(getObjectId(), RemoveMobType.STAY));
-
     }
 
     @Override
-    public void sendSpawnData(MapleCharacter chr) {
-        chr.announce(MaplePacketCreator.spawnMob(this));
-        chr.announce(MaplePacketCreator.mobChangeController(this));
+    public void sendSpawnPacket(MapleCharacter chr) {
+        chr.announce(MobPacket.spawnMob(this, false));
     }
 
     public Mob deepCopy() {
@@ -439,4 +439,28 @@ public class Mob extends MapleMapObj {
         getMap().drop(getDrops(), getMap().getFoothold(fh), getPosition(), ownerId, totalMesoRate, totalDropRate, false);
     }
 
+    public void encodeInit(OutPacket outPacket) {
+        outPacket.writeShort(getPosition().getX());
+        outPacket.writeShort(getPosition().getY());
+        outPacket.write(getMoveAction());
+        outPacket.writeShort(getFh());
+        outPacket.writeShort(getFh());
+        outPacket.writeShort(getAppearType());
+        outPacket.write(getTeamForMCarnival());
+        outPacket.writeLong(getMaxHp());
+        outPacket.writeInt(getEffectItemID());
+        outPacket.writeInt(getPhase());
+        outPacket.writeInt(getCurZoneDataType());
+        outPacket.writeInt(getRefImgMobID());
+        outPacket.writeInt(0);
+
+        outPacket.writeInt(-1);
+        outPacket.writeInt(0);
+        outPacket.writeInt(-1);
+        outPacket.writeInt(0);
+        outPacket.write(0);
+        outPacket.writeInt(getScale());
+        outPacket.writeInt(-1); //getEliteGrade
+        outPacket.writeZeroBytes(42);
+    }
 }

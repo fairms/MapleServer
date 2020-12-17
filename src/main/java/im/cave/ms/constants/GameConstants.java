@@ -6,7 +6,6 @@ import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.QuickMoveType;
 import im.cave.ms.provider.data.ItemData;
 
-import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +48,7 @@ public class GameConstants {
     public static final int MIN_MONEY_MULT = 6;
     public static final int MAX_MONEY_MULT = 9;
     public static final int MAX_DROP_CHANCE = 10000;
+    public static final int MESO_DROP_CHANCE = MAX_DROP_CHANCE / 2;
 
 
     public static final int BASE_MOB_RESPAWN_RATE = 10000; // In milliseconds

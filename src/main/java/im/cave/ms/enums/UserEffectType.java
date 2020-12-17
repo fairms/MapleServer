@@ -44,7 +44,7 @@ public enum UserEffectType {
     PlaySoundWithMuteBGM(35),// v202.3
     PlayExclSoundWithDownBGM(36),// v202.3
     SoulStoneUse(37),// v202.3
-    IncDecHPEffect_EX(38),// v202.3
+    IncDecHPEffect_EX(37),// v202.3
     IncDecHPRegenEffect(39),// v202.3
     EffectUOL(40),// v202.3
     PvPRage(41),// v202.3

@@ -4,9 +4,11 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobGen;
+import im.cave.ms.constants.GameConstants;
 import im.cave.ms.provider.data.MobData;
 import im.cave.ms.provider.data.NpcData;
 import im.cave.ms.tools.Position;
+import im.cave.ms.tools.Rect;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,8 +25,8 @@ import java.util.Objects;
 public class MapleMapObj {
     private Position position;
     private int objectId = -1;
-    protected int cy, fh, templateId, mobTime, rx0, rx1, type, x, y;
-    protected boolean flip;
+    private int cy, fh, templateId, mobTime, rx0, rx1, type, x, y;
+    private boolean flip;
     private String lifeType = "";
     private boolean hide;
     private String limitedName = "";
@@ -139,10 +141,10 @@ public class MapleMapObj {
     }
 
 
-    public void sendSpawnData(MapleCharacter chr) {
+    public void sendLeavePacket(MapleCharacter chr) {
     }
 
-    public void faraway(MapleCharacter chr) {
+    public void sendSpawnPacket(MapleCharacter chr) {
     }
 
     @Override
@@ -157,5 +159,15 @@ public class MapleMapObj {
             return mob.getTemplateId() == getTemplateId() && mob.getObjectId() == getObjectId() && mob.getMap().equals(getMap());
         }
         return false;
+    }
+
+    public void notifyControllerChange(MapleCharacter chr) {
+
+    }
+
+    public Rect getVisibleRect() {
+        int x = getPosition().getX();
+        int y = getPosition().getY();
+        return new Rect(x - GameConstants.MAX_VIEW_X, y - GameConstants.MAX_VIEW_Y, x + GameConstants.MAX_VIEW_X, y + GameConstants.MAX_VIEW_Y);
     }
 }

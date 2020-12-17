@@ -1,30 +1,35 @@
 package im.cave.ms.client.character.temp;
 
+import im.cave.ms.client.character.Option;
+
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 1/2/2018.
  */
 public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat> {
-    IndiePAD(0),
+    IndiePAD(0), // Checked
     IndieMAD(1),
-    IndiePDD(2),
+    IndiePDD(2), // Checked
     IndieMDD(-1),
     IndieMHP(3),
-    IndieMHPR(4),// v202.3
+    IndieMHPR(4), // Checked
     IndieMMP(5),
-    IndieMMPR(6),
+    IndieMMPR(6), // Checked
 
     IndieACC(7),
     IndieEVA(8),
     IndieJump(9),
-    IndieSpeed(10),// v202.3
-    IndieAllStat(11),// v202.3
+    IndieSpeed(10),
+    IndieAllStat(11),
     IndieDodgeCriticalTime(12),
-    IndieEXP(13),
-    IndieBooster(15),// v202.3
+
+    IndieEXP(14), // Checked
+    IndieBooster(15), // Checked
 
     IndieFixedDamageR(16),
     PyramidStunBuff(17),
@@ -33,11 +38,11 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     PyramidBonusDamageBuff(20),
     IndieRelaxEXP(21),
     IndieSTR(22),
-    IndieDEX(23),
+    IndieDEX(23), // Checked
 
     IndieINT(24),
     IndieLUK(25),
-    IndieDamR(26),// v202.3
+    IndieDamR(26), // Checked
     IndieScriptBuff(27),
     IndieMDF(28),
     IndieMaxDamageOver(-1),
@@ -47,19 +52,19 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieCr(31),
     IndiePDDR(32),
     IndieCrDam(33),
-    IndieBDR(34),// v202.3
+    IndieBDR(34), // Checked Boss伤
     IndieStatR(35),
-    IndieStance(36),
-    IndieIgnoreMobpdpR(37),
-    IndieEmpty(38),
+    IndieStance(36), // Checked 稳如泰山
+    IndieIgnoreMobpdpR(37), // Checked 无视
+    IndieEmpty(47), // 召唤物
 
-    IndiePADR(39),// v202.3
-    IndieMADR(40),// v202.3
+    IndiePADR(39),
+    IndieMADR(40),
     IndieCrDamR(41),
     IndieEVAR(42),
     IndieMDDR(-1),
     IndieDrainHP(43),
-    IndiePMdR(-1),
+    IndiePMdR(43), // Checked 最终伤害
     IndieMaxDamageOverR(-1),
 
     IndieForceJump(44),
@@ -82,483 +87,483 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieUnk15(61),
     IndieUnk16(62),
     IndieUnk17(63),
-    IndieStatCount(64),
+    IndieStatCount(71),
 
-    PAD(65),// v202.3
-    PDD(66),// v202.3
-    MAD(67),// v202.3
-    MDD(-1),// not exists anymore
-    ACC(68),// v202.3
-    EVA(69),// v202.3
-    Craft(70),// v202.3
+    PAD(73),// Checked 物理攻击力
+    PDD(74),// Checked 防御力
+    MAD(75), // Checked 魔法攻击力
+    MDD(-1),
+    ACC(76),
+    EVA(77),
+    Craft(78),
 
-    Speed(79),// v202.3
-    Jump(80),// v202.3
-    MagicGuard(81),// v202.3
-    DarkSight(82),// v202.3
-    Booster(83),// v202.3   83
-    PowerGuard(84),//  // power guard
-    MaxHP(85),// v202.3
-    MaxMP(86),// v202.3
+    Speed(79), // Checked
+    Jump(80), // Checked
+    MagicGuard(81), // Checked 魔法盾
+    DarkSight(82), // Checked 隐身
+    Booster(83), // Checked
+    PowerGuard(84), // Checked 反伤 (愤怒之火)
+    MaxHP(85), // Checked
+    MaxMP(86), // Checked
 
-    Invincible(87),// v202.3
-    SoulArrow(88),// v202.3
-    Stun(89),// v202.3
-    Unk82(90),// v202.3
-    Unk83(91),// v202.3
-    Unk84(92),// v202.3
-    Poison(93),// v202.3
-    Seal(86),// v202.3
-    Darkness(87),// v202.3
-    ComboCounter(93),// 斗气集中
-    WeaponCharge(89),// v202.3
+    Invincible(87),
+    SoulArrow(88), // Checked 无形箭
+    Stun(89),// 
+    Unk82(90),// 
+    Unk83(91),// 
+    Unk84(92),// 
+    Poison(93),// 
+    Seal(86),// 
+    Darkness(87),// 
+    ComboCounter(93),// 斗气集中 修正
+    WeaponCharge(89),// 
 
-    HolySymbol(90),// v202.3
-    MesoUp(91),// v202.3
-    ShadowPartner(92),// v202.3
-    PickPocket(93),// v202.3
-    MesoGuard(94),// v202.3
-    Thaw(95),// v202.3
-    Weakness(96),// v202.3
-    Curse(97),// v202.3
+    HolySymbol(98), // Checked 神圣祈祷
+    MesoUp(99),//
+    ShadowPartner(100), // Checked 镜像分身
+    PickPocket(101),//
+    MesoGuard(102), // Checked 金钱盾
+    Thaw(103),//
+    Weakness(104),//
+    Curse(105),//
 
-    Slow(98),// v202.3
-    Morph(99),// v202.3
-    Regen(100),// v202.3
-    BasicStatUp(101),// v202.3
-    Stance(102),// v202.3
-    SharpEyes(103),// v202.3
-    ManaReflection(104),// v202.3
-    Attract(105),// v202.3
+    Slow(106),//
+    Morph(107),//
+    Regen(108), // Checked 持续回复
+    BasicStatUp(109), // Checked 基础属性百分比 (冒险岛勇士)
+    Stance(110), // Checked 稳如泰山
+    SharpEyes(111), // Checked 火眼晶晶
+    ManaReflection(112),//
+    Attract(113),//
 
-    NoBulletConsume(106),// v202.3
-    Infinity(107),// v202.3
-    AdvancedBless(108),// v202.3
-    IllusionStep(109),// v202.3
-    Blind(110),// v202.3
-    Concentration(111),// v202.3
-    BanMap(112),// v202.3
-    MaxLevelBuff(113),// v202.3
-    Unk114(114),// v202.3
-    Unk115(115),// v202.3
-    MesoUpByItem(116),// v202.3
-    Ghost(117),// v202.3
-    Barrier(118),// v202.3
-    ReverseInput(119),// v202.3
-    ItemUpByItem(120),// v202.3
-    RespectPImmune(121),// v202.3
-    RespectMImmune(122),// v202.3
-    DefenseAtt(123),// v202.3
+    NoBulletConsume(114), // Checked 无限子弹
+    Infinity(115),//
+    AdvancedBless(116),//
+    IllusionStep(117), // Checked 幻影步
+    Blind(118),//
+    Concentration(119),
+    BanMap(120),//
+    MaxLevelBuff(121), // Checked 200级技能 4% 攻击力魔力
+    Unk114(122),//
+    Unk115(123),//
+    MesoUpByItem(124),
+    Ghost(125),//
+    Barrier(126),//
+    ReverseInput(127),//
+    ItemUpByItem(128),//
+    RespectPImmune(129),//
+    RespectMImmune(130),//
+    DefenseAtt(123),// 
 
-    DefenseState(124),// v202.3
-    DojangBerserk(125),// v202.3
-    DojangInvincible(126),// v202.3
-    DojangShield(127),// v202.3
-    SoulMasterFinal(128),// v202.3
-    WindBreakerFinal(129),// v202.3
-    ElementalReset(130),// v202.3
-    HideAttack(131),// v202.3
+    DefenseState(124),// 
+    DojangBerserk(125),// 
+    DojangInvincible(126),// 
+    DojangShield(127),// 
+    SoulMasterFinal(128),// 
+    WindBreakerFinal(129),// Checked 隐形剑
+    ElementalReset(138), // Checked 无视抗性
+    HideAttack(131),// 
 
-    EventRate(132),// v202.3
-    ComboAbilityBuff(133),// v202.3
-    ComboDrain(134),// v202.3
-    ComboBarrier(135),// v202.3
-    BodyPressure(136),// v202.3
-    RepeatEffect(137),// v202.3
-    ExpBuffRate(138),// v202.3 [Used for 2450156]
-    StopPortion(139),// v202.3
+    EventRate(132),// 
+    ComboAbilityBuff(133),// 
+    ComboDrain(134),// 
+    ComboBarrier(135),// 
+    BodyPressure(136),// 
+    RepeatEffect(137),// 
+    ExpBuffRate(138),//  [Used for 2450156]
+    StopPortion(139),// 
 
-    StopMotion(140),// v202.3
-    Fear(141),// v202.3
-    HiddenPieceOn(142),// v202.3
-    MagicShield(143),// v202.3
-    MagicResistance(144),// v202.3
-    SoulStone(145),// v202.3
-    Flying(146),// v202.3
-    Frozen(147),// v202.3
+    StopMotion(140),// 
+    Fear(141),// 
+    HiddenPieceOn(142),// 
+    MagicShield(143),// 
+    MagicResistance(144),// 
+    SoulStone(145),// 
+    Flying(146),// 
+    Frozen(147),// 
 
-    AssistCharge(148),// v202.3
-    Enrage(149),// v202.3
-    DrawBack(150),// v202.3
-    NotDamaged(151),// v202.3
-    FinalCut(152),// v202.3
-    HowlingAttackDamage(153),// v202.3
-    BeastFormDamageUp(154),// v202.3
-    Dance(155),// v202.3
+    AssistCharge(148),// 
+    Enrage(149),// 
+    DrawBack(150), // Checked 撤步退身
+    NotDamaged(159), // Checked 无敌
+    FinalCut(160),// Checked 终极斩
+    HowlingAttackDamage(161),
+    BeastFormDamageUp(162),
+    Dance(163),//
 
-    EMHP(156),// v202.3
-    EMMP(157),// v202.3
-    EPAD(158),// v202.3
-    EMAD(159),// v202.3
-    EPDD(160),// v202.3
-    EMDD(-1),// not exists anymore
+    EMHP(164),//
+    EMMP(165),//
+    EPAD(166),//
+    EMAD(167),// Checked 魔力
+    EPDD(168),//
+    EMDD(-1),
 
-    Guard(161),// v202.3
-    Unk162(162),// v202.3
-    Unk163(163),// v202.3
-    Cyclone(164),// v202.3
-    Unk165(165),// v202.3
+    Guard(169),//
+    Unk162(170),//
+    Unk163(171),//
+    Cyclone(172),//
+    Unk165(173),//
     HowlingCritical(-1),
     HowlingMaxMP(-1),
     HowlingDefence(-1),
     HowlingEvasion(-1),
-    Conversion(166),// v202.3
-    Revive(167),// v202.3
-    PinkbeanMinibeenMove(168),// v202.3
-    Sneak(169),// v202.3
+    Conversion(174),//
+    Revive(175),//
+    PinkbeanMinibeenMove(176),//
+    Sneak(177), // Checked 潜行
 
-    Mechanic(170),// v202.3
-    BeastFormMaxHP(171),// v202.3
-    Dice(172),// v202.3
-    BlessingArmor(173),// v202.3
-    DamR(174),// v202.3
-    TeleportMasteryOn(175),// v202.3
-    CombatOrders(176),// v202.3
-    Beholder(177),// v202.3
+    Mechanic(178),//
+    BeastFormMaxHP(179),//
+    Dice(180),//
+    BlessingArmor(181),//
+    DamR(182),//
+    TeleportMasteryOn(183),//
+    CombatOrders(184), // Checked 战斗命令
+    Beholder(185),// Checked 灵魂助力
 
-    DispelItemOption(178),// v202.3
-    Inflation(179),// v202.3
-    OnixDivineProtection(180),// v202.3
-    Web(181),// v202.3
-    Bless(182),// v202.3
-    TimeBomb(183),// v202.3
-    DisOrder(184),// v202.3
-    Thread(185),// v202.3
+    DispelItemOption(186),//
+    Inflation(187),//
+    OnixDivineProtection(188),//
+    Web(189),//
+    Bless(190),//
+    TimeBomb(191),//
+    DisOrder(192),//
+    Thread(193),//
 
-    Team(186),// v202.3
-    Explosion(187),// v202.3
-    BuffLimit(188),// v202.3
-    STR(189),// v202.3
-    INT(190),// v202.3
-    DEX(191),// v202.3
-    LUK(192),// v202.3
-    DispelItemOptionByField(193),// v202.3
+    Team(194),//
+    Explosion(195),//
+    BuffLimit(196),//
+    STR(197),//
+    INT(198),//
+    DEX(199),// Checked
+    LUK(200),//
+    DispelItemOptionByField(201),
 
-    DarkTornado(194), // Cygnus Attack
-    PVPDamage(195),// v202.3
-    PvPScoreBonus(196),// v202.3
-    PvPInvincible(197),// v202.3
-    PvPRaceEffect(198),// v202.3
-    WeaknessMdamage(199),// v202.3
-    Frozen2(200),// v202.3
-    PVPDamageSkill(201),// v202.3
+    DarkTornado(202), // Cygnus Attack
+    PVPDamage(195),// 
+    PvPScoreBonus(196),// 
+    PvPInvincible(197),// 
+    PvPRaceEffect(198),// 
+    WeaknessMdamage(199),// 
+    Frozen2(200),// 
+    PVPDamageSkill(201),// 
 
-    AmplifyDamage(202),// v202.3
+    AmplifyDamage(202),// 
     IceKnight(-1),
-    Shock(203),// v202.3
-    InfinityForce(204),// v202.3
-    IncMaxHP(205),// v202.3
-    IncMaxMP(206),// v202.3
-    HolyMagicShell(207),// v202.3
-    KeyDownTimeIgnore(208),// v202.3
+    Shock(203),// 
+    InfinityForce(204),// 
+    IncMaxHP(205),// 
+    IncMaxMP(206),// 
+    HolyMagicShell(207),// 
+    KeyDownTimeIgnore(208),// 
 
-    ArcaneAim(209),// v202.3
-    MasterMagicOn(210),// v202.3
-    AsrR(211),// v202.3
-    TerR(212),// v202.3
-    DamAbsorbShield(213),// v202.3
-    DevilishPower(214),// v202.3
-    Roulette(215),// v202.3
-    SpiritLink(216),// v202.3
+    ArcaneAim(209),// 
+    MasterMagicOn(210),// 
+    AsrR(211),// 异常抗性
+    TerR(212),// 属性抗性
+    DamAbsorbShield(213),// 伤害吸收
+    DevilishPower(214),// 
+    Roulette(215),// 
+    SpiritLink(216),// 
 
-    AsrRByItem(217),// v202.3
-    Event(218),// v202.3
-    CriticalBuff(219),// v202.3
-    DropRate(220),// v202.3
-    PlusExpRate(221),// v202.3
-    ItemInvincible(222),// v202.3
+    AsrRByItem(217),// 
+    Event(218),// 
+    CriticalBuff(219), // Checked 暴击率
+    DropRate(220),// 
+    PlusExpRate(221),// 
+    ItemInvincible(222),// 
     Awake(223),
-    ItemCritical(224),// v202.3
+    ItemCritical(224),// 
 
-    ItemEvade(225),// v202.3
-    Event2(226),// v202.3
-    VampiricTouch(227),// v202.3
-    DDR(228),// v202.3
+    ItemEvade(225),// 
+    Event2(226),// 
+    VampiricTouch(227),// 
+    DDR(228),// 
     IncCriticalDamMin(-1),
     IncCriticalDamMax(-1),
-    IncTerR(229),// v202.3
-    IncAsrR(230),// v202.3
+    IncTerR(229),// 
+    IncAsrR(230),// 
 
-    DeathMark(231),// v202.3
-    UsefulAdvancedBless(232),// v202.3
-    Lapidification(233),// v202.3
-    VenomSnake(234),// v202.3
-    CarnivalAttack(235),// v202.3
-    CarnivalDefence(236),// v202.3
-    CarnivalExp(237),// v202.3
-    SlowAttack(238),// v202.3
+    DeathMark(231),// 
+    UsefulAdvancedBless(232),// 
+    Lapidification(233),// 
+    VenomSnake(234),// 
+    CarnivalAttack(235),// 
+    CarnivalDefence(236),// 
+    CarnivalExp(237),// 
+    SlowAttack(238),// 
 
-    PyramidEffect(239),// v202.3
-    KillingPoint(240),// v202.3
-    HollowPointBullet(241),// v202.3
-    KeyDownMoving(242),// v202.3
-    IgnoreTargetDEF(243),// v202.3
-    ReviveOnce(244),// v202.3
-    Invisible(245),// v202.3
-    EnrageCr(246),// v202.3
+    PyramidEffect(247),//
+    KillingPoint(248),//
+    HollowPointBullet(249),//
+    KeyDownMoving(250),//
+    IgnoreTargetDEF(251),//
+    ReviveOnce(252),//
+    Invisible(253),// Checked 隐身（幻影屏障）
+    EnrageCr(246),// 
 
-    EnrageCrDam(247),// v202.3
-    Judgement(248),// v202.3
-    DojangLuckyBonus(249),// v202.3
-    PainMark(250),// v202.3
-    Magnet(251),// v202.3
-    MagnetArea(252),// v202.3
-    Unk253(253),// v202.3
-    Unk254(254),// v202.3
-    Unk255(255),// v202.3
-    Unk256(256),// v202.3
-    Unk257(257),// v202.3
-    TideOfBattle(258),// v202.3
+    EnrageCrDam(247),// 
+    Judgement(248),// 
+    DojangLuckyBonus(249),// 
+    PainMark(250),// 
+    Magnet(251),// 
+    MagnetArea(252),// 
+    Unk253(253),// 
+    Unk254(254),// 
+    Unk255(255),// 
+    Unk256(256),// 
+    Unk257(257),// 
+    TideOfBattle(258),// 
     GrandGuardian(259),// v203.2 Paladin VSkills
-    DropPer(260),// v202.3 [Used for 2023145]
-    VampDeath(261),// v202.3
-    BlessingArmorIncPAD(262),// v202.3
-    KeyDownAreaMoving(263),// v202.3
-    Larkness(264),// v202.3
-    StackBuff(265),// v202.3
-    BlessOfDarkness(266),// v202.3
-    AntiMagicShell(267),// v202.3
-    AntiMagicShellBool(267),// v202.3
-    LifeTidal(268),// v202.3
-    HitCriDamR(269),// v202.3
-    SmashStack(270),// v202.3
+    DropPer(260),//  [Used for 2023145]
+    VampDeath(261),// 
+    BlessingArmorIncPAD(262),// 
+    KeyDownAreaMoving(263),// 
+    Larkness(264),// 
+    StackBuff(265),// 
+    BlessOfDarkness(266),// 
+    AntiMagicShell(267),// 
+    AntiMagicShellBool(267),// 
+    LifeTidal(268),// 
+    HitCriDamR(269),// 
+    SmashStack(270),// 
 
-    PartyBarrier(271),// v202.3
-    ReshuffleSwitch(272),// v202.3
-    SpecialAction(273),// v202.3
-    VampDeathSummon(274),// v202.3
-    StopForceAtomInfo(275),// v202.3
-    SoulGazeCriDamR(276),// v202.3
-    SoulRageCount(277),// v202.3
-    PowerTransferGauge(278),// v202.3
+    PartyBarrier(271),// 
+    ReshuffleSwitch(272),// 
+    SpecialAction(273),// 
+    VampDeathSummon(274),// 
+    StopForceAtomInfo(275),// 
+    SoulGazeCriDamR(276),// 
+    SoulRageCount(277),// 
+    PowerTransferGauge(278),// 
 
-    AffinitySlug(279),// v202.3
-    Trinity(280),// v202.3
-    IncMaxDamage(281),// v202.3
-    BossShield(282),// v202.3
-    MobZoneState(283),// v202.3
-    GiveMeHeal(284),// v202.3
-    TouchMe(285),// v202.3
-    Contagion(286),// v202.3
+    AffinitySlug(279),// 
+    Trinity(280),// 
+    IncMaxDamage(281),// 
+    BossShield(282),// 
+    MobZoneState(283),// 
+    GiveMeHeal(284),// 
+    TouchMe(285),// 
+    Contagion(286),// 
 
-    ComboUnlimited(287),// v202.3
-    SoulExalt(288),// v202.3
-    IgnorePCounter(289),// v202.3
-    IgnoreAllCounter(290),// v202.3
-    IgnorePImmune(291),// v202.3
-    IgnoreAllImmune(292),// v202.3
-    Unk293(293),// v202.3
-    FinalJudgement(294),// v202.3
-    IceAura(295),// v202.3
+    ComboUnlimited(287),// 
+    SoulExalt(288),// 
+    IgnorePCounter(289),// 
+    IgnoreAllCounter(290),// 
+    IgnorePImmune(291),// 
+    IgnoreAllImmune(292),// 
+    Unk293(293),// 
+    FinalJudgement(294),// 
+    IceAura(295),// 
 
-    FireAura(296),// v202.3
-    VengeanceOfAngel(297),// v202.3
-    HeavensDoor(298),// v202.3
-    Preparation(299),// v202.3
-    BullsEye(300),// v202.3
-    IncEffectHPPotion(301),// v202.3
-    IncEffectMPPotion(302),// v202.3
-    BleedingToxin(303),// v202.3
+    FireAura(296),// 
+    VengeanceOfAngel(297),// 
+    HeavensDoor(298),// 
+    Preparation(299),// 
+    BullsEye(300),// 
+    IncEffectHPPotion(301),// 
+    IncEffectMPPotion(302),// 
+    BleedingToxin(303),// 
 
-    IgnoreMobDamR(304),// v202.3
-    Asura(305),// v202.3
-    Unk306(306),// v202.3
-    FlipTheCoin(307),// v202.3
-    UnityOfPower(308),// v202.3
-    Stimulate(309),// v202.3
-    ReturnTeleport(310),// v202.3
-    DropRIncrease(311),// v202.3
-    IgnoreMobpdpR(312),// v202.3
+    IgnoreMobDamR(304),// 
+    Asura(305),// 
+    Unk306(306),// 
+    FlipTheCoin(307),// 
+    UnityOfPower(308),// 
+    Stimulate(309),// 
+    ReturnTeleport(310),// 
+    DropRIncrease(311),// 
+    IgnoreMobpdpR(312),// 
 
-    BdR(313),// v202.3
-    CapDebuff(314),// v202.3
-    Exceed(315),// v202.3
-    DiabolikRecovery(316),// v202.3
-    FinalAttackProp(317),// v202.3
-    ExceedOverload(318),// v202.3
-    OverloadCount(319),// v202.3
-    BuckShot(320),// v202.3
+    BdR(313),// 
+    CapDebuff(314),// 
+    Exceed(315),// 
+    DiabolikRecovery(316),// 
+    FinalAttackProp(317),// 
+    ExceedOverload(318),// 
+    OverloadCount(319),// 
+    BuckShot(320),// 
 
-    FireBomb(321),// v202.3
-    HalfstatByDebuff(322),// v202.3
-    SurplusSupply(323),// v202.3
-    SetBaseDamage(324),// v202.3
-    EVAR(325),// v202.3
-    NewFlying(326),// v202.3
-    AmaranthGenerator(327),// v202.3
-    OnCapsule(328),// v202.3
+    FireBomb(321),// 
+    HalfstatByDebuff(322),// 
+    SurplusSupply(323),// 
+    SetBaseDamage(324),// 
+    EVAR(325),// 
+    NewFlying(326),// 
+    AmaranthGenerator(327),// 
+    OnCapsule(328),// 
 
-    CygnusElementSkill(329),// v202.3
-    StrikerHyperElectric(330),// v202.3
-    EventPointAbsorb(331),// v202.3
-    EventAssemble(332),// v202.3
-    StormBringer(333),// v202.3
-    ACCR(334),// v202.3
-    DEXR(335),// v202.3
-    Albatross(336),// v202.3
+    CygnusElementSkill(329),// 
+    StrikerHyperElectric(330),// 
+    EventPointAbsorb(331),// 
+    EventAssemble(332),// 
+    StormBringer(333),// 
+    ACCR(334),//  回避:命中
+    DEXR(335),// 
+    Albatross(342),// Checked 信天翁
 
-    Translucence(337),// v202.3
-    PoseType(338),// v202.3
-    PoseTypeBool(338),// v202.3
-    LightOfSpirit(339),// v202.3
-    ElementSoul(340),// v202.3
-    GlimmeringTime(341),// v202.3
-    TrueSight(342),// v202.3
-    SoulExplosion(343),// v202.3
-    SoulMP(344),// v202.3
+    Translucence(343),// 神之子透明 343
+    PoseType(344),//  日月转换 344
+    PoseTypeBool(345),// 345
+    LightOfSpirit(346),// Checked 元素:灵魂
+    ElementSoul(347),//
+    GlimmeringTime(347),//
+    TrueSight(348),//
+    SoulExplosion(349),//
+    SoulMP(350),//
 
-    FullSoulMP(345),// v202.3
-    SoulSkillDamageUp(346),// v202.3
-    ElementalCharge(347),// v202.3
-    Restoration(348),// v202.3
-    CrossOverChain(349),// v202.3
-    ChargeBuff(350),// v202.3
-    Reincarnation(351),// v202.3
-    KnightsAura(352),// v202.3
+    FullSoulMP(351),//
+    SoulSkillDamageUp(352),//
+    ElementalCharge(353),// 元素冲击
+    Restoration(354),// Checked 元气恢复
+    CrossOverChain(355), // Checked 355 交叉锁链
+    ChargeBuff(350),//  连环环破
+    Reincarnation(351),// 
+    KnightsAura(352),//  抗震防御
 
-    ChillingStep(353),// v202.3
-    DotBasedBuff(354),// v202.3
-    BlessEnsenble(355),// v202.3
-    ComboCostInc(356),// v202.3
-    ExtremeArchery(357),// v202.3
-    NaviFlying(358),// v202.3
-    QuiverCatridge(359),// v202.3
-    AdvancedQuiver(360),// v202.3
+    ChillingStep(353),// 寒冰步
+    DotBasedBuff(354),// 元素爆破?
+    BlessEnsenble(355),// 祈祷众生
+    ComboCostInc(356),// 
+    ExtremeArchery(357),// 极限射箭
+    NaviFlying(358),//
+    QuiverCatridge(359),// 三彩箭矢
+    AdvancedQuiver(360),// 进阶箭筒
 
-    UserControlMob(361),// v202.3
-    ImmuneBarrier(362),// v202.3
-    ArmorPiercing(363),// v202.3
-    ZeroAuraStr(364),// v202.3
-    ZeroAuraSpd(365),// v202.3
-    CriticalGrowing(366),// v202.3
-    QuickDraw(367),// v202.3
-    BowMasterConcentration(368),// v202.3
+    UserControlMob(361),//
+    ImmuneBarrier(362),// 
+    ArmorPiercing(363),//  防甲穿透
+    ZeroAuraStr(364),// 圣洁之力
+    ZeroAuraSpd(365),//  神圣迅捷
+    CriticalGrowing(366),//  暴击蓄能
+    QuickDraw(367),//  神速衔接
+    BowMasterConcentration(368), // 372  集中精神
 
-    TimeFastABuff(369),// v202.3
-    TimeFastBBuff(370),// v202.3
-    GatherDropR(371),// v202.3
-    AimBox2D(372),// v202.3
-    IncMonsterBattleCaptureRate(373),// v202.3
-    CursorSniping(374),// v202.3
-    DebuffTolerance(375),// v202.3
-    Unk376(376),// v202.3
-    DotHealHPPerSecond(377),// v202.3
+    TimeFastABuff(369),//  提速时刻_侦查
+    TimeFastBBuff(370),//  提速时刻_战斗
+    GatherDropR(371),// 
+    AimBox2D(372),// 
+    IncMonsterBattleCaptureRate(373),// 
+    CursorSniping(374),// 
+    DebuffTolerance(375),// 
+    Unk376(376),// 
+    DotHealHPPerSecond(377),// 
 
-    SpiritGuard(378),// v202.3
-    Unk379(379),// v202.3
-    PreReviveOnce(380),// v202.3
-    SetBaseDamageByBuff(381),// v202.3
-    LimitMP(382),// v202.3
-    ReflectDamR(383),// v202.3
-    ComboTempest(384),// v202.3
-    MHPCutR(385),// v202.3
-    MMPCutR(386),// v202.3
+    SpiritGuard(378),// 招魂结界
+    Unk379(379),// 九死一生
+    PreReviveOnce(380),// 
+    SetBaseDamageByBuff(381),// 
+    LimitMP(382),// 
+    ReflectDamR(383),// 
+    ComboTempest(384),// 
+    MHPCutR(385),// 
+    MMPCutR(386),// 
 
-    SelfWeakness(387),// v202.3
-    ElementDarkness(388),// v202.3
-    FlareTrick(389),// v202.3
-    Ember(390),// v202.3
-    Dominion(391),// v202.3
-    SiphonVitality(392),// v202.3
-    DarknessAscension(393),// v202.3
-    BossWaitingLinesBuff(394),// v202.3
+    SelfWeakness(387),// 
+    ElementDarkness(388),// 
+    FlareTrick(389),// 
+    Ember(390),// 
+    Dominion(391),// 
+    SiphonVitality(392),// 
+    DarknessAscension(393),// 
+    BossWaitingLinesBuff(394),// 
 
-    DamageReduce(395),// v202.3
-    ShadowServant(396),// v202.3
-    ShadowIllusion(397),// v202.3
-    KnockBack(398),// v202.3
-    AddAttackCount(399),// v202.3
-    ComplusionSlant(400),// v202.3
-    JaguarSummoned(401),// v202.3
-    JaguarCount(402),// v202.3
+    DamageReduce(395),// 
+    ShadowServant(396),// 
+    ShadowIllusion(397),// 
+    KnockBack(398),// 
+    AddAttackCount(399),// 
+    ComplusionSlant(400),// 
+    JaguarSummoned(401),// 
+    JaguarCount(402),// 
 
-    SSFShootingAttack(403),// v202.3
-    DevilCry(404),// v202.3
-    ShieldAttack(405),// v202.3
-    BMageAura(406),// v202.3
-    DarkLighting(407),// v202.3
-    AttackCountX(408),// v202.3
-    BMageDeath(409),// v202.3
-    BombTime(410),// v202.3
-    NoDebuff(411),// v202.3
-    BattlePvPMikeShield(412),// v202.3
-    BattlePvPMikeBugle(413),// v202.3
-    XenonAegisSystem(414),// v202.3
-    AngelicBursterSoulSeeker(415),// v202.3
-    HiddenPossession(416),// v202.3
-    NightWalkerBat(417),// v202.3
-    NightLordMark(418),// v202.3
-    WizardIgnite(419),// v202.3
-    FireBarrier(420),// v202.3
-    ChangeFoxMan(421),// v202.3
+    SSFShootingAttack(403),// 
+    DevilCry(404),// 
+    ShieldAttack(405),// 
+    BMageAura(406),// 
+    DarkLighting(407),// 
+    AttackCountX(408),// 
+    BMageDeath(409),// 
+    BombTime(410),// 
+    NoDebuff(411),// 
+    BattlePvPMikeShield(412),// 
+    BattlePvPMikeBugle(413),// 
+    XenonAegisSystem(414),// 
+    AngelicBursterSoulSeeker(415),// 
+    HiddenPossession(416),// 
+    NightWalkerBat(417),// 
+    NightLordMark(418),// 
+    WizardIgnite(419),// 
+    FireBarrier(420),// 
+    ChangeFoxMan(421),// 
     DivineEcho(422),// v203.2 (Paladin V Buff).
     Unk423(423),
     Unk424(424),
     Unk425(425),
-    RIFT_OF_DAMNATION(426),// v202.3
+    RIFT_OF_DAMNATION(426),// 
     Unk427(427),
     Unk428(428),
     Unk429(429),
     Unk430(430),
     Unk431(431),
-    BattlePvPHelenaMark(432),// v202.3
-    BattlePvPHelenaWindSpirit(433),// v202.3
-    BattlePvPLangEProtection(434),// v202.3
-    BattlePvPLeeMalNyunScaleUp(435),// v202.3
-    BattlePvPRevive(436),// v202.3
-    PinkbeanAttackBuff(437),// v202.3
-    PinkbeanRelax(438),// v202.3
-    PinkbeanRollingGrade(439),// v202.3
-    PinkbeanYoYoStack(440),// v202.3
-    RandAreaAttack(441),// v202.3
+    BattlePvPHelenaMark(432),// 
+    BattlePvPHelenaWindSpirit(433),// 
+    BattlePvPLangEProtection(434),//结合灵气
+    BattlePvPLeeMalNyunScaleUp(435),// 
+    BattlePvPRevive(436),//   SECONDARY_STAT_BattlePvP_LangE_Protection
+    PinkbeanAttackBuff(437),// 
+    PinkbeanRelax(438),// 
+    PinkbeanRollingGrade(439),// 
+    PinkbeanYoYoStack(440),// 
+    RandAreaAttack(441),//  SECONDARY_STAT_PinkbeanRollingGrade
     Unk442(442),
     NextAttackEnhance(443),
     AranBeyonderDamAbsorb(444),
     AranCombotempastOption(445),
     NautilusFinalAttack(446),
     ViperTimeLeap(447),
-    RoyalGuardState(448),// v202.3
-    RoyalGuardPrepare(449),// v202.3
-    MichaelSoulLink(450),// v202.3
-    MichaelStanceLink(451),// v202.3
-    TriflingWhimOnOff(452),// v202.3
-    AddRangeOnOff(453),// v202.3
+    RoyalGuardState(448),// 
+    RoyalGuardPrepare(449),// 
+    MichaelSoulLink(450),// 
+    MichaelStanceLink(451),// 
+    TriflingWhimOnOff(452),// 
+    AddRangeOnOff(453),// 
 
-    KinesisPsychicPoint(454),// v202.3
-    KinesisPsychicOver(455),// v202.3
-    KinesisPsychicShield(456),// v202.3
-    KinesisIncMastery(457),// v202.3
-    KinesisPsychicEnergeShield(458),// v202.3
-    BladeStance(459),// v202.3
-    DebuffActiveSkillHPCon(460),// v202.3
-    DebuffIncHP(461),// v202.3
+    KinesisPsychicPoint(454),// 
+    KinesisPsychicOver(455),// 
+    KinesisPsychicShield(456),// 
+    KinesisIncMastery(457),// 泰山? 459?
+    KinesisPsychicEnergeShield(458),// 
+    BladeStance(459),// 
+    DebuffActiveSkillHPCon(460),// 
+    DebuffIncHP(461),// 
 
-    BowMasterMortalBlow(462),// v202.3
-    AngelicBursterSoulResonance(463),// v202.3
+    BowMasterMortalBlow(462),//
+    AngelicBursterSoulResonance(463),// 
     Fever(-1),
-    IgnisRore(464),// v202.3
-    RpSiksin(465),// v202.3
-    TeleportMasteryRange(466),// v202.3
-    FixCoolTime(467),// v202.3
-    IncMobRateDummy(468),// v202.3
+    IgnisRore(464),// 
+    RpSiksin(465),// 
+    TeleportMasteryRange(466),// 
+    FixCoolTime(467),// 
+    IncMobRateDummy(468),// 
 
-    AdrenalinBoost(469),// v202.3
-    AranSmashSwing(470),// v202.3
-    AranDrain(471),// v202.3
-    AranBoostEndHunt(472),// v202.3
-    HiddenHyperLinkMaximization(473),// v202.3
-    RWCylinder(474),// v202.3
-    RWCombination(475),// v202.3
-    Unk476(476),// v202.3
-    RWMagnumBlow(477),// v202.3
+    AdrenalinBoost(469),// 
+    AranSmashSwing(470),//  激素狂飙
+    AranDrain(471),// 
+    AranBoostEndHunt(472),// 
+    HiddenHyperLinkMaximization(473),// 
+    RWCylinder(474),// 
+    RWCombination(475),// 
+    Unk476(476),// 
+    RWMagnumBlow(477),// 
 
-    RWBarrier(478),// v202.3
-    RWBarrierHeal(479),// v202.3
-    RWMaximizeCannon(480),// v202.3
-    RWOverHeat(481),// v202.3
-    UsingScouter(482),// v202.3
-    RWMovingEvar(483),// v202.3
-    Stigma(484),// v202.3
+    RWBarrier(478),// 
+    RWBarrierHeal(479),//  忍耐之盾
+    RWMaximizeCannon(480),// 
+    RWOverHeat(481),// 
+    UsingScouter(482),// 
+    RWMovingEvar(483),// 
+    Stigma(484),// 
     Unk485(485),
     Unk486(486),
     Unk487(487),
@@ -567,17 +572,17 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk490(490),
     Unk491(491),
     Unk492(492),
-    LightningCascade(493),// v202.3
-    BulletBarrage(494),// v202.3
+    LightningCascade(493),// 
+    BulletBarrage(494),// 
     Unk495(495),
-    AuraScythe(496),// v202.3
+    AuraScythe(496),// 
     Unk497(497),
     Unk498(498),
     Unk499(499),
     Unk500(500),
     Unk501(501),
-    ManaOverload(502),// v202.3
-    Unk503(503),
+    ManaOverload(502),// 
+    Unk503(503),  // SECONDARY_STAT_UNK476
     Unk504(504),
     SpreadThrow(505),
     WindEnergy(506),
@@ -588,22 +593,22 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk511(511),
     BlitzShield(512),
     Unk513(513),
-    FreudWisdom(514),// v202.3 or SKILL_COOLTIME_REDUCE_R
-    CoreOverload(515),// v202.3
+    FreudWisdom(514),//  or SKILL_COOLTIME_REDUCE_R
+    CoreOverload(515),// 
     Spotlight(516),// angelic buster v skill
-    Unk517(517),// v202.3
+    Unk517(517),// 
     Unk518(518),
     CrystallineWings(519),// v203.2
     Unk520(520),
     Unk521(521),
-    Overdrive(522),// v202.3 or attack power
-    EtherealForm(523),// v202.3
-    LastResort(524),// v202.3
+    Overdrive(522),//  or attack power
+    EtherealForm(523),// 
+    LastResort(524),// 
     Unk525(525),
-    Unk526(526),// v202.3
-    Unk527(527),// v202.3
+    Unk526(526),// 
+    Unk527(527),// 
     Unk528(528),
-    Unk529(529),// v202.3
+    Unk529(529),// 
     Unk530(530),
     Unk531(531),
     Unk532(532),
@@ -612,21 +617,21 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk535(535),
     Unk536(536),
     Unk537(537),
-    Unk538(538),// v202.3
-    Unk539(539),// v202.3
+    Unk538(538),// 
+    Unk539(539),// 
     Unk540(540),
     Unk541(541),
-    SpecterEnergy(542),// v202.3
-    SpecterState(543),// v202.3
-    BasicCast(544),// v202.3
-    ScarletCast(545),// v202.3
-    GustCast(546),// v202.3
-    AbyssalCast(547),// v202.3
-    ImpendingDeath(548),// v202.3
-    AbyssalRecall(549),// v202.3
-    ChargeSpellAmplifier(550),// v202.3
-    InfinitySpell(551),// v202.3
-    ConversionOverdrive(552),// v202.3
+    SpecterEnergy(542),// 
+    SpecterState(543),// 
+    BasicCast(544),// 
+    ScarletCast(545),// 
+    GustCast(546),// 
+    AbyssalCast(547),// 
+    ImpendingDeath(548),// 
+    AbyssalRecall(549),// 
+    ChargeSpellAmplifier(550),// 
+    InfinitySpell(551),// 
+    ConversionOverdrive(552),// 
     Unk553(553),
     Unk554(554),
     Unk555(555),
@@ -654,46 +659,46 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk577,
     Unk578,
     Unk579,
-    HayatoStance(580),// v202.3
-    HayatoStanceBonus(581),// v202.3
+    HayatoStance(580),// 
+    HayatoStanceBonus(581),// 
     Unk582,
     Unk583,
     Unk584,
     Unk585,
     Unk586,
     Unk587,
-    EyeForEye(588),// v202.3
-    WillowDodge(589),// v202.3
-    Unk465(590),// v202.3
-    HayatoPAD(591),// v202.3
-    HayatoHPR(592),// v202.3
-    HayatoMPR(593),// v202.3
-    HayatoBooster(594),// v202.3
-    Unk595,// v202.3
-    Unk596,// v202.3
-    Jinsoku(597),// v202.3
-    HayatoCr(598),// v202.3
-    HakuBlessing(599),// v202.3
-    HayatoBoss(600),// v202.3
-    BattoujutsuAdvance(601),// v202.3
-    Unk602,// v202.3
-    Unk603,// v202.3
-    BlackHeartedCurse(604),// v202.3
-    BeastMode(605),// v202.3
-    TeamRoar(606),// v202.3
-    Unk607(607),// v202.3
-    Unk608(608),// v202.3
-    Unk609(609),// v202.3
-    Unk610(610),// v202.3
-    Unk611(611),// v202.3
-    Unk612(612),// v202.3
-    Unk613(613),// v202.3
-    Unk614(614),// v202.3
-    Unk615(615),// v202.3
-    Unk616(616),// v202.3
-    Unk617(617),// v202.3
-    Unk618(618),// v202.3
-    Unk619(619),// v202.3
+    EyeForEye(588),// 
+    WillowDodge(589),// 
+    Unk465(590),// 
+    HayatoPAD(591),// 
+    HayatoHPR(592),// 
+    HayatoMPR(593),// 
+    HayatoBooster(594),// 
+    Unk595,// 
+    Unk596,// 
+    Jinsoku(597),// 
+    HayatoCr(598),// 
+    HakuBlessing(599),// 
+    HayatoBoss(600),// 
+    BattoujutsuAdvance(601),// 
+    Unk602,// 
+    Unk603,// 
+    BlackHeartedCurse(604),// 
+    BeastMode(605),// 
+    TeamRoar(606),// 
+    Unk607(607),// 
+    Unk608(608),// 
+    Unk609(609),// 
+    Unk610(610),// 
+    Unk611(611),// 
+    Unk612(612),// 
+    Unk613(613),// 
+    Unk614(614),// 
+    Unk615(615),// 
+    Unk616(616),// 
+    Unk617(617),// 
+    Unk618(618),// 
+    Unk619(619),// 
     Unk620,
     Unk621,
     Unk622,
@@ -701,14 +706,36 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk624,
     Unk625,
     Unk626,
-    EnergyCharged(627),// v202.3
-    DashSpeed(628),// v202.3
-    DashJump(629),// v202.3
-    RideVehicle(630),// v202.3
-    PartyBooster(631),// v202.3 - or 631 according to my sniffs
-    GuidedBullet(632),// v202.3
-    Undead(633),// v202.3
-    RideVehicleExpire(634),// v202.3
+    EnergyCharged(627),// 
+    DashSpeed(628),// 
+    DashJump(629),// 
+    RideVehicle(630),// 
+    PartyBooster(631),//  - or 631 according to my sniffs
+    GuidedBullet(632),// 
+    Undead(633),// 
+    RideVehicleExpire(634),//
+    unk690(690),
+    unk691(691),
+    unk692(692),
+    unk693(693),
+    unk694(694), //疾驰速度
+    unk695(695),
+    unk696(696),
+    unk697(697), //疾驰跳跃
+    unk698(698),
+    unk699(699),  //骑兽技能
+    unk700(700),
+    unk701(701), //极速领域
+    unk702(702),
+    unk703(703), // 导航辅助
+    unk704(704),
+    unk705(705),
+    unk706(706),
+    unk707(707),
+    unk708(708), //SECONDARY_STAT_Undead
+    unk709(709), // SECONDARY_STAT_RideVehicleExpire
+    unk720(720),
+    unk721(721),
     ;
 
     private final int bitPos;
@@ -846,6 +873,33 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
         this.pos = bitPos / 32;
     }
 
+    public static Map<CharacterTemporaryStat, List<Option>> getSpawnBuffs() {
+        HashMap<CharacterTemporaryStat, List<Option>> spawnBuffs = new HashMap();
+        spawnBuffs.put(IndieUnk3, null);
+        spawnBuffs.put(IndieUnk4, null);
+        spawnBuffs.put(IndieUnk6, null);
+        spawnBuffs.put(IndieUnk10, null);
+        spawnBuffs.put(PyramidEffect, null);
+        spawnBuffs.put(KillingPoint, null);
+        spawnBuffs.put(BattlePvPLangEProtection, null);
+        spawnBuffs.put(BattlePvPRevive, null);
+        spawnBuffs.put(RandAreaAttack, null);
+        spawnBuffs.put(AranSmashSwing, null);
+        spawnBuffs.put(RWBarrierHeal, null);
+        spawnBuffs.put(Unk503, null);
+        spawnBuffs.put(Unk540, null);
+        spawnBuffs.put(Unk584, null);
+        spawnBuffs.put(WillowDodge, null);
+        spawnBuffs.put(unk694, null);
+        spawnBuffs.put(unk697, null);
+        spawnBuffs.put(unk699, null);
+        spawnBuffs.put(unk701, null);
+        spawnBuffs.put(unk703, null);
+        spawnBuffs.put(unk708, null);
+        spawnBuffs.put(unk709, null);
+        return spawnBuffs;
+    }
+
     public boolean isEncodeInt() {
         switch (this) {
             case CarnivalDefence:
@@ -950,33 +1004,33 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     public boolean isRemoteEncode4() {
         switch (this) {
-            case NoBulletConsume:// v202.3
-            case RespectPImmune:// v202.3
-            case RespectMImmune:// v202.3
-            case DefenseAtt:// v202.3
-            case DefenseState:// v202.3
-            case MagicShield:// v202.3
-            case PyramidEffect:// v202.3
-            case BlessOfDarkness:// v202.3
-            case Unk306:// v202.3
-            case ImmuneBarrier:// v202.3
-            case Dance:// v202.3
-            case Unk379:// v202.3
-            case Unk425:// v202.3
+            case NoBulletConsume:// 
+            case RespectPImmune:// 
+            case RespectMImmune:// 
+            case DefenseAtt:// 
+            case DefenseState:// 
+            case MagicShield:// 
+            case PyramidEffect:// 
+            case BlessOfDarkness:// 
+            case Unk306:// 
+            case ImmuneBarrier:// 
+            case Dance:// 
+            case Unk379:// 
+            case Unk425:// 
             case SpiritGuard:
-            case KinesisPsychicEnergeShield:// v202.3
-            case AdrenalinBoost:// v202.3
-            case RWBarrier:// v202.3
-            case Unk476:// v202.3
-            case RWMagnumBlow:// v202.3
-            case DivineEcho:// v202.3
-            case Unk503:// v202.3
-            case Unk531:// v202.3
-            case Unk612:// v202.3
-            case Unk613:// v202.3
-            case Unk614:// v202.3
-            case Unk617:// v202.3
-            case Unk618:// v202.3
+            case KinesisPsychicEnergeShield:// 
+            case AdrenalinBoost:// 
+            case RWBarrier:// 
+            case Unk476:// 
+            case RWMagnumBlow:// 
+            case DivineEcho:// 
+            case Unk503:// 
+            case Unk531:// 
+            case Unk612:// 
+            case Unk613:// 
+            case Unk614:// 
+            case Unk617:// 
+            case Unk618:// 
             case HayatoStance:
                 //case Unk487:
             case Unk488:
@@ -989,18 +1043,18 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     public boolean isRemoteEncode1() {
         switch (this) {
-            case Speed:// v202.3
-            case Poison:// v202.3
-            case Seal:// v202.3
-            case Shock:// v202.3
-            case Team:// v202.3
+            case Speed:// 
+            case Poison:// 
+            case Seal:// 
+            case Shock:// 
+            case Team:// 
             case Cyclone:
-            case OnCapsule:// v202.3
-            case KillingPoint:// v202.3
-            case PinkbeanRollingGrade:// v202.3
-            case ReturnTeleport:// v202.3
-            case FireBomb:// v202.3
-            case SurplusSupply:// v202.3
+            case OnCapsule:// 
+            case KillingPoint:// 
+            case PinkbeanRollingGrade:// 
+            case ReturnTeleport:// 
+            case FireBomb:// 
+            case SurplusSupply:// 
             case Unk585:
                 return true;
             default:
@@ -1010,40 +1064,40 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     public boolean isNotEncodeReason() {
         switch (this) {
-            case Speed:// v202.3
-            case Poison:// v202.3
-            case Seal:// v202.3
-            case ElementalCharge:// v202.3
-            case Shock:// v202.3
-            case Team:// v202.3
-            case Ghost:// v202.3
-            case NoBulletConsume:// v202.3
-            case RespectPImmune:// v202.3
-            case RespectMImmune:// v202.3
-            case DefenseAtt:// v202.3
-            case DefenseState:// v202.3
-            case MagicShield:// v202.3
+            case Speed:// 
+            case Poison:// 
+            case Seal:// 
+            case ElementalCharge:// 
+            case Shock:// 
+            case Team:// 
+            case Ghost:// 
+            case NoBulletConsume:// 
+            case RespectPImmune:// 
+            case RespectMImmune:// 
+            case DefenseAtt:// 
+            case DefenseState:// 
+            case MagicShield:// 
             case Cyclone:
-            case OnCapsule:// v202.3
-            case PyramidEffect:// v202.3
-            case KillingPoint:// v202.3
-            case PinkbeanRollingGrade:// v202.3
-            case StackBuff:// v202.3
-            case BlessOfDarkness:// v202.3
-            case SurplusSupply:// v202.3
-            case ImmuneBarrier:// v202.3
-            case AdrenalinBoost:// v202.3
-            case RWBarrier:// v202.3
-            case Unk476:// v202.3
-            case RWMagnumBlow:// v202.3
-            case Unk504:// v202.3
-            case Unk485:// v202.3
-            case ManaOverload:// v202.3
-            case Unk530:// v202.3
-            case Unk613:// v202.3
-            case Unk614:// v202.3
-            case Unk617:// v202.3
-            case Unk618:// v202.3
+            case OnCapsule:// 
+            case PyramidEffect:// 
+            case KillingPoint:// 
+            case PinkbeanRollingGrade:// 
+            case StackBuff:// 
+            case BlessOfDarkness:// 
+            case SurplusSupply:// 
+            case ImmuneBarrier:// 
+            case AdrenalinBoost:// 
+            case RWBarrier:// 
+            case Unk476:// 
+            case RWMagnumBlow:// 
+            case Unk504:// 
+            case Unk485:// 
+            case ManaOverload:// 
+            case Unk530:// 
+            case Unk613:// 
+            case Unk614:// 
+            case Unk617:// 
+            case Unk618:// 
             case HayatoStance:
             case Unk488:
             case Unk489:
@@ -1070,8 +1124,8 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case UserControlMob:
             case Unk565:
                 // Special encoding
-            case FullSoulMP:// v202.3
-            case AntiMagicShellBool:// v202.3
+            case FullSoulMP:// 
+            case AntiMagicShellBool:// 
             case PoseTypeBool:
                 return true;
             default:
@@ -1111,7 +1165,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     public static void main(String[] args) {
         for (CharacterTemporaryStat stat : CharacterTemporaryStat.values()) {
-            System.out.println(stat.getBitPos() + " " + stat.getVal() + " " + stat.getPos());
+            System.out.println(stat.toString() + " " + stat.getBitPos() + " " + Integer.toHexString(stat.getVal()) + " " + stat.getPos());
         }
     }
 }

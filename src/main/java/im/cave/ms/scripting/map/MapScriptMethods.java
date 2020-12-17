@@ -1,7 +1,6 @@
 package im.cave.ms.scripting.map;
 
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.net.packet.ChannelPacket;
 import im.cave.ms.scripting.AbstractPlayerInteraction;
 
 /**

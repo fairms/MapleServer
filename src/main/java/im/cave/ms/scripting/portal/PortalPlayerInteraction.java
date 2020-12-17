@@ -13,6 +13,7 @@ import im.cave.ms.scripting.map.MapScriptManager;
  */
 
 public class PortalPlayerInteraction extends AbstractPlayerInteraction {
+
     private final Portal portal;
 
     public PortalPlayerInteraction(MapleClient c, Portal portal) {

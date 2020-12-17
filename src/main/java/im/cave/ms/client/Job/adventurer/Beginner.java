@@ -11,7 +11,7 @@ import im.cave.ms.client.skill.Skill;
 import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.client.skill.SkillStat;
 import im.cave.ms.constants.JobConstants;
-import im.cave.ms.net.netty.InPacket;
+import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.provider.data.SkillData;
 
 import java.util.Arrays;
@@ -23,7 +23,6 @@ public class Beginner extends MapleJob {
     public static final int RECOVERY = 1001;
     public static final int NIMBLE_FEET = 1002;
     public static final int THREE_SNAILS = 1000;
-
     private final int[] buffs = new int[]{
             RECOVERY,
             NIMBLE_FEET,
@@ -99,17 +98,4 @@ public class Beginner extends MapleJob {
     public boolean isBuff(int skillId) {
         return super.isBuff(skillId) || Arrays.stream(buffs).anyMatch(b -> b == skillId);
     }
-
-//    @Override
-//    public void setCharCreationStats(Char chr) {
-//        super.setCharCreationStats(chr);
-//        CharacterStat cs = chr.getAvatarData().getCharacterStat();
-//        if (chr.getSubJob() == 1) {
-//            cs.setPosMap(103050900);
-//        } else if (chr.getSubJob() == 2) {
-//            cs.setPosMap(3000600);
-//        } else {
-//            cs.setPosMap(4000011);
-//        }
-//    }
 }

@@ -1,9 +1,8 @@
 package im.cave.ms.client.items;
 
 import im.cave.ms.enums.InventoryType;
-import im.cave.ms.net.db.DataBaseManager;
+import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.provider.data.ItemData;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -133,7 +132,7 @@ public class Inventory {
     }
 
     public Item getItemByItemIDAndStackable(int itemId) {
-        ItemInfo ii = ItemData.getItemById(itemId);
+        ItemInfo ii = ItemData.getItemInfoById(itemId);
         if (ii == null) {
             return null;
         }

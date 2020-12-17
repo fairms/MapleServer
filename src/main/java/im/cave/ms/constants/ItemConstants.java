@@ -1673,7 +1673,7 @@ public class ItemConstants {
                 stats.put(EnchantStat.MHP, armorHp[tier] + stats.getOrDefault(EnchantStat.MHP, 0));
             }
             String title = chances[i] + "% ";
-            title += bp == BodyPart.Weapon ? "Attack" : "Stat";
+                title += bp == BodyPart.Weapon ? "Attack" : "Stat";
             ScrollUpgradeInfo sui = new ScrollUpgradeInfo(i, title, SpellTraceScrollType.Normal, 0, stats,
                     BASE_ST_COST + rLevel * (tier + 1), chances[i]);
             scrolls.add(sui);

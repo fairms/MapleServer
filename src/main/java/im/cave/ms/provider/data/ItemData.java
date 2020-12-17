@@ -3,21 +3,20 @@ package im.cave.ms.provider.data;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemInfo;
+import im.cave.ms.client.items.ItemOption;
 import im.cave.ms.client.items.ItemSkill;
-import im.cave.ms.client.items.SpecStat;
-import im.cave.ms.constants.GameConstants;
-import im.cave.ms.enums.InventoryType;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.ServerConstants;
-import im.cave.ms.enums.ItemGrade;
+import im.cave.ms.enums.BaseStat;
+import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ItemState;
+import im.cave.ms.enums.SpecStat;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataDirectoryEntry;
 import im.cave.ms.provider.wz.MapleDataFileEntry;
 import im.cave.ms.provider.wz.MapleDataProvider;
 import im.cave.ms.provider.wz.MapleDataProviderFactory;
 import im.cave.ms.provider.wz.MapleDataTool;
-import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.StringUtil;
 import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
@@ -31,40 +30,39 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static im.cave.ms.client.items.Item.Type.EQUIP;
 import static im.cave.ms.client.items.Item.Type.ITEM;
-import static im.cave.ms.client.items.ScrollStat.createType;
-import static im.cave.ms.client.items.ScrollStat.cursed;
-import static im.cave.ms.client.items.ScrollStat.forceUpgrade;
-import static im.cave.ms.client.items.ScrollStat.incACC;
-import static im.cave.ms.client.items.ScrollStat.incDEX;
-import static im.cave.ms.client.items.ScrollStat.incEVA;
-import static im.cave.ms.client.items.ScrollStat.incINT;
-import static im.cave.ms.client.items.ScrollStat.incIUC;
-import static im.cave.ms.client.items.ScrollStat.incJump;
-import static im.cave.ms.client.items.ScrollStat.incLUK;
-import static im.cave.ms.client.items.ScrollStat.incMAD;
-import static im.cave.ms.client.items.ScrollStat.incMDD;
-import static im.cave.ms.client.items.ScrollStat.incMHP;
-import static im.cave.ms.client.items.ScrollStat.incMMP;
-import static im.cave.ms.client.items.ScrollStat.incPAD;
-import static im.cave.ms.client.items.ScrollStat.incPDD;
-import static im.cave.ms.client.items.ScrollStat.incPERIOD;
-import static im.cave.ms.client.items.ScrollStat.incRandVol;
-import static im.cave.ms.client.items.ScrollStat.incReqLevel;
-import static im.cave.ms.client.items.ScrollStat.incSTR;
-import static im.cave.ms.client.items.ScrollStat.incSpeed;
-import static im.cave.ms.client.items.ScrollStat.maxSuperiorEqp;
-import static im.cave.ms.client.items.ScrollStat.noNegative;
-import static im.cave.ms.client.items.ScrollStat.optionType;
-import static im.cave.ms.client.items.ScrollStat.randOption;
-import static im.cave.ms.client.items.ScrollStat.randStat;
-import static im.cave.ms.client.items.ScrollStat.reqEquipLevelMax;
-import static im.cave.ms.client.items.ScrollStat.reqRUC;
-import static im.cave.ms.client.items.ScrollStat.speed;
-import static im.cave.ms.client.items.ScrollStat.success;
-import static im.cave.ms.client.items.ScrollStat.tuc;
 import static im.cave.ms.constants.GameConstants.MAX_TIME;
+import static im.cave.ms.enums.ScrollStat.createType;
+import static im.cave.ms.enums.ScrollStat.cursed;
+import static im.cave.ms.enums.ScrollStat.forceUpgrade;
+import static im.cave.ms.enums.ScrollStat.incACC;
+import static im.cave.ms.enums.ScrollStat.incDEX;
+import static im.cave.ms.enums.ScrollStat.incEVA;
+import static im.cave.ms.enums.ScrollStat.incINT;
+import static im.cave.ms.enums.ScrollStat.incIUC;
+import static im.cave.ms.enums.ScrollStat.incJump;
+import static im.cave.ms.enums.ScrollStat.incLUK;
+import static im.cave.ms.enums.ScrollStat.incMAD;
+import static im.cave.ms.enums.ScrollStat.incMDD;
+import static im.cave.ms.enums.ScrollStat.incMHP;
+import static im.cave.ms.enums.ScrollStat.incMMP;
+import static im.cave.ms.enums.ScrollStat.incPAD;
+import static im.cave.ms.enums.ScrollStat.incPDD;
+import static im.cave.ms.enums.ScrollStat.incPERIOD;
+import static im.cave.ms.enums.ScrollStat.incRandVol;
+import static im.cave.ms.enums.ScrollStat.incReqLevel;
+import static im.cave.ms.enums.ScrollStat.incSTR;
+import static im.cave.ms.enums.ScrollStat.incSpeed;
+import static im.cave.ms.enums.ScrollStat.maxSuperiorEqp;
+import static im.cave.ms.enums.ScrollStat.noNegative;
+import static im.cave.ms.enums.ScrollStat.optionType;
+import static im.cave.ms.enums.ScrollStat.randOption;
+import static im.cave.ms.enums.ScrollStat.randStat;
+import static im.cave.ms.enums.ScrollStat.reqEquipLevelMax;
+import static im.cave.ms.enums.ScrollStat.reqRUC;
+import static im.cave.ms.enums.ScrollStat.speed;
+import static im.cave.ms.enums.ScrollStat.success;
+import static im.cave.ms.enums.ScrollStat.tuc;
 import static im.cave.ms.provider.wz.MapleDataType.CANVAS;
 
 /**
@@ -81,10 +79,14 @@ public class ItemData {
     public static Map<Integer, Equip> equips = new HashMap<>();
     public static Map<Integer, ItemInfo> items = new HashMap<>();
     public static Set<Integer> startItems = new HashSet<>();
+    public static Map<Integer, ItemOption> familiarOptions = new HashMap<>();
+    public static Map<Integer, ItemOption> itemOptions = new HashMap<>();
 
     static {
         loadStartItems();
         loadHotSpotItems();
+        loadItemOptions();
+        loadFamiliarOptions();
     }
 
     private static void loadHotSpotItems() {
@@ -99,7 +101,7 @@ public class ItemData {
         return equips.get(equipId);
     }
 
-    public static ItemInfo getItemById(int itemId) {
+    public static ItemInfo getItemInfoById(int itemId) {
         if (!items.containsKey(itemId)) {
             return getItemFromWz(itemId);
         }
@@ -339,7 +341,7 @@ public class ItemData {
             }
             String name = attr.getName();
             int intValue = 0;
-            if (Util.isNumber(MapleDataTool.getString(attr))) {
+            if (Util.isNumber(MapleDataTool.getString(attr, ""))) {
                 intValue = MapleDataTool.getInt(attr);
             }
             switch (name) {
@@ -392,18 +394,8 @@ public class ItemData {
                 case "bonusEXPRate":
                 case "notExtend":
                     break;
-
                 case "skill":
                 case "spec":
-
-                    break;
-                case "reqSkillLevel":
-                    item.setReqSkillLv(intValue);
-                    break;
-                case "masterLevel":
-                    item.setMasterLv(intValue);
-                    break;
-
                 case "stateChangeItem":
                 case "direction":
                 case "exGrade":
@@ -603,6 +595,15 @@ public class ItemData {
                 case "topOffset":
                 case "craftEXP":
                 case "willEXP":
+                    break;
+                case "familiarID":
+                    item.setFamiliarID(intValue);
+                    break;
+                case "reqSkillLevel":
+                    item.setReqSkillLv(intValue);
+                    break;
+                case "masterLevel":
+                    item.setMasterLv(intValue);
                     break;
                 case "tradeBlock":
                     item.setTradeBlock(intValue != 0);
@@ -866,7 +867,7 @@ public class ItemData {
 //            return getPetDeepCopyFromID(id);
         }
 
-        return getDeepCopyByItemInfo(getItemById(itemId));
+        return getDeepCopyByItemInfo(getItemInfoById(itemId));
     }
 
     public static Equip getEquipDeepCopyFromID(int itemId, boolean randomize) {
@@ -912,5 +913,229 @@ public class ItemData {
         res.setInvType(itemInfo.getInvType());
         res.setCash(itemInfo.isCash());
         return res;
+    }
+
+    public static void loadFamiliarOptions() {
+        loadItemOptions("FamiliarOption.img", getFamiliarOptions());
+    }
+
+    public static void loadItemOptions() {
+        loadItemOptions("itemOption.img", getItemOptions());
+    }
+
+    private static Map<Integer, ItemOption> getItemOptions() {
+        return itemOptions;
+    }
+
+    public static void loadItemOptions(String path, Map<Integer, ItemOption> options) {
+        for (final MapleData d : itemData.getData(path)) {
+            ItemOption itemOption = new ItemOption();
+            itemOption.setOptionType(MapleDataTool.getInt("info/optionType", d, 0));
+            itemOption.setReqLevel(MapleDataTool.getInt("info/reqLevel", d, 0));
+            itemOption.setString(MapleDataTool.getString("info/string", d, ""));
+            itemOption.setId(Integer.parseInt(d.getName()));
+            for (MapleData levelInfo : d.getChildByPath("level")) {
+                int level = Integer.parseInt(levelInfo.getName());
+                for (MapleData levelAttr : levelInfo.getChildren()) {
+                    String name = levelAttr.getName();
+                    String stringValue = MapleDataTool.getString(levelAttr, "");
+                    int value = 0;
+                    if (Util.isNumber(stringValue)) {
+                        value = Integer.parseInt(stringValue);
+                    }
+                    switch (name) {
+                        case "incSTR":
+                            itemOption.addStatValue(level, BaseStat.str, value);
+                            break;
+                        case "incDEX":
+                            itemOption.addStatValue(level, BaseStat.dex, value);
+                            break;
+                        case "incINT":
+                            itemOption.addStatValue(level, BaseStat.inte, value);
+                            break;
+                        case "incLUK":
+                            itemOption.addStatValue(level, BaseStat.luk, value);
+                            break;
+                        case "incMHP":
+                            itemOption.addStatValue(level, BaseStat.mhp, value);
+                            break;
+                        case "incMMP":
+                            itemOption.addStatValue(level, BaseStat.mmp, value);
+                            break;
+                        case "incACC":
+                            itemOption.addStatValue(level, BaseStat.acc, value);
+                            break;
+                        case "incEVA":
+                            itemOption.addStatValue(level, BaseStat.eva, value);
+                            break;
+                        case "incSpeed":
+                            itemOption.addStatValue(level, BaseStat.speed, value);
+                            break;
+                        case "incJump":
+                            itemOption.addStatValue(level, BaseStat.jump, value);
+                            break;
+                        case "incPAD":
+                            itemOption.addStatValue(level, BaseStat.pad, value);
+                            break;
+                        case "incMAD":
+                            itemOption.addStatValue(level, BaseStat.mad, value);
+                            break;
+                        case "incPDD":
+                            itemOption.addStatValue(level, BaseStat.pdd, value);
+                            break;
+                        case "incMDD":
+                            itemOption.addStatValue(level, BaseStat.mdd, value);
+                            break;
+                        case "incCr":
+                            itemOption.addStatValue(level, BaseStat.cr, value);
+                            break;
+                        case "incPADr":
+                            itemOption.addStatValue(level, BaseStat.padR, value);
+                            break;
+                        case "incMADr":
+                            itemOption.addStatValue(level, BaseStat.madR, value);
+                            break;
+                        case "incSTRr":
+                            itemOption.addStatValue(level, BaseStat.strR, value);
+                            break;
+                        case "incDEXr":
+                            itemOption.addStatValue(level, BaseStat.dexR, value);
+                            break;
+                        case "incINTr":
+                            itemOption.addStatValue(level, BaseStat.intR, value);
+                            break;
+                        case "incLUKr":
+                            itemOption.addStatValue(level, BaseStat.lukR, value);
+                            break;
+                        case "ignoreTargetDEF":
+                            itemOption.addStatValue(level, BaseStat.ied, value);
+                            break;
+                        case "boss":
+                            itemOption.addStatValue(level, BaseStat.bd, value);
+                            break;
+                        case "incDAMr":
+                            itemOption.addStatValue(level, BaseStat.fd, value);
+                            break;
+                        case "incAllskill":
+                            itemOption.addStatValue(level, BaseStat.incAllSkill, value);
+                            break;
+                        case "incMHPr":
+                            itemOption.addStatValue(level, BaseStat.mhpR, value);
+                            break;
+                        case "incMMPr":
+                            itemOption.addStatValue(level, BaseStat.mmpR, value);
+                            break;
+                        case "incACCr":
+                            itemOption.addStatValue(level, BaseStat.accR, value);
+                            break;
+                        case "incEVAr":
+                            itemOption.addStatValue(level, BaseStat.evaR, value);
+                            break;
+                        case "incPDDr":
+                            itemOption.addStatValue(level, BaseStat.pddR, value);
+                            break;
+                        case "incMDDr":
+                            itemOption.addStatValue(level, BaseStat.mddR, value);
+                            break;
+                        case "RecoveryHP":
+                            itemOption.addStatValue(level, BaseStat.hpRecovery, value);
+                            break;
+                        case "RecoveryMP":
+                            itemOption.addStatValue(level, BaseStat.mpRecovery, value);
+                            break;
+                        case "incMaxDamage":
+                            itemOption.addStatValue(level, BaseStat.damageOver, value);
+                            break;
+                        case "incSTRlv":
+                            itemOption.addStatValue(level, BaseStat.strLv, value / 10D);
+                            break;
+                        case "incDEXlv":
+                            itemOption.addStatValue(level, BaseStat.dexLv, value / 10D);
+                            break;
+                        case "incINTlv":
+                            itemOption.addStatValue(level, BaseStat.intLv, value / 10D);
+                            break;
+                        case "incLUKlv":
+                            itemOption.addStatValue(level, BaseStat.lukLv, value / 10D);
+                            break;
+                        case "RecoveryUP":
+                            itemOption.addStatValue(level, BaseStat.recoveryUp, value);
+                            break;
+                        case "incTerR":
+                            itemOption.addStatValue(level, BaseStat.ter, value);
+                            break;
+                        case "incAsrR":
+                            itemOption.addStatValue(level, BaseStat.asr, value);
+                            break;
+                        case "incEXPr":
+                            itemOption.addStatValue(level, BaseStat.expR, value);
+                            break;
+                        case "mpconReduce":
+                            itemOption.addStatValue(level, BaseStat.mpconReduce, value);
+                            break;
+                        case "reduceCooltime":
+                            itemOption.addStatValue(level, BaseStat.reduceCooltime, value);
+                            break;
+                        case "incMesoProp":
+                            itemOption.addStatValue(level, BaseStat.mesoR, value);
+                            break;
+                        case "incRewardProp":
+                            itemOption.addStatValue(level, BaseStat.dropR, value);
+                            break;
+                        case "incCriticaldamageMin":
+                            itemOption.addStatValue(level, BaseStat.minCd, value);
+                            break;
+                        case "incCriticaldamageMax":
+                            itemOption.addStatValue(level, BaseStat.maxCd, value);
+                            break;
+                        case "incPADlv":
+                            itemOption.addStatValue(level, BaseStat.padLv, value / 10D);
+                            break;
+                        case "incMADlv":
+                            itemOption.addStatValue(level, BaseStat.madLv, value / 10D);
+                            break;
+                        case "incMHPlv":
+                            itemOption.addStatValue(level, BaseStat.mhpLv, value / 10D);
+                            break;
+                        case "incMMPlv":
+                            itemOption.addStatValue(level, BaseStat.mmpLv, value / 10D);
+                            break;
+                        case "prop":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.prop, value);
+                            break;
+                        case "face":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.face, value);
+                            break;
+                        case "time":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.time, value);
+                            break;
+                        case "HP":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.hpRecoveryOnHit, value);
+                            break;
+                        case "MP":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.mpRecoveryOnHit, value);
+                            break;
+                        case "attackType":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.attackType, value);
+                            break;
+                        case "level":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.level, value);
+                            break;
+                        case "ignoreDAM":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.ignoreDam, value);
+                            break;
+                        default:
+                            log.warn("未知的潜能属性:" + name + " ID:" + itemOption.getId());
+                            break;
+                    }
+                }
+            }
+            options.put(itemOption.getId(), itemOption);
+        }
+
+    }
+
+    private static Map<Integer, ItemOption> getFamiliarOptions() {
+        return familiarOptions;
     }
 }
