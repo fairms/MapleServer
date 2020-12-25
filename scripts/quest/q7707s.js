@@ -1,0 +1,3 @@
+function start() {
+    qm.dispose();
+}
