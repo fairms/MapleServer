@@ -41,6 +41,17 @@
             <version>4.1.54.Final</version>
         </dependency>
 
+        <!--        <dependency>-->
+        <!--            <groupId>org.graalvm.js</groupId>-->
+        <!--            <artifactId>js</artifactId>-->
+        <!--            <version>20.2.0</version>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.graalvm.js</groupId>-->
+        <!--            <artifactId>js-scriptengine</artifactId>-->
+        <!--            <version>20.2.0</version>-->
+        <!--        </dependency>-->
+
         <dependency>
             <groupId>com.esotericsoftware.yamlbeans</groupId>
             <artifactId>yamlbeans</artifactId>

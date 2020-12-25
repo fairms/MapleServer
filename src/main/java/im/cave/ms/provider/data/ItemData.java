@@ -1,5 +1,6 @@
 package im.cave.ms.provider.data;
 
+import im.cave.ms.client.character.FamiliarInfo;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemInfo;
@@ -79,14 +80,54 @@ public class ItemData {
     public static Map<Integer, Equip> equips = new HashMap<>();
     public static Map<Integer, ItemInfo> items = new HashMap<>();
     public static Set<Integer> startItems = new HashSet<>();
+    @lombok.Getter
     public static Map<Integer, ItemOption> familiarOptions = new HashMap<>();
+    private static Map<Integer, FamiliarInfo> familiars = new HashMap<>();
     public static Map<Integer, ItemOption> itemOptions = new HashMap<>();
 
     static {
         loadStartItems();
         loadHotSpotItems();
         loadItemOptions();
+        loadFamiliars();
         loadFamiliarOptions();
+    }
+
+    private static void loadFamiliars() {
+        MapleDataDirectoryEntry f = (MapleDataDirectoryEntry) chrData.getRoot().getEntry("Familiar");
+        for (MapleDataFileEntry file : f.getFiles()) {
+            MapleData familiar = chrData.getData("Familiar/" + file.getName());
+            MapleData info = familiar.getChildByPath("info");
+            FamiliarInfo familiarInfo = new FamiliarInfo();
+            int familiarCardId = 0;
+            final int familiarId = Integer.parseInt(file.getName().substring(0, file.getName().length() - 4));
+            familiarInfo.setFamiliarId(familiarId);
+            if (info != null) {
+                for (MapleData attr : info.getChildren()) {
+                    String name = attr.getName();
+                    switch (name) {
+                        case "range":
+                            familiarInfo.setRange(MapleDataTool.getInt(attr));
+                            break;
+                        case "MobID":
+                            familiarInfo.setMobId(MapleDataTool.getInt(attr));
+                            break;
+                        case "skill":
+                            familiarInfo.setSkillId(MapleDataTool.getInt("/skill/id", attr, 0));
+                            familiarInfo.setSkillId(MapleDataTool.getInt("/skill/effectAfter", attr, 0));
+                            break;
+                        case "boss":
+                            familiarInfo.setBoos(MapleDataTool.getInt(attr) != 0);
+                            break;
+                        case "monsterCardID":
+                            familiarCardId = MapleDataTool.getInt(attr);
+                            break;
+
+                    }
+                }
+            }
+            familiars.put(familiarCardId, familiarInfo);
+        }
     }
 
     private static void loadHotSpotItems() {
@@ -340,19 +381,15 @@ public class ItemData {
                 continue;
             }
             String name = attr.getName();
-            int intValue = 0;
-            if (Util.isNumber(MapleDataTool.getString(attr, ""))) {
-                intValue = MapleDataTool.getInt(attr);
-            }
             switch (name) {
                 case "cash":
-                    item.setCash(intValue != 0);
+                    item.setCash(MapleDataTool.getInt(attr) != 0);
                     break;
                 case "price":
-                    item.setPrice(intValue);
+                    item.setPrice(MapleDataTool.getInt(attr));
                     break;
                 case "slotMax":
-                    item.setSlotMax(intValue);
+                    item.setSlotMax(MapleDataTool.getInt(attr));
                     break;
                 // info not currently interesting. May be interesting in the future.
                 case "icon":
@@ -419,7 +456,6 @@ public class ItemData {
                 case "selectedSlot":
                 case "minusLevel":
                 case "addTime":
-                case "reqLevel":
                 case "waittime":
                 case "buffchair":
                 case "cooltime":
@@ -438,7 +474,13 @@ public class ItemData {
                 case "noCancelMouse":
                 case "soulItemType":
                 case "Rate":
+                    break;
                 case "unitPrice":
+                    item.setUnitPrice(MapleDataTool.getDouble(attr));
+                    break;
+                case "reqLevel":
+                    item.setReqLevel(MapleDataTool.getInt(attr));
+                    break;
                 case "delayMsg":
                 case "bridlePropZeroMsg":
                 case "create":
@@ -597,128 +639,128 @@ public class ItemData {
                 case "willEXP":
                     break;
                 case "familiarID":
-                    item.setFamiliarID(intValue);
+                    item.setFamiliarID(MapleDataTool.getInt(attr));
                     break;
                 case "reqSkillLevel":
-                    item.setReqSkillLv(intValue);
+                    item.setReqSkillLv(MapleDataTool.getInt(attr));
                     break;
                 case "masterLevel":
-                    item.setMasterLv(intValue);
+                    item.setMasterLv(MapleDataTool.getInt(attr));
                     break;
                 case "tradeBlock":
-                    item.setTradeBlock(intValue != 0);
+                    item.setTradeBlock(MapleDataTool.getInt(attr) != 0);
                     break;
                 case "notSale":
-                    item.setNotSale(intValue != 0);
+                    item.setNotSale(MapleDataTool.getInt(attr) != 0);
                     break;
                 case "path":
                     item.setPath(MapleDataTool.getString(attr));
                     break;
                 case "noCursed":
-                    item.setNoCursed(intValue != 0);
+                    item.setNoCursed(MapleDataTool.getInt(attr) != 0);
                     break;
                 case "noNegative":
-                    item.putScrollStat(noNegative, intValue);
+                    item.putScrollStat(noNegative, MapleDataTool.getInt(attr));
                     break;
                 case "incRandVol":
-                    item.putScrollStat(incRandVol, intValue);
+                    item.putScrollStat(incRandVol, MapleDataTool.getInt(attr));
                     break;
                 case "success":
-                    item.putScrollStat(success, intValue);
+                    item.putScrollStat(success, MapleDataTool.getInt(attr));
                     break;
                 case "incSTR":
-                    item.putScrollStat(incSTR, intValue);
+                    item.putScrollStat(incSTR, MapleDataTool.getInt(attr));
                     break;
                 case "incDEX":
-                    item.putScrollStat(incDEX, intValue);
+                    item.putScrollStat(incDEX, MapleDataTool.getInt(attr));
                     break;
                 case "incINT":
-                    item.putScrollStat(incINT, intValue);
+                    item.putScrollStat(incINT, MapleDataTool.getInt(attr));
                     break;
                 case "incLUK":
-                    item.putScrollStat(incLUK, intValue);
+                    item.putScrollStat(incLUK, MapleDataTool.getInt(attr));
                     break;
                 case "incPAD":
-                    item.putScrollStat(incPAD, intValue);
+                    item.putScrollStat(incPAD, MapleDataTool.getInt(attr));
                     break;
                 case "incMAD":
-                    item.putScrollStat(incMAD, intValue);
+                    item.putScrollStat(incMAD, MapleDataTool.getInt(attr));
                     break;
                 case "incPDD":
-                    item.putScrollStat(incPDD, intValue);
+                    item.putScrollStat(incPDD, MapleDataTool.getInt(attr));
                     break;
                 case "incMDD":
-                    item.putScrollStat(incMDD, intValue);
+                    item.putScrollStat(incMDD, MapleDataTool.getInt(attr));
                     break;
                 case "incEVA":
-                    item.putScrollStat(incEVA, intValue);
+                    item.putScrollStat(incEVA, MapleDataTool.getInt(attr));
                     break;
                 case "incACC":
-                    item.putScrollStat(incACC, intValue);
+                    item.putScrollStat(incACC, MapleDataTool.getInt(attr));
                     break;
                 case "incPERIOD":
-                    item.putScrollStat(incPERIOD, intValue);
+                    item.putScrollStat(incPERIOD, MapleDataTool.getInt(attr));
                     break;
                 case "incMHP":
                 case "incMaxHP":
-                    item.putScrollStat(incMHP, intValue);
+                    item.putScrollStat(incMHP, MapleDataTool.getInt(attr));
                     break;
                 case "incMMP":
                 case "incMaxMP":
-                    item.putScrollStat(incMMP, intValue);
+                    item.putScrollStat(incMMP, MapleDataTool.getInt(attr));
                     break;
                 case "incSpeed":
-                    item.putScrollStat(incSpeed, intValue);
+                    item.putScrollStat(incSpeed, MapleDataTool.getInt(attr));
                     break;
                 case "incJump":
-                    item.putScrollStat(incJump, intValue);
+                    item.putScrollStat(incJump, MapleDataTool.getInt(attr));
                     break;
                 case "incReqLevel":
-                    item.putScrollStat(incReqLevel, intValue);
+                    item.putScrollStat(incReqLevel, MapleDataTool.getInt(attr));
                     break;
                 case "randOption":
-                    item.putScrollStat(randOption, intValue);
+                    item.putScrollStat(randOption, MapleDataTool.getInt(attr));
                     break;
                 case "randstat":
                 case "randStat":
-                    item.putScrollStat(randStat, intValue);
+                    item.putScrollStat(randStat, MapleDataTool.getInt(attr));
                     break;
                 case "tuc":
-                    item.putScrollStat(tuc, intValue);
+                    item.putScrollStat(tuc, MapleDataTool.getInt(attr));
                     break;
                 case "incIUC":
-                    item.putScrollStat(incIUC, intValue);
+                    item.putScrollStat(incIUC, MapleDataTool.getInt(attr));
                     break;
                 case "speed":
-                    item.putScrollStat(speed, intValue);
+                    item.putScrollStat(speed, MapleDataTool.getInt(attr));
                     break;
                 case "forceUpgrade":
-                    item.putScrollStat(forceUpgrade, intValue);
+                    item.putScrollStat(forceUpgrade, MapleDataTool.getInt(attr));
                     break;
                 case "cursed":
-                    item.putScrollStat(cursed, intValue);
+                    item.putScrollStat(cursed, MapleDataTool.getInt(attr));
                     break;
                 case "maxSuperiorEqp":
-                    item.putScrollStat(maxSuperiorEqp, intValue);
+                    item.putScrollStat(maxSuperiorEqp, MapleDataTool.getInt(attr));
                     break;
                 case "reqRUC":
-                    item.putScrollStat(reqRUC, intValue);
+                    item.putScrollStat(reqRUC, MapleDataTool.getInt(attr));
                     break;
                 case "bagType":
-                    item.setBagType(intValue);
+                    item.setBagType(MapleDataTool.getInt(attr));
                     break;
                 case "charmEXP":
                 case "charismaEXP":
-                    item.setCharmEXP(intValue);
+                    item.setCharmEXP(MapleDataTool.getInt(attr));
                     break;
                 case "senseEXP":
-                    item.setSenseEXP(intValue);
+                    item.setSenseEXP(MapleDataTool.getInt(attr));
                     break;
                 case "quest":
-                    item.setQuest(intValue != 0);
+                    item.setQuest(MapleDataTool.getInt(attr) != 0);
                     break;
                 case "reqQuestOnProgress":
-                    item.setReqQuestOnProgress(intValue);
+                    item.setReqQuestOnProgress(MapleDataTool.getInt(attr));
                     break;
                 case "qid":
                 case "questId": {
@@ -726,39 +768,39 @@ public class ItemData {
                     if (value.contains(".") && value.split("[.]").length > 0) {
                         item.addQuest(Integer.parseInt(value.split("[.]")[0]));
                     } else {
-                        item.addQuest(intValue);
+                        item.addQuest(MapleDataTool.getInt(attr));
                     }
                     break;
                 }
                 case "notConsume":
-                    item.setNotConsume(intValue != 0);
+                    item.setNotConsume(MapleDataTool.getInt(attr) != 0);
                     break;
                 case "monsterBook":
-                    item.setMonsterBook(intValue != 0);
+                    item.setMonsterBook(MapleDataTool.getInt(attr) != 0);
                     break;
                 case "mob":
-                    item.setMobID(intValue);
+                    item.setMobID(MapleDataTool.getInt(attr));
                     break;
                 case "npc":
-                    item.setNpcID(intValue);
+                    item.setNpcID(MapleDataTool.getInt(attr));
                     break;
                 case "linkedID":
-                    item.setLinkedID(intValue);
+                    item.setLinkedID(MapleDataTool.getInt(attr));
                     break;
                 case "reqEquipLevelMax":
-                    item.putScrollStat(reqEquipLevelMax, intValue);
+                    item.putScrollStat(reqEquipLevelMax, MapleDataTool.getInt(attr));
                     break;
                 case "createType":
-                    item.putScrollStat(createType, intValue);
+                    item.putScrollStat(createType, MapleDataTool.getInt(attr));
                     break;
                 case "optionType":
-                    item.putScrollStat(optionType, intValue);
+                    item.putScrollStat(optionType, MapleDataTool.getInt(attr));
                     break;
                 case "grade":
-                    item.setGrade(intValue);
+                    item.setGrade(MapleDataTool.getInt(attr));
                     break;
                 case "android":
-                    item.setAndroid(intValue);
+                    item.setAndroid(MapleDataTool.getInt(attr));
                     break;
                 default:
                     log.warn(String.format("Unknown node: %s, itemID = %s", name, item.getItemId()));
@@ -986,6 +1028,9 @@ public class ItemData {
                         case "incMDD":
                             itemOption.addStatValue(level, BaseStat.mdd, value);
                             break;
+                        case "incAllStat":
+                            itemOption.addStatValue(level, BaseStat.allStat, value);
+                            break;
                         case "incCr":
                             itemOption.addStatValue(level, BaseStat.cr, value);
                             break;
@@ -1082,11 +1127,14 @@ public class ItemData {
                         case "incRewardProp":
                             itemOption.addStatValue(level, BaseStat.dropR, value);
                             break;
+                        case "incCriticaldamage":
+                            itemOption.addStatValue(level, BaseStat.cd, value);
+                            break;
                         case "incCriticaldamageMin":
-                            itemOption.addStatValue(level, BaseStat.minCd, value);
+                            itemOption.addStatValue(level, BaseStat.cd, value >> 1 > 0 ? value >> 1 : 1);
                             break;
                         case "incCriticaldamageMax":
-                            itemOption.addStatValue(level, BaseStat.maxCd, value);
+                            itemOption.addStatValue(level, BaseStat.cd, value >> 1 > 0 ? value >> 1 : 1);
                             break;
                         case "incPADlv":
                             itemOption.addStatValue(level, BaseStat.padLv, value / 10D);
@@ -1100,6 +1148,11 @@ public class ItemData {
                         case "incMMPlv":
                             itemOption.addStatValue(level, BaseStat.mmpLv, value / 10D);
                             break;
+                        case "bufftimeR":
+                            itemOption.addStatValue(level, BaseStat.buffTimeR, value);
+                            break;
+                        case "passivePlus":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.passivePlus, value);
                         case "prop":
                             itemOption.addMiscValue(level, ItemOption.ItemOptionType.prop, value);
                             break;
@@ -1124,6 +1177,16 @@ public class ItemData {
                         case "ignoreDAM":
                             itemOption.addMiscValue(level, ItemOption.ItemOptionType.ignoreDam, value);
                             break;
+                        case "ignoreDAMr":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.ignoreDAMr, value);
+                            break;
+                        case "DAMreflect":
+                            itemOption.addMiscValue(level, ItemOption.ItemOptionType.DAMreflect, value);
+                            break;
+                        case "userD2F":
+                        case "acc2dam":
+                        case "userS2F":
+                            break;
                         default:
                             log.warn("未知的潜能属性:" + name + " ID:" + itemOption.getId());
                             break;
@@ -1135,7 +1198,9 @@ public class ItemData {
 
     }
 
-    private static Map<Integer, ItemOption> getFamiliarOptions() {
-        return familiarOptions;
+
+    public static int getFamiliarId(int familiarCardId) {
+        return familiars.get(familiarCardId).getFamiliarId();
     }
+
 }

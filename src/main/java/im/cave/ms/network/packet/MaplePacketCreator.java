@@ -70,7 +70,7 @@ public class MaplePacketCreator {
      * 00 00 FF 00 00 FF 00 00 FF 00 00 FF 00 00 FF
      * 限制称号显示数量
      */
-    public static OutPacket cancelTitleEffect() {
+    public static OutPacket updateEventNameTag() {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.CANCEL_TITLE_EFFECT.getValue());
         for (int i = 0; i < 5; i++) {

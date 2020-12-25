@@ -27,6 +27,7 @@ public class MaplePacketEncoder extends MessageToByteEncoder<OutPacket> {
     protected void encode(ChannelHandlerContext ctx, OutPacket outPacket, ByteBuf byteBuf) {
         byte[] data = outPacket.getData();
         MapleClient client = ctx.channel().attr(CLIENT_KEY).get();
+        AESCipher ac = ctx.channel().attr(MapleClient.AES_CIPHER).get();
         if (client != null) {
             int uSeqSend = client.getSendIv();
             short uDataLen = (short) (((data.length << 8) & 0xFF00) | (data.length >>> 8));
@@ -35,7 +36,7 @@ public class MaplePacketEncoder extends MessageToByteEncoder<OutPacket> {
             try {
                 uDataLen ^= uRawSeq;
                 if (client.getPort() == LOGIN_PORT) {
-                    AESCipher.Crypt(data, uSeqSend);
+                    ac.Crypt(data, uSeqSend);
                 } else {
                     CIGCipher.Crypt(data, uSeqSend);
                 }
@@ -49,6 +50,5 @@ public class MaplePacketEncoder extends MessageToByteEncoder<OutPacket> {
         } else {
             byteBuf.writeBytes(data);
         }
-        outPacket.release();
     }
 }

@@ -14,6 +14,7 @@ import im.cave.ms.enums.ChatType;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.ChannelPacket;
 import im.cave.ms.network.packet.MaplePacketCreator;
+import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.network.server.world.World;
 import im.cave.ms.provider.data.ItemData;
@@ -111,7 +112,7 @@ public class CommandHandler {
                     if (item == null) {
                         return;
                     }
-                    item.setQuantity(100);
+                    item.setQuantity(1);
                     c.getPlayer().addItemToInv(item);
                 }
                 break;
@@ -171,8 +172,10 @@ public class CommandHandler {
                 MapleSignIn.initSignRewards();
                 break;
             case "em":
-                c.getPlayer().announce(ChannelPacket.eventMessage("测试测试", 2, 3000));
+                c.getMapleChannel().broadcast(ChannelPacket.eventMessage("测试测试", 2, 3000));
                 break;
+            case "pl":
+                c.announce(PlayerPacket.charRemote());
 
         }
     }

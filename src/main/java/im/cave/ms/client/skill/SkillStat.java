@@ -67,8 +67,7 @@ public enum SkillStat {
     t,
     dotInterval,
     dotTime,
-    criticaldamageMin,
-    criticaldamageMax,
+    criticaldamage,
     dot,
     ballDelay,
     ballDelay1,
@@ -282,8 +281,15 @@ public enum SkillStat {
     itemCon,
     itemConNo,
     type,
-    areaAttack
-    ;
+    areaAttack,
+    magicSteal,
+    pullTarget,
+    mes,
+    dmgDelay,
+    casterMove,
+    massSpell,
+    pushTarget,
+    avaliableInJumpingState;
 
     public static SkillStat getSkillStatByString(String s) {
         for (SkillStat skillStat : SkillStat.values()) {
@@ -428,10 +434,8 @@ public enum SkillStat {
                 return BaseStat.ied;
             case indieAllStat:
                 return BaseStat.allStat;
-            case criticaldamageMin:
-                return BaseStat.minCd;
-            case criticaldamageMax:
-                return BaseStat.maxCd;
+            case criticaldamage:
+                return BaseStat.cd;
             case cr:
             case indieCr:
                 return BaseStat.cr;

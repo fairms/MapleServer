@@ -11,6 +11,7 @@ public class MsApplication {
     public static void main(String[] args) {
         SpringApplication.run(MsApplication.class, args);
         Server.getInstance().init();
+
         Runtime rt = Runtime.getRuntime();
         try {
             if (System.getProperty("os.name").toLowerCase().contains("windows")) {

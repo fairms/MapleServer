@@ -23,6 +23,21 @@ import java.util.TreeMap;
  * Created on 12/12/2017.
  */
 public class ItemConstants {
+    public static final int[] COMMODITY = {
+            3100011,
+            3100010,
+            3100009,
+            3100008,
+            3100007,
+            3100006,
+            3100005,
+            3100004,
+            3100003,
+            3100002,
+            3100001,
+            3100000,
+
+    };
     private static final Logger log = LoggerFactory.getLogger(ItemConstants.class);
 
 
@@ -1673,7 +1688,7 @@ public class ItemConstants {
                 stats.put(EnchantStat.MHP, armorHp[tier] + stats.getOrDefault(EnchantStat.MHP, 0));
             }
             String title = chances[i] + "% ";
-                title += bp == BodyPart.Weapon ? "Attack" : "Stat";
+            title += bp == BodyPart.Weapon ? "Attack" : "Stat";
             ScrollUpgradeInfo sui = new ScrollUpgradeInfo(i, title, SpellTraceScrollType.Normal, 0, stats,
                     BASE_ST_COST + rLevel * (tier + 1), chances[i]);
             scrolls.add(sui);

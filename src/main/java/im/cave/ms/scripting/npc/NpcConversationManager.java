@@ -7,6 +7,7 @@ import im.cave.ms.scripting.AbstractPlayerInteraction;
 
 import java.util.Map;
 
+import static im.cave.ms.enums.NpcMessageType.AskAccept;
 import static im.cave.ms.enums.NpcMessageType.AskAvatar;
 import static im.cave.ms.enums.NpcMessageType.AskMenu;
 import static im.cave.ms.enums.NpcMessageType.AskText;
@@ -37,10 +38,9 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         return sendGeneralSay(text, AskYesNo) != 0;
     }
 
-    //38
-//    public boolean sendAskAccept(String text) {
-//        return sendGeneralSay(text, AskAccept) != 0;
-//    }
+    public boolean sendAskAccept(String text) {
+        return sendGeneralSay(text, AskAccept) != 0;
+    }
 
     public int sendSayOkay(String text) {
         return sendGeneralSay(text, SayOk);

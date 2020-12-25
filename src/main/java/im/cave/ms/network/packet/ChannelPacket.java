@@ -11,7 +11,9 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.constants.GameConstants;
+import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DimensionalMirror;
 import im.cave.ms.enums.DropEnterType;
@@ -106,6 +108,78 @@ public class ChannelPacket {
     }
 
 
+    public static OutPacket initFamiliar(MapleCharacter chr) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.FAMILIAR_OPERATION.getValue());
+        outPacket.write(7);
+        outPacket.writeInt(chr.getId());
+        outPacket.writeInt(1);
+        outPacket.writeInt(0x9947A4C2);
+        outPacket.writeInt(chr.getAccId());
+        outPacket.writeInt(chr.getId());
+        outPacket.write(1);
+        outPacket.write(1);
+        outPacket.writeZeroBytes(21);
+        outPacket.writeShort(2);
+        outPacket.writeInt(chr.getAccId());
+        outPacket.writeInt(chr.getId());
+        outPacket.writeShort(3);
+        outPacket.writeInt(1);
+        outPacket.writeInt(4);
+        outPacket.writeShort(0);
+        outPacket.writeShort(5);
+        outPacket.writeInt(0);
+        outPacket.writeInt(7);
+        outPacket.writeShort(8);
+        outPacket.writeShort(3);
+        outPacket.writeInt(1);
+        outPacket.writeInt(2);
+        outPacket.writeInt(3);
+        outPacket.writeShort(0);
+        outPacket.writeShort(0x0b);
+        outPacket.writeInt(0x44f9930f);
+        outPacket.write(0x0c);
+        outPacket.writeLong(0);
+        outPacket.writeInt(2);
+        outPacket.writeInt(0x825ad512);
+        outPacket.writeInt(chr.getAccId());
+        outPacket.writeInt(chr.getId());
+        outPacket.write(1);
+        outPacket.write(1);
+        outPacket.writeZeroBytes(21);
+        outPacket.writeShort(2);
+        outPacket.writeInt(chr.getAccId());
+        outPacket.writeInt(chr.getId());
+        outPacket.writeShort(3);
+        outPacket.writeInt(1);
+        outPacket.writeShort(0);
+        outPacket.write(0);
+        outPacket.writeInt(3);
+        outPacket.writeInt(0xb529d96e);
+        outPacket.writeInt(chr.getAccId());
+        outPacket.writeInt(chr.getId());
+        outPacket.write(1);
+        outPacket.write(1);
+        outPacket.writeZeroBytes(21);
+        outPacket.writeShort(2);
+        outPacket.writeInt(chr.getAccId());
+        outPacket.writeInt(chr.getId());
+        outPacket.writeShort(3);
+        outPacket.writeInt(1);
+        byte[] bytes = new byte[]{0x4, 0x5, 0x6, 0x7, 0x8, 0x9,
+                0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x19, 0x1E,
+                0x1F, 0x20, 0x21, 0x24, 0x26, 0x27, 0x28, 0x29};
+        for (byte b : bytes) {
+            outPacket.writeShort(b);
+            if (b == 0x20) {
+                outPacket.writeInt(0);
+            }
+            outPacket.writeInt(0);
+        }
+        outPacket.writeZeroBytes(3);
+        return outPacket;
+    }
+
     public static void addUnkData(OutPacket outPacket, MapleCharacter chr) {
         outPacket.writeInt(1);
         outPacket.writeInt(0x9947A4C2);
@@ -171,7 +245,6 @@ public class ChannelPacket {
             outPacket.writeInt(0);
         }
         outPacket.writeZeroBytes(7);
-
     }
 
     public static OutPacket chatMessage(String content, ChatType type) {
@@ -455,7 +528,7 @@ public class ChannelPacket {
         outPacket.writeMapleAsciiString(msg);
         outPacket.writeInt(type); //type
         outPacket.writeInt(duration); //duration
-        outPacket.write(1); //unk
+        outPacket.write(1); //unk  !=
         return outPacket;
     }
 
@@ -463,7 +536,8 @@ public class ChannelPacket {
         OutPacket outPacket = new OutPacket();
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         outPacket.writeShort(SendOpcode.USER_ENTER_FIELD.getValue());
-        outPacket.writeInt(chr.getId());
+//        outPacket.writeInt(chr.getId());
+        outPacket.writeInt(10000);
         outPacket.writeInt(chr.getLevel());
         outPacket.writeMapleAsciiString(chr.getName());
         outPacket.writeZeroBytes(22);   //todo
@@ -476,14 +550,17 @@ public class ChannelPacket {
         outPacket.writeInt(chr.getTotalChuc());
         outPacket.writeInt(0);
         PacketHelper.addCharLook(outPacket, chr, false, false);
-        outPacket.writeInt(0); // 00 00 00 FF
+        outPacket.writeShort(0);
+        outPacket.write(0);
+        outPacket.write(-1);
         outPacket.writeInt(0);
-        outPacket.writeInt(0); // FF 00 00 00
+        outPacket.write(-1);
         outPacket.writeInt(0);
-        outPacket.writeZeroBytes(67);
+        outPacket.writeZeroBytes(70);
         for (int i = 0; i < 6; i++) {
             outPacket.write(-1); // unk
         }
+        outPacket.writeZeroBytes(14);
         outPacket.writePos(chr.getPosition());
         outPacket.write(chr.getMoveAction());
         outPacket.writeShort(chr.getFoothold());
@@ -504,6 +581,39 @@ public class ChannelPacket {
         outPacket.writeInt(1051291);
         outPacket.writeZeroBytes(31);
 
+        return outPacket;
+    }
+
+    public static OutPacket charAttack(MapleCharacter player, AttackInfo attackInfo) {
+        OutPacket outPacket = new OutPacket();
+        switch (attackInfo.attackHeader) {
+            case RANGED_ATTACK:
+            case CLOSE_RANGE_ATTACK:
+            case MAGIC_ATTACK:
+
+        }
+        outPacket.write(attackInfo.fieldKey);
+        outPacket.write(attackInfo.mobCount << 4 | attackInfo.hits);
+        outPacket.writeInt(player.getLevel());
+        outPacket.write(attackInfo.skillLevel);
+        if (attackInfo.skillLevel > 0) {
+            outPacket.writeInt(attackInfo.skillId);
+        }
+        if (SkillConstants.isZeroSkill(attackInfo.skillId)) {
+            outPacket.write(attackInfo.zero);
+            if (attackInfo.zero != 0) {
+                outPacket.writePos(player.getPosition());
+            }
+        }
+//        if (attackInfo.attackHeader == OutHeader.REMOTE_SHOOT_ATTACK &&
+//                (SkillConstants.getAdvancedCountHyperSkill(ai.skillId) != 0 ||
+//                        SkillConstants.getAdvancedAttackCountHyperSkill(ai.skillId) != 0 ||
+//                        SkillConstants.isShikigamiHauntingSkill(ai.skillId))) {
+//            outPacket.encodeByte(ai.passiveSLV);
+//            if (ai.passiveSLV > 0) {
+//                outPacket.encodeInt(ai.passiveSkillID);
+//            }
+//        }
         return outPacket;
     }
 }

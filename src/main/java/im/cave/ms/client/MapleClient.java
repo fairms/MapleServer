@@ -4,6 +4,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.enums.ServerType;
+import im.cave.ms.network.crypto.AESCipher;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.LoginPacket;
 import im.cave.ms.network.server.Server;
@@ -26,7 +27,8 @@ import java.util.stream.Collectors;
  */
 public class MapleClient {
 
-    public static final AttributeKey<MapleClient> CLIENT_KEY = AttributeKey.newInstance("Client");
+    public static final AttributeKey<MapleClient> CLIENT_KEY = AttributeKey.newInstance("C");
+    public static final AttributeKey<AESCipher> AES_CIPHER = AttributeKey.valueOf("A");
     public Map<Integer, Integer> mEncryptedOpcode = new LinkedHashMap<>();
     private int sendIv;
     private int recvIv;

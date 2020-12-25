@@ -4,11 +4,11 @@ import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.ServerType;
+import im.cave.ms.network.crypto.AESCipher;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.LoginPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
 import im.cave.ms.network.server.ErrorPacketHandler;
-import im.cave.ms.network.server.Server;
 import im.cave.ms.network.server.login.handler.CharOperationHandler;
 import im.cave.ms.network.server.login.handler.CharlistRequestHandler;
 import im.cave.ms.network.server.login.handler.CreateCharHandler;
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static im.cave.ms.client.MapleClient.AES_CIPHER;
 import static im.cave.ms.client.MapleClient.CLIENT_KEY;
 
 /**
@@ -45,6 +46,7 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<InPacket> {
         MapleClient client = new MapleClient(channel, sendIv, recvIv);
         client.announce(LoginPacket.getHello(sendIv, recvIv, ServerType.LOGIN));
         channel.attr(CLIENT_KEY).set(client);
+        ctx.channel().attr(AES_CIPHER).set(new AESCipher());
         EventManager.addFixedRateEvent(client::sendPing, 0, 10000);
     }
 
@@ -66,6 +68,9 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<InPacket> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, InPacket inPacket) {
         MapleClient c = ctx.channel().attr(CLIENT_KEY).get();
+        if (c == null || c.getLoginStatus() == LoginStatus.SERVER_TRANSITION) {
+            return;
+        }
         short op = inPacket.readShort();
         RecvOpcode opcode = RecvOpcode.getOpcode(op);
         if (opcode == null) {
@@ -137,11 +142,6 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<InPacket> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (cause instanceof IOException) {
             log.info("Client forcibly closed the game");
-            MapleClient client = ctx.channel().attr(CLIENT_KEY).get();
-            Account account = client.getAccount();
-            if (account != null) {
-                Server.getInstance().addAccount(account);
-            }
         } else {
             cause.printStackTrace();
         }

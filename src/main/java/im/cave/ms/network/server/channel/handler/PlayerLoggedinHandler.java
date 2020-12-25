@@ -6,12 +6,12 @@ import im.cave.ms.client.MapleSignIn;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.network.netty.InPacket;
-import im.cave.ms.network.packet.LoginPacket;
 import im.cave.ms.network.packet.MaplePacketCreator;
-import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.network.server.Server;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.tools.Pair;
+
+import java.util.Arrays;
 
 
 /**
@@ -32,10 +32,6 @@ public class PlayerLoggedinHandler {
             return;
         }
         MapleClient oldClient = transInfo.getRight();
-//        if (!Arrays.equals(oldClient.getMachineID(), machineId) ||) {
-//            c.close();
-//            return;
-//        }
         MapleCharacter player = oldClient.getPlayer();
         if (player == null) {
             c.close();
@@ -46,6 +42,11 @@ public class PlayerLoggedinHandler {
         c.setWorld(worldId);
         c.setChannel(channel);
         c.setAccount(oldClient.getAccount());
+        if (!Arrays.equals(oldClient.getMachineID(), machineId)) {
+            //todo
+//            c.close();
+//            return;
+        }
         Server.getInstance().removeTransfer(charId);
         MapleChannel mapleChannel = c.getMapleChannel();
         player.setClient(c);
@@ -58,7 +59,7 @@ public class PlayerLoggedinHandler {
         player.setJobHandler(JobManager.getJobById(player.getJobId(), player));
         //加密后的Opcode
         c.announce(MaplePacketCreator.encodeOpcodes(c));
-        c.announce(MaplePacketCreator.cancelTitleEffect());
+        c.announce(MaplePacketCreator.updateEventNameTag()); //updateEventNameTag
         //3.切换地图
         if (player.getHp() <= 0) {
             player.setMapId(player.getMap().getReturnMap());
@@ -67,10 +68,7 @@ public class PlayerLoggedinHandler {
         player.changeMap(player.getMapId(), true);
         player.initBaseStats();
         player.buildQuestEx();
+        c.getAccount().buildSharedQuestEx();
         c.announce(MapleSignIn.getRewardPacket());
-        c.announce(MaplePacketCreator.keymapInit(player));
-        c.announce(MaplePacketCreator.quickslotInit(player));
-        c.announce(LoginPacket.account(player.getAccount()));
-        c.announce(PlayerPacket.updateVoucher(player));
     }
 }

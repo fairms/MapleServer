@@ -3,6 +3,7 @@ package im.cave.ms.network.server.channel;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.enums.ServerType;
+import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.netty.ServerAcceptor;
 import im.cave.ms.network.server.AbstractServer;
 import im.cave.ms.provider.data.MapData;
@@ -62,6 +63,9 @@ public class MapleChannel extends AbstractServer {
         MapleMap map = maps.stream().filter(m -> m.getId() == mapId).findAny().orElse(null);
         if (map == null) {
             map = MapData.loadMapDataFromWz(mapId, worldId, channelId);
+            if (map == null) {
+                return getMap(100000000);
+            }
             maps.add(map);
         }
         return map;
@@ -69,5 +73,11 @@ public class MapleChannel extends AbstractServer {
 
     public List<MapleMap> getMaps() {
         return maps;
+    }
+
+    public void broadcast(OutPacket outPacket) {
+        for (MapleMap map : maps) {
+            map.broadcastMessage(outPacket);
+        }
     }
 }

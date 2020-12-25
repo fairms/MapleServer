@@ -108,6 +108,7 @@ public class ItemOption {
         level,
         ignoreDam,
         damReflect,
-        time
+        ignoreDAMr, time,
+        passivePlus, DAMreflect
     }
 }

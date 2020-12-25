@@ -141,6 +141,9 @@ public class Warrior extends Beginner {
         Option option = new Option();
         option.nOption = combo;
         option.rOption = HERO_COMBO_ATTACK;
+        if (chr.getQuestEx().containsKey(QUEST_EX_SKILL_STATE) && chr.getQuestEx().containsKey(HERO_COMBO_ATTACK)) {
+            option.bOption = Integer.parseInt(chr.getQuestEx().get(QUEST_EX_SKILL_STATE).get(String.valueOf(HERO_COMBO_ATTACK)));
+        }
         tsm.putCharacterStatValue(ComboCounter, option);
         tsm.sendSetStatPacket();
     }

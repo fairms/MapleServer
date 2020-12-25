@@ -28,6 +28,9 @@ public class QuestHandler {
 
     public static void handleQuestRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
         QuestManager questManager = player.getQuestManager();
         QuestType type = QuestType.getType(inPacket.readByte());
         int questId = 0;
@@ -113,6 +116,5 @@ public class QuestHandler {
         if (success) {
             player.announce(QuestPacket.questResult(QuestType.QuestRes_Act_Success, questId, npcTemplateId, 0, false));
         }
-//        inPacket.release();
     }
 }

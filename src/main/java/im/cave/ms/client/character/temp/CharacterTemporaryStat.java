@@ -718,22 +718,22 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     unk691(691),
     unk692(692),
     unk693(693),
-    unk694(694), //疾驰速度
+    unk694(694), //
     unk695(695),
-    unk696(696),
-    unk697(697), //疾驰跳跃
-    unk698(698),
+    unk696(696), // 能量获得
+    unk697(697), //疾驰速度
+    unk698(698), //疾驰跳跃
     unk699(699),  //骑兽技能
-    unk700(700),
-    unk701(701), //极速领域
-    unk702(702),
-    unk703(703), // 导航辅助
+    unk700(700), //极速领域
+    unk701(701),// 导航辅助
+    unk702(702), //SECONDARY_STAT_Undead
+    unk703(703), // SECONDARY_STAT_RideVehicleExpire
     unk704(704),
     unk705(705),
     unk706(706),
     unk707(707),
-    unk708(708), //SECONDARY_STAT_Undead
-    unk709(709), // SECONDARY_STAT_RideVehicleExpire
+    unk708(708),
+    unk709(709),
     unk720(720),
     unk721(721),
     ;
@@ -890,13 +890,19 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
         spawnBuffs.put(Unk540, null);
         spawnBuffs.put(Unk584, null);
         spawnBuffs.put(WillowDodge, null);
-        spawnBuffs.put(unk694, null);
+
+        spawnBuffs.put(unk696, null);
         spawnBuffs.put(unk697, null);
+        spawnBuffs.put(unk698, null);
         spawnBuffs.put(unk699, null);
+        spawnBuffs.put(unk700, null);
         spawnBuffs.put(unk701, null);
+        spawnBuffs.put(unk702, null);
         spawnBuffs.put(unk703, null);
-        spawnBuffs.put(unk708, null);
-        spawnBuffs.put(unk709, null);
+        spawnBuffs.put(unk704, null);
+        spawnBuffs.put(unk705, null);
+
+
         return spawnBuffs;
     }
 

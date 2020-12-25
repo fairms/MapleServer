@@ -3,8 +3,6 @@ package im.cave.ms.network.packet.opcode;
 import im.cave.ms.tools.Util;
 
 public enum SendOpcode {
-
-
     //Login Server
     LOGIN_STATUS(0x00),
     SERVERLIST(0x01),
@@ -20,7 +18,6 @@ public enum SendOpcode {
     OPEN_CREATE_CHAR(0x56),
     SERVER_LIST_BG(0x5D),
     DELETE_CHAR(0x84),
-
 
     //Channel Server
     CHANGE_CHANNEL(0x10),
@@ -47,6 +44,7 @@ public enum SendOpcode {
     CANCEL_TITLE_EFFECT(0x145),
     EQUIP_ENCHANT(0x16A),
     UPDATE_VOUCHER(0x201),
+    INIT_SKILL_MACRO(0x235),
     SET_MAP(0x236),
     SET_CASH_SHOP(0x239),
     FIELD_EFFECT(0x244),
@@ -60,6 +58,7 @@ public enum SendOpcode {
     BLACK_BOARD(0x2B9),
     CHECK_ACCOUNT(0x2DC),
     CANCEL_CHAIR(0x2E1),
+    FAMILIAR_OPERATION(0x2e2),
     HIDDEN_EFFECT_EQUIP(0x316),
     MOVE_PLAYER(0x345),
     EFFECT(0x383),

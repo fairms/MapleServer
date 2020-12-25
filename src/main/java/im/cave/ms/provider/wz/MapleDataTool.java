@@ -41,7 +41,8 @@ public class MapleDataTool {
             ret = ret.replace("&gt;", ">");
             return ret;
         } else {
-            return String.valueOf(getInt(data));
+//            return String.valueOf(getInt(data));
+            return data.getData().toString();
         }
     }
 
@@ -85,8 +86,10 @@ public class MapleDataTool {
                 return Integer.parseInt(data_);
             } else if (data.getType() == MapleDataType.SHORT) {
                 return (int) (Short) data.getData();
+            } else if (data.getType() == MapleDataType.DOUBLE) {
+                return (int) (double) data.getData();
             } else {
-                return (Integer) data.getData();
+                return ((Integer) data.getData());
             }
         }
     }

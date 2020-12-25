@@ -116,7 +116,7 @@ public class MapleMap {
             if (onUserEnter.length() != 0) {
                 msm.runMapScript(chr.getClient(), "onUserEnter/" + onUserEnter, false);
             }
-            broadcastMessage(chr, ChannelPacket.charEnterMap(chr), false);
+            broadcastMessage(chr, ChannelPacket.charEnterMap(chr), true);
         }
     }
 

@@ -229,6 +229,20 @@ public class PlayerHandler {
             player.announce(PlayerPacket.stylishKillMessage(1000, killedCount));
             player.addExp(1000, null);
         }
+
+        if (attackInfo.attackHeader != null) {
+            switch (attackInfo.attackHeader) {
+                //todo
+//                case SUMMONED_ATTACK:
+//                    chr.getField().broadcastPacket(Summoned.summonedAttack(chr.getId(), attackInfo, false), chr);
+//                    break;
+//                case FAMILIAR_ATTACK:
+//                    chr.getField().broadcastPacket(CFamiliar.familiarAttack(chr.getId(), attackInfo), chr);
+//                    break;
+                default:
+                    player.getMap().broadcastMessage(player, ChannelPacket.charAttack(player, attackInfo), false);
+            }
+        }
     }
 
     public static void handlePlayerMove(InPacket inPacket, MapleClient c) {
@@ -256,6 +270,9 @@ public class PlayerHandler {
         int mapId = inPacket.readInt();
         MapleChannel channel = c.getMapleChannel();
         MapleMap map = channel.getMap(mapId);
+        if (map == null) {
+            return;
+        }
         player.changeMap(map, map.getDefaultPortal() == null ? 0 : map.getDefaultPortal().getId());
     }
 
@@ -448,7 +465,7 @@ public class PlayerHandler {
         }
         ArrayList<Integer> aKeys = new ArrayList<>();
         if (inPacket.available() == QUICKSLOT_SIZE * 4) {
-            for (int i = 0; i < QUICKSLOT_SIZE - 1; i++) {
+            for (int i = 0; i < QUICKSLOT_SIZE; i++) {
                 aKeys.add(inPacket.readInt());
             }
         }

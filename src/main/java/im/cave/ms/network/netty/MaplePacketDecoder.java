@@ -25,6 +25,7 @@ public class MaplePacketDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
         MapleClient client = ctx.channel().attr(CLIENT_KEY).get();
+        AESCipher ac = ctx.channel().attr(MapleClient.AES_CIPHER).get();
         if (client == null) {
             ctx.channel().disconnect();
             return;
@@ -36,13 +37,6 @@ public class MaplePacketDecoder extends ByteToMessageDecoder {
             }
             int uRawSeq = in.readShortLE();
             int uDataLen = in.readShortLE();
-            if (uRawSeq == -1) {
-                byte[] dec = new byte[uDataLen];
-                in.readBytes(dec);
-                InPacket inPacket = new InPacket(dec);
-                out.add(inPacket);
-                return;
-            }
             uDataLen ^= uRawSeq;
             if (uDataLen > 0x50000) {
                 log.error("Recv packet length overflow");
@@ -59,9 +53,9 @@ public class MaplePacketDecoder extends ByteToMessageDecoder {
         if (in.readableBytes() >= client.getStoreLength()) {
             byte[] dec = new byte[client.getStoreLength()];
             in.readBytes(dec);
-            AESCipher.Crypt(dec, uSeqRcv);
-            client.setRecvIv(CIGCipher.InnoHash(uSeqRcv, 4, 0));
             client.setStoreLength(-1);
+            ac.Crypt(dec, uSeqRcv);
+            client.setRecvIv(CIGCipher.InnoHash(uSeqRcv, 4, 0));
             InPacket inPacket = new InPacket(dec);
             out.add(inPacket);
         }

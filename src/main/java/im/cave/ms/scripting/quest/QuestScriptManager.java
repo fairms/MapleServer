@@ -55,6 +55,9 @@ public class QuestScriptManager extends AbstractScriptManager {
 
 
     public void dispose(MapleClient c) {
+        if (c == null || c.getPlayer() == null) {
+            return;
+        }
         QuestActionManager qm = qms.get(c);
         if (qm != null) {
             qm.getNpcScriptInfo().reset();

@@ -37,6 +37,9 @@ public class MapData {
     public static MapleMap loadMapDataFromWz(int mapId, int world, int channel) {
         String wzPath = getMapWzPath(mapId);
         MapleData data = mapData.getData(wzPath);
+        if (data == null) {
+            return null;
+        }
         MapleData info = data.getChildByPath("info");
         String link = MapleDataTool.getString(data.getChildByPath("link"), "");
         if (!link.equals("")) {

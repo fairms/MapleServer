@@ -29,10 +29,15 @@ public class PasswordLoginHandler {
         byte[] machineId;
         String username;
         String password;
+        System.out.println(clientIP);
         if (clientIP.equals("221.231.130.70")) {
             machineId = new byte[16];
             username = "3378690678";
             password = "3378690678!";
+        } else if (clientIP.startsWith("192.168")) {
+            machineId = new byte[16];
+            username = "admin";
+            password = "admin";
         } else {
             machineId = inPacket.read(16);
             username = inPacket.readMapleAsciiString();

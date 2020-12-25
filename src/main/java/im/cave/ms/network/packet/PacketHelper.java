@@ -1,11 +1,12 @@
 package im.cave.ms.network.packet;
 
+import im.cave.ms.client.Account;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.potential.CharacterPotential;
+import im.cave.ms.client.field.Familiar;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
-import im.cave.ms.client.items.ItemInfo;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.client.skill.Skill;
@@ -405,7 +406,13 @@ public class PacketHelper {
         outPacket.writeZeroBytes(20);
 
         //角色共享任务数据
-        outPacket.writeShort(0);
+        Account account = chr.getAccount();
+        Map<Integer, String> sharedQuestExStorage = account.getSharedQuestExStorage();
+        outPacket.writeShort(sharedQuestExStorage.size());
+        sharedQuestExStorage.forEach((qrKey, qrValue) -> {
+            outPacket.writeInt(qrKey);
+            outPacket.writeMapleAsciiString(qrValue);
+        });
 
         outPacket.writeZeroBytes(13);
 
@@ -418,21 +425,20 @@ public class PacketHelper {
             outPacket.writeLong(0);
         }
 
-
         outPacket.writeInt(chr.getAccId());
         outPacket.writeInt(chr.getId());
         outPacket.writeInt(0);
         outPacket.writeLong(getTime(-2));
 
-        outPacket.writeZeroBytes(82);
+        outPacket.writeZeroBytes(82); //幻影窃取的技能
 
-        outPacket.writeShort(0);
-//        outPacket.writeShort(ItemConstants.COMMODITY.length);
-//        for (int i : ItemConstants.COMMODITY) {
-//            outPacket.writeInt(i);
-//            outPacket.writeInt(0);
-//            outPacket.writeLong(getTime(System.currentTimeMillis()));
-//        }
+        outPacket.writeShort(ItemConstants.COMMODITY.length);
+        long time = getTime(System.currentTimeMillis());
+        for (int i : ItemConstants.COMMODITY) {
+            outPacket.writeInt(i);
+            outPacket.writeInt(0);
+            outPacket.writeLong(time);
+        }
 
         outPacket.writeZeroBytes(69);
         outPacket.writeLong(getTime(System.currentTimeMillis()));
@@ -843,15 +849,25 @@ public class PacketHelper {
             outPacket.writeShort(item.getQuantity());
             outPacket.writeMapleAsciiString(item.getOwner());
             outPacket.writeInt(item.getFlag());
-            if (ItemConstants.isThrowingStar(item.getId()) || ItemConstants.isBullet(item.getId()) ||
-                    ItemConstants.isFamiliar(item.getId()) || item.getId() == 4001886) {
+            if (ItemConstants.isThrowingStar(item.getItemId()) || ItemConstants.isBullet(item.getItemId()) ||
+                    ItemConstants.isFamiliar(item.getItemId()) || item.getItemId() == 4001886) {
                 outPacket.writeLong(item.getId());
             }
             outPacket.writeInt(0);
-            ItemInfo itemInfo = ItemData.getItemInfoById(item.getItemId());
-            int familiarID = itemInfo.getFamiliarID();
-            outPacket.writeInt(familiarID);
-
+            if (ItemConstants.isFamiliar(item.getItemId()) && item.getFamiliar() == null) {
+                int familiarID = ItemData.getFamiliarId(item.getItemId());
+                Familiar familiar = new Familiar(familiarID);
+                item.setFamiliar(familiar);
+            }
+            Familiar familiar = item.getFamiliar();
+            outPacket.writeInt(familiar != null ? 9970206 : 0);
+            outPacket.writeShort(familiar != null ? familiar.getLevel() : 0);
+            outPacket.writeShort(familiar != null ? familiar.getSkill() : 0);
+            outPacket.writeShort(familiar != null ? familiar.getLevel() : 0);
+            outPacket.writeShort(familiar != null ? familiar.getOption(0) : 0);
+            outPacket.writeShort(familiar != null ? familiar.getOption(1) : 0);
+            outPacket.writeShort(familiar != null ? familiar.getOption(2) : 0);
+            outPacket.write(familiar != null ? familiar.getGrade() : 0);     //品级 0=C 1=B 2=A 3=S 4=SS
         }
     }
 }

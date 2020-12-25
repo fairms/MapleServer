@@ -20,6 +20,6 @@ spring:
 
 logging:
   level:
-    root: info
+    root: error
     im.cave.ms: debug
     org.hibernate: error

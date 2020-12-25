@@ -21,7 +21,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,7 +51,7 @@ public class Account {
     private Set<MapleCharacter> characters = new HashSet<>();
     private Long lastLogin;
     @JoinColumn(name = "trunkId")
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Trunk trunk;
     @ElementCollection
     @CollectionTable(name = "shared_quest_ex", joinColumns = @JoinColumn(name = "accId"))
@@ -60,7 +59,7 @@ public class Account {
     @Column(name = "qrValue")
     private Map<Integer, String> sharedQuestExStorage;
     @Transient
-    private Map<Integer, Map<String, String>> sharedQuestEx;
+    private Map<Integer, Map<String, String>> sharedQuestEx = new HashMap<>();
 
     public Account(String account, String password) {
         this.account = account;
@@ -78,14 +77,14 @@ public class Account {
         return ((Account) account);
     }
 
-    @Transactional
     public void saveToDb() {
         DataBaseManager.saveToDB(this);
     }
 
     public void logout() {
         Server.getInstance().removeAccount(this);
-        saveToDb();
+        DataBaseManager.saveToDB(this);
+//        saveToDb();
     }
 
     public void addChar(MapleCharacter chr) {

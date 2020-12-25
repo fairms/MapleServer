@@ -36,6 +36,7 @@ import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.network.db.InlinedIntArrayConverter;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.ChannelPacket;
+import im.cave.ms.network.packet.LoginPacket;
 import im.cave.ms.network.packet.MaplePacketCreator;
 import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.network.server.Server;
@@ -351,7 +352,7 @@ public class MapleCharacter implements Serializable {
                 }
                 Item itemCopy = null;
                 if (item.getInvType().isStackable() && ii != null && item.getQuantity() > ii.getSlotMax()) {
-                    itemCopy = item.deepCopy();
+                    itemCopy = item.deepCopy(); //剩余的
                     quantity = quantity - ii.getSlotMax();
                     itemCopy.setQuantity(quantity);
                     item.setQuantity(ii.getSlotMax());
@@ -492,9 +493,14 @@ public class MapleCharacter implements Serializable {
             announce(ChannelPacket.getWarpToMap(this, map, portal));
         }
         map.addPlayer(this);
-        announce(ChannelPacket.quickMove(map.isTown()));
-        announce(PlayerPacket.hiddenEffectEquips(this)); //broadcast?
+        announce(LoginPacket.account(getAccount()));
+        announce(MaplePacketCreator.keymapInit(this));
+        announce(MaplePacketCreator.quickslotInit(this));
+        initSkillMacro();
+        announce(PlayerPacket.updateVoucher(this));
         map.sendMapObjectPackets(this);
+        announce(PlayerPacket.hiddenEffectEquips(this)); //broadcast?
+        announce(ChannelPacket.quickMove(map.isTown()));
     }
 
     public void announce(OutPacket outPacket) {
@@ -674,7 +680,7 @@ public class MapleCharacter implements Serializable {
             addMeso(drop.getMoney());
             getQuestManager().handleMoneyGain(drop.getMoney());
             announce(ChannelPacket.dropPickupMessage(drop.getMoney(), (short) 0, (short) 0));
-            announce(PlayerPacket.inventoryRefresh());
+            announce(PlayerPacket.inventoryRefresh(true));
         } else {
             Item item = drop.getItem();
             int itemId = item.getItemId();
@@ -1061,8 +1067,7 @@ public class MapleCharacter implements Serializable {
         getBaseStats().clear();
         Map<BaseStat, Long> stats = getBaseStats();
         stats.put(BaseStat.cr, 5L);
-        stats.put(BaseStat.minCd, 20L);
-        stats.put(BaseStat.maxCd, 50L);
+        stats.put(BaseStat.cd, 0L);
         stats.put(BaseStat.pdd, 9L);
         stats.put(BaseStat.mdd, 9L);
         stats.put(BaseStat.acc, 11L);
@@ -1129,7 +1134,6 @@ public class MapleCharacter implements Serializable {
         addQuestEx(QUEST_EX_SKILL_STATE, value);
         announce(PlayerPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_SKILL_STATE, questsExStorage.get(QUEST_EX_SKILL_STATE), (byte) 0));
     }
-
 
     public void buildQuestEx() {
         getQuestsExStorage().forEach((qrKey, qrValue) ->
@@ -1214,5 +1218,9 @@ public class MapleCharacter implements Serializable {
 
     public int getTotalChuc() {
         return getInventory(EQUIPPED).getItems().stream().mapToInt(i -> ((Equip) i).getChuc()).sum();
+    }
+
+    public void initSkillMacro() {
+        announce(PlayerPacket.initSkillMacro());
     }
 }

@@ -13,6 +13,7 @@ import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.tools.Randomizer;
 import im.cave.ms.tools.Tuple;
 import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
@@ -366,51 +367,122 @@ public class TemporaryStatManager {
                 .sorted(Comparator.comparingInt(CharacterTemporaryStat::getOrder))
                 .collect(Collectors.toList());
         for (CharacterTemporaryStat cts : orderedAndFilteredCtsList) {
-            if (cts.getRemoteOrder() != -1) {
-                Option o = getOption(cts);
-                if (cts == CharacterTemporaryStat.Unk82) {
-                    outPacket.writeShort(o.nOption);
-                }
-                if (!cts.isNotEncodeAnything()) {
-                    if (cts.isRemoteEncode1()) {
-                        outPacket.writeShort(o.nOption);
-                    } else if (cts.isRemoteEncode4()) {
-                        outPacket.writeInt(o.nOption);
-                    } else {
-                        outPacket.writeShort(o.nOption);
-                    }
-                    if (!cts.isNotEncodeReason()) {
-                        outPacket.writeInt(o.rOption);
-                    }
-                }
-                switch (cts) {
-                    case Contagion:
-                        outPacket.writeInt(o.tOption);
-                        break;
-                    case BladeStance:
-                    case ImmuneBarrier:
-                    case Unk530:
-                    case Unk531:
-                    case Unk586:
-                        outPacket.writeInt(o.xOption);
-                        break;
-                    case FullSoulMP:
-                        outPacket.writeInt(o.rOption);
-                        outPacket.writeInt(o.xOption);
-                        break;
-                    case AntiMagicShellBool:
-                    case PoseTypeBool:
-                        outPacket.write(o.bOption);
-                        break;
-                }
-            }
+//            if (cts.getRemoteOrder() != -1) {
+//                Option o = getOption(cts);
+//                if (cts == CharacterTemporaryStat.Unk82) {
+//                    outPacket.writeShort(o.nOption);
+//                }
+//                if (!cts.isNotEncodeAnything()) {
+//                    if (cts.isRemoteEncode1()) {
+//                        outPacket.writeShort(o.nOption);
+//                    } else if (cts.isRemoteEncode4()) {
+//                        outPacket.writeInt(o.nOption);
+//                    } else {
+//                        outPacket.writeShort(o.nOption);
+//                    }
+//                    if (!cts.isNotEncodeReason()) {
+//                        outPacket.writeInt(o.rOption);
+//                    }
+//                }
+//
+//                outPacket.writeZeroBytes(11);
+//            }
         }
-        outPacket.writeInt(-1);
-//        outPacket.writeZeroBytes(45);
-//        outPacket.write(1);
-//        outPacket.writeZeroBytes(73); //todo
-    }
 
+        final int MAX_INT = 2147483647;
+        final int RANDOM_INT = Randomizer.nextInt(MAX_INT);
+
+        outPacket.writeInt(-1); // PyramidEffect
+
+        outPacket.write(0); // KillingPoint
+
+
+        outPacket.writeInt(0); // 神圣迅捷
+        outPacket.writeInt(0);
+        outPacket.writeInt(0); // 战法灵气
+
+        outPacket.writeInt(0); // 激素狂飙
+
+        outPacket.writeInt(0); // 忍耐之盾
+
+        outPacket.writeInt(0); // SECONDARY_STAT_UNK476
+
+        outPacket.writeInt(0); // 结合灵气
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+
+        outPacket.writeInt(0); // SECONDARY_STAT_BattlePvP_LangE_Protection
+        outPacket.writeInt(0);
+
+        outPacket.write(1); //AranSmashSwing 激素狂飙
+
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(0);
+
+        outPacket.writeInt(0); // 能量
+        //能量获得
+        outPacket.writeLong(0);
+        outPacket.write(1);
+        outPacket.writeInt(MAX_INT);
+        //疾驰速度
+        outPacket.writeLong(0);
+        outPacket.write(1);
+        outPacket.writeInt(RANDOM_INT);
+        outPacket.writeShort(0);
+        //疾驰跳跃
+        outPacket.writeLong(0);
+        outPacket.write(1);
+        outPacket.writeInt(RANDOM_INT);
+        outPacket.writeShort(0);
+        //骑兽技能
+        outPacket.writeLong(0);
+        outPacket.write(1);
+        outPacket.writeInt(MAX_INT);
+        //极速领域
+        outPacket.writeLong(0);
+        outPacket.writeInt(1);
+        outPacket.writeLong(0);
+        //导航辅助
+        outPacket.writeLong(0);
+        outPacket.write(1);
+        outPacket.writeInt(MAX_INT);
+        outPacket.writeLong(0);
+        //SECONDARY_STAT_Undead
+        outPacket.writeLong(0);
+        outPacket.write(1);
+        outPacket.writeInt(RANDOM_INT);
+        outPacket.writeShort(0);
+        //SECONDARY_STAT_RideVehicleExpire
+        outPacket.writeLong(0);
+        outPacket.write(1);
+        outPacket.writeInt(RANDOM_INT);
+        outPacket.writeShort(0);
+        //
+        outPacket.writeLong(0);
+        outPacket.write(1);
+        outPacket.writeInt(MAX_INT);
+        //
+        outPacket.writeLong(0);
+        outPacket.write(1);
+        outPacket.writeInt(MAX_INT);
+
+
+        outPacket.writeLong(0);
+        outPacket.writeLong(0);
+        outPacket.writeLong(0);
+        outPacket.write(0);
+
+    }
 
 //    public void encodeRemovedIndieTempStat(OutPacket outPacket) {
 //        Map<CharacterTemporaryStat, List<Option>> stats = getRemovedStats().entrySet().stream()
@@ -440,6 +512,7 @@ public class TemporaryStatManager {
 //            }
 //        }
 //    }
+
 
     public boolean hasNewMovingEffectingStat() {
         return getNewStats().keySet().stream().anyMatch(CharacterTemporaryStat::isMovingEffectingStat);

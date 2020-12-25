@@ -1,27 +1,34 @@
 package im.cave.ms.client.items;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.Familiar;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.provider.data.ItemData;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.Objects;
 
-import static im.cave.ms.constants.GameConstants.ZERO_TIME;
+import static im.cave.ms.constants.GameConstants.MAX_TIME;
 import static im.cave.ms.enums.InventoryOperation.ADD;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
 
@@ -37,15 +44,15 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "item")
 public class Item implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    protected long expireTime = MAX_TIME;
 
     protected int itemId;
     protected int pos;
     @Column(name = "sn")
     protected long cashItemSerialNumber;
-    protected long expireTime = ZERO_TIME;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "invType")
     protected InventoryType invType;
@@ -56,6 +63,10 @@ public class Item implements Serializable {
     protected boolean isCash;
     @Transient
     private short flag;
+    @JoinColumn(name = "familiarId")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Familiar familiar;
     private String owner = "";
 
     public void drop() {
@@ -77,15 +88,15 @@ public class Item implements Serializable {
 
     public Item deepCopy() {
         Item item = new Item();
-        this.setItemId(item.getItemId());
+        item.setItemId(getItemId());
         item.setPos(getPos());
         item.setCashItemSerialNumber(getCashItemSerialNumber());
         item.setExpireTime(getExpireTime());
-        this.setInvType(item.getInvType());
-        this.setCash(item.isCash());
-        this.setType(item.getType());
-        this.setOwner(item.getOwner());
-        this.setQuantity(item.getQuantity());
+        item.setInvType(getInvType());
+        item.setCash(isCash());
+        item.setType(getType());
+        item.setOwner(getOwner());
+        item.setQuantity(getQuantity());
         return item;
 
     }

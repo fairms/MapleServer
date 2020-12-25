@@ -138,6 +138,24 @@ public class SkillData {
                     case "notIncBuffDuration":
                         skill.setNotIncBuffDuration(Integer.parseInt(value) != 0);
                         break;
+                    case "weapon":
+                    case "weapon2":
+                    case "weapon3":
+                    case "weapon4":
+                    case "action":
+                    case "PVPcommon":
+                    case "effect":
+                    case "effect0":
+                    case "affected":
+                    case "skillList":
+                    case "finalAttack":
+                    case "cancleType":
+                    case "mob":
+                    case "hit":
+                    case "number":
+                    case "notRemoved":
+                    case "state":
+                        break;
                     case "req":
                         for (MapleData reqInfo : skillAttr.getChildren()) {
                             String reqInfoName = reqInfo.getName();
@@ -228,7 +246,6 @@ public class SkillData {
                         log.warn("unknown skill attr : {} of skill:{}", name, skillId);
                 }
             }
-
             SkillData.skills.put(skillId, skill);
             return skill;
         } else {

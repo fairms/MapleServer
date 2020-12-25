@@ -2,6 +2,7 @@ package im.cave.ms.network.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.network.netty.InPacket;
 
 
@@ -24,6 +25,7 @@ public class ChangeChannelHandler {
             return;
         }
         //todo
+        c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
         player.changeChannel(channel);
     }
 }

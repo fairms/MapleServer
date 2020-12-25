@@ -68,7 +68,7 @@ public class Server {
     public void init() {
         log.info("Starting server.");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-
+            //todo
         }));
 
         Map<Integer, Equip> equips = ItemData.getEquips();
@@ -141,5 +141,13 @@ public class Server {
         NpcScriptManager.getInstance().reloadNpcScripts();
         MapScriptManager.getInstance().reloadScripts();
         QuestScriptManager.getInstance().reloadQuestScripts();
+    }
+
+    public long getServerCurrentTime() {
+        return serverCurrentTime;
+    }
+
+    public void setServerCurrentTime(long serverCurrentTime) {
+        this.serverCurrentTime = serverCurrentTime;
     }
 }

@@ -52,6 +52,8 @@ public class ItemInfo {
     private int grade;
     private int android;
     private int familiarID;
+    private double unitPrice;
+    private int reqLevel;
 
     public void putScrollStat(ScrollStat scrollStat, int val) {
         getScrollStats().put(scrollStat, val);

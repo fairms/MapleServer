@@ -15,6 +15,7 @@ import im.cave.ms.network.packet.QuestPacket;
 import im.cave.ms.provider.data.QuestData;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -48,9 +49,11 @@ public class QuestManager {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(cascade = CascadeType.ALL)
     @CollectionTable(name = "questlists")
     @MapKeyColumn(name = "questId")
+    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE)
     private Map<Integer, Quest> questList;
 
     @Transient

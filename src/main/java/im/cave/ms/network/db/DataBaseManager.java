@@ -52,7 +52,7 @@ public class DataBaseManager {
         synchronized (obj) {
             try (Session session = getSession()) {
                 Transaction t = session.beginTransaction();
-                session.saveOrUpdate(session.merge(obj));
+                session.saveOrUpdate((obj));
                 t.commit();
             }
         }

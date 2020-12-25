@@ -34,8 +34,7 @@ public enum BaseStat {
     mmp,
     mmpR,
     cr, // Crit rate
-    minCd, // Min crit damage
-    maxCd, // Max crit damage
+    cd, // Min crit damage
     fd, // Final damage (total damage)
     bd, // Boss damage
     ied, // Ignore enemy defense
@@ -248,11 +247,11 @@ public enum BaseStat {
                 stats.put(cr, o.nOption);
                 break;
             case EnrageCrDam:
-                stats.put(minCd, o.nOption);
+                stats.put(cd, o.nOption);
                 break;
             case IndieCrDam:
             case IndieCrDamR:
-                stats.put(maxCd, o.nValue);
+                stats.put(cd, o.nValue);
                 break;
             case IndieEXP:
             case IndieRelaxEXP:
@@ -289,6 +288,7 @@ public enum BaseStat {
                 stats.put(luk, o.nValue);
                 break;
             case IndieStatR:
+            case BasicStatUp:
                 stats.put(strR, o.nValue);
                 stats.put(dexR, o.nValue);
                 stats.put(intR, o.nValue);
@@ -332,12 +332,6 @@ public enum BaseStat {
             case MesoUpByItem:
                 stats.put(mesoR, o.nOption);
                 break;
-            case BasicStatUp:
-                stats.put(strR, o.nValue);
-                stats.put(dexR, o.nValue);
-                stats.put(intR, o.nValue);
-                stats.put(lukR, o.nValue);
-                break;
             case Stance:
                 stats.put(stance, o.nOption);
                 break;
@@ -347,22 +341,16 @@ public enum BaseStat {
                 stats.put(cr, o.nOption);
                 break;
             case AdvancedBless:
-                // TODO
-                break;
             case IllusionStep:
-                // TODO
-                break;
             case Concentration:
+            case EventRate:
+            case FinalCut:
+            case Bless:
+            case BlessOfDarkness:
                 // TODO
                 break;
             case ItemUpByItem:
                 stats.put(dropR, o.nOption);
-                break;
-            case EventRate:
-                // TODO
-                break;
-            case FinalCut:
-                // TODO
                 break;
             case EMHP:
             case BeastFormMaxHP:
@@ -370,12 +358,6 @@ public enum BaseStat {
                 break;
             case EMMP:
                 stats.put(mmp, o.nOption);
-                break;
-            case Bless:
-                // TODO
-                break;
-            case BlessOfDarkness:
-                // TODO
                 break;
             case IndieScriptBuff:
                 stats.put(buffTimeR, o.nValue);

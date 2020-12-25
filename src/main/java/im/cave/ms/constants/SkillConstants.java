@@ -261,4 +261,13 @@ public class SkillConstants {
         SkillInfo si = SkillData.getSkillInfo(skillId);
         return si != null && si.isPsd();
     }
+
+    public static boolean isZeroSkill(int skillId) {
+        int prefix = skillId / 10000;
+        if (prefix == 8000) {
+            prefix = skillId / 100;
+        }
+        return prefix == 10000 || prefix == 10100 || prefix == 10110 || prefix == 10111 || prefix == 10112;
+
+    }
 }
