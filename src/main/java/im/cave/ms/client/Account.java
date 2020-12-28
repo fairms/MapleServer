@@ -35,7 +35,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "account")
+@Table(name = "accounts")
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +43,7 @@ public class Account {
     private String account, password;
     private int characterSlots = 6;
     private int point, voucher;
-    private byte gender, gm;
+    private boolean gm;
     private boolean isBanned;
     private String banReason;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

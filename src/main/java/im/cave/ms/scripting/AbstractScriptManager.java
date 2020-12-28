@@ -1,36 +1,63 @@
 package im.cave.ms.scripting;
 
-import jdk.nashorn.api.scripting.NashornScriptEngine;
+import im.cave.ms.client.MapleClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.script.ScriptEngineFactory;
+import javax.script.Bindings;
+import javax.script.Invocable;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 
 
 public abstract class AbstractScriptManager {
-    private final ScriptEngineFactory sef;
+    protected static final Logger log = LoggerFactory.getLogger(AbstractScriptManager.class);
+    private final ScriptEngineManager sem;
+    protected ScriptEngine engine;
 
     protected AbstractScriptManager() {
-        sef = new ScriptEngineManager().getEngineByName("javascript").getFactory();
+        sem = new ScriptEngineManager();
     }
 
-    protected NashornScriptEngine getScriptEngine(String path) {
-        path = "scripts/" + path;
-        File scriptFile = new File(path);
-        if (!scriptFile.exists()) {
+    protected Invocable getInvocable(String path, MapleClient c) {
+        try {
+            path = "scripts/" + path;
+            engine = null;
+            if (c != null) {
+                engine = c.getScriptEngine(path);
+            }
+            if (engine == null) {
+                File scriptFile = new File(path);
+                if (!scriptFile.exists()) {
+                    return null;
+                }
+                engine = sem.getEngineByName("graal.js");
+                if (c != null) {
+                    c.setScriptEngine(path, engine);
+                }
+                final FileReader fr;
+                fr = new FileReader(scriptFile);
+                if (engine == null) {
+                    fr.close();
+                    return null;
+                }
+                Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
+                bindings.put("polyglot.js.allowAllAccess", true);
+                engine.eval(fr);
+                fr.close();
+            }
+            return (Invocable) engine;
+        } catch (Exception e) {
+            log.error("Error executing script. Script file: " + path + ".", e);
             return null;
         }
-        NashornScriptEngine engine = (NashornScriptEngine) sef.getScriptEngine();
-        try (FileReader fr = new FileReader(scriptFile)) {
-            engine.eval("load('nashorn:mozilla_compat.js');" + System.lineSeparator());
-            engine.eval(fr);
-        } catch (final ScriptException | IOException t) {
-            return null;
-        }
+    }
 
-        return engine;
+    protected void resetContext(String path, MapleClient c) {
+        path = "scripts/" + path;
+        c.removeScriptEngine(path);
     }
 }

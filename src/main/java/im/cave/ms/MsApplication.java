@@ -15,7 +15,7 @@ public class MsApplication {
         Runtime rt = Runtime.getRuntime();
         try {
             if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-                Process proc = rt.exec("gsudo netsh int i add addr 1 221.231.130.70");
+                rt.exec("gsudo netsh int i add addr 1 221.231.130.70");
             }
         } catch (IOException e) {
             e.printStackTrace();

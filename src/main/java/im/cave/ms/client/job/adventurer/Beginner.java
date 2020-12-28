@@ -1,11 +1,11 @@
-package im.cave.ms.client.Job.adventurer;
+package im.cave.ms.client.job.adventurer;
 
-import im.cave.ms.client.Job.MapleJob;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.job.MapleJob;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.client.skill.Skill;
 import im.cave.ms.client.skill.SkillInfo;
@@ -20,9 +20,9 @@ import java.util.Arrays;
  * Created on 12/14/2017.
  */
 public class Beginner extends MapleJob {
+    public static final int THREE_SNAILS = 1000;
     public static final int RECOVERY = 1001;
     public static final int NIMBLE_FEET = 1002;
-    public static final int THREE_SNAILS = 1000;
     private final int[] buffs = new int[]{
             RECOVERY,
             NIMBLE_FEET,
@@ -77,7 +77,6 @@ public class Beginner extends MapleJob {
     }
 
 
-    //
 //    @Override
 //    public void handleHit(Client c, InPacket inPacket, HitInfo hitInfo) {
 //        super.handleHit(c, inPacket, hitInfo);

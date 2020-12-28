@@ -1,9 +1,13 @@
-package im.cave.ms.client.Job;
+package im.cave.ms.client.job;
 
-import im.cave.ms.client.Job.adventurer.Beginner;
-import im.cave.ms.client.Job.adventurer.Warrior;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.job.adventurer.Archer;
+import im.cave.ms.client.job.adventurer.Beginner;
+import im.cave.ms.client.job.adventurer.Magician;
+import im.cave.ms.client.job.adventurer.Pirate;
+import im.cave.ms.client.job.adventurer.Thief;
+import im.cave.ms.client.job.adventurer.Warrior;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.network.netty.InPacket;
@@ -15,15 +19,17 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class JobManager {
     private static final Class[] jobClasses = new Class[]{
-//            Archer.class,
 //            BeastTamer.class,
+            GM.class,
             Beginner.class,
-//            Kinesis.class,
-//            Magician.class,
-//            PinkBean.class,
-//            Pirate.class,
-//            Thief.class,
             Warrior.class,
+            Archer.class,
+            Thief.class,
+            Magician.class,
+            Pirate.class,
+
+//            Kinesis.class,
+//            PinkBean.class,
 //            Jett.class,
 //
 //            BlazeWizard.class,
@@ -33,10 +39,10 @@ public class JobManager {
 //            Noblesse.class,
 //            ThunderBreaker.class,
 //            WindArcher.class,
-//
+
+//            Legend.class,
 //            Aran.class,
 //            Evan.class,
-//            Legend.class,
 //            Luminous.class,
 //            Mercedes.class,
 //            Phantom.class,

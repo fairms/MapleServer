@@ -128,7 +128,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Curse(105),//
 
     Slow(106),//
-    Morph(107),//
+    Morph(107), // Checked 变形
     Regen(108), // Checked 持续回复
     BasicStatUp(109), // Checked 基础属性百分比 (冒险岛勇士)
     Stance(110), // Checked 稳如泰山

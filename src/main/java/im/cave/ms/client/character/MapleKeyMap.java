@@ -23,7 +23,7 @@ import java.util.List;
  * @date 11/22 12:52
  */
 @Data
-@Table(name = "keymap")
+@Table(name = "key_map")
 @Entity
 public class MapleKeyMap {
     @Id

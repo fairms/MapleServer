@@ -25,6 +25,7 @@ import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataProvider;
 import im.cave.ms.provider.wz.MapleDataProviderFactory;
 import im.cave.ms.provider.wz.MapleDataTool;
+import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,34 @@ public class QuestData {
     private static final Map<Integer, QuestInfo> quests = new HashMap<>();
 
 
+    public static void loadQuests() {
+        MapleData checkData = questData.getData("/Check.img");
+        MapleData actData = questData.getData("/Act.img");
+        MapleData questInfoData = questData.getData("/QuestInfo.img");
+
+        for (MapleData baseData : checkData.getChildren()) {
+            String questStringId = baseData.getName();
+            int questId = Integer.parseInt(questStringId);
+            QuestInfo quest = getQuestInfo(questId, baseData);
+            setQuestAct(actData, questId, quest);
+            MapleData questInfo = questInfoData.getChildByPath(String.valueOf(questId));
+            for (MapleData questAttr : questInfo.getChildren()) {
+                String name = questAttr.getName();
+                String value = MapleDataTool.getString(questAttr);
+                switch (name) {
+                    case "autoComplete":
+                        quest.setAutoComplete(Integer.parseInt(value) == 1);
+                        break;
+                    case "viewMedalItem":
+                        quest.setMedalItemId(Integer.parseInt(value));
+                        break;
+                }
+            }
+            quests.put(questId, quest);
+        }
+    }
+
+
     public static QuestInfo getQuestInfo(int questId) {
         if (!quests.containsKey(questId)) {
             return getQuestInfoFromWz(questId);
@@ -52,15 +81,44 @@ public class QuestData {
         return quests.get(questId);
     }
 
+
+    // 慎用
     private static QuestInfo getQuestInfoFromWz(int questId) {
         MapleData checkData = questData.getData("/Check.img");
         MapleData baseData = checkData.getChildByPath(String.valueOf(questId));
         if (baseData == null) {
             return null;
         }
+        QuestInfo quest = getQuestInfo(questId, baseData);
+
+        MapleData actData = questData.getData("/Act.img");
+        setQuestAct(actData, questId, quest);
+
+        MapleData questInfos = questData.getData("/QuestInfo.img");
+        MapleData questInfo = questInfos.getChildByPath(String.valueOf(questId));
+        for (MapleData questInfoData : questInfo.getChildren()) {
+            String name = questInfoData.getName();
+            String value = MapleDataTool.getString(questInfoData);
+            switch (name) {
+                case "autoComplete":
+                    quest.setAutoComplete(Integer.parseInt(value) == 1);
+                    break;
+                case "viewMedalItem":
+                    quest.setMedalItemId(Integer.parseInt(value));
+                    break;
+            }
+        }
+        return quest;
+    }
+
+
+    private static QuestInfo getQuestInfo(int questId, MapleData baseData) {
         QuestInfo quest = new QuestInfo();
         quest.setQuestID(questId);
         for (MapleData questAttr : baseData.getChildren()) {
+            if (!Util.isNumber(questAttr.getName())) {
+                continue;
+            }
             byte status = Byte.parseByte(questAttr.getName());
             for (MapleData info : questAttr.getChildren()) {
                 String name = info.getName();
@@ -408,8 +466,10 @@ public class QuestData {
             }
         }
         quests.put(questId, quest);
+        return quest;
+    }
 
-        MapleData actData = questData.getData("/Act.img");
+    private static void setQuestAct(MapleData actData, int questId, QuestInfo quest) {
         MapleData actInfos = actData.getChildByPath(String.valueOf(questId));
         for (MapleData actInfo : actInfos) {
             int status = Integer.parseInt(actInfo.getName());
@@ -472,22 +532,6 @@ public class QuestData {
                 }
             }
         }
-
-        MapleData questInfos = questData.getData("/QuestInfo.img");
-        MapleData questInfo = questInfos.getChildByPath(String.valueOf(questId));
-        for (MapleData questInfoData : questInfo.getChildren()) {
-            String name = questInfoData.getName();
-            String value = MapleDataTool.getString(questInfoData);
-            switch (name) {
-                case "autoComplete":
-                    quest.setAutoComplete(Integer.parseInt(value) == 1);
-                    break;
-                case "viewMedalItem":
-                    quest.setMedalItemId(Integer.parseInt(value));
-                    break;
-            }
-        }
-        return quest;
     }
 
     public static Quest createQuestFromId(int questID) {

@@ -3,10 +3,8 @@ package im.cave.ms.scripting.map;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.scripting.AbstractScriptManager;
-import jdk.nashorn.api.scripting.NashornScriptEngine;
 
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
+import javax.script.Invocable;
 import javax.script.ScriptException;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,17 +17,15 @@ import java.util.Map;
  */
 public class MapScriptManager extends AbstractScriptManager {
     private static final MapScriptManager instance = new MapScriptManager();
+    private final Map<String, Invocable> scripts = new HashMap<>();
+
 
     public static MapScriptManager getInstance() {
         return instance;
     }
 
-    private final Map<String, NashornScriptEngine> scripts = new HashMap<>();
-    private final ScriptEngineFactory sef;
-
     private MapScriptManager() {
-        ScriptEngineManager sem = new ScriptEngineManager();
-        sef = sem.getEngineByName("javascript").getFactory();
+        super();
     }
 
     public void reloadScripts() {
@@ -46,11 +42,11 @@ public class MapScriptManager extends AbstractScriptManager {
                 player.enteredScript(mapScriptPath, mapId);
             }
         }
-        NashornScriptEngine nse = scripts.get(mapScriptPath);
+        Invocable iv = scripts.get(mapScriptPath);
 
-        if (nse != null) {
+        if (iv != null) {
             try {
-                nse.invokeFunction("start", new MapScriptMethods(c));
+                iv.invokeFunction("start", new MapScriptMethods(c));
                 return true;
             } catch (ScriptException | NoSuchMethodException e) {
                 e.printStackTrace();
@@ -58,12 +54,12 @@ public class MapScriptManager extends AbstractScriptManager {
         }
 
         try {
-            nse = getScriptEngine("map/" + mapScriptPath + ".js");
-            if (nse == null) {
+            iv = getInvocable("map/" + mapScriptPath + ".js", c);
+            if (iv == null) {
                 return false;
             }
-            scripts.put(mapScriptPath, nse);
-            nse.invokeFunction("start", new MapScriptMethods(c));
+            scripts.put(mapScriptPath, iv);
+            iv.invokeFunction("start", new MapScriptMethods(c));
             return true;
         } catch (ScriptException | NoSuchMethodException e) {
             e.printStackTrace();

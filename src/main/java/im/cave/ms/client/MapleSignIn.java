@@ -1,6 +1,6 @@
 package im.cave.ms.client;
 
-import im.cave.ms.configs.WorldConfig;
+import im.cave.ms.config.Config;
 import im.cave.ms.constants.QuestConstants;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
@@ -61,7 +61,7 @@ public class MapleSignIn {
     }
 
     public static void initSignRewards() {
-        signRewards = WorldConfig.config.getSignInRewards();
+        signRewards = Config.worldConfig.getSignInRewards();
     }
 
     public static OutPacket getSignInRewardPacket(int type, int itemId) {

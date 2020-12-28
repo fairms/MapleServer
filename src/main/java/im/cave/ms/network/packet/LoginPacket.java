@@ -3,7 +3,7 @@ package im.cave.ms.network.packet;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.configs.ServerConfig;
+import im.cave.ms.config.Config;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.LoginType;
@@ -34,14 +34,12 @@ import static im.cave.ms.enums.ServerType.LOGIN;
  */
 public class LoginPacket {
 
-
     public static OutPacket clientAuth() {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(0x2C);
         outPacket.write(0);
         return outPacket;
     }
-
 
     public static OutPacket getHello(int sendIv, int recvIv, ServerType type) {
         OutPacket outPacket = new OutPacket();
@@ -96,7 +94,7 @@ public class LoginPacket {
             outPacket.writeZeroBytes(11);
             outPacket.writeShort(8449);
             for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
-                outPacket.write(ServerConfig.config.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
+                outPacket.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
                 outPacket.writeShort(1);
             }
             outPacket.write(0);
@@ -214,7 +212,7 @@ public class LoginPacket {
         outPacket.writeInt(327680);
         outPacket.writeInt(553713664);
         for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
-            outPacket.write(ServerConfig.config.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
+            outPacket.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
             outPacket.writeShort(1);
         }
         return outPacket;
@@ -288,7 +286,7 @@ public class LoginPacket {
         outPacket.write(1);
         outPacket.write(33);
         for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
-            outPacket.write(ServerConfig.config.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
+            outPacket.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
             outPacket.writeShort(1);
         }
         outPacket.write(0);

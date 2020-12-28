@@ -13,6 +13,8 @@ import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.script.ScriptEngine;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,8 @@ public class MapleClient {
     private LoginStatus loginStatus = LoginStatus.NOTLOGGEDIN;
     private long lastPong;
     private final ReentrantLock scriptLock = new ReentrantLock(true);
+    private final Map<String, ScriptEngine> engines = new HashMap<>();
+
 
     public MapleClient(Channel ch, int sendIv, int recvIv) {
         this.ch = ch;
@@ -164,7 +168,7 @@ public class MapleClient {
     }
 
     public void pongReceived() {
-        lastPong = System.currentTimeMillis();
+        setLastPong(System.currentTimeMillis());
     }
 
     public Channel getCh() {
@@ -203,4 +207,27 @@ public class MapleClient {
         return Server.getInstance().getChannel(world, channel);
     }
 
+    public long getLastPong() {
+        return lastPong;
+    }
+
+    public void setLastPong(long lastPong) {
+        this.lastPong = lastPong;
+    }
+
+    public Map<String, ScriptEngine> getEngines() {
+        return engines;
+    }
+
+    public void setScriptEngine(String name, ScriptEngine e) {
+        engines.put(name, e);
+    }
+
+    public ScriptEngine getScriptEngine(String name) {
+        return engines.get(name);
+    }
+
+    public void removeScriptEngine(String name) {
+        engines.remove(name);
+    }
 }

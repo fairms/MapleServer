@@ -42,7 +42,7 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 @Setter
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "item")
+@Table(name = "items")
 public class Item implements Serializable {
     protected long expireTime = MAX_TIME;
 

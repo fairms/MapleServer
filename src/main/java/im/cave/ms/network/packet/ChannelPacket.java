@@ -536,8 +536,7 @@ public class ChannelPacket {
         OutPacket outPacket = new OutPacket();
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         outPacket.writeShort(SendOpcode.USER_ENTER_FIELD.getValue());
-//        outPacket.writeInt(chr.getId());
-        outPacket.writeInt(10000);
+        outPacket.writeInt(chr.getId());
         outPacket.writeInt(chr.getLevel());
         outPacket.writeMapleAsciiString(chr.getName());
         outPacket.writeZeroBytes(22);   //todo
@@ -616,4 +615,5 @@ public class ChannelPacket {
 //        }
         return outPacket;
     }
+
 }

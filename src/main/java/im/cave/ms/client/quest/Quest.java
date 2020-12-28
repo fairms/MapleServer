@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @date 11/27 20:39
  */
 @Entity
-@Table(name = "quest")
+@Table(name = "quests")
 @Getter
 @Setter
 public class Quest {
@@ -54,12 +54,19 @@ public class Quest {
     @Transient
     private Map<String, String> properties = new HashMap<>();
 
-    private int QrKey;
+    private int qrKey;
     private String qrValue;
 
     public Quest() {
         progressRequirements = new ArrayList<>();
     }
+
+    public Quest(int QRKey, QuestStatus status) {
+        this();
+        this.qrKey = QRKey;
+        this.status = status;
+    }
+
 
     public boolean isComplete(MapleCharacter chr) {
         return getProgressRequirements().stream().allMatch(pr -> pr.isComplete(chr));

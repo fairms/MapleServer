@@ -132,6 +132,12 @@ public class MapleMap {
                 chr.removeVisibleMapObj(object);
             }
         }
+        for (MapleCharacter character : characters) {
+            if (!chr.getVisibleChar().contains(character)) {
+                chr.announce(ChannelPacket.charEnterMap(character));
+                chr.getVisibleChar().add(character);
+            }
+        }
     }
 
 

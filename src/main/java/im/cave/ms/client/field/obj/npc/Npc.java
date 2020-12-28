@@ -1,6 +1,7 @@
-package im.cave.ms.client.field.obj;
+package im.cave.ms.client.field.obj.npc;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.NpcPacket;
 import im.cave.ms.tools.Rect;
@@ -33,6 +34,7 @@ public class Npc extends MapleMapObj {
     private boolean move;
     private int trunkGet;
     private int trunkPut;
+    private boolean shop;
     private Rect npcRect = new Rect();
 
     public Npc(int npcId) {

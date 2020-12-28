@@ -2,6 +2,7 @@ package im.cave.ms.network.netty;
 
 import im.cave.ms.enums.ServerType;
 import im.cave.ms.network.server.AbstractServer;
+import im.cave.ms.network.server.cashshop.CashShopHandler;
 import im.cave.ms.network.server.channel.ChannelHandler;
 import im.cave.ms.network.server.login.LoginServerHandler;
 import io.netty.channel.ChannelInitializer;
@@ -45,6 +46,8 @@ public class ServerInitializer extends ChannelInitializer<SocketChannel> {
                 pipeline.addLast(new ChannelHandler(channelId, worldId));
                 break;
             case CASHSHOP:
+                pipeline.addLast(new CashShopHandler(worldId));
+                break;
         }
     }
 }

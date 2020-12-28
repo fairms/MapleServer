@@ -1,9 +1,9 @@
 package im.cave.ms.network.server.channel.handler;
 
-import im.cave.ms.client.Job.JobManager;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.MapleSignIn;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.job.JobManager;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.MaplePacketCreator;

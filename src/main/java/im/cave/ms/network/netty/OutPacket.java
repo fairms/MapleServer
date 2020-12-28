@@ -18,11 +18,11 @@ import java.util.Arrays;
  * @Package im.cave.ms.tools
  * @date 12/13 14:33
  */
-public class OutPacket implements Cloneable, AutoCloseable {
+public class OutPacket implements AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(OutPacket.class);
     private static final Charset ASCII = Charset.forName("GBK");
 
-    private ByteBuf byteBuf;
+    private final ByteBuf byteBuf;
 
     public OutPacket() {
         byteBuf = ByteBufAllocator.DEFAULT.directBuffer();
@@ -30,11 +30,6 @@ public class OutPacket implements Cloneable, AutoCloseable {
 
     public OutPacket(ByteBuf byteBuf) {
         this.byteBuf = byteBuf.copy();
-    }
-
-    @Override
-    public OutPacket clone() {
-        return new OutPacket(byteBuf);
     }
 
 

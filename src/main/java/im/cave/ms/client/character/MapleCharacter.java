@@ -1,20 +1,23 @@
 package im.cave.ms.client.character;
 
 import im.cave.ms.client.Account;
-import im.cave.ms.client.Job.JobManager;
-import im.cave.ms.client.Job.MapleJob;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.potential.CharacterPotential;
+import im.cave.ms.client.character.potential.CharacterPotentialMan;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Familiar;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.Portal;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.MapleMapObj;
+import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemInfo;
+import im.cave.ms.client.job.JobManager;
+import im.cave.ms.client.job.MapleJob;
+import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.client.skill.Skill;
 import im.cave.ms.client.skill.SkillInfo;
@@ -84,10 +87,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static im.cave.ms.constants.GameConstants.NO_MAP_ID;
+import static im.cave.ms.constants.QuestConstants.QUEST_DAMAGE_SKIN;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_MOB_KILL_COUNT;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
+import static im.cave.ms.enums.ChatType.SystemNotice;
 import static im.cave.ms.enums.InventoryOperation.REMOVE;
 import static im.cave.ms.enums.InventoryOperation.UPDATE_QUANTITY;
 import static im.cave.ms.enums.InventoryType.CASH;
@@ -102,7 +108,7 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 @Getter
 @Setter
 @Entity
-@Table(name = "`character`")
+@Table(name = "`characters`")
 public class MapleCharacter implements Serializable {
     @Transient
     private static final Logger log = LoggerFactory.getLogger(MapleCharacter.class);
@@ -133,7 +139,8 @@ public class MapleCharacter implements Serializable {
     private int mapId;
     private int party;
     private String remainingSp;
-    private byte buddyCapacity, skin, hairColorBase = -1, hairColorMixed, hairColorProb, gm = 0, spawnPoint = 0;
+    private byte buddyCapacity, skin, hairColorBase = -1, hairColorMixed, hairColorProb, spawnPoint = 0;
+    private boolean gm;
     private boolean isDeleted;
     private Long deleteTime = 0L;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -170,9 +177,19 @@ public class MapleCharacter implements Serializable {
     @JoinColumn(name = "questmanager")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private QuestManager questManager;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "charId")
+    private Set<DamageSkinSaveData> damageSkins = new HashSet<>();
+    private int damageSkinSlotSize = 1;
+    @Transient
+    private DamageSkinSaveData damageSkin;
+    @Transient
+    private DamageSkinSaveData premiumDamageSkin = new DamageSkinSaveData();
     @JoinColumn(name = "charID")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CharacterPotential> characterPotential;
+    private Set<CharacterPotential> potentials;
+    @Transient
+    private CharacterPotentialMan potentialMan;
     @Transient
     private Map<Integer, Map<String, String>> questEx = new HashMap<>();
     @ElementCollection
@@ -213,13 +230,17 @@ public class MapleCharacter implements Serializable {
     @Transient
     private TemporaryStatManager temporaryStatManager;
     @Transient
-    private int combatOrders;
+    private int combatOrders; //战斗命令
     @Transient
     private Set<MapleMapObj> visibleMapObjs = new HashSet<>();
+    @Transient
+    private Set<MapleCharacter> visibleChar = new HashSet<>();
     @Transient
     private long lastKill;
     @Transient
     private int combo;
+    @Transient
+    private NpcShop shop;
 
 
     public MapleCharacter() {
@@ -227,6 +248,7 @@ public class MapleCharacter implements Serializable {
         temporaryStatManager = new TemporaryStatManager(this);
         skillCooltimes = new HashMap<>();
         questManager = new QuestManager(this);
+        potentialMan = new CharacterPotentialMan(this);
     }
 
     public static MapleCharacter getCharByName(String name) {
@@ -357,6 +379,10 @@ public class MapleCharacter implements Serializable {
                     itemCopy.setQuantity(quantity);
                     item.setQuantity(ii.getSlotMax());
                     rec = true;
+                }
+
+                if (ItemConstants.isFamiliar(item.getItemId()) && item.getFamiliar() == null) {
+
                 }
                 inventory.addItem(item);
                 announce(PlayerPacket.inventoryOperation(true, false, InventoryOperation.ADD, (short) item.getPos(), (short) -1, 0, item));
@@ -496,7 +522,7 @@ public class MapleCharacter implements Serializable {
         announce(LoginPacket.account(getAccount()));
         announce(MaplePacketCreator.keymapInit(this));
         announce(MaplePacketCreator.quickslotInit(this));
-        initSkillMacro();
+        announce(PlayerPacket.initSkillMacro());
         announce(PlayerPacket.updateVoucher(this));
         map.sendMapObjectPackets(this);
         announce(PlayerPacket.hiddenEffectEquips(this)); //broadcast?
@@ -550,6 +576,10 @@ public class MapleCharacter implements Serializable {
 
     public void chatMessage(ChatType type, String content) {
         announce(ChannelPacket.chatMessage(content, type));
+    }
+
+    public void chatMessage(String msg) {
+        chatMessage(SystemNotice, msg);
     }
 
 
@@ -1207,20 +1237,77 @@ public class MapleCharacter implements Serializable {
         announce(PlayerPacket.comboKillMessage(objectId, combo));
     }
 
+
+    public int getHonerPoint() {
+        return stats.getHonerPoint();
+    }
+
     public void addHonerPoint(int amount) {
         stats.setHonerPoint(stats.getHonerPoint() + amount);
         if (stats.getHonerPoint() < 0) {
             stats.setHonerPoint(0);
         }
         announce(MaplePacketCreator.updateHonerPoint(stats.getHonerPoint()));
-        announce(MaplePacketCreator.enableActions());// todo show msg
     }
 
     public int getTotalChuc() {
         return getInventory(EQUIPPED).getItems().stream().mapToInt(i -> ((Equip) i).getChuc()).sum();
     }
 
-    public void initSkillMacro() {
-        announce(PlayerPacket.initSkillMacro());
+
+    public DamageSkinSaveData getDamageSkinByItemID(int itemId) {
+        return getDamageSkins().stream().filter(d -> d.getItemID() == itemId).findAny().orElse(null);
     }
+
+    public void addDamageSkin(DamageSkinSaveData damageSkinSaveData) {
+        if (getDamageSkinByItemID(damageSkinSaveData.getItemID()) == null) {
+            getDamageSkins().add(damageSkinSaveData);
+        }
+    }
+
+
+    public DamageSkinSaveData getDamageSkinBySkinId(int damageSkinId) {
+        DamageSkinSaveData defaultSkin = new DamageSkinSaveData(0, 0, false, "");
+        return getDamageSkins().stream().filter(d -> d.getDamageSkinID() == damageSkinId).findAny().orElse(defaultSkin);
+    }
+
+    public DamageSkinSaveData getDamageSkin() {
+        if (damageSkin == null) {
+            Quest quest = questManager.getQuestById(QUEST_DAMAGE_SKIN);
+            DamageSkinSaveData defaultSkin = new DamageSkinSaveData(0, 0, false, "");
+            if (quest == null) {
+                damageSkin = defaultSkin;
+            } else {
+                int damageSkinId = Integer.parseInt(quest.getQRValue());
+                damageSkin = getDamageSkins().stream().filter(d -> d.getDamageSkinID() == damageSkinId).findAny().orElse(defaultSkin);
+            }
+        }
+        return damageSkin;
+    }
+
+    public void setDamageSkin(DamageSkinSaveData damageSkin) {
+        this.damageSkin = damageSkin;
+    }
+
+    public void setDamageSkin(int itemID) {
+        setDamageSkin(new DamageSkinSaveData(ItemConstants.getDamageSkinIDByItemID(itemID), itemID, false,
+                ""));
+    }
+
+    public List<DamageSkinSaveData> getSavedDamageSkins() {
+        return getDamageSkins().stream().filter(d -> !d.isNotSave()).collect(Collectors.toList());
+    }
+
+    public void encodeDamageSkins(OutPacket outPacket) {
+        outPacket.writeBool(true);
+        getDamageSkin().encode(outPacket);
+        getPremiumDamageSkin().encode(outPacket);
+        getPremiumDamageSkin().encode(outPacket);
+        outPacket.writeShort(getDamageSkinSlotSize());
+        outPacket.writeShort(getSavedDamageSkins().size());
+        for (DamageSkinSaveData damageSkinSaveData : getSavedDamageSkins()) {
+            damageSkinSaveData.encode(outPacket);
+        }
+    }
+
 }

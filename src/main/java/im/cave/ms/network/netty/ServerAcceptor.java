@@ -20,7 +20,6 @@ public class ServerAcceptor implements Runnable {
     public AbstractServer server;
     private static final Logger log = LoggerFactory.getLogger(ServerAcceptor.class);
 
-
     @Override
     public void run() {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -32,7 +31,6 @@ public class ServerAcceptor implements Runnable {
             sb.childHandler(new ServerInitializer(server));
             sb.childOption(ChannelOption.TCP_NODELAY, true);
             sb.childOption(ChannelOption.SO_KEEPALIVE, true);
-
             ChannelFuture channelFuture = sb.bind(server.getPort()).sync();
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {

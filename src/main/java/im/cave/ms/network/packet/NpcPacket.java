@@ -1,6 +1,7 @@
 package im.cave.ms.network.packet;
 
-import im.cave.ms.client.field.obj.Npc;
+import im.cave.ms.client.field.obj.npc.Npc;
+import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.network.netty.OutPacket;
@@ -208,6 +209,18 @@ public class NpcPacket {
         if (movement != null) {
             movement.encode(outPacket);
         }
+        return outPacket;
+    }
+
+    public static OutPacket openShop(int npcId, int petTemplateId, NpcShop shop) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.NPC_SHOP_OPEN.getValue());
+        outPacket.writeInt(npcId);
+        outPacket.writeBool(petTemplateId != 0);
+        if (petTemplateId != 0) {
+            outPacket.writeInt(petTemplateId);
+        }
+        shop.encode(outPacket);
         return outPacket;
     }
 }

@@ -1,4 +1,4 @@
-package im.cave.ms.client.Job.adventurer;
+package im.cave.ms.client.job.adventurer;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;

@@ -3,10 +3,10 @@ package im.cave.ms.scripting.item;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.scripting.AbstractScriptManager;
-import jdk.nashorn.api.scripting.NashornScriptEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.script.Invocable;
 import javax.script.ScriptException;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,20 +22,20 @@ public class ItemScriptManager extends AbstractScriptManager {
     private static final Logger log = LoggerFactory.getLogger(ItemScriptManager.class);
 
     private static final ItemScriptManager instance = new ItemScriptManager();
-    private final Map<String, NashornScriptEngine> scripts = new HashMap<>();
+    private final Map<String, Invocable> scripts = new HashMap<>();
 
     public synchronized static ItemScriptManager getInstance() {
         return instance;
     }
 
-    private NashornScriptEngine getItemScript(String scriptName) {
+    private Invocable getItemScript(String scriptName, MapleClient c) {
         String script = scriptName.replace("_", "/");
         String scriptPath = String.format("item/%s.js", script);
-        NashornScriptEngine nse = scripts.get(scriptPath);
+        Invocable nse = scripts.get(scriptPath);
         if (nse != null) {
             return nse;
         }
-        nse = getScriptEngine(scriptPath);
+        nse = getInvocable(scriptPath, c);
         if (nse == null) {
             return null;
         }
@@ -45,7 +45,7 @@ public class ItemScriptManager extends AbstractScriptManager {
 
     public boolean startScript(int itemId, String script, int npcId, MapleClient c) {
         try {
-            NashornScriptEngine nse = getItemScript(script);
+            Invocable nse = getItemScript(script, c);
             if (nse != null) {
                 return (boolean) nse.invokeFunction("start", new ItemScriptAction(c, itemId, npcId));
             } else {

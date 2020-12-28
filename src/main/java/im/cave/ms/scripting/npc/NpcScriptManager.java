@@ -2,9 +2,8 @@ package im.cave.ms.scripting.npc;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.scripting.AbstractScriptManager;
-import jdk.nashorn.api.scripting.NashornScriptEngine;
 
-import java.util.HashMap;
+import javax.script.Invocable;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -18,22 +17,10 @@ import java.util.WeakHashMap;
 public class NpcScriptManager extends AbstractScriptManager {
     private static final NpcScriptManager instance = new NpcScriptManager();
     private final Map<MapleClient, NpcConversationManager> cms = new WeakHashMap<>();
-    private final Map<String, NashornScriptEngine> scripts = new HashMap<>();
 
     public synchronized static NpcScriptManager getInstance() {
         return instance;
     }
-
-
-    public boolean isNpcScriptAvailable(MapleClient c, String fileName) {
-        NashornScriptEngine iv = null;
-        if (fileName != null) {
-            iv = getScriptEngine("npc/" + fileName + ".js");
-        }
-
-        return iv != null;
-    }
-
 
     public void start(MapleClient c, int npcId, String script) {
         if (c.getPlayer().isConversation()) {
@@ -44,14 +31,8 @@ public class NpcScriptManager extends AbstractScriptManager {
                 dispose(c);
                 return;
             }
-            NashornScriptEngine nse;
             String scriptPath = String.format("npc/%s.js", script);
-            if (scripts.containsKey(scriptPath)) {
-                nse = scripts.get(scriptPath);
-            } else {
-                nse = getScriptEngine("npc/" + script + ".js");
-                scripts.put(scriptPath, nse);
-            }
+            Invocable nse = getInvocable(scriptPath, c);
             if (nse == null) {
                 c.getPlayer().dropMessage("NPC: " + npcId + " " + script + " 脚本不存在 地图:" + c.getPlayer().getMapId());
                 dispose(c);
@@ -59,7 +40,7 @@ public class NpcScriptManager extends AbstractScriptManager {
             }
             NpcConversationManager ncm = new NpcConversationManager(c, npcId, this);
             cms.put(c, ncm);
-            nse.put("cm", ncm);
+            engine.put("cm", ncm);
             c.getPlayer().setConversation(true);
             nse.invokeFunction("start");
         } catch (Exception e) {
@@ -82,7 +63,6 @@ public class NpcScriptManager extends AbstractScriptManager {
     }
 
     public void reloadNpcScripts() {
-        scripts.clear();
         cms.clear();
     }
 }

@@ -4,17 +4,16 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.MapleSignIn;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
-import im.cave.ms.client.field.obj.Npc;
 import im.cave.ms.client.field.obj.mob.Mob;
+import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
-import im.cave.ms.configs.WorldConfig;
+import im.cave.ms.config.Config;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.ChannelPacket;
 import im.cave.ms.network.packet.MaplePacketCreator;
-import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.network.server.world.World;
 import im.cave.ms.provider.data.ItemData;
@@ -168,15 +167,12 @@ public class CommandHandler {
                 break;
             case "reload":
                 Server.getInstance().reloadScripts();
-                WorldConfig.reload();
+                Config.reload();
                 MapleSignIn.initSignRewards();
                 break;
             case "em":
                 c.getMapleChannel().broadcast(ChannelPacket.eventMessage("测试测试", 2, 3000));
                 break;
-            case "pl":
-                c.announce(PlayerPacket.charRemote());
-
         }
     }
 }

@@ -15,7 +15,7 @@ import java.util.Arrays;
  * @Package im.cave.ms.tools
  * @date 12/13 14:33
  */
-public class InPacket implements Cloneable {
+public class InPacket {
     private ByteBuf byteBuf;
 
     public InPacket(ByteBuf byteBuf) {
@@ -29,11 +29,6 @@ public class InPacket implements Cloneable {
 
     public InPacket() {
         this(Unpooled.buffer());
-    }
-
-    @Override
-    public InPacket clone() {
-        return new InPacket(byteBuf.copy());
     }
 
     public void release() {

@@ -16,8 +16,6 @@ spring:
         use_sql_comments: true
         autoReconnect: true
         enable_lazy_load_no_trans: true
-
-
 logging:
   level:
     root: error

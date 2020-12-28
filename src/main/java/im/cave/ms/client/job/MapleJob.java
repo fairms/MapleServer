@@ -1,9 +1,10 @@
-package im.cave.ms.client.Job;
+package im.cave.ms.client.job;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.client.skill.SkillInfo;
@@ -325,6 +326,7 @@ public abstract class MapleJob {
 //
 //        handleHit(c, inPacket, hitInfo);
 //        handleHit(c, hitInfo);
+//    }
 
 
     /**
@@ -494,9 +496,9 @@ public abstract class MapleJob {
 //    }
     public abstract boolean isHandlerOfJob(short id);
 
-//    public SkillInfo getInfo(int skillID) {
-//        return SkillData.getSkillInfoById(skillID);
-//    }
+    public SkillInfo getInfo(int skillId) {
+        return SkillData.getSkillInfo(skillId);
+    }
 
     protected MapleCharacter getMapleCharacter() {
         return chr;
@@ -532,8 +534,8 @@ public abstract class MapleJob {
             } else {
                 chr.addStat(MapleStat.STR, 5);
             }
-            stats.put(MapleStat.STR, (long) chr.getStat(MapleStat.STR));
-            stats.put(MapleStat.DEX, (long) chr.getStat(MapleStat.DEX));
+            stats.put(MapleStat.STR, chr.getStat(MapleStat.STR));
+            stats.put(MapleStat.DEX, chr.getStat(MapleStat.DEX));
         }
 
         int sp = SkillConstants.getBaseSpByLevel(level);
@@ -570,83 +572,21 @@ public abstract class MapleJob {
         chr.heal(chr.getMaxHP());
         chr.healMP(chr.getMaxMP());
 
-//        if (c.getWorld().isReboot()) {
-//            Skill skill = SkillData.getSkillDeepCopyById(REBOOT2);
-//            skill.setCurrentLevel(level);
-//            chr.addSkill(skill);
-//        }
-//        if (!chr.getScriptManager().isLockUI()) {
-//            switch (level) {
-//                case 10: {
-//                    String message = "#b[Guide] 1st Job Advancement#k\r\n\r\n";
-//                    message += "You've reached level 10, and are ready for your #b[1st Job Advancement]#k!\r\n\r\n";
-//                    message += "Complete the #r[Job Advancement]#k quest and unlock your 1st job advancement!\r\n";
-//                    chr.write(UserLocal.addPopupSay(9010000, 6000, message, "FarmSE.img/boxResult"));
-//                    break;
-//                }
-//                case 20: {
-//                    String message;
-//                    if (chr.getJob() == JobConstants.JobEnum.THIEF.getJobId() && chr.getSubJob() == 1) {
-//                        message = "#b[Guide] 1.5th Job Advancement#k\r\n\r\n";
-//                        message += "You've reached level 20 and are ready for your #b[1.5th Job Advancement]#k!\r\n\r\n";
-//                        message += "Complete the #r[Job Advancement]#k quest to unlock your 1.5th job advancement!\r\n";
-//                        chr.write(UserLocal.addPopupSay(9010000, 6000, message, "FarmSE.img/boxResult"));
-//                    }
-//                    message = "#b[Guide] Upgrade#k\r\n\r\n";
-//                    message += "You've reached level 20, and can now use #b[Scroll Enhancement]#k!\r\n\r\n";
-//                    message += "Accept the quest #bDo You Know About Scroll Enhancements?#k from the Quest Notifier!\r\n";
-//                    chr.write(UserLocal.addPopupSay(9010000, 6000, message, "FarmSE.img/boxResult"));
-//                    break;
-//                }
-//                case 30: {
-//                    String message = "#b[Guide] 2nd Job Advancement#k\r\n\r\n";
-//                    message += "You've reached level 30, and are ready for your #b[2nd Job Advancement]#k!\r\n\r\n";
-//                    message += "Complete the #r[Job Advancement]#k quest to unlock your 2nd job advancement!\r\n";
-//                    chr.write(UserLocal.addPopupSay(9010000, 6000, message, "FarmSE.img/boxResult"));
-//
-//                    message = "#b[Guide] Ability#k\r\n\r\n";
-//                    message += "You've reached level 30 and can now unlock #b[Abilities]#k!\r\n\r\n";
-//                    message += "Accept the quest #bFirst Ability - The Eye Opener#k from the Quest Notifier!\r\n";
-//                    chr.write(UserLocal.addPopupSay(9010000, 6000, message, "FarmSE.img/boxResult"));
-//                    break;
-//                }
-//                case 31: {
-//                    String message = "#b[Guide] Traits#k\r\n\r\n";
-//                    message += "From level 30 and can now unlock #b[Traits]#k!\r\n\r\n";
-//                    message += "Open your #bProfession UI (Default Hotkey: B)#k and check your #b[Traits]#k!\r\n";
-//                    chr.write(UserLocal.addPopupSay(9010000, 6000, message, "FarmSE.img/boxResult"));
-//                    break;
-//                }
-//            }
-//        }
+        switch (level) {
+            case 30:
+                chr.getPotentialMan().addPotential(new CharacterPotential((byte) 0, 7000000, (byte) 1, (byte) 1));
+                break;
+            case 50:
+                chr.getPotentialMan().addPotential(new CharacterPotential((byte) 1, 7000000, (byte) 1, (byte) 1));
+                break;
+            case 70:
+                chr.getPotentialMan().addPotential(new CharacterPotential((byte) 2, 7000000, (byte) 1, (byte) 1));
+                break;
+        }
     }
 
     public boolean isBuff(int skillId) {
         return Arrays.stream(buffs).anyMatch(b -> b == skillId);
     }
 
-    public void setMapleCharacterCreationStats(MapleCharacter chr) {
-//        MapleCharacteracterStat MapleCharacteracterStat = chr.getAvatarData().getMapleCharacteracterStat();
-//        MapleCharacteracterStat.setLevel(1);
-//        MapleCharacteracterStat.setStr(12);
-//        MapleCharacteracterStat.setDex(5);
-//        MapleCharacteracterStat.setInt(4);
-//        MapleCharacteracterStat.setLuk(4);
-//        MapleCharacteracterStat.setHp(50);
-//        MapleCharacteracterStat.setMaxHp(50);
-//        MapleCharacteracterStat.setMp(5);
-//        MapleCharacteracterStat.setMaxMp(5);
-//
-//        MapleCharacteracterStat.setPosMap(100000000);// should be handled for eah job not here
-//        Item whitePot = ItemData.getItemDeepCopy(2000002);
-//        whitePot.setQuantity(100);
-//        chr.addItemToInventory(whitePot);
-//        Item manaPot = ItemData.getItemDeepCopy(2000006);
-//        manaPot.setQuantity(100);
-//        chr.addItemToInventory(manaPot);
-//        Item hyperTp = ItemData.getItemDeepCopy(5040004);
-//        chr.addItemToInventory(hyperTp);
-//
-//    }
-    }
 }

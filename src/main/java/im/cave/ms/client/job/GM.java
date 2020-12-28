@@ -1,4 +1,4 @@
-package im.cave.ms.client.Job;
+package im.cave.ms.client.job;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
@@ -75,8 +75,4 @@ public class GM extends MapleJob {
         return super.isBuff(skillId);
     }
 
-    @Override
-    public void setMapleCharacterCreationStats(MapleCharacter chr) {
-        super.setMapleCharacterCreationStats(chr);
-    }
 }

@@ -7,9 +7,11 @@ import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.EquipSpecialAttribute;
+import im.cave.ms.enums.FlameStat;
 import im.cave.ms.enums.ItemGrade;
 import im.cave.ms.network.db.InlinedIntArrayConverter;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.tools.Util;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,7 +37,7 @@ import java.util.TreeMap;
 @Setter
 @PrimaryKeyJoinColumn(name = "itemId")
 @Entity
-@Table(name = "equip")
+@Table(name = "equips")
 public class Equip extends Item {
     private int equipSkin;
     private String title = "";
@@ -49,7 +51,8 @@ public class Equip extends Item {
     private boolean bossReward, superiorEqp;
     private short cuttable = -1;
     private short itemState = 256;
-    private short damR, statR, exGradeOption, hyperUpgrade, chuc;
+    private short damR, statR, hyperUpgrade, chuc;
+    private long flame;
     private short soulOptionId, soulSocketId, soulOption;
     private short rStr, rDex, rInt, rLuk, rLevel, rJob, rPop;
     private int specialGrade;
@@ -269,7 +272,7 @@ public class Equip extends Item {
     }
 
 
-    public int getTotalStat(EquipBaseStat stat) {
+    public long getTotalStat(EquipBaseStat stat) {
         switch (stat) {
             case tuc:
                 return getTuc();
@@ -342,8 +345,8 @@ public class Equip extends Item {
                 return getStatR() + getFAllStat(); // as
             case cuttable:
                 return getCuttable(); // sok
-            case exGradeOption:
-                return getExGradeOption();
+            case flame:
+                return getFlame();
             case itemState:
                 return getHyperUpgrade();
         }
@@ -351,7 +354,7 @@ public class Equip extends Item {
     }
 
 
-    public int getBaseStat(EquipBaseStat ebs) {
+    public long getBaseStat(EquipBaseStat ebs) {
         switch (ebs) {
             case tuc:
                 return getTuc();
@@ -423,8 +426,8 @@ public class Equip extends Item {
                 return getStatR();
             case cuttable:
                 return getCuttable();
-            case exGradeOption:
-                return getExGradeOption();
+            case flame:
+                return getFlame();
             case itemState:
                 return getItemState();
             default:
@@ -528,7 +531,7 @@ public class Equip extends Item {
         ret.damR = damR;
         ret.statR = statR;
         ret.cuttable = cuttable;
-        ret.exGradeOption = exGradeOption;
+        ret.flame = flame;
         ret.hyperUpgrade = hyperUpgrade;
         ret.itemState = itemState;
         ret.chuc = chuc;
@@ -590,7 +593,7 @@ public class Equip extends Item {
     }
 
     public void addStat(EquipBaseStat stat, int amount) {
-        int cur = getBaseStat(stat);
+        int cur = (int) getBaseStat(stat);
         int newStat = Math.max(cur + amount, 0); // stat cannot be negative
         setBaseStat(stat, newStat);
     }
@@ -701,8 +704,8 @@ public class Equip extends Item {
             case cuttable:
                 setCuttable((short) amount);
                 break;
-            case exGradeOption:
-                setExGradeOption((short) amount);
+            case flame:
+                setFlame(amount);
                 break;
             case itemState:
                 setHyperUpgrade((short) amount);
@@ -716,7 +719,7 @@ public class Equip extends Item {
         Equip defaultEquip = ItemData.getEquipDeepCopyFromID(getItemId(), false);
         for (EquipBaseStat ebs : EquipBaseStat.values()) {
             if (ebs != EquipBaseStat.attribute && ebs != EquipBaseStat.growthEnchant && ebs != EquipBaseStat.psEnchant) {
-                setBaseStat(ebs, defaultEquip.getBaseStat(ebs));
+                setBaseStat(ebs, (int) defaultEquip.getBaseStat(ebs));
             }
         }
         setChuc((short) 0);
@@ -752,6 +755,149 @@ public class Equip extends Item {
             }
         }
         return res;
+    }
+
+    public void randomizeFlameStats(boolean obtained) {
+        resetFlameStats();
+        if (!ItemConstants.canEquipHaveFlame(this)) {
+            // This equip type is not eligible for bonus stats.
+            return;
+        }
+        int minTier = isBossReward() || obtained ? 3 : 1;
+        int maxTier = isBossReward() || obtained ? 7 : 6;
+
+        int bonusStats = isBossReward() ? 4 : Util.getRandom(1, 4);
+        int statsApplied = 0;
+        boolean[] flameApplied = new boolean[FlameStat.values().length];
+        while (statsApplied < bonusStats) {
+            int stat = Util.getRandom(flameApplied.length - 1);
+
+            // keep rolling so we don't apply the same bonus stat twice
+            if (flameApplied[stat] ||
+                    // no -level flames on equips that will overflow
+                    (FlameStat.getByVal(stat) == FlameStat.LevelReduction && getRLevel() + getIIncReq() < 5) ||
+                    // don't roll boss/td lines on armors
+                    ((FlameStat.getByVal(stat) == FlameStat.BossDamage || FlameStat.getByVal(stat) == FlameStat.Damage) && !ItemConstants.isWeapon(getItemId()))) {
+                continue;
+            }
+
+            short flameTier = (short) Util.getRandom(minTier, maxTier);
+            int iAddedStat = flameTier * getFlameLevel();
+            int iAddedStatExtended = flameTier * getFlameLevelExtended();
+
+            switch (FlameStat.getByVal(stat)) {
+                case STR:
+                    setFSTR((short) (getFSTR() + iAddedStatExtended));
+                    break;
+                case DEX:
+                    setFDEX((short) (getFDEX() + iAddedStatExtended));
+                    break;
+                case INT:
+                    setFINT((short) (getFINT() + iAddedStatExtended));
+                    break;
+                case LUK:
+                    setFLUK((short) (getFLUK() + iAddedStatExtended));
+                    break;
+                case STRDEX:
+                    setFSTR((short) (getFSTR() + iAddedStat));
+                    setFDEX((short) (getFDEX() + iAddedStat));
+                    break;
+                case STRINT:
+                    setFSTR((short) (getFSTR() + iAddedStat));
+                    setFINT((short) (getFINT() + iAddedStat));
+                    break;
+                case STRLUK:
+                    setFSTR((short) (getFSTR() + iAddedStat));
+                    setFLUK((short) (getFLUK() + iAddedStat));
+                    break;
+                case DEXINT:
+                    setFDEX((short) (getFDEX() + iAddedStat));
+                    setFINT((short) (getFINT() + iAddedStat));
+                    break;
+                case DEXLUK:
+                    setFDEX((short) (getFDEX() + iAddedStat));
+                    setFLUK((short) (getFLUK() + iAddedStat));
+                    break;
+                case INTLUK:
+                    setFINT((short) (getFINT() + iAddedStat));
+                    setFLUK((short) (getFLUK() + iAddedStat));
+                    break;
+                case Attack:
+                    setFATT((short) (getFATT() + getATTBonus(flameTier)));
+                    break;
+                case MagicAttack:
+                    setFMATT((short) (getFMATT() + getATTBonus(flameTier)));
+                    break;
+                case Defense:
+                    setFDEF((short) (getFDEF() + iAddedStatExtended));
+                    break;
+                case MaxHP:
+                    setFHP((short) (getFHP() + ((getRLevel() + getIIncReq()) / 10) * 30 * flameTier));
+                    break;
+                case MaxMP:
+                    setFMP((short) (getFMP() + ((getRLevel() + getIIncReq()) / 10) * 30 * flameTier));
+                    break;
+                case Speed:
+                    setFSpeed((short) (getFSpeed() + flameTier));
+                    break;
+                case Jump:
+                    setFJump((short) (getFJump() + flameTier));
+                    break;
+                case AllStats:
+                    setFAllStat((short) (getFAllStat() + flameTier));
+                    break;
+                case BossDamage:
+                    setFBoss((short) (getFBoss() + flameTier * 2));
+                    break;
+                case Damage:
+                    setFDamage((short) (getFDamage() + flameTier));
+                    break;
+                case LevelReduction:
+                    setFLevel((byte) (getFLevel() + (5 * flameTier)));
+                    break;
+            }
+
+            flameApplied[stat] = true;
+            statsApplied++;
+        }
+
+    }
+
+    private short getFlameLevel() {
+        return (short) Math.ceil((getRLevel() + getIIncReq() + 1.0) / ItemConstants.EQUIP_FLAME_LEVEL_DIVIDER);
+    }
+
+    public short getFlameLevelExtended() {
+        return (short) Math.ceil((getRLevel() + getIIncReq() + 1.0) / ItemConstants.EQUIP_FLAME_LEVEL_DIVIDER_EXTENDED);
+    }
+
+    public short getATTBonus(short tier) {
+        if (ItemConstants.isWeapon(getItemId())) {
+            final double[] multipliers = isBossReward() ? ItemConstants.WEAPON_FLAME_MULTIPLIER_BOSS_WEAPON : ItemConstants.WEAPON_FLAME_MULTIPLIER;
+            Equip baseEquip = ItemData.getEquipById(getItemId());
+            int att = Math.max(baseEquip.getIPad(), baseEquip.getIMad());
+            return (short) Math.ceil(att * (multipliers[tier - 1] * getFlameLevel()) / 100.0);
+        } else {
+            return tier;
+        }
+    }
+
+    private void resetFlameStats() {
+        this.fSTR = 0;
+        this.fDEX = 0;
+        this.fINT = 0;
+        this.fLUK = 0;
+        this.fATT = 0;
+        this.fMATT = 0;
+        this.fDEF = 0;
+        this.fHP = 0;
+        this.fMP = 0;
+        this.fSpeed = 0;
+        this.fJump = 0;
+        this.fAllStat = 0;
+        this.fBoss = 0;
+        this.fDamage = 0;
+        this.fLevel = 0;
     }
 
 }

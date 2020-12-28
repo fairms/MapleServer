@@ -16,7 +16,7 @@ import javax.persistence.Table;
  * @date 12/5 18:58
  */
 @Data
-@Table(name = "keybinding")
+@Table(name = "key_binding")
 @Entity
 public class KeyBind {
     @Id

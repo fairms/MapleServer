@@ -254,8 +254,21 @@ public class MaplePacketCreator {
 
     public static OutPacket updateHonerPoint(int honerPoint) {
         OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.UPDATE_PRESTIGE.getValue());
+        outPacket.writeShort(SendOpcode.CHARACTER_HONOR_POINT.getValue());
         outPacket.writeInt(honerPoint);
+        return outPacket;
+    }
+
+
+    public static OutPacket showItemUpgradeEffect(int charId, boolean success, boolean enchantDlg, int uItemId, int eItemId, boolean boom) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SHOW_ITEM_UPGRADE_EFFECT.getValue());
+        outPacket.writeInt(charId);
+        outPacket.write(boom ? 2 : success ? 1 : 0);
+        outPacket.writeBool(enchantDlg);
+        outPacket.writeInt(uItemId);
+        outPacket.writeInt(eItemId);
+        outPacket.write(0);
         return outPacket;
     }
 }

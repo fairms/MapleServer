@@ -4,6 +4,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobGen;
+import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.provider.data.MobData;
 import im.cave.ms.provider.data.NpcData;

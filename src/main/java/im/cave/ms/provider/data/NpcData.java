@@ -1,7 +1,10 @@
 package im.cave.ms.provider.data;
 
-import im.cave.ms.client.field.obj.Npc;
+import im.cave.ms.client.field.obj.npc.Npc;
+import im.cave.ms.client.field.obj.npc.shop.NpcShop;
+import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
 import im.cave.ms.constants.ServerConstants;
+import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataProvider;
 import im.cave.ms.provider.wz.MapleDataProviderFactory;
@@ -10,7 +13,11 @@ import im.cave.ms.tools.StringUtil;
 import im.cave.ms.tools.Util;
 
 import java.io.File;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -22,7 +29,7 @@ import java.util.Set;
 public class NpcData {
     private static final MapleDataProvider npcData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Npc.wz"));
     private static final Set<Npc> npcs = new HashSet<>();
-
+    private static final Map<Integer, NpcShop> shops = new HashMap<>();
 
     public static Npc getNpc(int npcId) {
         Npc npc = Util.findWithPred(npcs, n -> n.getTemplateId() == npcId);
@@ -62,6 +69,9 @@ public class NpcData {
             for (MapleData attr : info.getChildren()) {
                 String name = attr.getName();
                 switch (name) {
+                    case "shop":
+                        npc.setShop(MapleDataTool.getInt(attr, 0) == 1);
+                        break;
                     case "trunkGet":
                         npc.setTrunkGet(MapleDataTool.getInt(attr));
                         break;
@@ -87,7 +97,22 @@ public class NpcData {
         return npc;
     }
 
-    public static void getShopById(int npcId) {
+    public static NpcShop getShopById(int npcId) {
+        return shops.getOrDefault(npcId, loadNpcShopFromDB(npcId));
+    }
 
+    private static NpcShop loadNpcShopFromDB(int id) {
+        NpcShop ns = new NpcShop();
+        ns.setNpcTemplateId(id);
+        ns.setShopId(id);
+        List<NpcShopItem> items = (List<NpcShopItem>) DataBaseManager.getObjListFromDB(NpcShopItem.class, "shopId", id);
+        items.sort(Comparator.comparingInt(NpcShopItem::getItemID));
+        ns.setItems(items);
+        addShop(id, ns);
+        return ns;
+    }
+
+    private static void addShop(int id, NpcShop ns) {
+        shops.put(id, ns);
     }
 }

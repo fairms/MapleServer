@@ -1,10 +1,12 @@
 package im.cave.ms.network.server.channel.handler;
 
-import im.cave.ms.client.Job.MapleJob;
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.DamageSkinSaveData;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleKeyMap;
 import im.cave.ms.client.character.MapleStat;
+import im.cave.ms.client.character.potential.CharacterPotential;
+import im.cave.ms.client.character.potential.CharacterPotentialMan;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Drop;
@@ -12,6 +14,8 @@ import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
+import im.cave.ms.client.items.Item;
+import im.cave.ms.client.job.MapleJob;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.client.skill.MobAttackInfo;
@@ -20,7 +24,11 @@ import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
+import im.cave.ms.enums.CharPotGrade;
+import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.DropLeaveType;
+import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.netty.OutPacket;
@@ -33,16 +41,20 @@ import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
+import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static im.cave.ms.constants.GameConstants.QUICKSLOT_SIZE;
+import static im.cave.ms.constants.QuestConstants.QUEST_EX_NICK_ITEM;
 import static im.cave.ms.network.packet.opcode.RecvOpcode.CLOSE_RANGE_ATTACK;
 import static im.cave.ms.network.packet.opcode.RecvOpcode.MAGIC_ATTACK;
 import static im.cave.ms.network.packet.opcode.RecvOpcode.RANGED_ATTACK;
@@ -76,7 +88,7 @@ public class PlayerHandler {
         HashMap<MapleStat, Long> stats = new HashMap<>();
         int curHp = (int) player.getStat(MapleStat.HP);
         int newHp = curHp - damage;
-        if (newHp < 0) {
+        if (newHp <= 0) {
             newHp = 0;
             c.announce(PlayerPacket.sendRebirthConfirm(true, false,
                     false, false
@@ -256,6 +268,7 @@ public class PlayerHandler {
         inPacket.skip(1);    //unknown
         MovementInfo movementInfo = new MovementInfo(inPacket);
         movementInfo.applyTo(player);
+        player.chatMessage(ChatType.Tip, player.getPosition().toString());
         player.getMap().sendMapObjectPackets(player);
         player.getMap().broadcastMessage(player, PlayerPacket.move(player, movementInfo), false);
     }
@@ -581,4 +594,87 @@ public class PlayerHandler {
         stats.put(MapleStat.AVAILABLEAP, (long) player.getStat(MapleStat.AVAILABLEAP));
         c.announce(MaplePacketCreator.updatePlayerStats(stats, true, player));
     }
+
+
+    public static void handleUserRequestCharacterPotentialSkillRandSetUi(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        int cost = GameConstants.CHAR_POT_RESET_COST;
+        int rate = inPacket.readInt();
+        int size = inPacket.readInt();
+        Set<Integer> lockedLines = new HashSet<>();
+        for (int i = 0; i < size; i++) {
+            lockedLines.add(inPacket.readInt());
+            if (lockedLines.size() == 0) {
+                cost += GameConstants.CHAR_POT_LOCK_1_COST;
+            } else {
+                cost += GameConstants.CHAR_POT_LOCK_2_COST;
+            }
+        }
+        boolean locked = rate > 0;
+        if (locked) {
+            cost += GameConstants.CHAR_POT_GRADE_LOCK_COST;
+        }
+        if (cost > player.getHonerPoint()) {
+            player.chatMessage("You do not have enough honor exp for that action.");
+            return;
+        }
+        player.addHonerPoint(-cost);
+
+        CharacterPotentialMan cpm = player.getPotentialMan();
+        boolean gradeUp = !locked && Util.succeedProp(GameConstants.BASE_CHAR_POT_UP_RATE);
+        boolean gradeDown = !locked && Util.succeedProp(GameConstants.BASE_CHAR_POT_DOWN_RATE);
+        byte grade = cpm.getGrade();
+        // update grades
+        if (grade < CharPotGrade.Legendary.ordinal() && gradeUp) {
+            grade++;
+        } else if (grade > CharPotGrade.Rare.ordinal() && gradeDown) {
+            grade--;
+        }
+        // set new potentials that weren't locked
+        for (CharacterPotential cp : player.getPotentials()) {
+            cp.setGrade(grade);
+            if (!lockedLines.contains((int) cp.getKey())) {
+                cpm.addPotential(cpm.generateRandomPotential(cp.getKey()));
+            }
+        }
+        c.announce(PlayerPacket.noticeMsg("内在能力重新设置成功。"));
+    }
+
+    public static void handleUserDamageSkinSaveRequest(InPacket inPacket, MapleClient c) {
+        byte b = inPacket.readByte(); //unk
+        MapleCharacter player = c.getPlayer();
+        DamageSkinSaveData damageSkin = player.getDamageSkin();
+        DamageSkinType error = null;
+        if (player.getDamageSkins().size() >= GameConstants.DAMAGE_SKIN_MAX_SIZE) {
+            error = DamageSkinType.DamageSkinSave_Fail_SlotCount;
+        }
+        if (error != null) {
+            player.announce(PlayerPacket.damageSkinSaveResult(DamageSkinType.DamageSkinSaveReq_Reg, error, null));
+        } else {
+            player.getDamageSkinByItemID(damageSkin.getItemID()).setNotSave(false);
+            player.announce(PlayerPacket.damageSkinSaveResult(DamageSkinType.DamageSkinSaveReq_Active,
+                    DamageSkinType.DamageSkinSave_Success, player));
+        }
+    }
+
+    public static void handleUserActivateNickItem(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        int itemId = inPacket.readInt();
+        short pos = inPacket.readShort();
+        Item item = player.getInstallInventory().getItem(pos);
+        if (item == null || item.getId() != itemId) {
+            return;
+        }
+        HashMap<String, String> value = new HashMap<>();
+        value.put("id", String.valueOf(itemId));
+        value.put("date", "2079/01/01 00:00:00:000");
+        value.put("expired", "0");
+        player.addQuestEx(QUEST_EX_NICK_ITEM, value);
+        c.announce(PlayerPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_NICK_ITEM, player.getQuestsExStorage().get(QUEST_EX_NICK_ITEM), (byte) 0));
+    }
+
+
 }

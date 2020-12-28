@@ -27,6 +27,7 @@ public class GameConstants {
     public static long[] charExp = new long[276];
     public static int maxLevel = 275;
     public static final long MAX_MONEY = 3000000000L;
+    public static final short DAMAGE_SKIN_MAX_SIZE = 20;
     public static final int BEGINNER_SP_MAX_LV = 7;
     public static final long DAMAGE_CAP = 50000000;
     public static final int RESISTANCE_SP_MAX_LV = 10;
@@ -49,6 +50,17 @@ public class GameConstants {
     public static final int MAX_MONEY_MULT = 9;
     public static final int MAX_DROP_CHANCE = 10000;
     public static final int MESO_DROP_CHANCE = MAX_DROP_CHANCE / 2;
+
+
+    // Inner Ability
+    public static final int CHAR_POT_BASE_ID = 70000000;
+    public static final int CHAR_POT_END_ID = 70000062;
+    public static final int BASE_CHAR_POT_UP_RATE = 10; // 10%
+    public static final int BASE_CHAR_POT_DOWN_RATE = 10; // 10%
+    public static final int CHAR_POT_RESET_COST = 100;
+    public static final int CHAR_POT_GRADE_LOCK_COST = 10000;
+    public static final int CHAR_POT_LOCK_1_COST = 3000;
+    public static final int CHAR_POT_LOCK_2_COST = 5000;
 
 
     public static final int BASE_MOB_RESPAWN_RATE = 10000; // In milliseconds

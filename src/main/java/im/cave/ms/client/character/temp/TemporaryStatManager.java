@@ -1,8 +1,8 @@
 package im.cave.ms.client.character.temp;
 
-import im.cave.ms.client.Job.MapleJob;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.job.MapleJob;
 import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
@@ -367,6 +367,8 @@ public class TemporaryStatManager {
                 .sorted(Comparator.comparingInt(CharacterTemporaryStat::getOrder))
                 .collect(Collectors.toList());
         for (CharacterTemporaryStat cts : orderedAndFilteredCtsList) {
+
+            //todo
 //            if (cts.getRemoteOrder() != -1) {
 //                Option o = getOption(cts);
 //                if (cts == CharacterTemporaryStat.Unk82) {

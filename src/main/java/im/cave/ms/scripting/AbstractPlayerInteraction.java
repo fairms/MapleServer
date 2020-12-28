@@ -75,6 +75,10 @@ public class AbstractPlayerInteraction {
         c.announce(ChannelPacket.chatMessage(content, ChatType.Tip));
     }
 
+    public void dropMessage(Integer content) {
+        c.announce(ChannelPacket.chatMessage(String.valueOf(content), ChatType.Tip));
+    }
+
     public void dropMessage(String content) {
         c.getPlayer().dropMessage(content);
     }

@@ -4,10 +4,8 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Portal;
 import im.cave.ms.scripting.AbstractScriptManager;
-import jdk.nashorn.api.scripting.NashornScriptEngine;
 
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
+import javax.script.Invocable;
 import javax.script.ScriptException;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,26 +19,23 @@ import java.util.Map;
 public class PortalScriptManager extends AbstractScriptManager {
     private static final PortalScriptManager instance = new PortalScriptManager();
 
-    private final Map<String, NashornScriptEngine> scripts = new HashMap<>();
+    private final Map<String, Invocable> scripts = new HashMap<>();
 
     public static PortalScriptManager getInstance() {
         return instance;
     }
 
-    private final ScriptEngineFactory sef;
-
     private PortalScriptManager() {
-        ScriptEngineManager sem = new ScriptEngineManager();
-        sef = sem.getEngineByName("javascript").getFactory();
+        super();
     }
 
-    private NashornScriptEngine getPortalScript(String scriptName, MapleClient c) {
+    private Invocable getPortalScript(String scriptName, MapleClient c) {
         String scriptPath = String.format("portal/%s.js", scriptName);
-        NashornScriptEngine nse = scripts.get(scriptPath);
+        Invocable nse = scripts.get(scriptPath);
         if (nse != null) {
             return nse;
         }
-        nse = getScriptEngine(scriptPath);
+        nse = getInvocable(scriptPath, c);
         if (nse == null) {
             return null;
         }
@@ -50,7 +45,7 @@ public class PortalScriptManager extends AbstractScriptManager {
 
     public boolean executePortalScript(Portal portal, MapleClient client) {
         try {
-            NashornScriptEngine nse = getPortalScript(portal.getScript(), client);
+            Invocable nse = getPortalScript(portal.getScript(), client);
             if (nse != null) {
                 return (boolean) nse.invokeFunction("enter", new PortalPlayerInteraction(client, portal));
             } else {

@@ -1,6 +1,7 @@
 package im.cave.ms.network.server.world;
 
-import im.cave.ms.configs.WorldConfig;
+import im.cave.ms.config.Config;
+import im.cave.ms.config.WorldConfig;
 import im.cave.ms.network.server.cashshop.CashShopServer;
 import im.cave.ms.network.server.channel.MapleChannel;
 
@@ -54,7 +55,7 @@ public class World {
 
 
     public void init() {
-        WorldConfig.WorldInfo info = WorldConfig.config.getWorldInfo(id);
+        WorldConfig.WorldInfo info = Config.worldConfig.getWorldInfo(id);
         for (int i = 0; i < info.channels; i++) {
             MapleChannel channel = new MapleChannel(id, i);
             channels.add(channel);

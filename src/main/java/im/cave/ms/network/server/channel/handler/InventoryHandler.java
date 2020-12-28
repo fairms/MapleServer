@@ -13,17 +13,26 @@ import im.cave.ms.client.items.ItemInfo;
 import im.cave.ms.client.items.ScrollUpgradeInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
+import im.cave.ms.enums.EquipAttribute;
+import im.cave.ms.enums.EquipBaseStat;
+import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.ScrollStat;
 import im.cave.ms.enums.SpecStat;
 import im.cave.ms.network.netty.InPacket;
+import im.cave.ms.network.packet.MaplePacketCreator;
 import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.scripting.item.ItemScriptManager;
 import im.cave.ms.tools.Position;
+import im.cave.ms.tools.Util;
 
 import java.util.List;
 import java.util.Map;
 
+import static im.cave.ms.enums.ChatType.SystemNotice;
+import static im.cave.ms.enums.EquipBaseStat.cuc;
 import static im.cave.ms.enums.EquipBaseStat.tuc;
 import static im.cave.ms.enums.InventoryOperation.MOVE;
 import static im.cave.ms.enums.InventoryOperation.REMOVE;
@@ -168,7 +177,7 @@ public class InventoryHandler {
         }
     }
 
-    public static void handleReturnScroll(InPacket inPacket, MapleClient c) {
+    public static void handleUserPortalScrollUseRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
@@ -183,5 +192,148 @@ public class InventoryHandler {
         ItemInfo itemInfo = ItemData.getItemInfoById(itemId);
         int moveTo = itemInfo.getMoveTo();
         player.changeMap(moveTo);
+        player.consumeItem(itemId, 1);
+    }
+
+    public static void handleUserUpgradeItemUseRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        short uPos = inPacket.readShort(); //Use Position
+        short ePos = inPacket.readShort(); //Eqp Position
+        Item scroll = player.getInventory(InventoryType.CONSUME).getItem(uPos);
+        InventoryType invType = ePos < 0 ? EQUIPPED : EQUIP;
+        Equip equip = (Equip) player.getInventory(invType).getItem(ePos < 0 ? (short) -ePos : ePos);
+        if (scroll == null || equip == null || equip.hasSpecialAttribute(EquipSpecialAttribute.Vestige)) {
+            player.chatMessage(SystemNotice, "Could not find scroll or equip.");
+            return;
+        }
+        int scrollId = scroll.getItemId();
+        boolean success = false;
+        boolean boom = false;
+        Map<ScrollStat, Integer> vals = ItemData.getItemInfoById(scrollId).getScrollStats();
+        if (vals.size() > 0) {
+            if (equip.getBaseStat(tuc) <= 0) {
+                player.announce(PlayerPacket.inventoryRefresh(true));
+                return;
+            }
+            int chance = vals.getOrDefault(ScrollStat.success, 100);
+            int curse = vals.getOrDefault(ScrollStat.cursed, 0);
+            success = Util.succeedProp(chance);
+            if (success) {
+                boolean chaos = vals.containsKey(ScrollStat.randStat);
+                if (chaos) {
+                    boolean noNegative = vals.containsKey(ScrollStat.noNegative);
+                    int max = vals.containsKey(ScrollStat.incRandVol) ? ItemConstants.RAND_CHAOS_MAX : ItemConstants.INC_RAND_CHAOS_MAX;
+                    for (EquipBaseStat ebs : ScrollStat.getRandStats()) {
+                        int cur = (int) equip.getBaseStat(ebs);
+                        if (cur == 0) {
+                            continue;
+                        }
+                        int randStat = Util.getRandom(max);
+                        randStat = !noNegative && Util.succeedProp(50) ? -randStat : randStat;
+                        equip.addStat(ebs, randStat);
+                    }
+                } else {
+                    for (Map.Entry<ScrollStat, Integer> entry : vals.entrySet()) {
+                        ScrollStat ss = entry.getKey();
+                        int val = entry.getValue();
+                        if (ss.getEquipStat() != null) {
+                            equip.addStat(ss.getEquipStat(), val);
+                        }
+                    }
+                }
+                equip.addStat(tuc, -1);
+                equip.addStat(cuc, 1);
+            } else {
+                if (curse > 0) {
+                    boom = Util.succeedProp(curse);
+                    if (boom && !equip.hasAttribute(EquipAttribute.ProtectionScroll)) {
+                        player.consumeItem(equip);
+                    } else {
+                        boom = false;
+                    }
+                }
+                if (!equip.hasAttribute(EquipAttribute.UpgradeCountProtection)) {
+                    equip.addStat(tuc, -1);
+                }
+            }
+            equip.removeAttribute(EquipAttribute.ProtectionScroll);
+            equip.removeAttribute(EquipAttribute.LuckyDay);
+            equip.removeAttribute(EquipAttribute.UpgradeCountProtection);
+            c.announce(MaplePacketCreator.showItemUpgradeEffect(player.getId(), success, false, scrollId, equip.getItemId(), boom));
+            if (!boom) {
+                equip.reCalcEnchantmentStats();
+                equip.updateToChar(player);
+            }
+            player.consumeItem(scroll);
+        } else {
+            player.chatMessage("Could not find scroll data.");
+        }
+
+    }
+
+    public static void handleUserScriptItemUseRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        player.setTick(inPacket.readInt());
+        short pos = inPacket.readShort();
+        int itemId = inPacket.readInt();
+        int quantity = inPacket.readInt();
+        Item item = player.getConsumeInventory().getItem(pos);
+        if (item == null || item.getItemId() != itemId) {
+            item = player.getCashInventory().getItem(pos);
+        }
+        if (item == null || item.getItemId() != itemId) {
+            return;
+        }
+        String script = String.valueOf(itemId);
+        int npcId = 0;
+        ItemInfo ii = ItemData.getItemInfoById(itemId);
+        if (ii.getScript() != null && !"".equals(ii.getScript())) {
+            script = ii.getScript();
+            npcId = ii.getNpcID();
+        }
+        ItemScriptManager.getInstance().startScript(itemId, script, npcId, c);
+    }
+
+    public static void handleUserFlameItemUseRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        short uPos = inPacket.readShort();
+        short ePos = inPacket.readShort();
+        Item flame = player.getInventory(InventoryType.CONSUME).getItem(uPos);
+        if (flame == null) {
+            flame = player.getCashInventory().getItem(uPos);
+        }
+        InventoryType invType = ePos < 0 ? EQUIPPED : EQUIP;
+        Equip equip = (Equip) player.getInventory(invType).getItem(ePos < 0 ? (short) -ePos : ePos);
+        if (flame == null || equip == null) {
+            player.chatMessage(SystemNotice, "Could not find flame or equip.");
+            return;
+        }
+        Map<ScrollStat, Integer> vals = ItemData.getItemInfoById(flame.getItemId()).getScrollStats();
+        if (vals.size() > 0) {
+            int reqEquipLevelMax = vals.getOrDefault(ScrollStat.reqEquipLevelMax, 250);
+
+            if (equip.getRLevel() + equip.getIIncReq() > reqEquipLevelMax) {
+                //
+                return;
+            }
+
+            boolean success = Util.succeedProp(vals.getOrDefault(ScrollStat.success, 100));
+
+            if (success) {
+                boolean eternalFlame = vals.getOrDefault(ScrollStat.createType, 6) >= 7;
+                equip.randomizeFlameStats(eternalFlame); // Generate high stats if it's an eternal/RED flame only.
+            }
+
+            equip.updateToChar(player);
+            c.announce(MaplePacketCreator.showItemUpgradeEffect(player.getId(), success, false, flame.getItemId(), equip.getItemId(), false));
+
+            player.consumeItem(flame);
+        }
+
     }
 }

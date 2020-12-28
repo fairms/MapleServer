@@ -7,6 +7,7 @@ import im.cave.ms.client.items.Inventory;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.LoginPacket;
 import im.cave.ms.provider.data.ItemData;
@@ -64,7 +65,7 @@ public class CreateCharHandler {
         chr.setGender(gender);
         chr.setSkin(skin);
         chr.setName(name);
-        chr.setGm(c.getAccount().getGm());
+        chr.setGm(c.getAccount().isGm());
         chr.setChannel(c.getChannel());
         chr.getKeyMap().setDefault(keyMode == 0);
         chr.setFace(items[0]);
@@ -82,6 +83,7 @@ public class CreateCharHandler {
                 equippedIv.addItem(equip);
             }
         }
+        c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
         chr.changeChannel(c.getChannel());
     }
 }

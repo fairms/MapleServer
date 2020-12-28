@@ -39,7 +39,7 @@ public enum EquipBaseStat {
     damR(0x1, 1),
     statR(0x2, 1),
     cuttable(0x4, 1),  //1
-    exGradeOption(0x8, 1),  //2
+    flame(0x8, 1),
     itemState(0x10, 1); //3
 
     private final int val;

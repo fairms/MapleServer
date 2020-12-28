@@ -4,7 +4,8 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.MapleMapObj;
-import im.cave.ms.client.field.obj.Npc;
+import im.cave.ms.client.field.obj.npc.Npc;
+import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.movement.Movement;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.ChatType;
@@ -23,7 +24,6 @@ import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.Position;
 
 
-
 /**
  * @author fair
  * @version V1.0
@@ -31,6 +31,7 @@ import im.cave.ms.tools.Position;
  * @date 11/30 19:10
  */
 public class NpcHandler {
+
     public static void handleUserSelectNPC(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         int objId = inPacket.readInt();
@@ -41,18 +42,18 @@ public class NpcHandler {
             return;
         }
         Npc npc = (Npc) obj;
-        talkToNPC(player, npc);
+        userSelectNpc(player, npc);
     }
 
 
     public static void talkToNPC(MapleCharacter chr, int npcId) {
         Npc npc = NpcData.getNpc(npcId);
         if (npc != null) {
-            talkToNPC(chr, npc);
+            userSelectNpc(chr, npc);
         }
     }
 
-    public static void talkToNPC(MapleCharacter chr, Npc npc) {
+    public static void userSelectNpc(MapleCharacter chr, Npc npc) {
         int npcId = npc.getTemplateId();
         String script = npc.getScripts().get(0);
         if (npc.getTrunkPut() > 0 || npc.getTrunkGet() > 0) {
@@ -60,9 +61,11 @@ public class NpcHandler {
             return;
         }
         if (script == null) {
-            if (false) {
-                System.out.println("打开商店");
-                NpcData.getShopById(npcId);
+            NpcShop shop = NpcData.getShopById(npcId);
+            if (shop != null) {
+                chr.setShop(shop);
+                chr.announce(NpcPacket.openShop(npcId, 0, shop));
+                chr.chatMessage(String.format("Opening shop %s", npc.getTemplateId()));
                 return;
             } else {
                 script = String.valueOf(npcId);
@@ -73,7 +76,7 @@ public class NpcHandler {
     }
 
 
-    public static void handleAction(InPacket inPacket, MapleClient c) {
+    public static void handleUserScriptMessageAnswer(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;

@@ -842,6 +842,9 @@ public class ItemData {
                 }
             }
         }
+        if (ItemConstants.isFamiliar(item.getItemId())) {
+            item.setSlotMax(1);
+        }
         items.put(item.getItemId(), item);
         return item;
     }

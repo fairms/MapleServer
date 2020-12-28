@@ -2,7 +2,8 @@ package im.cave.ms.network.server.login.handler;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.configs.ServerConfig;
+import im.cave.ms.config.Config;
+import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.netty.OutPacket;
@@ -53,9 +54,11 @@ public class PasswordLoginHandler {
             }
             count++;
             c.announce(LoginPacket.serverListEnd());
-        } else if (loginResult == LoginType.NotRegistered && ServerConfig.config.AUTOMATIC_REGISTER) {
+        } else if (loginResult == LoginType.NotRegistered && Config.serverConfig.AUTOMATIC_REGISTER) {
             Account account = new Account(username, BCrypt.hashpw(password, BCrypt.gensalt(10)));
             account.saveToDb();
+            c.setAccount(account);
+            c.setLoginStatus(LoginStatus.LOGGEDIN);
             c.announce(LoginPacket.loginResult(c, LoginType.Success));
             c.announce(LoginPacket.serverListBg());
             for (OutPacket serverInfo : LoginPacket.serverList()) {

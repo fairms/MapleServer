@@ -10,6 +10,6 @@ function start() {
     options.put(5, '诺特勒斯');
     options.put(6, '林中之城');
     var select = cm.sendAskMenu(options);
-    cm.dropMessage(select);
+    // cm.dropMessage(select);
     cm.dispose();
 }

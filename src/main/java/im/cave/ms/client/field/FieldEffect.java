@@ -36,8 +36,9 @@ public class FieldEffect {
                 break;
             case Tremble:
                 outPacket.write(getArg1());
-                outPacket.writeInt(getArg2());
-                outPacket.writeShort(getArg3());
+                outPacket.write(getArg2());
+                outPacket.writeInt(getArg3());
+                outPacket.writeShort(getArg4());
                 break;
             case ObjectStateByString:
                 outPacket.writeMapleAsciiString(getString());// sName

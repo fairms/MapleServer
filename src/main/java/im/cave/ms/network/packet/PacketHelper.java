@@ -371,8 +371,8 @@ public class PacketHelper {
             outPacket.writeInt(0);
         }
         //内在能力
-        outPacket.writeShort(chr.getCharacterPotential().size());
-        for (CharacterPotential characterPotential : chr.getCharacterPotential()) {
+        outPacket.writeShort(chr.getPotentials().size());
+        for (CharacterPotential characterPotential : chr.getPotentials()) {
             characterPotential.encode(outPacket);
         }
 
@@ -796,16 +796,16 @@ public class PacketHelper {
             //28 00 00 00
             outPacket.writeInt(equip.getEquipStatMask(1)); // mask 2
             if (equip.hasStat(EquipBaseStat.damR)) {
-                outPacket.write(equip.getDamR() + equip.getFDamage()); // td
+                outPacket.write(equip.getDamR() + equip.getFDamage());
             }
             if (equip.hasStat(EquipBaseStat.statR)) {
-                outPacket.write(equip.getStatR() + equip.getFAllStat()); // as
+                outPacket.write(equip.getStatR() + equip.getFAllStat());
             }
             if (equip.hasStat(EquipBaseStat.cuttable)) {
                 outPacket.write(equip.getCuttable());  //剪刀 FF
             }
-            if (equip.hasStat(EquipBaseStat.exGradeOption)) {
-                outPacket.writeLong(equip.getExGradeOption());  // 经验
+            if (equip.hasStat(EquipBaseStat.flame)) {
+                outPacket.writeLong(equip.getFlame());  //
             }
             if (equip.hasStat(EquipBaseStat.itemState)) {
                 outPacket.writeInt(equip.getItemState());  // 00 01 00 00
@@ -835,6 +835,7 @@ public class PacketHelper {
             outPacket.writeShort(equip.getSoulOptionId());
             outPacket.writeShort(equip.getSoulSocketId());
             outPacket.writeShort(equip.getSoulOption());
+
             if (equip.getItemId() / 10000 == 171) {
                 outPacket.writeShort(0); //ARC
                 outPacket.writeInt(0); //ARC EXP
@@ -860,7 +861,7 @@ public class PacketHelper {
                 item.setFamiliar(familiar);
             }
             Familiar familiar = item.getFamiliar();
-            outPacket.writeInt(familiar != null ? 9970206 : 0);
+            outPacket.writeInt(familiar != null ? familiar.getFamiliarId() : 0);
             outPacket.writeShort(familiar != null ? familiar.getLevel() : 0);
             outPacket.writeShort(familiar != null ? familiar.getSkill() : 0);
             outPacket.writeShort(familiar != null ? familiar.getLevel() : 0);

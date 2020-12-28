@@ -2,13 +2,12 @@ package im.cave.ms.network.server;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.items.Equip;
-import im.cave.ms.configs.WorldConfig;
+import im.cave.ms.config.Config;
+import im.cave.ms.config.WorldConfig;
 import im.cave.ms.network.server.cashshop.CashShopServer;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.network.server.login.LoginServer;
 import im.cave.ms.network.server.world.World;
-import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.scripting.map.MapScriptManager;
 import im.cave.ms.scripting.npc.NpcScriptManager;
 import im.cave.ms.scripting.portal.PortalScriptManager;
@@ -71,14 +70,13 @@ public class Server {
             //todo
         }));
 
-        Map<Integer, Equip> equips = ItemData.getEquips();
-        loginServer = LoginServer.getInstance();
+//        QuestData.loadQuests();
 
-        for (WorldConfig.WorldInfo world : WorldConfig.config.worlds) {
+        loginServer = LoginServer.getInstance();
+        for (WorldConfig.WorldInfo world : Config.worldConfig.worlds) {
             worlds.add(new World(world.id, world.event_message));
         }
         worldInit();
-
         online = true;
     }
 
