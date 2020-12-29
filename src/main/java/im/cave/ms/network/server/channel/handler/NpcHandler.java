@@ -12,8 +12,8 @@ import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.ChannelPacket;
 import im.cave.ms.network.packet.NpcPacket;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.NpcData;
@@ -45,7 +45,6 @@ public class NpcHandler {
         userSelectNpc(player, npc);
     }
 
-
     public static void talkToNPC(MapleCharacter chr, int npcId) {
         Npc npc = NpcData.getNpc(npcId);
         if (npc != null) {
@@ -57,7 +56,7 @@ public class NpcHandler {
         int npcId = npc.getTemplateId();
         String script = npc.getScripts().get(0);
         if (npc.getTrunkPut() > 0 || npc.getTrunkGet() > 0) {
-            chr.announce(ChannelPacket.openTrunk(npcId, chr.getAccount()));
+            chr.announce(WorldPacket.openTrunk(npcId, chr.getAccount()));
             return;
         }
         if (script == null) {
@@ -74,7 +73,6 @@ public class NpcHandler {
         String finalScript = script;
         EventManager.addEvent(() -> NpcScriptManager.getInstance().start(chr.getClient(), npcId, finalScript), 0);
     }
-
 
     public static void handleUserScriptMessageAnswer(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();

@@ -15,6 +15,7 @@ import im.cave.ms.network.packet.opcode.SendOpcode;
  * @date 11/20 21:59
  */
 public class QuestPacket {
+
     public static OutPacket questRecordMessage(Quest quest) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
@@ -47,4 +48,10 @@ public class QuestPacket {
         return outPacket;
     }
 
+    public static OutPacket updateQuestEx(int questId) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.UPDATE_QUEST_EX.getValue());
+        outPacket.writeInt(questId);
+        return outPacket;
+    }
 }

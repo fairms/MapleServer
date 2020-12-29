@@ -10,7 +10,7 @@
     </parent>
     <groupId>im.cave</groupId>
     <artifactId>ms</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>maplestory</name>
     <description>maplestory server emulator</description>
 

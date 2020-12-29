@@ -2,7 +2,7 @@ package im.cave.ms.client.quest.reward;
 
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
 
 /**
  * Created on 3/2/2018.
@@ -30,7 +30,7 @@ public class QuestMoneyReward implements QuestReward {
     @Override
     public void giveReward(MapleCharacter chr) {
         chr.addMeso(money);
-        chr.announce(PlayerPacket.incMoneyMessage((int) money));
+        chr.announce(UserPacket.incMoneyMessage((int) money));
     }
 
 }

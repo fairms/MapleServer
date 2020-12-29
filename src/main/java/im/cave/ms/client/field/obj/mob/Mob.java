@@ -159,6 +159,9 @@ public class Mob extends MapleMapObj {
     @Override
     public void notifyControllerChange(MapleCharacter controller) {
         for (MapleCharacter chr : getMap().getCharInRect(getVisibleRect())) {
+            if (chr == getMap().getObjControllers().get(this)) {
+                continue;
+            }
             chr.announce(MobPacket.changeMobController(this, false, controller == chr));
         }
     }

@@ -10,7 +10,7 @@ import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.TSIndex;
 import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Randomizer;
@@ -653,8 +653,8 @@ public class TemporaryStatManager {
     }
 
     public void sendSetStatPacket() {
-//        getChr().getField().broadcastPacket(UserRemote.setTemporaryStat(getChr(), (short) 0), getChr());
-        getChr().announce(PlayerPacket.giveBuff(this));
+//        getChr().getField().broadcastPacket(UserPacket.setTemporaryStat(getChr(), (short) 0), getChr());
+        getChr().announce(UserPacket.giveBuff(this));
     }
 
     public void sendResetStatPacket() {
@@ -668,7 +668,7 @@ public class TemporaryStatManager {
                 break;
             }
         }
-        getChr().announce(PlayerPacket.removeBuff(this, demount));
+        getChr().announce(UserPacket.removeBuff(this, demount));
         getRemovedStats().clear();
     }
 

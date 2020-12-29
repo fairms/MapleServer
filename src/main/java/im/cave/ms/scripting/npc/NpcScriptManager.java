@@ -32,17 +32,17 @@ public class NpcScriptManager extends AbstractScriptManager {
                 return;
             }
             String scriptPath = String.format("npc/%s.js", script);
-            Invocable nse = getInvocable(scriptPath, c);
-            if (nse == null) {
+            Invocable iv = getInvocable(scriptPath, c);
+            if (iv == null) {
                 c.getPlayer().dropMessage("NPC: " + npcId + " " + script + " 脚本不存在 地图:" + c.getPlayer().getMapId());
                 dispose(c);
                 return;
             }
-            NpcConversationManager ncm = new NpcConversationManager(c, npcId, this);
-            cms.put(c, ncm);
-            engine.put("cm", ncm);
+            NpcConversationManager cm = new NpcConversationManager(c, npcId, this);
+            cms.put(c, cm);
+            engine.put("cm", cm);
             c.getPlayer().setConversation(true);
-            nse.invokeFunction("start");
+            iv.invokeFunction("start");
         } catch (Exception e) {
             e.printStackTrace();
             dispose(c);
@@ -53,6 +53,7 @@ public class NpcScriptManager extends AbstractScriptManager {
         NpcConversationManager cm = cms.get(c);
         if (cm != null) {
             cm.getNpcScriptInfo().reset();
+            resetContext("npc/" + cm.getNpcId() + ".js", c);
             cms.remove(c);
         }
         c.getPlayer().setConversation(false);

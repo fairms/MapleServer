@@ -2,7 +2,7 @@ package im.cave.ms.client.character.potential;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.constants.GameConstants;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.tools.Util;
 
 import java.util.Set;
@@ -34,7 +34,7 @@ public class CharacterPotentialMan {
      */
     public void addPotential(CharacterPotential potential) {
         getPotentials().add(potential);
-        chr.announce(PlayerPacket.characterPotentialSet(potential));
+        chr.announce(UserPacket.characterPotentialSet(potential));
     }
 
     /**

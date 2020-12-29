@@ -14,8 +14,7 @@ import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.network.netty.InPacket;
-import im.cave.ms.network.packet.MaplePacketCreator;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.SkillData;
 
@@ -23,6 +22,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+;
 
 
 /**
@@ -170,9 +171,9 @@ public abstract class MapleJob {
             HashMap<Integer, Integer> cooltimes = new HashMap<>();
             chr.addSkillCooltime(skillId, cooltime * 1000);
             cooltimes.put(skillId, cooltime * 1000);
-            c.announce(PlayerPacket.skillCoolTimes(cooltimes));
+            c.announce(UserPacket.skillCoolTimes(cooltimes));
             //todo
-            EventManager.addEvent(() -> c.announce(PlayerPacket.skillCoolDown(skillId)), cooltime, TimeUnit.SECONDS);
+            EventManager.addEvent(() -> c.announce(UserPacket.skillCoolDown(skillId)), cooltime, TimeUnit.SECONDS);
         }
         if (inPacket != null && isBuff(skillId)) {
             handleJobLessBuff(c, inPacket, skillId, slv);
@@ -417,7 +418,7 @@ public abstract class MapleJob {
 //        c.write(WvsContext.statChanged(stats));
 //        chr.getField().broadcastPacket(UserRemote.hit(chr, hitInfo), chr);
 //        if (chr.getParty() != null) {
-//            chr.getParty().broadcast(UserRemote.receiveHP(chr), chr);
+//            chr.getParty().broadcast(UserPacket.receiveHP(chr), chr);
 //        }
 //        if (curHP <= 0) {
 //            // TODO Add more items for protecting exp and whatnot
@@ -518,7 +519,7 @@ public abstract class MapleJob {
 
 //    public void handleSkillPrepare(MapleCharacter chr, int skillID) {
 //        Skill skill = chr.getSkill(skillID);
-//        chr.getField().broadcastPacket(UserRemote.skillPrepare(chr, skillID, (byte) skill.getCurrentLevel()), chr);
+//        chr.getField().broadcastPacket(UserPacket.skillPrepare(chr, skillID, (byte) skill.getCurrentLevel()), chr);
 //    }
 
     public void handleLevelUp() {
@@ -568,7 +569,7 @@ public abstract class MapleJob {
         } else {
             chr.chatMessage(ChatType.Notice, "Unhandled HP/MP job " + chr.getJob());
         }
-        chr.announce(MaplePacketCreator.updatePlayerStats(stats, chr));
+        chr.announce(UserPacket.updatePlayerStats(stats, chr));
         chr.heal(chr.getMaxHP());
         chr.healMP(chr.getMaxMP());
 

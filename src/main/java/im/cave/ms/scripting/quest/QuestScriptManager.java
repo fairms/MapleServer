@@ -17,7 +17,6 @@ public class QuestScriptManager extends AbstractScriptManager {
     private static final Logger log = LoggerFactory.getLogger(QuestScriptManager.class);
     private static final QuestScriptManager instance = new QuestScriptManager();
     private final Map<MapleClient, QuestActionManager> qms = new HashMap<>();
-    private final Map<String, Invocable> scripts = new HashMap<>();
 
     public static QuestScriptManager getInstance() {
         return instance;
@@ -33,17 +32,13 @@ public class QuestScriptManager extends AbstractScriptManager {
             }
             qms.put(c, qm);
             String scriptPath = String.format("quest/%s.js", questName);
-            Invocable iv = scripts.get(scriptPath);
-            if (iv == null) {
-                iv = getInvocable(scriptPath, c);
-            }
+            Invocable iv = getInvocable(scriptPath, c);
             if (iv == null) {
                 c.getPlayer().dropMessage("任务:" + questId + "脚本不存在, NPC:" + npc + ", 地图:" + c.getPlayer().getMapId());
                 qm.dispose();
                 return;
             }
             engine.put("qm", qm);
-            scripts.put(scriptPath, iv);
             iv.invokeFunction("start");
         } catch (NoSuchMethodException | ScriptException e) {
             e.printStackTrace();
@@ -61,6 +56,7 @@ public class QuestScriptManager extends AbstractScriptManager {
         QuestActionManager qm = qms.get(c);
         if (qm != null) {
             qm.getNpcScriptInfo().reset();
+            resetContext("quest/" + qm.getQuest() + ".js", c);
             qms.remove(c);
         }
         c.getPlayer().setConversation(false);
@@ -72,7 +68,6 @@ public class QuestScriptManager extends AbstractScriptManager {
     }
 
     public void reloadQuestScripts() {
-        scripts.clear();
         qms.clear();
     }
 }

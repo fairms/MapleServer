@@ -17,7 +17,6 @@ import java.util.List;
  */
 public class GameConstants {
 
-
     public static final long MAX_TIME = 150842304000000000L;
     public static final long ZERO_TIME = 94354848000000000L;
 

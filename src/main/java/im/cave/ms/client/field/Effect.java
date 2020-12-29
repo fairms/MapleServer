@@ -5,7 +5,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.TextEffectType;
 import im.cave.ms.enums.UserEffectType;
 import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Tuple;
 
@@ -234,86 +234,12 @@ public class Effect {
         }
     }
 
-    private void writeSkillUse(OutPacket outPacket) {
-        // Arg 1 => skillID
-        // Arg 2 => slv
-        // Arg 3 => slv
-        // Arg 4 => bySummonedID
-        // Arg 5 => show/left boolean
-        // Arg 6 => mobId
-        // Arg 7 => mobPosX
-        // Arg 8 => mobPosY
-        // Arg 9 => posX
-        // Arg 10 => posY
-//        int skillID = getArg1();
-//        if (getUserEffectType() == SkillUseBySummoned) {
-//            outPacket.writeInt(getArg4()); // Summon ID
-//        }
-//        outPacket.writeInt(skillID); // Skill id
-//        outPacket.writeInt(getArg2()); // chr level
-//        outPacket.write(getArg3()); // slv
-//        if (skillID == Evan.DRAGON_FURY) { // Dragon Fury
-//            outPacket.write(getArg5()); // bCreate
-//        } else if (skillID == Warrior.FINAL_PACT) {
-//            outPacket.write(getArg5()); // bLoadReincarnationEffect
-//        } else if (skillID == Thief.CHAINS_OF_HELL) {
-//            outPacket.write(getArg5()); // bLeft
-//            outPacket.writeInt(getArg6()); // dwMobID
-//        } else if (skillID == 3211010 || skillID == 3111010 || skillID == 1100012) { // Hooks (Warrior combo fury/archer skills)
-//            outPacket.write(getArg5()); // bLeft
-//            outPacket.writeInt(getArg6()); // dwMobID
-//            outPacket.writeInt(getArg7()); // nMobPosX
-//            outPacket.writeInt(getArg8()); // nMobPosY
-//        } else if (skillID == 64001000 || skillID == 64001007 || skillID == 64001008) {
-//            outPacket.write(getArg5());
-//        } else if (skillID == 64001009 || skillID == 64001010 || skillID == 64001011 || skillID == 64001012) {
-//            outPacket.write(getArg5()); // bLeft
-//            outPacket.writeInt(getArg6()); // dwMobID
-//            outPacket.writeInt(getArg7()); // UNK
-//            outPacket.writeInt(getArg8()); // UNK
-//        } else if (skillID == WildHunter.CALL_OF_THE_HUNTER) {
-//            outPacket.write(getArg5()); // bLeft
-//            outPacket.writeShort(getArg7()); // nPosX
-//            outPacket.writeShort(getArg8()); // nPosY
-//        } else if (skillID == WildHunter.CAPTURE) {
-//            outPacket.write(getArg5()); // nType: 0 = Success, 1 = mob hp too high, 2 = mob cannot be captured
-//        } else if (skillID == Kaiser.VERTICAL_GRAPPLE || skillID == AngelicBuster.GRAPPLING_HEART || skillID == 400001000) {
-//            outPacket.writeInt(getArg5()); // nStartPosY
-//            outPacket.writeInt(getArg7()); // ptRopeConnectDest.x
-//            outPacket.writeInt(getArg8()); // ptRopeConnectDest.y
-//        } else if (skillID == Luminous.FLASH_BLINK || skillID == 15001021 || skillID == Shade.FOX_TROT || skillID == 4211016 || skillID == 5081021 || skillID == 400041026 || skillID == 152001004) { // Flash
-//            outPacket.writeInt(getArg7()); // ptBlinkLightOrigin.x
-//            outPacket.writeInt(getArg8()); // ptBlinkLightOrigin.y
-//            outPacket.writeInt(getArg9()); // ptBlinkLightDest.x
-//            outPacket.writeInt(getArg10()); // ptBlinkLightDest.y
-//        } else if (SkillConstants.isSuperNovaSkill(skillID)) {
-//            outPacket.writeInt(getArg7()); // ptStartX
-//            outPacket.writeInt(getArg8()); // ptStartY
-//        } else if (skillID == 37110004 || skillID == 37111000 || skillID == 37111003 || skillID == 37110001 || skillID == 37101001 || skillID == 37100002 || skillID == 37000010 || skillID == 37000985) {
-//            outPacket.writeInt(getArg5());// unk
-//        } else if (skillID == 400041019) {
-//            outPacket.writeInt(getArg7()); // ptStartX
-//            outPacket.writeInt(getArg8()); // ptStartY
-//        } else if (skillID == 400041009) {
-//            outPacket.writeInt(getArg5());// unk
-//        } else if (skillID == 400041011 || skillID == 400041012 || skillID == 400041013 || skillID == 400041014 || skillID == 400041015) {
-//            outPacket.writeInt(getArg5());// unk
-//        } else if (skillID == 400041036) {
-//            outPacket.writeInt(0);
-//            outPacket.writeInt(0);
-//            outPacket.writeInt(0);
-//            outPacket.writeInt(0);
-//            outPacket.writeInt(0);
-//            outPacket.writeInt(0);
-//            outPacket.writeInt(0);
-//            outPacket.writeInt(0);
-//        } else if (skillID == 80002393 || skillID == 80002394 || skillID == 80002395 || skillID == 80002421) {
-//            outPacket.writeInt(getArg5());// unk
-//        } else if (skillID == 80001132) {
-//            outPacket.write(getArg5());// 0 = sucessfuly catch 1 = failed too high hp 2 = cannot be captured
-//        } else if (SkillConstants.isUnregisteredSkill(skillID)) {
-//            outPacket.write(getArg5()); // bLeft
-//        }
+    public static void showFameGradeUp(MapleCharacter chr) {
+        MapleMap map = chr.getMap();
+        chr.announce(UserPacket.effect(Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/front")));
+        chr.announce(UserPacket.effect(Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/back")));
+//        map.broadcastMessage(UserPacket.effect(chr.getId(), Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/front")));
+//        map.broadcastMessage(UserPacket.effect(chr.getId(), Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/back")));
     }
 
 
@@ -515,23 +441,95 @@ public class Effect {
         return effect;
     }
 
-    public static void showFameGradeUp(MapleCharacter chr) {
-        MapleMap map = chr.getMap();
-        chr.announce(PlayerPacket.effect(Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/front")));
-        chr.announce(PlayerPacket.effect(Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/back")));
-//        map.broadcastMessage(UserRemote.effect(chr.getId(), Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/front")));
-//        map.broadcastMessage(UserRemote.effect(chr.getId(), Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/back")));
+    //         Arg 1 => skillID
+//         Arg 2 => slv
+//         Arg 3 => slv
+//         Arg 4 => bySummonedID
+//         Arg 5 => show/left boolean
+//         Arg 6 => mobId
+//         Arg 7 => mobPosX
+//         Arg 8 => mobPosY
+//         Arg 9 => posX
+//         Arg 10 => posY
+    private void writeSkillUse(OutPacket outPacket) {
+        int skillID = getArg1();
+        if (getUserEffectType() == SkillUseBySummoned) {
+            outPacket.writeInt(getArg4()); // Summon ID
+        }
+        outPacket.writeInt(skillID); // Skill id
+        outPacket.writeInt(getArg2()); // chr level
+        outPacket.write(getArg3()); // slv
+        if (false) { // Dragon Fury  skillID == Evan.DRAGON_FURY
+            outPacket.write(getArg5()); // bCreate
+        } else if (false) { // skillID == Warrior.FINAL_PACT
+            outPacket.write(getArg5()); // bLoadReincarnationEffect
+        } else if (false) { // skillID == Thief.CHAINS_OF_HELL
+            outPacket.write(getArg5()); // bLeft
+            outPacket.writeInt(getArg6()); // dwMobID
+        } else if (skillID == 3211010 || skillID == 3111010 || skillID == 1100012) { // Hooks (Warrior combo fury/archer skills)
+            outPacket.write(getArg5()); // bLeft
+            outPacket.writeInt(getArg6()); // dwMobID
+            outPacket.writeInt(getArg7()); // nMobPosX
+            outPacket.writeInt(getArg8()); // nMobPosY
+        } else if (skillID == 64001000 || skillID == 64001007 || skillID == 64001008) {
+            outPacket.write(getArg5());
+        } else if (skillID == 64001009 || skillID == 64001010 || skillID == 64001011 || skillID == 64001012) {
+            outPacket.write(getArg5()); // bLeft
+            outPacket.writeInt(getArg6()); // dwMobID
+            outPacket.writeInt(getArg7()); // UNK
+            outPacket.writeInt(getArg8()); // UNK
+//        } else if (skillID == WildHunter.CALL_OF_THE_HUNTER) {
+//            outPacket.write(getArg5()); // bLeft
+//            outPacket.writeShort(getArg7()); // nPosX
+//            outPacket.writeShort(getArg8()); // nPosY
+//        } else if (skillID == WildHunter.CAPTURE) {
+//            outPacket.write(getArg5()); // nType: 0 = Success, 1 = mob hp too high, 2 = mob cannot be captured
+//        } else if (skillID == Kaiser.VERTICAL_GRAPPLE || skillID == AngelicBuster.GRAPPLING_HEART || skillID == 400001000) {
+//            outPacket.writeInt(getArg5()); // nStartPosY
+//            outPacket.writeInt(getArg7()); // ptRopeConnectDest.x
+//            outPacket.writeInt(getArg8()); // ptRopeConnectDest.y
+//        } else if (skillID == Luminous.FLASH_BLINK || skillID == 15001021 || skillID == Shade.FOX_TROT || skillID == 4211016 || skillID == 5081021 || skillID == 400041026 || skillID == 152001004) { // Flash
+//            outPacket.writeInt(getArg7()); // ptBlinkLightOrigin.x
+//            outPacket.writeInt(getArg8()); // ptBlinkLightOrigin.y
+//            outPacket.writeInt(getArg9()); // ptBlinkLightDest.x
+//            outPacket.writeInt(getArg10()); // ptBlinkLightDest.y
+//        } else if (SkillConstants.isSuperNovaSkill(skillID)) {
+//            outPacket.writeInt(getArg7()); // ptStartX
+//            outPacket.writeInt(getArg8()); // ptStartY
+        } else if (skillID == 37110004 || skillID == 37111000 || skillID == 37111003 || skillID == 37110001 || skillID == 37101001 || skillID == 37100002 || skillID == 37000010 || skillID == 37000985) {
+            outPacket.writeInt(getArg5());// unk
+        } else if (skillID == 400041019) {
+            outPacket.writeInt(getArg7()); // ptStartX
+            outPacket.writeInt(getArg8()); // ptStartY
+        } else if (skillID == 400041009) {
+            outPacket.writeInt(getArg5());// unk
+        } else if (skillID == 400041011 || skillID == 400041012 || skillID == 400041013 || skillID == 400041014 || skillID == 400041015) {
+            outPacket.writeInt(getArg5());// unk
+        } else if (skillID == 400041036) {
+            outPacket.writeInt(0);
+            outPacket.writeInt(0);
+            outPacket.writeInt(0);
+            outPacket.writeInt(0);
+            outPacket.writeInt(0);
+            outPacket.writeInt(0);
+            outPacket.writeInt(0);
+            outPacket.writeInt(0);
+        } else if (skillID == 80002393 || skillID == 80002394 || skillID == 80002395 || skillID == 80002421) {
+            outPacket.writeInt(getArg5());// unk
+        } else if (skillID == 80001132) {
+            outPacket.write(getArg5());// 0 = sucessfuly catch 1 = failed too high hp 2 = cannot be captured
+        } else if (false) { //SkillConstants.isUnregisteredSkill(skillID)
+            outPacket.write(getArg5()); // bLeft
+        }
     }
 
     public static Effect skillUse(int skillID, byte slv, int bySummonedID) {
         Effect effect = new Effect();
-
         effect.setUserEffectType(bySummonedID == 0 ? SkillUse : SkillUseBySummoned);
         effect.setArg4(bySummonedID);
         effect.setArg1(skillID);
         effect.setArg2(slv);
         effect.setArg3(slv);
-
         return effect;
     }
 

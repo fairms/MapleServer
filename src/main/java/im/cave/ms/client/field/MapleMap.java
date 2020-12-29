@@ -16,7 +16,7 @@ import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.FieldOption;
 import im.cave.ms.enums.FieldType;
 import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.ChannelPacket;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.scripting.map.MapScriptManager;
@@ -116,7 +116,13 @@ public class MapleMap {
             if (onUserEnter.length() != 0) {
                 msm.runMapScript(chr.getClient(), "onUserEnter/" + onUserEnter, false);
             }
-            broadcastMessage(chr, ChannelPacket.charEnterMap(chr), true);
+            broadcastMessage(chr, WorldPacket.charEnterMap(chr), false);
+        }
+    }
+
+    public void sendMapObject() {
+        for (MapleCharacter character : characters) {
+            sendMapObjectPackets(character);
         }
     }
 
@@ -134,7 +140,7 @@ public class MapleMap {
         }
         for (MapleCharacter character : characters) {
             if (!chr.getVisibleChar().contains(character)) {
-                chr.announce(ChannelPacket.charEnterMap(character));
+                chr.announce(WorldPacket.charEnterMap(character));
                 chr.getVisibleChar().add(character);
             }
         }
@@ -336,7 +342,7 @@ public class MapleMap {
         EventManager.addEvent(() -> drop.setOwnerID(0), GameConstants.DROP_REMOVE_OWNERSHIP_TIME, TimeUnit.SECONDS);
         for (MapleCharacter chr : getCharacters()) {
             if (chr.hasAnyQuestsInProgress(quests)) {
-                broadcastMessage(ChannelPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo, 0, drop.canBePickedUpBy(chr)));
+                broadcastMessage(WorldPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo, 190, drop.canBePickedUpBy(chr)));
             }
         }
     }
@@ -362,9 +368,9 @@ public class MapleMap {
             drop.setObjectId(getObjectIdCounter().getAndIncrement());
         }
         if (!isTradable) {
-            broadcastMessage(ChannelPacket.dropEnterField(drop, DropEnterType.FadeAway, posFrom));
+            broadcastMessage(WorldPacket.dropEnterField(drop, DropEnterType.FadeAway, posFrom));
         } else {
-            broadcastMessage(ChannelPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo));
+            broadcastMessage(WorldPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo));
         }
     }
 
@@ -372,7 +378,7 @@ public class MapleMap {
     public void removeDrop(int dropId, DropLeaveType type, int charId, boolean schedule) {
         MapleMapObj obj = getObj(dropId);
         if (obj instanceof Drop) {
-            broadcastMessage(ChannelPacket.dropLeaveField(type, charId, dropId));
+            broadcastMessage(WorldPacket.dropLeaveField(type, charId, dropId));
             removeObj(dropId, schedule);
         }
     }
@@ -482,8 +488,8 @@ public class MapleMap {
             List<MapleCharacter> characters = getCharInRect(obj.getVisibleRect());
             if (characters.size() > 0) {
                 controller = Util.getRandomFromCollection(characters);
-                putObjController(obj, controller);
                 obj.notifyControllerChange(controller);
+                putObjController(obj, controller);
             }
         }
     }

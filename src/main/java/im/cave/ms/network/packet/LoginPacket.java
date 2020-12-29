@@ -63,7 +63,6 @@ public class LoginPacket {
         return outPacket;
     }
 
-
     public static OutPacket getOpenCreateChar() {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.OPEN_CREATE_CHAR.getValue());

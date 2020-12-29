@@ -8,20 +8,14 @@ import im.cave.ms.enums.ServerType;
 import im.cave.ms.network.crypto.AESCipher;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.LoginPacket;
-import im.cave.ms.network.packet.MaplePacketCreator;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
 import im.cave.ms.network.server.ErrorPacketHandler;
-import im.cave.ms.network.server.channel.handler.ChangeChannelHandler;
-import im.cave.ms.network.server.channel.handler.EnterPortalHandler;
-import im.cave.ms.network.server.channel.handler.GeneralChatHandler;
 import im.cave.ms.network.server.channel.handler.InventoryHandler;
 import im.cave.ms.network.server.channel.handler.MobHandler;
 import im.cave.ms.network.server.channel.handler.NpcHandler;
-import im.cave.ms.network.server.channel.handler.PlayerHandler;
-import im.cave.ms.network.server.channel.handler.PlayerLoggedinHandler;
 import im.cave.ms.network.server.channel.handler.QuestHandler;
-import im.cave.ms.network.server.channel.handler.SpecialPortalHandler;
+import im.cave.ms.network.server.channel.handler.UserHandler;
 import im.cave.ms.network.server.channel.handler.WorldHandler;
 import im.cave.ms.network.server.service.EventManager;
 import io.netty.channel.ChannelHandlerContext;
@@ -96,40 +90,40 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
         }
         switch (opcode) {
             case PLAYER_LOGIN:
-                PlayerLoggedinHandler.handlePacket(inPacket, c);
+                WorldHandler.handleEnterWorld(inPacket, c);
                 break;
             case ERROR_PACKET:
                 ErrorPacketHandler.handlePacket(inPacket);
                 break;
             case GENERAL_CHAT:
-                GeneralChatHandler.handlePacket(inPacket, c);
+                UserHandler.handleUserGeneralChat(inPacket, c);
                 break;
             case USER_ACTIVATE_NICK_ITEM:
-                PlayerHandler.handleUserActivateNickItem(inPacket, c);
+                UserHandler.handleUserActivateNickItem(inPacket, c);
                 break;
             case USER_ACTIVATE_DAMAGE_SKIN:
-                PlayerPacket.handleUserActivateDamageSkin(inPacket, c);
+                UserHandler.handleUserActivateDamageSkin(inPacket, c);
                 break;
             case OPEN_WORLD_MAP:
-                c.announce(MaplePacketCreator.openWorldMap());
+                c.announce(UserPacket.openWorldMap());
                 break;
             case PORTAL_SPECIAL:
-                SpecialPortalHandler.handlePacket(inPacket, c);
+                UserHandler.handleUserEnterPortalSpecialRequest(inPacket, c);
                 break;
             case USER_QUEST_REQUEST:
                 EventManager.addEvent(() -> QuestHandler.handleQuestRequest(inPacket, c), 0);
                 break;
             case ENTER_PORTAL:
-                EnterPortalHandler.handlePacket(inPacket, c);
+                UserHandler.handleUserEnterPortalRequest(inPacket, c);
                 break;
             case USER_REQUEST_INSTANCE_TABLE:
                 WorldHandler.handleInstanceTableRequest(inPacket, c);
                 break;
             case USER_REQUEST_CHARACTER_POTENTIAL_SKILL_RAND_SET_UI:
-                PlayerHandler.handleUserRequestCharacterPotentialSkillRandSetUi(inPacket, c);
+                UserHandler.handleUserRequestCharacterPotentialSkillRandSetUi(inPacket, c);
                 break;
             case CHANGE_CHANNEL:
-                ChangeChannelHandler.handlePacket(inPacket, c);
+                WorldHandler.handleChangeChannel(inPacket, c);
                 break;
             case MOB_MOVE:
                 MobHandler.handleMobMove(inPacket, c);
@@ -159,13 +153,13 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 InventoryHandler.handleUserFlameItemUseRequest(inPacket, c);
                 break;
             case USER_ABILITY_UP_REQUEST:
-                PlayerHandler.handleAPUpdateRequest(inPacket, c);
+                UserHandler.handleAPUpdateRequest(inPacket, c);
                 break;
             case USER_ABILITY_MASS_UP_REQUEST:
-                PlayerHandler.handleAPMassUpdateRequest(inPacket, c);
+                UserHandler.handleAPMassUpdateRequest(inPacket, c);
                 break;
             case USER_DAMAGE_SKIN_SAVE_REQUEST:
-                PlayerHandler.handleUserDamageSkinSaveRequest(inPacket, c);
+                UserHandler.handleUserDamageSkinSaveRequest(inPacket, c);
                 break;
             case USER_SELECT_NPC:
                 NpcHandler.handleUserSelectNPC(inPacket, c);
@@ -177,10 +171,10 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 WorldHandler.handleTrunkOperation(inPacket, c);
                 break;
             case CHAR_HIT:
-                PlayerHandler.handleHit(inPacket, c);
+                UserHandler.handleHit(inPacket, c);
                 break;
             case PLAYER_MOVE:
-                PlayerHandler.handlePlayerMove(inPacket, c);
+                UserHandler.handlePlayerMove(inPacket, c);
                 break;
             case MIGRATE_TO_CASH_SHOP_REQUEST:
                 WorldHandler.handleMigrateToCashShopRequest(inPacket, c);
@@ -190,25 +184,25 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case MAGIC_ATTACK:
 //            case SUMMON_ATTACK:
 //            case TOUCH_MONSTER_ATTACK:
-                PlayerHandler.handleAttack(inPacket, c, opcode);
+                UserHandler.handleAttack(inPacket, c, opcode);
                 break;
             case WORLD_MAP_TRANSFER:
-                PlayerHandler.handleWorldMapTransfer(inPacket, c);
+                UserHandler.handleWorldMapTransfer(inPacket, c);
                 break;
             case CHANGE_STAT_REQUEST:
-                PlayerHandler.handleChangeStatRequest(inPacket, c);
+                UserHandler.handleChangeStatRequest(inPacket, c);
                 break;
-            case SKILL_UP:
-                PlayerHandler.handleSkillUp(inPacket, c);
+            case USER_SKILL_UP_REQUEST:
+                UserHandler.handleSkillUp(inPacket, c);
                 break;
-            case USE_SKILL:
-                PlayerHandler.handleUseSkill(inPacket, c);
+            case USER_SKILL_USE_REQUEST:
+                UserHandler.handleUseSkill(inPacket, c);
                 break;
-            case CANCEL_BUFF:
-                PlayerHandler.handleCancelBuff(inPacket, c);
+            case USER_SKILL_CANCEL_REQUEST:
+                UserHandler.handleCancelBuff(inPacket, c);
                 break;
             case CHAR_INFO_REQUEST:
-                PlayerHandler.handleCharInfoReq(inPacket, c);
+                UserHandler.handleCharInfoReq(inPacket, c);
                 break;
             case COMBO_KILL_CHECK:
                 WorldHandler.handleComboKill(inPacket, c);
@@ -217,10 +211,10 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 WorldHandler.handleSummonMove(inPacket, c);
                 break;
             case CHANGE_QUICKSLOT:
-                PlayerHandler.handleChangeQuickslot(inPacket, c);
+                UserHandler.handleChangeQuickslot(inPacket, c);
                 break;
             case CHANGE_KEYMAP:
-                PlayerHandler.handleChangeKeyMap(inPacket, c);
+                UserHandler.handleChangeKeyMap(inPacket, c);
                 break;
             case CHANGE_CHAR_REQUEST:
                 WorldHandler.handleChangeCharRequest(inPacket, c);
@@ -231,20 +225,23 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case SIGN_IN:
                 WorldHandler.handleSignIn(inPacket, c);
                 break;
-            case UNITY_PORTAL_SELECT:
+            case UNITY_PORTAL_REQUEST:
                 WorldHandler.handleUnityPortalSelect(inPacket, c);
                 break;
-            case SKILL_OPT:
+            case USER_OPEN_MYSTERY_EGG:
+                InventoryHandler.handleUserOpenMysteryEgg(inPacket, c);
+                break;
+            case SKILL_COMMAND_LOCK:
                 c.getPlayer().changeSkillState(inPacket.readInt());
                 break;
             case CANCEL_CHAIR:
-                PlayerHandler.cancelChair(inPacket, c);
+                UserHandler.cancelChair(inPacket, c);
                 break;
             case USE_CHAIR:
-                PlayerHandler.handleUseChair(inPacket, c);
+                UserHandler.handleUseChair(inPacket, c);
                 break;
             case PICK_UP_ITEM:
-                PlayerHandler.handlePickUp(inPacket, c);
+                UserHandler.handlePickUp(inPacket, c);
                 break;
             case QUICK_MOVE_SELECT:
                 WorldHandler.handleQuickMove(inPacket.readInt(), c);
@@ -253,7 +250,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 WorldHandler.handleBattleAnalysis(inPacket, c);
                 break;
             case EQUIP_EFFECT_OPT:
-                PlayerHandler.handleEquipEffectOpt(inPacket.readInt(), c);
+                UserHandler.handleEquipEffectOpt(inPacket.readInt(), c);
                 break;
             case CPONG:
                 c.pongReceived();

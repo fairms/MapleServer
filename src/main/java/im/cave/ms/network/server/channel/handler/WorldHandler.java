@@ -9,27 +9,32 @@ import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.job.JobManager;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.DimensionalMirror;
 import im.cave.ms.enums.InstanceTableType;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.network.netty.InPacket;
-import im.cave.ms.network.packet.ChannelPacket;
 import im.cave.ms.network.packet.LoginPacket;
-import im.cave.ms.network.packet.MaplePacketCreator;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.QuestPacket;
 import im.cave.ms.network.packet.SummonPacket;
+import im.cave.ms.network.packet.UserPacket;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.server.Server;
+import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.DateUtil;
+import im.cave.ms.tools.Pair;
 import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +93,7 @@ public class WorldHandler {
                 log.error(String.format("Unhandled instance table type request %s, type %d, subType %d", itt, type, subType));
                 return;
         }
-        c.announce(ChannelPacket.resultInstanceTable(requestStr, type, subType, value));
+        c.announce(WorldPacket.resultInstanceTable(requestStr, type, subType, value));
 
     }
 
@@ -96,13 +101,13 @@ public class WorldHandler {
         MapleCharacter player = c.getPlayer();
         player.setTick(inPacket.readInt());
         inPacket.readByte(); // 00
-        c.announce(MaplePacketCreator.getChannelChange(Server.getInstance().getCashShop(c.getWorld()).getPort()));
+        c.announce(WorldPacket.getChannelChange(Server.getInstance().getCashShop(c.getWorld()).getPort()));
     }
 
     public static void handleBattleAnalysis(InPacket inPacket, MapleClient c) {
         byte opt = inPacket.readByte();
         if (opt == 1) {
-            c.announce(MaplePacketCreator.startBattleAnalysis());
+            c.announce(WorldPacket.startBattleAnalysis());
         }
     }
 
@@ -153,9 +158,9 @@ public class WorldHandler {
                         player.addItemToInv(item);
                         InventoryType invType = item.getInvType();
                         List<Item> items = trunk.getItems(invType);
-                        player.announce(ChannelPacket.getItemFromTrunk(items, trunk, invType));
+                        player.announce(WorldPacket.getItemFromTrunk(items, trunk, invType));
                     } else {
-                        player.announce(ChannelPacket.trunkMsg(TrunkOpType.TrunkRes_GetUnknown));
+                        player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_GetUnknown));
                     }
                 }
                 break;
@@ -164,9 +169,9 @@ public class WorldHandler {
                 if (trunk.getMoney() >= amount) {
                     trunk.addMoney(-amount);
                     player.addMeso(amount);
-                    player.announce(ChannelPacket.getMoneyFromTrunk(amount, trunk));
+                    player.announce(WorldPacket.getMoneyFromTrunk(amount, trunk));
                 } else {
-                    player.announce(ChannelPacket.trunkMsg(TrunkOpType.TrunkRes_GetNoMoney));
+                    player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_GetNoMoney));
                 }
                 break;
         }
@@ -189,8 +194,8 @@ public class WorldHandler {
         HashMap<String, String> options = new HashMap<>();
         options.put("ComboK", String.valueOf(combo));
         player.addQuestEx(questId, options);
-        c.announce(PlayerPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_COMBO_KILL, player.getQuestsExStorage().get(QUEST_EX_COMBO_KILL), (byte) 0));
-        c.announce(PlayerPacket.updateQuestEx(QUEST_EX_COMBO_KILL));
+        c.announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_COMBO_KILL, player.getQuestsExStorage().get(QUEST_EX_COMBO_KILL), (byte) 0));
+        c.announce(QuestPacket.updateQuestEx(QUEST_EX_COMBO_KILL));
 
     }
 
@@ -205,7 +210,7 @@ public class WorldHandler {
             options.put("day", "0");
             options.put("date", String.valueOf(DateUtil.getDate()));
             account.addSharedQuestEx(SHARE_QUEST_EX_SIGNIN_LOG, options, true);
-            c.announce(PlayerPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_SIGNIN_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
+            c.announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_SIGNIN_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
         }
         String count = account.getSharedQuestEx().get(SHARE_QUEST_EX_SIGNIN_LOG).get("count");
         String day = account.getSharedQuestEx().get(SHARE_QUEST_EX_SIGNIN_LOG).get("day");
@@ -226,7 +231,7 @@ public class WorldHandler {
             options.put("day", day);
             options.put("date", date);
             account.addSharedQuestEx(SHARE_QUEST_EX_SIGNIN_LOG, options, true);
-            c.announce(PlayerPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_SIGNIN_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
+            c.announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_SIGNIN_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
             Item item = ItemData.getItemCopy(itemId, false);
             item.setQuantity(signRewardInfo.getQuantity());
             player.addItemToInv(item);
@@ -248,5 +253,71 @@ public class WorldHandler {
             movementInfo.applyTo(summon);
             player.getMap().broadcastMessage(player, SummonPacket.summonMove(player.getId(), objId, movementInfo), false);
         }
+    }
+
+    public static void handleChangeChannel(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        byte channel = inPacket.readByte();
+        inPacket.readInt();
+        if (c.getChannel() == channel) {
+            c.close(); //hack
+            return;
+        }
+        //todo
+        c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
+        player.changeChannel(channel);
+    }
+
+    public static void handleEnterWorld(InPacket inPacket, MapleClient c) {
+        int worldId = inPacket.readInt();
+        int charId = inPacket.readInt();
+        byte[] machineId = inPacket.read(16);
+        Pair<Byte, MapleClient> transInfo = Server.getInstance().getClientTransInfo(charId);
+        if (transInfo == null) {
+            c.close();
+            return;
+        }
+        MapleClient oldClient = transInfo.getRight();
+        MapleCharacter player = oldClient.getPlayer();
+        if (player == null) {
+            c.close();
+            return;
+        }
+        Byte channel = transInfo.getLeft();
+        c.setMachineID(machineId);
+        c.setWorld(worldId);
+        c.setChannel(channel);
+        c.setAccount(oldClient.getAccount());
+        if (!Arrays.equals(oldClient.getMachineID(), machineId)) {
+            //todo
+//            c.close();
+//            return;
+        }
+        Server.getInstance().removeTransfer(charId);
+        MapleChannel mapleChannel = c.getMapleChannel();
+        player.setClient(c);
+        player.setAccount(c.getAccount());
+        player.setChannel(channel);
+        c.setPlayer(player);
+        c.setLoginStatus(LoginStatus.LOGGEDIN);
+        mapleChannel.addPlayer(player);
+        Server.getInstance().addAccount(c.getAccount());
+        player.setJobHandler(JobManager.getJobById(player.getJobId(), player));
+        //加密后的Opcode
+        c.announce(UserPacket.encodeOpcodes(c));
+        c.announce(UserPacket.updateEventNameTag()); //updateEventNameTag
+        //3.切换地图
+        if (player.getHp() <= 0) {
+            player.setMapId(player.getMap().getReturnMap());
+            player.heal(50);
+        }
+        player.changeMap(player.getMapId(), true);
+        player.initBaseStats();
+        player.buildQuestEx();
+        c.getAccount().buildSharedQuestEx();
+        c.announce(MapleSignIn.getRewardPacket());
     }
 }

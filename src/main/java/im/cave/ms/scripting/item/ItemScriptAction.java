@@ -7,8 +7,8 @@ import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.QuestStatus;
-import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.network.packet.QuestPacket;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.scripting.AbstractPlayerInteraction;
 import im.cave.ms.tools.Randomizer;
 
@@ -56,7 +56,7 @@ public class ItemScriptAction extends AbstractPlayerInteraction {
     public void addHonerPoint() {
         if (itemId == 2431174) {
             c.getPlayer().addHonerPoint(Randomizer.rand(20, 120));
-            c.getPlayer().announce(PlayerPacket.inventoryRefresh(true));
+            c.getPlayer().announce(UserPacket.inventoryRefresh(true));
         }
     }
 }

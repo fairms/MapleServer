@@ -22,7 +22,6 @@ public class InPacket {
         this.byteBuf = byteBuf;
     }
 
-
     public InPacket(byte[] data) {
         this(Unpooled.copiedBuffer(data));
     }

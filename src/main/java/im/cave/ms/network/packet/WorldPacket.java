@@ -7,13 +7,12 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.field.FieldEffect;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.items.Item;
-import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.constants.GameConstants;
-import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DimensionalMirror;
 import im.cave.ms.enums.DropEnterType;
@@ -31,6 +30,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static im.cave.ms.constants.ServerConstants.NEXON_IP;
 import static im.cave.ms.enums.DropEnterType.Instant;
 import static im.cave.ms.enums.MessageType.DROP_PICKUP_MESSAGE;
 import static im.cave.ms.enums.MessageType.INC_EXP_MESSAGE;
@@ -41,7 +41,8 @@ import static im.cave.ms.enums.MessageType.INC_EXP_MESSAGE;
  * @Package im.cave.ms.connection.packet
  * @date 11/20 21:58
  */
-public class ChannelPacket {
+public class WorldPacket {
+
     public static OutPacket getWarpToMap(MapleCharacter player, boolean firstLoggedIn) {
         return getWarpToMap(player, true, null, 0, firstLoggedIn);
     }
@@ -106,7 +107,6 @@ public class ChannelPacket {
 
         return outPacket;
     }
-
 
     public static OutPacket initFamiliar(MapleCharacter chr) {
         OutPacket outPacket = new OutPacket();
@@ -255,7 +255,6 @@ public class ChannelPacket {
         return outPacket;
     }
 
-
     public static OutPacket serverMsg(String content, ServerMsgType type) {
         return serverMsg(content, type, null);
     }
@@ -288,7 +287,6 @@ public class ChannelPacket {
         return outPacket;
     }
 
-
     public static OutPacket debugMsg(String content) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.DEBUG_MSG.getValue());
@@ -300,7 +298,6 @@ public class ChannelPacket {
         outPacket.writeMapleAsciiString(content);
         return outPacket;
     }
-
 
     public static OutPacket serverNotice(String content) {
         OutPacket outPacket = new OutPacket();
@@ -317,7 +314,6 @@ public class ChannelPacket {
         return outPacket;
     }
 
-
     public static OutPacket dropEnterField(Drop drop, DropEnterType dropEnterType, Position posFrom) {
         return dropEnterField(drop, dropEnterType, posFrom, posFrom);
     }
@@ -326,11 +322,10 @@ public class ChannelPacket {
         return dropEnterField(drop, dropEnterType, posFrom, posTo, 0, false);
     }
 
-
     public static OutPacket dropEnterField(Drop drop, DropEnterType dropEnterType, Position posFrom, Position posTo, int delay, boolean canBePickByPet) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.DROP_ENTER_FIELD.getValue());
-        outPacket.writeBool(drop.isMoney());
+        outPacket.writeBool(false);
         outPacket.write(dropEnterType.getVal());
         outPacket.writeInt(drop.getObjectId());
         outPacket.writeBool(drop.isMoney());
@@ -420,7 +415,6 @@ public class ChannelPacket {
         return outPacket;
     }
 
-
     public static OutPacket resultInstanceTable(String requestStr, int type, int subType, int value) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.RESULT_INSTANCE_TABLE.getValue());
@@ -456,7 +450,6 @@ public class ChannelPacket {
         return outPacket;
     }
 
-
     public static OutPacket quickMove(boolean town) {
         OutPacket outPacket = new OutPacket();
         List<QuickMoveInfo> quickMoveInfos = GameConstants.getQuickMoveInfos();
@@ -477,7 +470,6 @@ public class ChannelPacket {
         }
         return outPacket;
     }
-
 
     public static OutPacket openTrunk(int npcId, Account account) {
         OutPacket outPacket = new OutPacket();
@@ -520,7 +512,6 @@ public class ChannelPacket {
         }
         return outPacket;
     }
-
 
     public static OutPacket eventMessage(String msg, int type, int duration) {
         OutPacket outPacket = new OutPacket();
@@ -583,37 +574,37 @@ public class ChannelPacket {
         return outPacket;
     }
 
-    public static OutPacket charAttack(MapleCharacter player, AttackInfo attackInfo) {
+    public static OutPacket getChannelChange(int port) {
         OutPacket outPacket = new OutPacket();
-        switch (attackInfo.attackHeader) {
-            case RANGED_ATTACK:
-            case CLOSE_RANGE_ATTACK:
-            case MAGIC_ATTACK:
-
-        }
-        outPacket.write(attackInfo.fieldKey);
-        outPacket.write(attackInfo.mobCount << 4 | attackInfo.hits);
-        outPacket.writeInt(player.getLevel());
-        outPacket.write(attackInfo.skillLevel);
-        if (attackInfo.skillLevel > 0) {
-            outPacket.writeInt(attackInfo.skillId);
-        }
-        if (SkillConstants.isZeroSkill(attackInfo.skillId)) {
-            outPacket.write(attackInfo.zero);
-            if (attackInfo.zero != 0) {
-                outPacket.writePos(player.getPosition());
-            }
-        }
-//        if (attackInfo.attackHeader == OutHeader.REMOTE_SHOOT_ATTACK &&
-//                (SkillConstants.getAdvancedCountHyperSkill(ai.skillId) != 0 ||
-//                        SkillConstants.getAdvancedAttackCountHyperSkill(ai.skillId) != 0 ||
-//                        SkillConstants.isShikigamiHauntingSkill(ai.skillId))) {
-//            outPacket.encodeByte(ai.passiveSLV);
-//            if (ai.passiveSLV > 0) {
-//                outPacket.encodeInt(ai.passiveSkillID);
-//            }
-//        }
+        outPacket.writeShort(SendOpcode.CHANGE_CHANNEL.getValue());
+        outPacket.write(1);
+        outPacket.write(NEXON_IP);
+        outPacket.writeShort(port);
         return outPacket;
     }
 
+    public static OutPacket startBattleAnalysis() {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.BATTLE_ANALYSIS.getValue());
+        outPacket.write(1);
+        return outPacket;
+    }
+
+    public static OutPacket fieldEffect(FieldEffect effect) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.FIELD_EFFECT.getValue());
+        effect.encode(outPacket);
+        return outPacket;
+    }
+
+    public static OutPacket fieldMessage(int itemId, String message, int duration) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.FIELD_MESSAGE.getValue());
+        outPacket.write(0);
+        outPacket.writeInt(itemId);
+        outPacket.writeMapleAsciiString(message);
+        outPacket.writeInt(duration);
+        outPacket.write(0);
+        return outPacket;
+    }
 }

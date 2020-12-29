@@ -8,7 +8,9 @@ import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.MapleMap;
+import im.cave.ms.client.field.Portal;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.mob.Mob;
@@ -18,6 +20,7 @@ import im.cave.ms.client.items.Item;
 import im.cave.ms.client.job.MapleJob;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.client.skill.AttackInfo;
+import im.cave.ms.client.skill.HitInfo;
 import im.cave.ms.client.skill.MobAttackInfo;
 import im.cave.ms.client.skill.Skill;
 import im.cave.ms.client.skill.SkillInfo;
@@ -32,11 +35,12 @@ import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.ChannelPacket;
-import im.cave.ms.network.packet.MaplePacketCreator;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
+import im.cave.ms.network.packet.UserRemote;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
 import im.cave.ms.network.packet.opcode.SendOpcode;
+import im.cave.ms.network.server.CommandHandler;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Position;
@@ -65,38 +69,44 @@ import static im.cave.ms.network.packet.opcode.RecvOpcode.RANGED_ATTACK;
  * @Package im.cave.ms.net.handler.channel
  * @date 12/1 14:59
  */
-public class PlayerHandler {
-    private static final Logger log = LoggerFactory.getLogger(PlayerHandler.class);
+public class UserHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(UserHandler.class);
 
     public static void handleHit(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        inPacket.skip(4);
-        inPacket.skip(4);
+        HitInfo hitInfo = new HitInfo();
+        inPacket.skip(8);
         player.setTick(inPacket.readInt());
-        byte type = inPacket.readByte();
-        byte element = inPacket.readByte();
+        short unk = inPacket.readShort(); // FF 00
         int damage = inPacket.readInt();
+        hitInfo.hpDamage = damage;
         if (JobConstants.isGmJob(player.getJobId())) {
             return;
         }
         inPacket.skip(2);
         if (inPacket.available() >= 13) {
-            int objId = inPacket.readInt();
-            int mobId = inPacket.readInt();
+            hitInfo.mobID = inPacket.readInt();
+            hitInfo.templateID = inPacket.readInt();
             inPacket.skip(4);   //objId
+            if (inPacket.available() >= 1) {
+                hitInfo.specialEffectSkill = inPacket.readByte();
+            }
         }
         HashMap<MapleStat, Long> stats = new HashMap<>();
         int curHp = (int) player.getStat(MapleStat.HP);
         int newHp = curHp - damage;
         if (newHp <= 0) {
             newHp = 0;
-            c.announce(PlayerPacket.sendRebirthConfirm(true, false,
+            c.announce(UserPacket.sendRebirthConfirm(true, false,
                     false, false
                     , false, 0, 0));
         }
         player.setStat(MapleStat.HP, newHp);
         stats.put(MapleStat.HP, (long) newHp);
-        c.announce(MaplePacketCreator.updatePlayerStats(stats, player));
+        c.announce(UserPacket.updatePlayerStats(stats, player));
+        player.getMap().broadcastMessage(player, UserRemote.hit(player, hitInfo), false);
+
     }
 
     public static void handleAttack(InPacket inPacket, MapleClient c, RecvOpcode opcode) {
@@ -207,6 +217,19 @@ public class PlayerHandler {
         if (!player.applyMpCon(skillId, attackInfo.skillLevel)) {
             return;
         }
+
+        if (attackInfo.attackHeader != null) {
+            switch (attackInfo.attackHeader) {
+//                case SUMMONED_ATTACK:
+//                    chr.getField().broadcastPacket(Summoned.summonedAttack(chr.getId(), attackInfo, false), chr);
+//                    break;
+//                case FAMILIAR_ATTACK:
+//                    chr.getField().broadcastPacket(CFamiliar.familiarAttack(chr.getId(), attackInfo), chr);
+//                    break;
+                default:
+                    player.getMap().broadcastMessage(player, UserRemote.attack(player, attackInfo), false);
+            }
+        }
         for (MobAttackInfo mobAttackInfo : attackInfo.mobAttackInfo) {
             MapleMap map = player.getMap();
             Mob mob = (Mob) map.getObj(mobAttackInfo.objectId);
@@ -238,7 +261,7 @@ public class PlayerHandler {
         }
         if (killedCount >= 3) {
             //todo
-            player.announce(PlayerPacket.stylishKillMessage(1000, killedCount));
+            player.announce(UserPacket.stylishKillMessage(1000, killedCount));
             player.addExp(1000, null);
         }
 
@@ -252,7 +275,7 @@ public class PlayerHandler {
 //                    chr.getField().broadcastPacket(CFamiliar.familiarAttack(chr.getId(), attackInfo), chr);
 //                    break;
                 default:
-                    player.getMap().broadcastMessage(player, ChannelPacket.charAttack(player, attackInfo), false);
+                    player.getMap().broadcastMessage(player, UserRemote.attack(player, attackInfo), false);
             }
         }
     }
@@ -270,9 +293,8 @@ public class PlayerHandler {
         movementInfo.applyTo(player);
         player.chatMessage(ChatType.Tip, player.getPosition().toString());
         player.getMap().sendMapObjectPackets(player);
-        player.getMap().broadcastMessage(player, PlayerPacket.move(player, movementInfo), false);
+        player.getMap().broadcastMessage(player, UserPacket.move(player, movementInfo), false);
     }
-
 
     public static void handleWorldMapTransfer(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
@@ -298,10 +320,10 @@ public class PlayerHandler {
         int charId = inPacket.readInt();
         MapleCharacter chr = player.getMap().getPlayer(charId);
         if (chr == null) {
-            c.announce(ChannelPacket.serverMsg("角色不存在", ServerMsgType.ALERT));
+            c.announce(WorldPacket.serverMsg("角色不存在", ServerMsgType.ALERT));
             return;
         }
-        c.announce(PlayerPacket.charInfo(chr));
+        c.announce(UserRemote.charInfo(chr));
     }
 
     /*
@@ -314,7 +336,7 @@ public class PlayerHandler {
             return;
         }
         player.setChairId(id);
-        c.announce(PlayerPacket.cancelChair(player.getId(), id));
+        c.announce(UserPacket.cancelChair(player.getId(), id));
     }
 
     public static void handleUseChair(InPacket inPacket, MapleClient c) {
@@ -322,7 +344,7 @@ public class PlayerHandler {
         outPacket.writeInt(SendOpcode.SIT_RESULT.getValue());
         outPacket.writeInt(0);
         c.announce(outPacket);
-        c.announce(MaplePacketCreator.enableActions());
+        c.announce(UserPacket.enableActions());
     }
 
     public static void handlePickUp(InPacket inPacket, MapleClient c) {
@@ -351,11 +373,11 @@ public class PlayerHandler {
         Inventory inventory = player.getEquippedInventory();
         Equip equip = (Equip) inventory.getItem((short) pos);
         if (equip == null) {
-            c.announce(MaplePacketCreator.enableActions());
+            c.announce(UserPacket.enableActions());
             return;
         }
         equip.setShowEffect(!equip.isShowEffect());
-        c.announce(PlayerPacket.hiddenEffectEquips(player));
+        c.announce(UserPacket.hiddenEffectEquips(player));
     }
 
     public static void handleSkillUp(InPacket inPacket, MapleClient c) {
@@ -441,12 +463,11 @@ public class PlayerHandler {
             }
         }
 
-        c.announce(MaplePacketCreator.updatePlayerStats(stats, player));
+        c.announce(UserPacket.updatePlayerStats(stats, player));
         player.addSkill(skill);
-        c.announce(PlayerPacket.changeSkillRecordResult(skill));
+        c.announce(UserPacket.changeSkillRecordResult(skill));
 
     }
-
 
     //自动回复
     public static void handleChangeStatRequest(InPacket inPacket, MapleClient c) {
@@ -468,7 +489,7 @@ public class PlayerHandler {
         if (updatedStats.containsKey(MapleStat.MP)) {
             player.healMP(Math.toIntExact(updatedStats.get(MapleStat.MP)));
         }
-//        c.announce(MaplePacketCreator.updatePlayerStats(updatedStats, player));
+//        c.announce(UserPacket.updatePlayerStats(updatedStats, player));
     }
 
     public static void handleChangeQuickslot(InPacket inPacket, MapleClient c) {
@@ -511,14 +532,29 @@ public class PlayerHandler {
         int skillId = inPacket.readInt();
         int skillLevel = inPacket.readInt();
         if (player.applyMpCon(skillId, skillLevel) && player.isSkillInCd(skillId)) {
+            player.getMap().broadcastMessage(UserRemote.effect(player.getId(), Effect.skillUse(skillId, (byte) skillLevel, 0)));
             SkillInfo skillInfo = SkillData.getSkillInfo(skillId);
             MapleJob sourceJobHandler = player.getJobHandler();
             if (sourceJobHandler.isBuff(skillId) && skillInfo.isMassSpell()) {
                 Rect rect = skillInfo.getFirstRect();
-//                if (r != null) {
-//                    playxer.getRectAround(rect);
-//                }
-                //组队BUFF
+                if (rect != null) {
+                    Rect rectAround = player.getRectAround(rect);
+//                    for (PartyMember pm : chr.getParty().getOnlineMembers()) {
+//                        if (pm.getChr() != null
+//                                && pm.getFieldID() == chr.getFieldID()
+//                                && rectAround.hasPositionInside(pm.getChr().getPosition())) {
+//                            Char ptChr = pm.getChr();
+//                            Effect effect = Effect.skillAffected(skillID, slv, 0);
+//                            if (ptChr != chr) { // Caster shouldn't get the Affected Skill Effect
+//                                chr.getField().broadcastPacket(
+//                                        UserPacket.effect(ptChr.getId(), effect)
+//                                        , ptChr);
+//                                ptChr.write(User.effect(effect));
+//                            }
+//                            sourceJobHandler.handleSkill(pm.getChr().getClient(), skillID, slv, inPacket);
+//                        }
+//                    }
+                }
                 sourceJobHandler.handleSkill(c, skillId, skillLevel, inPacket);
 
             } else {
@@ -554,9 +590,9 @@ public class PlayerHandler {
         player.addStat(charStat, amount);
         player.addStat(MapleStat.AVAILABLEAP, (short) -1);
         Map<MapleStat, Long> stats = new HashMap<>();
-        stats.put(charStat, (long) player.getStat(charStat));
-        stats.put(MapleStat.AVAILABLEAP, (long) player.getStat(MapleStat.AVAILABLEAP));
-        c.announce(MaplePacketCreator.updatePlayerStats(stats, true, player));
+        stats.put(charStat, player.getStat(charStat));
+        stats.put(MapleStat.AVAILABLEAP, player.getStat(MapleStat.AVAILABLEAP));
+        c.announce(UserPacket.updatePlayerStats(stats, true, player));
     }
 
     public static void handleAPMassUpdateRequest(InPacket inPacket, MapleClient c) {
@@ -590,11 +626,10 @@ public class PlayerHandler {
         player.addStat(charStat, addStat);
         player.addStat(MapleStat.AVAILABLEAP, -amount);
         Map<MapleStat, Long> stats = new HashMap<>();
-        stats.put(charStat, (long) player.getStat(charStat));
-        stats.put(MapleStat.AVAILABLEAP, (long) player.getStat(MapleStat.AVAILABLEAP));
-        c.announce(MaplePacketCreator.updatePlayerStats(stats, true, player));
+        stats.put(charStat, player.getStat(charStat));
+        stats.put(MapleStat.AVAILABLEAP, player.getStat(MapleStat.AVAILABLEAP));
+        c.announce(UserPacket.updatePlayerStats(stats, true, player));
     }
-
 
     public static void handleUserRequestCharacterPotentialSkillRandSetUi(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
@@ -640,7 +675,7 @@ public class PlayerHandler {
                 cpm.addPotential(cpm.generateRandomPotential(cp.getKey()));
             }
         }
-        c.announce(PlayerPacket.noticeMsg("内在能力重新设置成功。"));
+        c.announce(UserPacket.noticeMsg("内在能力重新设置成功。"));
     }
 
     public static void handleUserDamageSkinSaveRequest(InPacket inPacket, MapleClient c) {
@@ -652,10 +687,10 @@ public class PlayerHandler {
             error = DamageSkinType.DamageSkinSave_Fail_SlotCount;
         }
         if (error != null) {
-            player.announce(PlayerPacket.damageSkinSaveResult(DamageSkinType.DamageSkinSaveReq_Reg, error, null));
+            player.announce(UserPacket.damageSkinSaveResult(DamageSkinType.DamageSkinSaveReq_Reg, error, null));
         } else {
             player.getDamageSkinByItemID(damageSkin.getItemID()).setNotSave(false);
-            player.announce(PlayerPacket.damageSkinSaveResult(DamageSkinType.DamageSkinSaveReq_Active,
+            player.announce(UserPacket.damageSkinSaveResult(DamageSkinType.DamageSkinSaveReq_Active,
                     DamageSkinType.DamageSkinSave_Success, player));
         }
     }
@@ -673,8 +708,68 @@ public class PlayerHandler {
         value.put("date", "2079/01/01 00:00:00:000");
         value.put("expired", "0");
         player.addQuestEx(QUEST_EX_NICK_ITEM, value);
-        c.announce(PlayerPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_NICK_ITEM, player.getQuestsExStorage().get(QUEST_EX_NICK_ITEM), (byte) 0));
+        c.announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_NICK_ITEM, player.getQuestsExStorage().get(QUEST_EX_NICK_ITEM), (byte) 0));
     }
 
+    public static void handleUserActivateDamageSkin(InPacket inPacket, MapleClient c) {
+        int damageSkinId = inPacket.readInt();
+        MapleCharacter chr = c.getPlayer();
+        chr.setDamageSkin(chr.getDamageSkinBySkinId(damageSkinId));
+        chr.announce(UserPacket.setDamageSkin(chr));
+    }
 
+    public static void handleUserEnterPortalRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        if (inPacket.available() != 0) {
+            byte type = inPacket.readByte();
+            int targetId = inPacket.readInt();
+            String portalName = inPacket.readMapleAsciiString();
+            if (portalName != null && !"".equals(portalName)) {
+                Portal portal = player.getMap().getPortal(portalName);
+                portal.enterPortal(c);
+            } else if (player.getHp() <= 0) {
+                int returnMap = player.getMap().getReturnMap();
+                player.changeMap(returnMap);
+                player.heal(50);
+            }
+        }
+    }
+
+    public static void handleUserGeneralChat(InPacket inPacket, MapleClient c) {
+        int tick = inPacket.readInt();
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            c.close();
+            return;
+        }
+        player.setTick(tick);
+        String content = inPacket.readMapleAsciiString();
+
+        if (content.startsWith("@")) {
+            CommandHandler.handle(c, content);
+            return;
+        }
+
+        player.getMap().broadcastMessage(player, UserRemote.getChatText(player, content), true);
+    }
+
+    public static void handleUserEnterPortalSpecialRequest(InPacket inPacket, MapleClient c) {
+        byte type = inPacket.readByte();
+        String portalName = inPacket.readMapleAsciiString();
+        Portal portal = c.getPlayer().getMap().getPortal(portalName);
+        if (portal == null) {
+            c.announce(UserPacket.enableActions());
+            return;
+        }
+        if (c.getPlayer().isChangingChannel()) {
+            c.announce(UserPacket.enableActions());
+            return;
+        }
+
+        portal.enterPortal(c);
+
+    }
 }

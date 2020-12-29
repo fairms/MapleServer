@@ -5,6 +5,7 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.Familiar;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.Portal;
@@ -38,10 +39,10 @@ import im.cave.ms.enums.SpecStat;
 import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.network.db.InlinedIntArrayConverter;
 import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.ChannelPacket;
 import im.cave.ms.network.packet.LoginPacket;
-import im.cave.ms.network.packet.MaplePacketCreator;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
+import im.cave.ms.network.packet.UserRemote;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.server.Server;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.network.server.world.World;
@@ -364,7 +365,7 @@ public class MapleCharacter implements Serializable {
                     rec = true;
                 }
                 existingItem.addQuantity(quantity);
-                announce(PlayerPacket.inventoryOperation(true, false, InventoryOperation.UPDATE_QUANTITY, (short) existingItem.getPos(), (short) -1, 0, existingItem));
+                announce(UserPacket.inventoryOperation(true, false, InventoryOperation.UPDATE_QUANTITY, (short) existingItem.getPos(), (short) -1, 0, existingItem));
                 if (rec) {
                     addItemToInv(item);
                 }
@@ -385,7 +386,7 @@ public class MapleCharacter implements Serializable {
 
                 }
                 inventory.addItem(item);
-                announce(PlayerPacket.inventoryOperation(true, false, InventoryOperation.ADD, (short) item.getPos(), (short) -1, 0, item));
+                announce(UserPacket.inventoryOperation(true, false, InventoryOperation.ADD, (short) item.getPos(), (short) -1, 0, item));
                 if (rec) {
                     addItemToInv(itemCopy);
                 }
@@ -507,6 +508,7 @@ public class MapleCharacter implements Serializable {
 
     public void changeMap(MapleMap map, byte portal, boolean load) {
         getVisibleMapObjs().clear();
+        getVisibleChar().clear();
         if (getMap() != null) {
             getMap().removePlayer(this);
         }
@@ -514,19 +516,19 @@ public class MapleCharacter implements Serializable {
         Portal targetPortal = map.getPortal(portal) == null ? map.getDefaultPortal() : map.getPortal(portal);
         setPosition(new Position(targetPortal.getX(), targetPortal.getY()));
         if (load) {
-            announce(ChannelPacket.getWarpToMap(this, true));
+            announce(WorldPacket.getWarpToMap(this, true));
         } else {
-            announce(ChannelPacket.getWarpToMap(this, map, portal));
+            announce(WorldPacket.getWarpToMap(this, map, portal));
         }
         map.addPlayer(this);
         announce(LoginPacket.account(getAccount()));
-        announce(MaplePacketCreator.keymapInit(this));
-        announce(MaplePacketCreator.quickslotInit(this));
-        announce(PlayerPacket.initSkillMacro());
-        announce(PlayerPacket.updateVoucher(this));
+        announce(UserPacket.keymapInit(this));
+        announce(UserPacket.quickslotInit(this));
+        announce(UserPacket.initSkillMacro());
+        announce(UserPacket.updateVoucher(this));
         map.sendMapObjectPackets(this);
-        announce(PlayerPacket.hiddenEffectEquips(this)); //broadcast?
-        announce(ChannelPacket.quickMove(map.isTown()));
+        announce(UserPacket.hiddenEffectEquips(this)); //broadcast?
+        announce(WorldPacket.quickMove(map.isTown()));
     }
 
     public void announce(OutPacket outPacket) {
@@ -575,7 +577,7 @@ public class MapleCharacter implements Serializable {
     }
 
     public void chatMessage(ChatType type, String content) {
-        announce(ChannelPacket.chatMessage(content, type));
+        announce(WorldPacket.chatMessage(content, type));
     }
 
     public void chatMessage(String msg) {
@@ -709,8 +711,8 @@ public class MapleCharacter implements Serializable {
         if (drop.isMoney()) {
             addMeso(drop.getMoney());
             getQuestManager().handleMoneyGain(drop.getMoney());
-            announce(ChannelPacket.dropPickupMessage(drop.getMoney(), (short) 0, (short) 0));
-            announce(PlayerPacket.inventoryRefresh(true));
+            announce(WorldPacket.dropPickupMessage(drop.getMoney(), (short) 0, (short) 0));
+            announce(UserPacket.inventoryRefresh(true));
         } else {
             Item item = drop.getItem();
             int itemId = item.getItemId();
@@ -722,7 +724,7 @@ public class MapleCharacter implements Serializable {
                 isRunOnPickUp = ii.getSpecStats().getOrDefault(SpecStat.runOnPickup, 0) != 0;
             }
             if (isConsume) {
-                announce(MaplePacketCreator.enableActions());
+                announce(UserPacket.enableActions());
             } else if (isRunOnPickUp) {
                 String script = String.valueOf(itemId);
                 int npcID = 0;
@@ -732,7 +734,7 @@ public class MapleCharacter implements Serializable {
                     npcID = itemInfo.getNpcID();
                 }
                 ItemScriptManager.getInstance().startScript(itemId, script, npcID, client);
-                announce(ChannelPacket.dropPickupMessage(item, false, (short) item.getQuantity()));
+                announce(WorldPacket.dropPickupMessage(item, false, (short) item.getQuantity()));
             } else if (getInventory(item.getInvType()).canPickUp(item)) {
                 if (item instanceof Equip) {
                     Equip equip = (Equip) item;
@@ -742,7 +744,7 @@ public class MapleCharacter implements Serializable {
                     }
                 }
                 addItemToInv(item, false);
-                announce(ChannelPacket.dropPickupMessage(item, true, (short) item.getQuantity()));
+                announce(WorldPacket.dropPickupMessage(item, true, (short) item.getQuantity()));
             }
         }
     }
@@ -756,7 +758,7 @@ public class MapleCharacter implements Serializable {
             Map<MapleStat, Long> stats = new HashMap<>();
             setMeso(newMeso);
             stats.put(MapleStat.MESO, newMeso);
-            announce(MaplePacketCreator.updatePlayerStats(stats, true, this));
+            announce(UserPacket.updatePlayerStats(stats, true, this));
         }
     }
 
@@ -781,7 +783,7 @@ public class MapleCharacter implements Serializable {
             stats.put(MapleStat.LEVEL, getStat(MapleStat.LEVEL));
             level++;
             getJobHandler().handleLevelUp();
-//            getMap().broadcastMessage(ChannelPacket.effect(getId()));
+            getMap().broadcastMessage(UserRemote.effect(getId(), Effect.levelUpEffect()));
             heal(getMaxHP());
             healMP(getMaxMP());
         }
@@ -790,9 +792,9 @@ public class MapleCharacter implements Serializable {
         if (expIncreaseInfo != null) {
             int expFromR = 0;
             expIncreaseInfo.setIndieBonusExp(expFromR);
-            announce(ChannelPacket.incExpMessage(expIncreaseInfo));
+            announce(WorldPacket.incExpMessage(expIncreaseInfo));
         }
-        announce(MaplePacketCreator.updatePlayerStats(stats, this));
+        announce(UserPacket.updatePlayerStats(stats, this));
     }
 
     private void setExp(long newExp) {
@@ -815,10 +817,10 @@ public class MapleCharacter implements Serializable {
             item.setQuantity(0);
             inventory.removeItem(item);
             short pos = (short) item.getPos();
-            announce(PlayerPacket.inventoryOperation(true, false, REMOVE, pos, (short) 0, 0, item));
+            announce(UserPacket.inventoryOperation(true, false, REMOVE, pos, (short) 0, 0, item));
         } else {
             item.setQuantity(item.getQuantity() - 1);
-            announce(PlayerPacket.inventoryOperation(true, false, UPDATE_QUANTITY, (short) item.getPos(), (short) -1, 0, item));
+            announce(UserPacket.inventoryOperation(true, false, UPDATE_QUANTITY, (short) item.getPos(), (short) -1, 0, item));
         }
     }
 
@@ -840,7 +842,7 @@ public class MapleCharacter implements Serializable {
             setStat(MapleStat.MP, newMP);
             stats.put(MapleStat.MP, (long) newMP);
         }
-        announce(MaplePacketCreator.updatePlayerStats(stats, this));
+        announce(UserPacket.updatePlayerStats(stats, this));
     }
 
     public void healMP(int amount) {
@@ -850,7 +852,7 @@ public class MapleCharacter implements Serializable {
         Map<MapleStat, Long> stats = new HashMap<>();
         setStat(MapleStat.MP, newMP);
         stats.put(MapleStat.MP, (long) newMP);
-        announce(MaplePacketCreator.updatePlayerStats(stats, this));
+        announce(UserPacket.updatePlayerStats(stats, this));
     }
 
     public void addSpToJobByCurrentLevel(int num) {
@@ -1015,7 +1017,7 @@ public class MapleCharacter implements Serializable {
         this.map = null;
         Server.getInstance().addClientInTransfer(channel, getId(), getClient());
         int port = Server.getInstance().getChannel(world, channel).getPort();
-        announce(MaplePacketCreator.getChannelChange(port));
+        announce(WorldPacket.getChannelChange(port));
     }
 
     public boolean applyMpCon(int skillId, int skillLevel) {
@@ -1036,11 +1038,11 @@ public class MapleCharacter implements Serializable {
         addStat(stat, amount);
         HashMap<MapleStat, Long> stats = new HashMap<>();
         stats.put(stat, getStat(stat));
-        announce(MaplePacketCreator.updatePlayerStats(stats, true, this));
+        announce(UserPacket.updatePlayerStats(stats, true, this));
     }
 
     public void dropMessage(String message) {
-        announce(ChannelPacket.serverNotice(message));
+        announce(WorldPacket.serverNotice(message));
     }
 
 
@@ -1116,7 +1118,7 @@ public class MapleCharacter implements Serializable {
         setJob(job);
         HashMap<MapleStat, Long> stats = new HashMap<>();
         stats.put(MapleStat.JOB, (long) getJobId());
-        announce(MaplePacketCreator.updatePlayerStats(stats, this));
+        announce(UserPacket.updatePlayerStats(stats, this));
     }
 
     public boolean hasSkill(int skill) {
@@ -1162,7 +1164,7 @@ public class MapleCharacter implements Serializable {
             value.put(skill, "1");
         }
         addQuestEx(QUEST_EX_SKILL_STATE, value);
-        announce(PlayerPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_SKILL_STATE, questsExStorage.get(QUEST_EX_SKILL_STATE), (byte) 0));
+        announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_SKILL_STATE, questsExStorage.get(QUEST_EX_SKILL_STATE), (byte) 0));
     }
 
     public void buildQuestEx() {
@@ -1229,12 +1231,12 @@ public class MapleCharacter implements Serializable {
             options.put("count", "1");
             buildQuestExStorage();
         }
-        announce(PlayerPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_MOB_KILL_COUNT, questsExStorage.get(QUEST_EX_MOB_KILL_COUNT), (byte) 0));
+        announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_MOB_KILL_COUNT, questsExStorage.get(QUEST_EX_MOB_KILL_COUNT), (byte) 0));
     }
 
     public void comboKill(int objectId) {
         combo++;
-        announce(PlayerPacket.comboKillMessage(objectId, combo));
+        announce(UserPacket.comboKillMessage(objectId, combo));
     }
 
 
@@ -1247,7 +1249,7 @@ public class MapleCharacter implements Serializable {
         if (stats.getHonerPoint() < 0) {
             stats.setHonerPoint(0);
         }
-        announce(MaplePacketCreator.updateHonerPoint(stats.getHonerPoint()));
+        announce(UserPacket.updateHonerPoint(stats.getHonerPoint()));
     }
 
     public int getTotalChuc() {
@@ -1310,4 +1312,9 @@ public class MapleCharacter implements Serializable {
         }
     }
 
+    public Rect getRectAround(Rect rect) {
+        int x = getPosition().getX();
+        int y = getPosition().getY();
+        return new Rect(x + rect.getLeft(), y + rect.getTop(), x + rect.getRight(), y + rect.getBottom());
+    }
 }

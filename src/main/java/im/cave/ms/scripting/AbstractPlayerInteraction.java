@@ -27,7 +27,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.ChatType;
-import im.cave.ms.network.packet.ChannelPacket;
+import im.cave.ms.network.packet.WorldPacket;
 
 import java.util.Calendar;
 
@@ -72,11 +72,11 @@ public class AbstractPlayerInteraction {
     }
 
     public void serverMsg(String content) {
-        c.announce(ChannelPacket.chatMessage(content, ChatType.Tip));
+        c.announce(WorldPacket.chatMessage(content, ChatType.Tip));
     }
 
     public void dropMessage(Integer content) {
-        c.announce(ChannelPacket.chatMessage(String.valueOf(content), ChatType.Tip));
+        c.announce(WorldPacket.chatMessage(String.valueOf(content), ChatType.Tip));
     }
 
     public void dropMessage(String content) {
@@ -95,7 +95,7 @@ public class AbstractPlayerInteraction {
     }
 
     public void openUnityPortal() {
-        c.announce(ChannelPacket.unityPortal());
+        c.announce(WorldPacket.unityPortal());
     }
 
     public void warp(int mapId) {

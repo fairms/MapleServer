@@ -31,23 +31,23 @@ public class PortalScriptManager extends AbstractScriptManager {
 
     private Invocable getPortalScript(String scriptName, MapleClient c) {
         String scriptPath = String.format("portal/%s.js", scriptName);
-        Invocable nse = scripts.get(scriptPath);
-        if (nse != null) {
-            return nse;
+        Invocable iv = scripts.get(scriptPath);
+        if (iv != null) {
+            return iv;
         }
-        nse = getInvocable(scriptPath, c);
-        if (nse == null) {
+        iv = getInvocable(scriptPath, c);
+        if (iv == null) {
             return null;
         }
-        scripts.put(scriptPath, nse);
-        return nse;
+        scripts.put(scriptPath, iv);
+        return iv;
     }
 
     public boolean executePortalScript(Portal portal, MapleClient client) {
         try {
-            Invocable nse = getPortalScript(portal.getScript(), client);
-            if (nse != null) {
-                return (boolean) nse.invokeFunction("enter", new PortalPlayerInteraction(client, portal));
+            Invocable iv = getPortalScript(portal.getScript(), client);
+            if (iv != null) {
+                return (boolean) iv.invokeFunction("enter", new PortalPlayerInteraction(client, portal));
             } else {
                 MapleCharacter player = client.getPlayer();
                 client.getPlayer().dropMessage("地图:" + player.getMapId() + " 传送口:" + portal.getScript());

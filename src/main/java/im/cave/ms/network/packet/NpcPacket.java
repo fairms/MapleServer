@@ -169,7 +169,6 @@ public class NpcPacket {
         return outPacket;
     }
 
-
     public static OutPacket removeNpc(int objId) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.REMOVE_NPC.getValue());
@@ -197,7 +196,6 @@ public class NpcPacket {
         }
         return outPacket;
     }
-
 
     public static OutPacket npcAnimation(int npcId, byte oneTimeAction, byte chatIdx, int duration, MovementInfo movement, byte keyPadState) {
         OutPacket outPacket = new OutPacket();

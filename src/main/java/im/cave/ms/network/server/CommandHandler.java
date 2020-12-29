@@ -12,8 +12,8 @@ import im.cave.ms.config.Config;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.ChannelPacket;
-import im.cave.ms.network.packet.MaplePacketCreator;
+import im.cave.ms.network.packet.UserPacket;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.network.server.world.World;
 import im.cave.ms.provider.data.ItemData;
@@ -40,7 +40,7 @@ public class CommandHandler {
         switch (s[0]) {
             case "save":
                 c.getPlayer().saveToDB();
-                c.announce(ChannelPacket.chatMessage("保存角色", Notice));
+                c.announce(WorldPacket.chatMessage("保存角色", Notice));
                 break;
             case "chat":
                 if (s.length < 2) {
@@ -51,7 +51,7 @@ public class CommandHandler {
                 if (chatType == null) {
                     return;
                 }
-                c.announce(ChannelPacket.chatMessage("3:3:3" + chatType, chatType));
+                c.announce(WorldPacket.chatMessage("3:3:3" + chatType, chatType));
                 break;
             case "mob":
                 if (s.length < 2) {
@@ -92,7 +92,7 @@ public class CommandHandler {
             case "ea":
                 c.getPlayer().setConversation(false);
                 QuestScriptManager.getInstance().dispose(c);
-                c.announce(MaplePacketCreator.enableActions());
+                c.announce(UserPacket.enableActions());
                 break;
             case "item":
                 if (s.length < 2) {
@@ -171,7 +171,7 @@ public class CommandHandler {
                 MapleSignIn.initSignRewards();
                 break;
             case "em":
-                c.getMapleChannel().broadcast(ChannelPacket.eventMessage("测试测试", 2, 3000));
+                c.getMapleChannel().broadcast(WorldPacket.eventMessage("测试测试", 2, 3000));
                 break;
         }
     }

@@ -3,7 +3,7 @@ package im.cave.ms.client.quest.reward;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.enums.MessageType;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
 
 /**
  * Created on 3/6/2018.
@@ -31,7 +31,7 @@ public class QuestPopReward implements QuestReward {
     @Override
     public void giveReward(MapleCharacter chr) {
         chr.addStat(MapleStat.FAME, getPop());
-        chr.announce(PlayerPacket.message(MessageType.INC_POP_MESSAGE, getPop(), null, (byte) 0));
+        chr.announce(UserPacket.message(MessageType.INC_POP_MESSAGE, getPop(), null, (byte) 0));
     }
 
 }

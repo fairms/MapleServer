@@ -1,9 +1,12 @@
 package im.cave.ms.network.packet;
 
 import im.cave.ms.client.field.obj.mob.Mob;
+import im.cave.ms.client.field.obj.mob.MobSkillAttackInfo;
+import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.RemoveMobType;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
+import im.cave.ms.tools.Position;
 
 
 /**
@@ -35,9 +38,9 @@ public class MobPacket {
     }
 
 
-    public static OutPacket moveMob(int objId, int moveId, boolean useSkill, int currentMp, int skillId, short skillLevel) {
+    public static OutPacket mobCtrlAck(int objId, int moveId, boolean useSkill, int currentMp, int skillId, short skillLevel) {
         OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MOVE_MONSTER_RESPONSE.getValue());
+        outPacket.writeShort(SendOpcode.MOB_CONTROL_ACK.getValue());
         outPacket.writeInt(objId);
         outPacket.writeShort(moveId);
         outPacket.writeBool(useSkill);
@@ -91,4 +94,19 @@ public class MobPacket {
         return outPacket;
     }
 
+    public static OutPacket moveMobRemote(Mob mob, MobSkillAttackInfo msai, MovementInfo movementInfo) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.MOB_MOVE.getValue());
+        outPacket.writeInt(mob.getObjectId());
+        outPacket.write(msai.actionAndDirMask);
+        outPacket.write(msai.action);
+        outPacket.writeLong(msai.targetInfo);
+        outPacket.writeZeroBytes(6);
+        outPacket.write(msai.multiTargetForBalls.size());
+        for (Position pos : msai.multiTargetForBalls) {
+            outPacket.writePos(pos);
+        }
+        movementInfo.encode(outPacket);
+        return outPacket;
+    }
 }

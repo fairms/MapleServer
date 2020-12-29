@@ -21,8 +21,7 @@ import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ScrollStat;
 import im.cave.ms.enums.SpecStat;
 import im.cave.ms.network.netty.InPacket;
-import im.cave.ms.network.packet.MaplePacketCreator;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.scripting.item.ItemScriptManager;
 import im.cave.ms.tools.Position;
@@ -40,6 +39,8 @@ import static im.cave.ms.enums.InventoryOperation.UPDATE_QUANTITY;
 import static im.cave.ms.enums.InventoryType.EQUIP;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
 
+;
+
 /**
  * @author fair
  * @version V1.0
@@ -47,6 +48,7 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
  * @date 11/29 22:00
  */
 public class InventoryHandler {
+
     public static void handleChangeInvPos(MapleClient c, InPacket inPacket) {
         MapleCharacter player = c.getPlayer();
         player.setTick(inPacket.readInt());
@@ -85,9 +87,9 @@ public class InventoryHandler {
             drop.setCanBePickedUpByPet(false);
             map.drop(drop, position, new Position(position.getX(), fh.getYFromX(position.getX())));
             if (fullDrop) {
-                c.announce(PlayerPacket.inventoryOperation(true, false, REMOVE, oldPos, newPos, 0, item));
+                c.announce(UserPacket.inventoryOperation(true, false, REMOVE, oldPos, newPos, 0, item));
             } else {
-                c.announce(PlayerPacket.inventoryOperation(true, false, UPDATE_QUANTITY, oldPos, newPos, 0, item));
+                c.announce(UserPacket.inventoryOperation(true, false, UPDATE_QUANTITY, oldPos, newPos, 0, item));
             }
         } else {
             Item swapItem = player.getInventory(invTypeTo).getItem(newPos < 0 ? (short) -newPos : newPos);
@@ -106,7 +108,7 @@ public class InventoryHandler {
             if (swapItem != null) {
                 swapItem.setPos(oldPos);
             }
-            c.announce(PlayerPacket.inventoryOperation(true, false, MOVE, oldPos, newPos, 0, item));
+            c.announce(UserPacket.inventoryOperation(true, false, MOVE, oldPos, newPos, 0, item));
         }
 
     }
@@ -154,11 +156,11 @@ public class InventoryHandler {
                 player.consumeItem(ItemConstants.SPELL_TRACE_ID, scrollUpgradeInfo.getCost());
                 boolean success = scrollUpgradeInfo.applyTo(equip);
                 equip.reCalcEnchantmentStats();
-                player.announce(PlayerPacket.showScrollUpgradeResult(false, success ? 1 : 0, scrollUpgradeInfo.getTitle(), prevEquip, equip));
+                player.announce(UserPacket.showScrollUpgradeResult(false, success ? 1 : 0, scrollUpgradeInfo.getTitle(), prevEquip, equip));
                 equip.updateToChar(player);
                 if (equip.getBaseStat(tuc) > 0) {
                     scrolls = ItemConstants.getScrollUpgradeInfosByEquip(equip);
-                    c.announce(PlayerPacket.scrollUpgradeDisplay(false, scrolls));
+                    c.announce(UserPacket.scrollUpgradeDisplay(false, scrolls));
                 }
                 break;
             }
@@ -170,7 +172,7 @@ public class InventoryHandler {
                     return;
                 }
                 List<ScrollUpgradeInfo> scrolls = ItemConstants.getScrollUpgradeInfosByEquip(equip);
-                c.announce(PlayerPacket.scrollUpgradeDisplay(false, scrolls));
+                c.announce(UserPacket.scrollUpgradeDisplay(false, scrolls));
                 break;
             case ScrollTimerEffective:
                 break;
@@ -213,7 +215,7 @@ public class InventoryHandler {
         Map<ScrollStat, Integer> vals = ItemData.getItemInfoById(scrollId).getScrollStats();
         if (vals.size() > 0) {
             if (equip.getBaseStat(tuc) <= 0) {
-                player.announce(PlayerPacket.inventoryRefresh(true));
+                player.announce(UserPacket.inventoryRefresh(true));
                 return;
             }
             int chance = vals.getOrDefault(ScrollStat.success, 100);
@@ -260,7 +262,7 @@ public class InventoryHandler {
             equip.removeAttribute(EquipAttribute.ProtectionScroll);
             equip.removeAttribute(EquipAttribute.LuckyDay);
             equip.removeAttribute(EquipAttribute.UpgradeCountProtection);
-            c.announce(MaplePacketCreator.showItemUpgradeEffect(player.getId(), success, false, scrollId, equip.getItemId(), boom));
+            c.announce(UserPacket.showItemUpgradeEffect(player.getId(), success, false, scrollId, equip.getItemId(), boom));
             if (!boom) {
                 equip.reCalcEnchantmentStats();
                 equip.updateToChar(player);
@@ -330,10 +332,20 @@ public class InventoryHandler {
             }
 
             equip.updateToChar(player);
-            c.announce(MaplePacketCreator.showItemUpgradeEffect(player.getId(), success, false, flame.getItemId(), equip.getItemId(), false));
+            c.announce(UserPacket.showItemUpgradeEffect(player.getId(), success, false, flame.getItemId(), equip.getItemId(), false));
 
             player.consumeItem(flame);
         }
 
+    }
+
+    //todo 谜之蛋
+    public static void handleUserOpenMysteryEgg(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        short pos = inPacket.readShort();
+        Item item = player.getConsumeInventory().getItem(pos);
+        int itemId = inPacket.readInt();
+        byte unk = inPacket.readByte();
+        player.consumeItem(itemId, 1);
     }
 }

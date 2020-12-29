@@ -10,8 +10,8 @@ import im.cave.ms.client.quest.reward.QuestItemReward;
 import im.cave.ms.client.quest.reward.QuestReward;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.QuestStatus;
-import im.cave.ms.network.packet.PlayerPacket;
 import im.cave.ms.network.packet.QuestPacket;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.provider.data.QuestData;
 import lombok.Getter;
 import lombok.Setter;
@@ -194,8 +194,8 @@ public class QuestManager {
         quest.setStatus(QuestStatus.Completed);
         quest.setCompletedTime(System.currentTimeMillis());
         chr.chatMessage(ChatType.Tip, "[Info] Completed quest " + quest.getQrKey());
-//        chr.getMap().broadcastMessage(UserRemote.effect(chr.getId(), Effect.questCompleteEffect()));
-        chr.announce(PlayerPacket.effect(Effect.questCompleteEffect()));
+//        chr.getMap().broadcastMessage(UserPacket.effect(chr.getId(), Effect.questCompleteEffect()));
+        chr.announce(UserPacket.effect(Effect.questCompleteEffect()));
         chr.announce(QuestPacket.questRecordMessage(quest));
         if (questInfo != null) {
             for (QuestReward qr : questInfo.getQuestRewards()) {

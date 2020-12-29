@@ -65,7 +65,6 @@ public class PacketHelper {
     public static final long ZERO_TIME = 94354848000000000L;
     public static final long PERMANENT = 150841440000000000L;
 
-
     public static void addCharEntry(OutPacket outPacket, MapleCharacter chr) {
         addCharStats(outPacket, chr);
         outPacket.writeZeroBytes(12);
@@ -251,7 +250,6 @@ public class PacketHelper {
 
     }
 
-    //todo
     public static void addCharSP(OutPacket outPacket, MapleCharacter chr) {
         int[] remainingSps = chr.getRemainingSps();
         if (JobConstants.isExtendSpJob(chr.getJobId())) {
@@ -265,23 +263,6 @@ public class PacketHelper {
         } else {
             outPacket.writeShort(remainingSps[0]);
         }
-    }
-
-
-    /**
-     * 时间
-     */
-    public static long getTime(long realTimestamp) {
-
-        if (realTimestamp == -1) {
-            return MAX_TIME; //00 80 05 BB 46 E6 17 02
-        } else if (realTimestamp == -2) {
-            return ZERO_TIME; //00 40 E0 FD 3B 37 4F 01
-        } else if (realTimestamp == -3) {
-            return PERMANENT; //00 C0 9B 90 7D E5 17 02
-        }
-
-        return DateUtil.getFileTimestamp(realTimestamp);
     }
 
     public static void addCharInfo(OutPacket outPacket, MapleCharacter chr) {
@@ -871,5 +852,22 @@ public class PacketHelper {
             outPacket.write(familiar != null ? familiar.getGrade() : 0);     //品级 0=C 1=B 2=A 3=S 4=SS
         }
     }
+
+    /**
+     * 时间
+     */
+    public static long getTime(long realTimestamp) {
+
+        if (realTimestamp == -1) {
+            return MAX_TIME; //00 80 05 BB 46 E6 17 02
+        } else if (realTimestamp == -2) {
+            return ZERO_TIME; //00 40 E0 FD 3B 37 4F 01
+        } else if (realTimestamp == -3) {
+            return PERMANENT; //00 C0 9B 90 7D E5 17 02
+        }
+
+        return DateUtil.getFileTimestamp(realTimestamp);
+    }
+
 }
 

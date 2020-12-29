@@ -3,7 +3,7 @@ package im.cave.ms.client.items;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Familiar;
 import im.cave.ms.enums.InventoryType;
-import im.cave.ms.network.packet.PlayerPacket;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.provider.data.ItemData;
 import lombok.Getter;
 import lombok.Setter;
@@ -107,7 +107,7 @@ public class Item implements Serializable {
 
     public void updateToChar(MapleCharacter player) {
         short bagIndex = (short) (getInvType() == EQUIPPED ? -getPos() : getPos());
-        player.announce(PlayerPacket.inventoryOperation(true, false, ADD,
+        player.announce(UserPacket.inventoryOperation(true, false, ADD,
                 bagIndex, (short) 0, 0, this));
     }
 

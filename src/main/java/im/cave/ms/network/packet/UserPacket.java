@@ -2,6 +2,7 @@ package im.cave.ms.network.packet;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
@@ -15,16 +16,22 @@ import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryOperation;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MessageType;
-import im.cave.ms.network.netty.InPacket;
+import im.cave.ms.network.crypto.TripleDESCipher;
 import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.opcode.RecvOpcode;
 import im.cave.ms.network.packet.opcode.SendOpcode;
+import im.cave.ms.tools.Randomizer;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import static im.cave.ms.constants.ServerConstants.DESKEY;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
 import static im.cave.ms.network.packet.PacketHelper.MAX_TIME;
 
@@ -34,8 +41,91 @@ import static im.cave.ms.network.packet.PacketHelper.MAX_TIME;
  * @Package im.cave.ms.net.packet.opcode
  * @date 11/29 22:25
  */
-public class PlayerPacket {
+public class UserPacket {
+    public static final Map<MapleStat, Long> EMPTY_STATUS = Collections.emptyMap();
 
+    public static OutPacket enableActions() {
+        return updatePlayerStats(EMPTY_STATUS, true, null);
+    }
+
+    public static OutPacket updatePlayerStats(Map<MapleStat, Long> stats, MapleCharacter chr) {
+        return updatePlayerStats(stats, false, chr);
+    }
+
+    public static OutPacket updatePlayerStats(Map<MapleStat, Long> stats, boolean enableActions, MapleCharacter chr) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.UPDATE_STATS.getValue());
+        outPacket.write(enableActions ? 1 : 0);
+
+        outPacket.write(0); //unk
+
+        long mask = 0;
+        for (MapleStat stat : stats.keySet()) {
+            mask |= stat.getValue();
+        }
+        outPacket.writeLong(mask);
+        Comparator<MapleStat> comparator = Comparator.comparingLong(MapleStat::getValue);
+        TreeMap<MapleStat, Long> sortedStats = new TreeMap<>(comparator);
+        sortedStats.putAll(stats);
+        for (Map.Entry<MapleStat, Long> entry : sortedStats.entrySet()) {
+            MapleStat stat = entry.getKey();
+            long value = entry.getValue();
+            switch (stat) {
+                case SKIN:
+                    outPacket.write((byte) value);
+                    break;
+                case FACE:
+                case HAIR:
+                case HP:
+                case MAXHP:
+                case MP:
+                case MAXMP:
+                case FAME:
+                case CHARISMA:
+                case CHARM:
+                case WILL:
+                case SENSE:
+                case INSIGHT:
+                case CRAFT:
+                case LEVEL:
+                case ICE_GAGE:
+                case JOB:
+                    outPacket.writeInt((int) value);
+                    break;
+                case STR:
+                case DEX:
+                case INT:
+                case LUK:
+                case AVAILABLEAP:
+                case FATIGUE:
+                    outPacket.writeShort((int) value);
+                    break;
+                case AVAILABLESP:
+                    PacketHelper.addCharSP(outPacket, chr);
+                    break;
+                case EXP:
+                case MESO:
+                    outPacket.writeLong(value);
+                    break;
+                case TODAYS_TRAITS:
+                    outPacket.writeZeroBytes(21); //限制
+                    break;
+            }
+        }
+        outPacket.write(chr != null ? chr.getHairColorBase() : -1);
+        outPacket.write(chr != null ? chr.getHairColorMixed() : 0);
+        outPacket.write(chr != null ? chr.getHairColorProb() : 0);
+
+
+        outPacket.write(0);
+        if (mask == 0 || !enableActions) { //unknown
+            outPacket.write(0);
+        }
+        outPacket.write(0);
+
+        return outPacket;
+
+    }
 
     public static OutPacket inventoryOperation(boolean exclRequestSent, boolean notRemoveAddInfo,
                                                InventoryOperation type,
@@ -107,12 +197,11 @@ public class PlayerPacket {
 
     public static OutPacket move(MapleCharacter player, MovementInfo movementInfo) {
         OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MOVE_PLAYER.getValue());
+        outPacket.writeShort(SendOpcode.REMOTE_MOVE.getValue());
         outPacket.writeInt(player.getId());
         movementInfo.encode(outPacket);
         return outPacket;
     }
-
 
     public static OutPacket lockUI(boolean enable) {
         OutPacket outPacket = new OutPacket();
@@ -140,48 +229,6 @@ public class PlayerPacket {
         outPacket.writeInt(chr.getAccount().getVoucher());
         return outPacket;
     }
-
-    //角色信息面板
-    public static OutPacket charInfo(MapleCharacter chr) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CHAR_INFO.getValue());
-        outPacket.writeInt(chr.getId());
-        outPacket.writeInt(chr.getLevel());
-        outPacket.writeShort(chr.getJobId());
-        outPacket.writeShort(0);//sub job
-        outPacket.write(0x0A); //pvp grade
-        outPacket.writeInt(chr.getFame());
-        outPacket.writeBool(false); //marriage
-        //todo marriage = true
-        outPacket.write(0); //making skill size
-        outPacket.writeMapleAsciiString("-"); //party name
-        outPacket.writeMapleAsciiString(""); // 联盟
-        outPacket.write(-1); //unk
-        outPacket.write(0);  //unk
-        outPacket.write(0); //pet size
-        //todo pet info
-        outPacket.write(0);
-        outPacket.writeInt(0); //装备的的勋章
-        outPacket.writeShort(0); //收藏数目
-        //todo 收藏任务id+完成时间
-        chr.encodeDamageSkins(outPacket);
-        //倾向
-        outPacket.write(1);
-        outPacket.write(2);
-        outPacket.write(3);
-        outPacket.write(4);
-        outPacket.write(5);
-        outPacket.write(6);
-        //
-        outPacket.write(0);
-        outPacket.writeZeroBytes(8);
-
-        outPacket.writeInt(0);//椅子数
-        outPacket.writeInt(0);//勋章数
-
-        return outPacket;
-    }
-
 
     public static OutPacket cancelChair(int charId, short id) {
         OutPacket outPacket = new OutPacket();
@@ -276,7 +323,6 @@ public class PlayerPacket {
         skills.put(skillId, 0);
         return skillCoolTimes(skills);
     }
-
 
     public static OutPacket removeBuff(TemporaryStatManager tsm, boolean demount) {
         OutPacket outPacket = new OutPacket();
@@ -380,7 +426,6 @@ public class PlayerPacket {
         return outPacket;
     }
 
-
     public static OutPacket inventoryRefresh(boolean excl) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
@@ -408,13 +453,6 @@ public class PlayerPacket {
         outPacket.writeMapleAsciiString(desc);
         PacketHelper.addItemInfo(outPacket, prevEquip);
         PacketHelper.addItemInfo(outPacket, equip);
-        return outPacket;
-    }
-
-    public static OutPacket updateQuestEx(int questId) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.UPDATE_QUEST_EX.getValue());
-        outPacket.writeInt(questId);
         return outPacket;
     }
 
@@ -453,14 +491,7 @@ public class PlayerPacket {
         return outPacket;
     }
 
-    public static void handleUserActivateDamageSkin(InPacket inPacket, MapleClient c) {
-        int damageSkinId = inPacket.readInt();
-        MapleCharacter chr = c.getPlayer();
-        chr.setDamageSkin(chr.getDamageSkinBySkinId(damageSkinId));
-        chr.announce(PlayerPacket.setDamageSkin(chr));
-    }
-
-    private static OutPacket setDamageSkin(MapleCharacter chr) {
+    public static OutPacket setDamageSkin(MapleCharacter chr) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.SET_DAMAGE_SKIN.getValue());
         outPacket.writeInt(chr.getId());
@@ -481,6 +512,99 @@ public class PlayerPacket {
             }
         } else if (req == DamageSkinType.DamageSkinSaveReq_SendInfo) {
             chr.encodeDamageSkins(outPacket);
+        }
+        return outPacket;
+    }
+
+    public static OutPacket updateHonerPoint(int honerPoint) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CHARACTER_HONOR_POINT.getValue());
+        outPacket.writeInt(honerPoint);
+        return outPacket;
+    }
+
+    public static OutPacket showItemUpgradeEffect(int charId, boolean success, boolean enchantDlg, int uItemId, int eItemId, boolean boom) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SHOW_ITEM_UPGRADE_EFFECT.getValue());
+        outPacket.writeInt(charId);
+        outPacket.write(boom ? 2 : success ? 1 : 0);
+        outPacket.writeBool(enchantDlg);
+        outPacket.writeInt(uItemId);
+        outPacket.writeInt(eItemId);
+        outPacket.write(0);
+        return outPacket;
+    }
+
+    public static OutPacket keymapInit(MapleCharacter character) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.KEYMAP_INIT.getValue());
+        character.getKeyMap().encode(outPacket);
+        return outPacket;
+    }
+
+    public static OutPacket quickslotInit(MapleCharacter player) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.QUICKSLOT_INIT.getValue());
+        boolean edited = player.getQuickslots() != null && player.getQuickslots().size() == 32;
+        outPacket.writeBool(edited);
+        if (player.getQuickslots() != null) {
+            for (Integer key : player.getQuickslots()) {
+                outPacket.writeInt(key);
+            }
+        }
+        return outPacket;
+    }
+
+    public static OutPacket openWorldMap() {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.OPEN_WORLDMAP.getValue());
+        outPacket.writeInt(0);
+        return outPacket;
+    }
+
+    public static OutPacket encodeOpcodes(MapleClient client) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.OPCODE_TABLE.getValue());
+        outPacket.writeInt(4); //block size
+        List<Integer> used = new ArrayList<>();
+        StringBuilder sOpcodes = new StringBuilder();
+        for (int i = RecvOpcode.BEGIN.getValue(); i < RecvOpcode.END.getValue(); i++) {
+            int opcode = Randomizer.rand(RecvOpcode.BEGIN.getValue(), 9999);
+            while (used.contains(opcode)) {
+                opcode = Randomizer.rand(RecvOpcode.BEGIN.getValue(), 9999);
+            }
+            String sOpcode = String.format("%04d", opcode);
+            if (!used.contains(opcode)) {
+                client.mEncryptedOpcode.put(opcode, i);
+                used.add(opcode);
+                sOpcodes.append(sOpcode);
+            }
+        }
+        used.clear();
+
+        TripleDESCipher tripleDESCipher = new TripleDESCipher(DESKEY);
+        try {
+            byte[] buffer = new byte[Short.MAX_VALUE + 1];
+            byte[] encrypt = tripleDESCipher.Encrypt(sOpcodes.toString().getBytes());
+            System.arraycopy(encrypt, 0, buffer, 0, encrypt.length);
+            for (int i = encrypt.length; i < buffer.length; i++) {
+                buffer[i] = 0;
+            }
+            outPacket.writeInt(buffer.length);
+            outPacket.write(buffer);
+        } catch (Exception e) {
+            e.printStackTrace();
+            client.close();
+        }
+        return outPacket;
+    }
+
+    public static OutPacket updateEventNameTag() {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CANCEL_TITLE_EFFECT.getValue());
+        for (int i = 0; i < 5; i++) {
+            outPacket.writeShort(0);
+            outPacket.write(-1);
         }
         return outPacket;
     }

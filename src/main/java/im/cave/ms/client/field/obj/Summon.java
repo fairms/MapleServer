@@ -249,7 +249,7 @@ public class Summon extends MapleMapObj {
 //                break;
 //        }
 //        chr.write(User.effect(Effect.skillAffected(skillID, (byte) 1, getObjectId())));
-//        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffected(skillID, (byte) 1, getObjectId())));
+//        chr.getField().broadcastPacket(UserPacket.effect(chr.getId(), Effect.skillAffected(skillID, (byte) 1, getObjectId())));
 //    }
 
     public void onHit(int damage, int mobTemplateId) {
