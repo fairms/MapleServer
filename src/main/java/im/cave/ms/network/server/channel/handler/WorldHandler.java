@@ -10,6 +10,7 @@ import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.job.JobManager;
+import im.cave.ms.client.miniroom.TradeRoom;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.SkillConstants;
@@ -18,9 +19,11 @@ import im.cave.ms.enums.InstanceTableType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MessageType;
+import im.cave.ms.enums.MiniRoomType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.LoginPacket;
+import im.cave.ms.network.packet.MiniRoomPacket;
 import im.cave.ms.network.packet.QuestPacket;
 import im.cave.ms.network.packet.SummonPacket;
 import im.cave.ms.network.packet.UserPacket;
@@ -319,5 +322,43 @@ public class WorldHandler {
         player.buildQuestEx();
         c.getAccount().buildSharedQuestEx();
         c.announce(MapleSignIn.getRewardPacket());
+    }
+
+    public static void handleMiniRoom(InPacket inPacket, MapleClient c) {
+        byte val = inPacket.readByte();
+        MapleCharacter player = c.getPlayer();
+        MiniRoomType type = MiniRoomType.getByVal(val);
+        if (type == null) {
+            log.error("Unknown MiniRoom Type {}", val);
+            return;
+        }
+        TradeRoom tradeRoom = (TradeRoom) player.getMiniRoom();
+        switch (type) {
+            case TradeInviteRequest:
+                int charId = inPacket.readInt();
+                MapleCharacter other = player.getMap().getCharById(charId);
+                if (other == null) {
+                    player.chatMessage("Could not find that player.");
+                    return;
+                }
+                other.announce(MiniRoomPacket.tradeInvite(player));
+                tradeRoom = new TradeRoom(player, other);
+                player.setMiniRoom(tradeRoom);
+                other.setMiniRoom(tradeRoom);
+                break;
+            case ExitTrade:
+                if (tradeRoom != null) {
+                    tradeRoom.cancelTrade();
+                    tradeRoom.getOtherChar(player).announce(MiniRoomPacket.cancelTrade(false));
+                }
+                break;
+            case Create:
+                if (tradeRoom == null) {
+                    player.chatMessage("Your trade partner cancelled the trade.");
+                    return;
+                }
+                player.announce(MiniRoomPacket.enterTrade(tradeRoom, player));
+                break;
+        }
     }
 }

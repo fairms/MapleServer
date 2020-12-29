@@ -271,10 +271,6 @@ public class MapleMap {
         getObjScheduledFutures().remove(obj);
     }
 
-    public MapleCharacter getPlayer(int charId) {
-        return Util.findWithPred(characters, character -> character.getId() == charId);
-    }
-
     public void drop(Drop drop, Position posFrom, Position posTo) {
         drop(drop, posFrom, posTo, false);
     }
@@ -501,5 +497,9 @@ public class MapleMap {
 
     public List<MapleCharacter> getCharInRect(Rect rect) {
         return getCharacters().stream().filter(character -> rect.hasPositionInside(character.getPosition())).collect(Collectors.toList());
+    }
+
+    public MapleCharacter getCharById(int charId) {
+        return Util.findWithPred(characters, character -> character.getId() == charId);
     }
 }

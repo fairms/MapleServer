@@ -141,4 +141,10 @@ public class Inventory {
                 .findFirst()
                 .orElse(null);
     }
+
+    public Inventory deepCopy() {
+        Inventory inventory = new Inventory(getType(), getSlots());
+        inventory.setItems(new CopyOnWriteArrayList<>(getItems()));
+        return inventory;
+    }
 }

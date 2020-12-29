@@ -201,6 +201,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case USER_SKILL_CANCEL_REQUEST:
                 UserHandler.handleCancelBuff(inPacket, c);
                 break;
+            case USER_ADD_FAME_REQUEST:
+                UserHandler.handleUserAddFameRequest(inPacket, c);
+                break;
             case CHAR_INFO_REQUEST:
                 UserHandler.handleCharInfoReq(inPacket, c);
                 break;
@@ -212,6 +215,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 break;
             case CHANGE_QUICKSLOT:
                 UserHandler.handleChangeQuickslot(inPacket, c);
+                break;
+            case MINI_ROOM:
+                WorldHandler.handleMiniRoom(inPacket, c);
                 break;
             case CHANGE_KEYMAP:
                 UserHandler.handleChangeKeyMap(inPacket, c);
@@ -237,8 +243,8 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case CANCEL_CHAIR:
                 UserHandler.cancelChair(inPacket, c);
                 break;
-            case USE_CHAIR:
-                UserHandler.handleUseChair(inPacket, c);
+            case USER_SIT_REQUEST:
+                UserHandler.handleUserSitRequest(inPacket, c);
                 break;
             case PICK_UP_ITEM:
                 UserHandler.handlePickUp(inPacket, c);

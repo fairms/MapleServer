@@ -318,7 +318,7 @@ public class UserHandler {
         }
         player.setTick(inPacket.readInt());
         int charId = inPacket.readInt();
-        MapleCharacter chr = player.getMap().getPlayer(charId);
+        MapleCharacter chr = player.getMap().getCharById(charId);
         if (chr == null) {
             c.announce(WorldPacket.serverMsg("角色不存在", ServerMsgType.ALERT));
             return;
@@ -339,7 +339,7 @@ public class UserHandler {
         c.announce(UserPacket.cancelChair(player.getId(), id));
     }
 
-    public static void handleUseChair(InPacket inPacket, MapleClient c) {
+    public static void handleUserSitRequest(InPacket inPacket, MapleClient c) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeInt(SendOpcode.SIT_RESULT.getValue());
         outPacket.writeInt(0);
@@ -700,13 +700,22 @@ public class UserHandler {
         int itemId = inPacket.readInt();
         short pos = inPacket.readShort();
         Item item = player.getInstallInventory().getItem(pos);
-        if (item == null || item.getId() != itemId) {
+        if ((item == null || item.getItemId() != itemId) && itemId != 0) {
             return;
+        }
+        String date;
+        String expired;
+        if (itemId == 0) {
+            date = "0";
+            expired = "1";
+        } else {
+            date = "2079/01/01 00:00:00:000";
+            expired = "0";
         }
         HashMap<String, String> value = new HashMap<>();
         value.put("id", String.valueOf(itemId));
-        value.put("date", "2079/01/01 00:00:00:000");
-        value.put("expired", "0");
+        value.put("date", date);
+        value.put("expired", expired);
         player.addQuestEx(QUEST_EX_NICK_ITEM, value);
         c.announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_NICK_ITEM, player.getQuestsExStorage().get(QUEST_EX_NICK_ITEM), (byte) 0));
     }
@@ -771,5 +780,20 @@ public class UserHandler {
 
         portal.enterPortal(c);
 
+    }
+
+    public static void handleUserAddFameRequest(InPacket inPacket, MapleClient c) {
+        int charId = inPacket.readInt();
+        MapleCharacter player = c.getPlayer();
+        MapleCharacter other = player.getMap().getCharById(charId);
+        if (other == null) {
+            player.chatMessage("找不到角色");
+            return;
+        }
+        byte mode = inPacket.readByte();
+        int fameChange = mode == 0 ? -1 : 1;
+        other.addStatAndSendPacket(MapleStat.FAME, fameChange);
+        player.announce(UserPacket.addFameResponse(player, mode, other.getFame()));
+        other.announce(UserPacket.receiveFame(mode, player.getName()));
     }
 }

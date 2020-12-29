@@ -541,7 +541,6 @@ public class WorldPacket {
         outPacket.writeInt(0);
         PacketHelper.addCharLook(outPacket, chr, false, false);
         outPacket.writeShort(0);
-        outPacket.write(0);
         outPacket.write(-1);
         outPacket.writeInt(0);
         outPacket.write(-1);

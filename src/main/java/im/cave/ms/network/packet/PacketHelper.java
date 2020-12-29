@@ -82,7 +82,6 @@ public class PacketHelper {
 //        outPacket.writeInt(second ? chr.getSecondHair() : chr.getHair());
         outPacket.writeInt(chr.getHair());
 
-
         Map<Byte, Integer> myEquip = new LinkedHashMap<>();
         Map<Byte, Integer> maskedEquip = new LinkedHashMap<>();
         Map<Byte, Integer> totemEquip = new LinkedHashMap<>();
@@ -159,7 +158,6 @@ public class PacketHelper {
         Item subWeapon = equip.getItem((byte) 10);
         outPacket.writeInt(subWeapon != null ? subWeapon.getItemId() : 0);
         //是否显示精灵耳朵
-        outPacket.writeBool(false);
         outPacket.writeZeroBytes(20);
 
         if (JobConstants.isXenon(chr.getJobId()) || JobConstants.isDemon(chr.getJobId())) {

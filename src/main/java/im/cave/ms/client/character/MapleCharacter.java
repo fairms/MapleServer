@@ -18,6 +18,7 @@ import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemInfo;
 import im.cave.ms.client.job.JobManager;
 import im.cave.ms.client.job.MapleJob;
+import im.cave.ms.client.miniroom.MiniRoom;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.client.skill.Skill;
@@ -214,6 +215,8 @@ public class MapleCharacter implements Serializable {
     private final Map<Integer, String> entered = new HashMap<>();
     @Transient
     private boolean isConversation = false;
+    @Transient
+    private MiniRoom miniRoom;
     @Transient
     private Position position;
     @Transient
@@ -1316,5 +1319,49 @@ public class MapleCharacter implements Serializable {
         int x = getPosition().getX();
         int y = getPosition().getY();
         return new Rect(x + rect.getLeft(), y + rect.getTop(), x + rect.getRight(), y + rect.getBottom());
+    }
+
+    public boolean canHold(List<Item> items) {
+        return canHold(items, deepCopyForInvCheck());
+    }
+
+    private boolean canHold(List<Item> items, MapleCharacter deepCopiedChar) {
+        // explicitly use a Char param to avoid accidentally adding items
+        if (items.size() == 0) {
+            return true;
+        }
+        Item item = items.get(0);
+        if (canHold(item.getItemId())) {
+            Inventory inv = deepCopiedChar.getInventory(item.getInvType());
+            inv.addItem(item);
+            items.remove(item);
+            return deepCopiedChar.canHold(items, deepCopiedChar);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean canHold(int id) {
+        boolean canHold;
+        if (ItemConstants.isEquip(id)) {  //Equip
+            canHold = getEquipInventory().getSlots() > getEquipInventory().getItems().size();
+        } else {    //Item
+            ItemInfo ii = ItemData.getItemInfoById(id);
+            Inventory inv = getInventory(ii.getInvType());
+            Item curItem = inv.getItemByItemID(id);
+            canHold = (curItem != null && curItem.getQuantity() + 1 < ii.getSlotMax()) || inv.getSlots() > inv.getItems().size();
+        }
+        return canHold;
+    }
+
+    private MapleCharacter deepCopyForInvCheck() {
+        MapleCharacter chr = new MapleCharacter();
+        chr.setEquippedInventory(getEquippedInventory().deepCopy());
+        chr.setEquipInventory(getEquipInventory().deepCopy());
+        chr.setConsumeInventory(getConsumeInventory().deepCopy());
+        chr.setEtcInventory(getEtcInventory().deepCopy());
+        chr.setInstallInventory(getInstallInventory().deepCopy());
+        chr.setCashInventory(getCashInventory().deepCopy());
+        return chr;
     }
 }

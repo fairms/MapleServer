@@ -608,4 +608,24 @@ public class UserPacket {
         }
         return outPacket;
     }
+
+    public static OutPacket addFameResponse(MapleCharacter other, int mode, int newFame) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.FAME_RESPONSE.getValue());
+        outPacket.write(0);
+        outPacket.writeMapleAsciiString(other.getName());
+        outPacket.write(mode);
+        outPacket.writeInt(newFame);
+        return outPacket;
+    }
+
+    public static OutPacket receiveFame(int mode, String charName) {
+
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.FAME_RESPONSE.getValue());
+        outPacket.write(5);
+        outPacket.writeMapleAsciiString(charName);
+        outPacket.write(mode);
+        return outPacket;
+    }
 }
