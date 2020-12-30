@@ -85,12 +85,11 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
         RecvOpcode opcode = RecvOpcode.getOpcode(op);
         if (opcode == null) {
             handleUnknown(inPacket, (short) op);
-//            inPacket.release();
             return;
         }
         switch (opcode) {
-            case USER_ENTER_WORLD:
-                WorldHandler.handleUserEnterWorld(inPacket, c);
+            case USER_ENTER_SERVER:
+                WorldHandler.handleUserEnterServer(inPacket, c, ServerType.CHANNEL);
                 break;
             case ERROR_PACKET:
                 ErrorPacketHandler.handlePacket(inPacket);
@@ -116,8 +115,8 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case USER_QUEST_REQUEST:
                 EventManager.addEvent(() -> QuestHandler.handleQuestRequest(inPacket, c), 0);
                 break;
-            case ENTER_PORTAL:
-                UserHandler.handleUserEnterPortalRequest(inPacket, c);
+            case USER_TRANSFER_FIELD_REQUEST:
+                UserHandler.handleChangeMapRequest(inPacket, c);
                 break;
             case USER_REQUEST_INSTANCE_TABLE:
                 WorldHandler.handleInstanceTableRequest(inPacket, c);
@@ -125,8 +124,8 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case USER_REQUEST_CHARACTER_POTENTIAL_SKILL_RAND_SET_UI:
                 UserHandler.handleUserRequestCharacterPotentialSkillRandSetUi(inPacket, c);
                 break;
-            case CHANGE_CHANNEL:
-                WorldHandler.handleChangeChannel(inPacket, c);
+            case USER_TRANSFER_CHANNEL_REQUEST:
+                WorldHandler.handleChangeChannelRequest(inPacket, c);
                 break;
             case MOB_MOVE:
                 MobHandler.handleMobMove(inPacket, c);

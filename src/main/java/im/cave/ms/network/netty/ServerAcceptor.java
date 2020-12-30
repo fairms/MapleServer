@@ -20,6 +20,10 @@ public class ServerAcceptor implements Runnable {
     public AbstractServer server;
     private static final Logger log = LoggerFactory.getLogger(ServerAcceptor.class);
 
+    public ServerAcceptor(AbstractServer server) {
+        this.server = server;
+    }
+
     @Override
     public void run() {
         EventLoopGroup bossGroup = new NioEventLoopGroup();

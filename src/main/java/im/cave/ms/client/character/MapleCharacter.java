@@ -1010,6 +1010,16 @@ public class MapleCharacter implements Serializable {
         setRemainingSp(sb.substring(0, sb.length() - 1));
     }
 
+    public void enterCashShop() {
+        setChangingChannel(true);
+        logout();
+        MapleMap map = getMap();
+        map.removePlayer(this);
+        map.broadcastMessage(WorldPacket.userLeaveMap(getId()));
+        Server.getInstance().addClientInTransfer((byte) channel, getId(), getClient());
+        announce(WorldPacket.getChannelChange(Server.getInstance().getCashShop(getWorld()).getPort()));
+    }
+
     public void changeChannel(byte channel) {
         changeChannelAndWarp(channel, getMapId());
     }

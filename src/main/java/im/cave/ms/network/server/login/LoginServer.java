@@ -26,8 +26,7 @@ public class LoginServer extends AbstractServer {
         super(-1, -1);
         type = ServerType.LOGIN;
         port = 8484;
-        acceptor = new ServerAcceptor();
-        acceptor.server = this;
+        acceptor = new ServerAcceptor(this);
         new Thread(acceptor).start();
         log.info("Login server listening on port {}", port);
     }

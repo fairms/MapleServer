@@ -39,9 +39,6 @@ public class ServerInitializer extends ChannelInitializer<SocketChannel> {
             case LOGIN:
                 pipeline.addLast(new LoginServerHandler());
                 break;
-            case CHAT:
-            case WORLD:
-            case AUCTION:
             case CHANNEL:
                 pipeline.addLast(new ChannelHandler(channelId, worldId));
                 break;

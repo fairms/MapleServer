@@ -53,6 +53,9 @@ public class Account {
     @JoinColumn(name = "trunkId")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Trunk trunk;
+    @JoinColumn(name = "cashTrunk")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Trunk cashTrunk;
     @ElementCollection
     @CollectionTable(name = "shared_quest_ex", joinColumns = @JoinColumn(name = "accId"))
     @MapKeyColumn(name = "qrKey")
@@ -66,6 +69,7 @@ public class Account {
         this.password = password;
         lastLogin = System.currentTimeMillis();
         trunk = new Trunk((byte) 20);
+        cashTrunk = new Trunk((byte) 124);
     }
 
     public Account() {

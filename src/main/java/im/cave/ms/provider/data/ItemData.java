@@ -1,5 +1,6 @@
 package im.cave.ms.provider.data;
 
+import im.cave.ms.client.cashshop.CashItemInfo;
 import im.cave.ms.client.character.FamiliarInfo;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
@@ -76,14 +77,19 @@ public class ItemData {
     private static final Logger log = LoggerFactory.getLogger(ItemData.class);
     private static final MapleDataProvider chrData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Character.wz"));
     private static final MapleDataProvider itemData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Item.wz"));
+    private static final MapleDataProvider etcData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Etc.wz"));
 
     public static Map<Integer, Equip> equips = new HashMap<>();
     public static Map<Integer, ItemInfo> items = new HashMap<>();
     public static Set<Integer> startItems = new HashSet<>();
     @lombok.Getter
     public static Map<Integer, ItemOption> familiarOptions = new HashMap<>();
-    private static Map<Integer, FamiliarInfo> familiars = new HashMap<>();
+    private static final Map<Integer, FamiliarInfo> familiars = new HashMap<>();
     public static Map<Integer, ItemOption> itemOptions = new HashMap<>();
+    public static Map<Integer, CashItemInfo> cashItems = new HashMap<>();
+    public static Map<Integer, CashItemInfo> oldCashItems = new HashMap<>();
+    public static Map<Integer, List<Integer>> itemPackages = new HashMap<>();
+    public static Map<Integer, Integer> snLookUp = new HashMap<>();
 
     static {
         loadStartItems();
@@ -92,6 +98,158 @@ public class ItemData {
         loadFamiliars();
         loadFamiliarOptions();
     }
+
+
+    private static void loadCashShopItems() {
+        //在售
+        MapleData commodities = etcData.getData("Commodity.img");
+        for (MapleData commodity : commodities.getChildren()) {
+            CashItemInfo itemInfo = new CashItemInfo();
+            String name = commodity.getName();
+            int value = MapleDataTool.getInt(commodity, 0);
+            switch (name) {
+                case "SN":
+                    itemInfo.setSN(value);
+                    break;
+                case "ItemId":
+                    itemInfo.setItemId(value);
+                    break;
+                case "Count":
+                    itemInfo.setCount(value);
+                    break;
+                case "Price":
+                    itemInfo.setPrice(value);
+                    break;
+                case "Bonus":
+                    itemInfo.setBonus(value);
+                    break;
+                case "Period":
+                    itemInfo.setPeriod(value);
+                    break;
+                case "Priority":
+                    itemInfo.setPriority(value);
+                    break;
+                case "ReqPOP":
+                    itemInfo.setReqPop(value);
+                    break;
+                case "ReqLEV":
+                    itemInfo.setReqLev(value);
+                    break;
+                case "Gender":
+                    itemInfo.setGender(value);
+                    break;
+                case "OnSale":
+                    itemInfo.setOnSale(value != 0);
+                    break;
+                case "Class":
+                    itemInfo.setClazz(value);
+                    break;
+                case "PbCash":
+                    itemInfo.setPbCash(value);
+                    break;
+                case "PbPoint":
+                    itemInfo.setPbPoint(value);
+                    break;
+                case "PbGift":
+                    itemInfo.setPbGift(value);
+                    break;
+                case "Refundable":
+                    itemInfo.setRefundable(value != 0);
+                    break;
+                case "WebShop":
+                    itemInfo.setWebShop(value != 0);
+                    break;
+            }
+            if (itemInfo.getSN() > 0) {
+                cashItems.put(itemInfo.getSN(), itemInfo);
+                snLookUp.put(itemInfo.getItemId(), itemInfo.getSN());
+            }
+        }
+        //礼包
+        MapleData packageData = etcData.getData("CashPackage.img");
+        for (MapleData pack : packageData.getChildren()) {
+            if (pack.getChildByPath("SN") == null) {
+                continue;
+            }
+            List<Integer> packageItems = new ArrayList<>();
+            for (MapleData sn : pack.getChildByPath("SN")) {
+                int id = MapleDataTool.getInt(sn);
+                packageItems.add(id);
+            }
+            String itemId = pack.getName();
+            itemPackages.put(Integer.valueOf(itemId), packageItems);
+        }
+        //旧数据
+        MapleDataDirectoryEntry etcDataRoot = etcData.getRoot();
+        for (MapleDataFileEntry file : etcDataRoot.getFiles()) {
+            if (file.getName().startsWith("OldCommodity")) {
+                MapleData Commodity = etcData.getData(file.getName());
+                for (MapleData child : Commodity.getChildren()) {
+                    CashItemInfo itemInfo = new CashItemInfo();
+                    String name = child.getName();
+                    int value = MapleDataTool.getInt(child);
+                    switch (name) {
+                        case "SN":
+                            itemInfo.setSN(value);
+                            break;
+                        case "ItemId":
+                            itemInfo.setItemId(value);
+                            break;
+                        case "Count":
+                            itemInfo.setCount(value);
+                            break;
+                        case "Price":
+                            itemInfo.setPrice(value);
+                            break;
+                        case "Bonus":
+                            itemInfo.setBonus(value);
+                            break;
+                        case "Period":
+                            itemInfo.setPeriod(value);
+                            break;
+                        case "Priority":
+                            itemInfo.setPriority(value);
+                            break;
+                        case "ReqPOP":
+                            itemInfo.setReqPop(value);
+                            break;
+                        case "ReqLEV":
+                            itemInfo.setReqLev(value);
+                            break;
+                        case "Gender":
+                            itemInfo.setGender(value);
+                            break;
+                        case "OnSale":
+                            itemInfo.setOnSale(value != 0);
+                            break;
+                        case "Class":
+                            itemInfo.setClazz(value);
+                            break;
+                        case "PbCash":
+                            itemInfo.setPbCash(value);
+                            break;
+                        case "PbPoint":
+                            itemInfo.setPbPoint(value);
+                            break;
+                        case "PbGift":
+                            itemInfo.setPbGift(value);
+                            break;
+                        case "Refundable":
+                            itemInfo.setRefundable(value != 0);
+                            break;
+                        case "WebShop":
+                            itemInfo.setWebShop(value != 0);
+                            break;
+                    }
+                    if (itemInfo.getSN() > 0) {
+                        oldCashItems.put(itemInfo.getSN(), itemInfo);
+                        snLookUp.put(itemInfo.getItemId(), itemInfo.getSN());
+                    }
+                }
+            }
+        }
+    }
+
 
     private static void loadFamiliars() {
         MapleDataDirectoryEntry f = (MapleDataDirectoryEntry) chrData.getRoot().getEntry("Familiar");
@@ -1206,4 +1364,7 @@ public class ItemData {
         return familiars.get(familiarCardId).getFamiliarId();
     }
 
+    public static int getSn(int itemId) {
+        return snLookUp.get(itemId);
+    }
 }

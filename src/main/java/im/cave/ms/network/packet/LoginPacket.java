@@ -52,7 +52,7 @@ public class LoginPacket {
                 outPacket.writeInt(sendIv);
                 outPacket.writeShort(4);
             }
-        } else if (type == ServerType.CHANNEL) {
+        } else {
             outPacket.writeShort(0x0E);
             outPacket.writeShort(VERSION);
             outPacket.writeMapleAsciiString(PATH);

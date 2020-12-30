@@ -29,8 +29,7 @@ public class MapleChannel extends AbstractServer {
         super(worldId, channelId);
         type = ServerType.CHANNEL;
         port = 7575 + worldId * 100 + channelId;
-        acceptor = new ServerAcceptor();
-        acceptor.server = this;
+        acceptor = new ServerAcceptor(this);
         new Thread(acceptor).start();
         maps = new CopyOnWriteArrayList<>();
         log.info("Channel-{} listening on port {}", channelId, port);

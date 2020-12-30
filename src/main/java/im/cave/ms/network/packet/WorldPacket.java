@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static im.cave.ms.constants.GameConstants.ZERO_TIME;
 import static im.cave.ms.constants.ServerConstants.NEXON_IP;
 import static im.cave.ms.enums.DropEnterType.Instant;
 import static im.cave.ms.enums.MessageType.DROP_PICKUP_MESSAGE;
@@ -72,6 +73,10 @@ public class WorldPacket {
                 outPacket.writeInt(Randomizer.nextInt());
             }
             PacketHelper.addCharInfo(outPacket, chr);
+            outPacket.write(1);
+            outPacket.write(0);
+            outPacket.writeLong(ZERO_TIME);
+            outPacket.writeZeroBytes(16);
         } else {
             outPacket.write(0); // usingBuffProtector
             outPacket.writeInt(to.getId()); //地图ID
@@ -621,4 +626,5 @@ public class WorldPacket {
         partyResult.encode(outPacket);
         return outPacket;
     }
+
 }

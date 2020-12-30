@@ -31,6 +31,7 @@ import im.cave.ms.enums.CharPotGrade;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.DropLeaveType;
+import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.network.netty.InPacket;
@@ -736,9 +737,14 @@ public class UserHandler {
         chr.announce(UserPacket.setDamageSkin(chr));
     }
 
-    public static void handleUserEnterPortalRequest(InPacket inPacket, MapleClient c) {
+    public static void handleChangeMapRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
+            return;
+        }
+        if (inPacket.available() == 0) {
+            c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
+            player.changeChannel((byte) player.getChannel());
             return;
         }
         if (inPacket.available() != 0) {

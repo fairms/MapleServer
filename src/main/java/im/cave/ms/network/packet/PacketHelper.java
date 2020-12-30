@@ -228,7 +228,7 @@ public class PacketHelper {
             outPacket.writeInt(chr.getTraitTotalExp(t));
         }
         outPacket.writeZeroBytes(13); //getNonCombatStatDayLimit
-        outPacket.writeLong(getTime(-2));
+        outPacket.writeLong(ZERO_TIME);
         /*
          * PVP
          */
@@ -240,8 +240,8 @@ public class PacketHelper {
         outPacket.writeInt(0); //event point
 
         outPacket.writeReversedLong(getTime(System.currentTimeMillis())); //last log out
-        outPacket.writeLong(getTime(-1));
-        outPacket.writeLong(getTime(-2));
+        outPacket.writeLong(MAX_TIME);
+        outPacket.writeLong(ZERO_TIME);
         // todo
         outPacket.writeZeroBytes(14);
         outPacket.writeInt(-1);
@@ -321,9 +321,9 @@ public class PacketHelper {
 //        if (stat != null && stat.getCustomData() != null && Long.parseLong(stat.getCustomData()) > System.currentTimeMillis()) {
 //            outPacket.writeLong(getTime(Long.parseLong(stat.getCustomData())));
 //        } else {
-//            outPacket.writeLong(getTime(-2));
+//            outPacket.writeLong(ZERO_TIME);
 //        }
-        outPacket.writeLong(getTime(-2)); //todo
+        outPacket.writeLong(ZERO_TIME); //todo
 
 
         outPacket.write(0); //未知
@@ -372,16 +372,16 @@ public class PacketHelper {
         outPacket.writeInt(0);
 
         outPacket.writeLong(0);
-        outPacket.writeLong(getTime(-2));
+        outPacket.writeLong(ZERO_TIME);
 
         // 未知
         outPacket.writeZeroBytes(33);
 
-        outPacket.writeLong(getTime(-2));
+        outPacket.writeLong(ZERO_TIME);
         outPacket.writeInt(0);
         outPacket.writeInt(chr.getId());
         outPacket.writeZeroBytes(12);
-        outPacket.writeLong(getTime(-2));
+        outPacket.writeLong(ZERO_TIME);
         outPacket.writeInt(0x0A);
         outPacket.writeZeroBytes(20);
 
@@ -408,7 +408,7 @@ public class PacketHelper {
         outPacket.writeInt(chr.getAccId());
         outPacket.writeInt(chr.getId());
         outPacket.writeInt(0);
-        outPacket.writeLong(getTime(-2));
+        outPacket.writeLong(ZERO_TIME);
 
         outPacket.writeZeroBytes(82); //幻影窃取的技能
 
@@ -434,14 +434,11 @@ public class PacketHelper {
             outPacket.writeInt(0);
         }
         outPacket.writeZeroBytes(22);
-        outPacket.writeLong(getTime(-2));
+        outPacket.writeLong(ZERO_TIME);
+
         outPacket.write(0);
         outPacket.write(0);
         outPacket.write(1);
-        outPacket.write(1);
-        outPacket.write(0);
-        outPacket.writeLong(getTime(-2));
-        outPacket.writeZeroBytes(16);
     }
 
     private static void addTRocksInfo(OutPacket outPacket, MapleCharacter chr) {
@@ -674,10 +671,13 @@ public class PacketHelper {
     public static void addItemInfo(OutPacket outPacket, Item item) {
         outPacket.write(item.getType().getVal());
         outPacket.writeInt(item.getItemId());
-        outPacket.write(0); //hasSN
-//        outPacket.writeLong(item.getId());
+        boolean hasSn = item.getCashItemSerialNumber() > 0;
+        outPacket.writeBool(hasSn);
+        if (hasSn) {
+            outPacket.writeLong(item.getId());
+        }
         outPacket.writeLong(item.getExpireTime());
-        outPacket.writeInt(-1);//pos?
+        outPacket.writeInt(-1);
         outPacket.write(0);
         if (item instanceof Equip) {
             Equip equip = (Equip) item;
@@ -742,9 +742,6 @@ public class PacketHelper {
             if (equip.hasStat(EquipBaseStat.iuc)) {
                 outPacket.writeInt(equip.getIuc()); // 金锤子
             }
-//            if (equip.hasStat(EquipBaseStat.iPvpDamage)) {
-//                outPacket.writeShort(equip.getIPvpDamage());
-//            }
             if (equip.hasStat(EquipBaseStat.iReduceReq)) {
                 byte bLevel = (byte) (equip.getIReduceReq() + equip.getFLevel());
                 if (equip.getRLevel() + equip.getIIncReq() - bLevel < 0) {
@@ -773,7 +770,7 @@ public class PacketHelper {
             if (equip.hasStat(EquipBaseStat.imdr)) {
                 outPacket.write(equip.getImdr()); // ied
             }
-            //28 00 00 00
+            //28 00 00 00  14 00 00 00
             outPacket.writeInt(equip.getEquipStatMask(1)); // mask 2
             if (equip.hasStat(EquipBaseStat.damR)) {
                 outPacket.write(equip.getDamR() + equip.getFDamage());
@@ -803,13 +800,12 @@ public class PacketHelper {
             outPacket.writeShort(-1);
             outPacket.writeShort(-1); //socket 3
 
-
             outPacket.writeInt(0);
             outPacket.writeLong(equip.getId());
-            outPacket.writeLong(getTime(-2));
+            outPacket.writeLong(ZERO_TIME);
             outPacket.writeInt(-1);
-            outPacket.writeLong(equip.getCashItemSerialNumber());
-            outPacket.writeLong((getTime(equip.getExpireTime())));
+            outPacket.writeLong(0); //0
+            outPacket.writeLong(ZERO_TIME);
             outPacket.writeZeroBytes(16); //grade
 
             outPacket.writeShort(equip.getSoulOptionId());
@@ -822,9 +818,9 @@ public class PacketHelper {
                 outPacket.writeShort(0); //ARC LEVEL
             }
             outPacket.writeShort(-1);
-            outPacket.writeLong(getTime(-1));
-            outPacket.writeLong(getTime(-2));
-            outPacket.writeLong(getTime(-1));
+            outPacket.writeLong(MAX_TIME);
+            outPacket.writeLong(ZERO_TIME);
+            outPacket.writeLong(MAX_TIME);
             outPacket.writeLong(equip.getLimitBreak());
         } else {
             outPacket.writeShort(item.getQuantity());

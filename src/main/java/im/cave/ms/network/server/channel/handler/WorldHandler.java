@@ -26,8 +26,10 @@ import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.MiniRoomType;
 import im.cave.ms.enums.PartyType;
+import im.cave.ms.enums.ServerType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.network.netty.InPacket;
+import im.cave.ms.network.packet.CashShopPacket;
 import im.cave.ms.network.packet.LoginPacket;
 import im.cave.ms.network.packet.MiniRoomPacket;
 import im.cave.ms.network.packet.QuestPacket;
@@ -35,6 +37,7 @@ import im.cave.ms.network.packet.SummonPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.server.Server;
+import im.cave.ms.network.server.cashshop.CashShopServer;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.DateUtil;
@@ -109,8 +112,9 @@ public class WorldHandler {
     public static void handleMigrateToCashShopRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         player.setTick(inPacket.readInt());
-        inPacket.readByte(); // 00
-        c.announce(WorldPacket.getChannelChange(Server.getInstance().getCashShop(c.getWorld()).getPort()));
+        inPacket.readByte();
+        c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
+        player.enterCashShop();
     }
 
     public static void handleBattleAnalysis(InPacket inPacket, MapleClient c) {
@@ -264,7 +268,7 @@ public class WorldHandler {
         }
     }
 
-    public static void handleChangeChannel(InPacket inPacket, MapleClient c) {
+    public static void handleChangeChannelRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
@@ -280,7 +284,7 @@ public class WorldHandler {
         player.changeChannel(channel);
     }
 
-    public static void handleUserEnterWorld(InPacket inPacket, MapleClient c) {
+    public static void handleUserEnterServer(InPacket inPacket, MapleClient c, ServerType type) {
         int worldId = inPacket.readInt();
         int charId = inPacket.readInt();
         byte[] machineId = inPacket.read(16);
@@ -306,28 +310,42 @@ public class WorldHandler {
 //            return;
         }
         Server.getInstance().removeTransfer(charId);
-        MapleChannel mapleChannel = c.getMapleChannel();
         player.setClient(c);
         player.setAccount(c.getAccount());
         player.setChannel(channel);
         c.setPlayer(player);
         c.setLoginStatus(LoginStatus.LOGGEDIN);
-        mapleChannel.addPlayer(player);
         Server.getInstance().addAccount(c.getAccount());
-        player.setJobHandler(JobManager.getJobById(player.getJobId(), player));
-        //加密后的Opcode
         c.announce(UserPacket.encodeOpcodes(c));
-        c.announce(UserPacket.updateEventNameTag()); //updateEventNameTag
-        //3.切换地图
-        if (player.getHp() <= 0) {
-            player.setMapId(player.getMap().getReturnMap());
-            player.heal(50);
+        switch (type) {
+            case CHANNEL: {
+                MapleChannel mapleChannel = c.getMapleChannel();
+                mapleChannel.addPlayer(player);
+                player.setJobHandler(JobManager.getJobById(player.getJobId(), player));
+                c.announce(UserPacket.updateEventNameTag()); //updateEventNameTag
+                if (player.getHp() <= 0) {
+                    player.setMapId(player.getMap().getReturnMap());
+                    player.heal(50);
+                }
+                player.changeMap(player.getMapId(), true);
+                player.initBaseStats();
+                player.buildQuestEx();
+                c.getAccount().buildSharedQuestEx();
+                c.announce(MapleSignIn.getRewardPacket());
+                break;
+            }
+            case CASHSHOP:
+                CashShopServer cashShop = Server.getInstance().getCashShop((byte) worldId);
+                cashShop.addChar(player);
+                c.announce(CashShopPacket.getWrapToCashShop(player));
+                c.announce(CashShopPacket.setCashShop(cashShop));
+                c.announce(CashShopPacket.setCashTrunk(player.getAccount()));
+                c.announce(CashShopPacket.setGifts());
+                c.announce(CashShopPacket.setCart());
+                c.announce(CashShopPacket.updateCashPoint(player.getAccount()));
+                c.announce(CashShopPacket.cashShopEvent());
+                break;
         }
-        player.changeMap(player.getMapId(), true);
-        player.initBaseStats();
-        player.buildQuestEx();
-        c.getAccount().buildSharedQuestEx();
-        c.announce(MapleSignIn.getRewardPacket());
     }
 
     public static void handleMiniRoom(InPacket inPacket, MapleClient c) {
@@ -413,6 +431,7 @@ public class WorldHandler {
     public static void handleUserFieldTransferRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         MapleMap map = player.getMap();
+
         if ((map.getFieldLimit() & FieldOption.TeleportItemLimit.getVal()) > 0 ||
                 (map.getFieldLimit() & FieldOption.MigrateLimit.getVal()) > 0 ||
                 (map.getFieldLimit() & FieldOption.PortalScrollLimit.getVal()) > 0) {

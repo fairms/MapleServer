@@ -47,7 +47,6 @@ public class MapleClient {
     private final ReentrantLock scriptLock = new ReentrantLock(true);
     private final Map<String, ScriptEngine> engines = new HashMap<>();
 
-
     public MapleClient(Channel ch, int sendIv, int recvIv) {
         this.ch = ch;
         this.sendIv = sendIv;
