@@ -311,6 +311,7 @@ public class WorldHandler {
         }
         Server.getInstance().removeTransfer(charId);
         player.setClient(c);
+        player.setOnline(true);
         player.setAccount(c.getAccount());
         player.setChannel(channel);
         c.setPlayer(player);

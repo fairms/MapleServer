@@ -340,6 +340,7 @@ public class MapleCharacter implements Serializable {
     }
 
     public void logout() {
+        this.setOnline(false);
         getMap().removePlayer(this);
         if (getMap().getForcedReturn() != NO_MAP_ID) {
             this.mapId = getMap().getForcedReturn();
