@@ -4,6 +4,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.server.world.World;
 import im.cave.ms.provider.data.MapData;
 
@@ -26,7 +27,7 @@ public class Party {
     private int id;
     private boolean appliable;
     private String name;
-    private int partyLeaderID;
+    private int partyLeaderId;
     private World world;
     private MapleCharacter applyingChar;
 
@@ -90,10 +91,9 @@ public class Party {
             outPacket.writeInt(pm != null && pm.isOnline() ? 1 : 0);
         }
         for (PartyMember pm : partyMembers) {
-            outPacket.writeInt(0);// is private ?
+            outPacket.writeInt(0);
         }
-        outPacket.writeInt(getPartyLeaderID());
-        // end PARTYMEMBER struct
+        outPacket.writeInt(getPartyLeaderId());
         for (PartyMember pm : partyMembers) {
             outPacket.writeInt(pm != null ? pm.getMapId() : 0);
         }
@@ -112,15 +112,20 @@ public class Party {
         outPacket.writeBool(isAppliable() && !isFull());
         outPacket.write(0);
         outPacket.writeMapleAsciiString(getName());
-        outPacket.write(new byte[10]);
+        //
+        outPacket.writeZeroBytes(7);
+        outPacket.writeInt(2);
+        outPacket.writeZeroBytes(20);
+        outPacket.write(2);
+        outPacket.writeZeroBytes(20);
     }
 
-    public int getPartyLeaderID() {
-        return partyLeaderID;
+    public int getPartyLeaderId() {
+        return partyLeaderId;
     }
 
-    public void setPartyLeaderID(int partyLeaderID) {
-        this.partyLeaderID = partyLeaderID;
+    public void setPartyLeaderID(int partyLeaderId) {
+        this.partyLeaderId = partyLeaderId;
     }
 
     public void addPartyMember(MapleCharacter chr) {
@@ -155,11 +160,11 @@ public class Party {
     }
 
     public PartyMember getPartyLeader() {
-        return Arrays.stream(getPartyMembers()).filter(p -> p != null && p.getCharId() == getPartyLeaderID()).findFirst().orElse(null);
+        return Arrays.stream(getPartyMembers()).filter(p -> p != null && p.getCharId() == getPartyLeaderId()).findFirst().orElse(null);
     }
 
-    public boolean hasMapleCharacterAsLeader(MapleCharacter chr) {
-        return getPartyLeaderID() == chr.getId();
+    public boolean hasCharAsLeader(MapleCharacter chr) {
+        return getPartyLeaderId() == chr.getId();
     }
 
     public void disband() {
@@ -187,7 +192,7 @@ public class Party {
     }
 
     public void updateFull() {
-//        broadcast(WvsContext.partyResult(PartyResult.loadParty(this)));
+        broadcast(WorldPacket.partyResult(PartyResult.loadParty(this)));
     }
 
     public PartyMember getPartyMemberByID(int charId) {

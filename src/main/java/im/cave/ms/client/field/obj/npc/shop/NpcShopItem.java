@@ -83,7 +83,6 @@ public class NpcShopItem {
             new BuyLimitInfo().encode(outPacket);
         }
         outPacket.write(0);
-        outPacket.write(0);
         outPacket.writeLong(getSellStart());
         outPacket.writeLong(getSellEnd());
         outPacket.writeInt(getTabIndex());
@@ -100,7 +99,6 @@ public class NpcShopItem {
         } else {
             outPacket.writeLong(getUnitPrice());
         }
-        outPacket.writeShort(getMaxPerSlot());
         outPacket.writeShort(getMaxPerSlot());
         outPacket.writeLong(MAX_TIME);
 

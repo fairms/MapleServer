@@ -107,6 +107,7 @@ public class Npc extends MapleMapObj {
         copy.setTrunkPut(getTrunkPut());
         copy.setNpcRect(getNpcRect());
         copy.getScripts().putAll(getScripts());
+        copy.setShop(isShop());
         return copy;
     }
 

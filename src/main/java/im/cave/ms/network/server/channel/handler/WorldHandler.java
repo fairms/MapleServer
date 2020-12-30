@@ -14,6 +14,7 @@ import im.cave.ms.client.job.JobManager;
 import im.cave.ms.client.miniroom.TradeRoom;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.client.party.Party;
+import im.cave.ms.client.party.PartyMember;
 import im.cave.ms.client.party.PartyResult;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.SkillConstants;
@@ -446,8 +447,17 @@ public class WorldHandler {
                 party.broadcast(WorldPacket.partyResult(PartyResult.createNewParty(party)));
                 break;
             }
-            case PartyReq_WithdrawParty:
+            case PartyReq_WithdrawParty: {
+                if (party.hasCharAsLeader(player)) {
+                    party.disband();
+                } else {
+                    PartyMember leaver = party.getPartyMemberByID(player.getId());
+                    party.broadcast(WorldPacket.partyResult(PartyResult.withdrawParty(party, leaver, true, false)));
+                    party.removePartyMember(leaver);
+                    party.updateFull();
+                }
                 break;
+            }
         }
     }
 }

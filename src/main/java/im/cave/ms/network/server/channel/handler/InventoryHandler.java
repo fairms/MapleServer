@@ -43,8 +43,6 @@ import static im.cave.ms.enums.InventoryOperationType.UPDATE_QUANTITY;
 import static im.cave.ms.enums.InventoryType.EQUIP;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
 
-;
-
 /**
  * @author fair
  * @version V1.0
@@ -369,7 +367,7 @@ public class InventoryHandler {
             if (freeSlot < item.getPos()) {
                 short oldPos = (short) item.getPos();
                 item.setPos(freeSlot);
-                operations.add(new InventoryOperation(oldPos, (short) freeSlot, item));
+                operations.add(new InventoryOperation(MOVE, oldPos, (short) freeSlot, item));
             }
         }
         c.announce(UserPacket.inventoryOperation(true, operations));
@@ -383,23 +381,23 @@ public class InventoryHandler {
         if (invType == null) {
             return;
         }
+        List<InventoryOperation> operations = new ArrayList<>();
         Inventory inv = player.getInventory(invType);
         List<Item> items = new ArrayList<>(inv.getItems());
         items.sort(Comparator.comparingInt(Item::getItemId));
         for (Item item : items) {
             if (item.getPos() != items.indexOf(item) + 1) {
-                player.announce(UserPacket.inventoryOperation(true, InventoryOperationType.REMOVE,
-                        (short) item.getPos(), (short) 0, -1, item));
+                operations.add(new InventoryOperation(InventoryOperationType.REMOVE, (short) item.getPos(), (short) 0, item));
             }
         }
         for (Item item : items) {
             int index = items.indexOf(item) + 1;
             if (item.getPos() != index) {
                 item.setPos(index);
-                player.announce(UserPacket.inventoryOperation(true, InventoryOperationType.ADD,
-                        (short) item.getPos(), (short) 0, -1, item));
+                operations.add(new InventoryOperation(InventoryOperationType.ADD, (short) item.getPos(), (short) 0, item));
             }
         }
+        c.announce(UserPacket.inventoryOperation(true, operations));
         c.announce(UserPacket.sortItemResult(invType.getVal()));
     }
 }

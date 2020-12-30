@@ -17,16 +17,16 @@ public class InventoryOperation {
     private Item item;
     private short oldPos;
     private short newPos;
-    private int bagPos;
+    private int bagPos = -1;
 
-    public InventoryOperation(InventoryOperationType type) {
+    public InventoryOperation(InventoryOperationType type, short oldPos, short newPos, Item item) {
         this.type = type;
-    }
-
-    public InventoryOperation(short oldPos, short newPos, Item item) {
-        type = InventoryOperationType.MOVE;
         this.oldPos = oldPos;
         this.newPos = newPos;
         this.item = item;
+    }
+
+    public InventoryOperation(InventoryOperationType type) {
+        this.type = type;
     }
 }

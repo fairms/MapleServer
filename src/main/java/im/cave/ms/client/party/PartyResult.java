@@ -135,6 +135,7 @@ public class PartyResult {
                     outPacket.writeMapleAsciiString(member.getCharName());
 //                    party.encode(outPacket);
                 }
+                outPacket.write(member.getCharId());
                 break;
             case PartyRes_JoinParty_Done:
                 outPacket.writeInt(party.getId());

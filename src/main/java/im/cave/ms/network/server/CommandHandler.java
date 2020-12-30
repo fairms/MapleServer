@@ -1,14 +1,12 @@
 package im.cave.ms.network.server;
 
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.MapleSignIn;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
-import im.cave.ms.config.Config;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.network.netty.OutPacket;
@@ -166,9 +164,7 @@ public class CommandHandler {
                 c.getPlayer().dropMessage("可见OBJ数目:" + c.getPlayer().getVisibleMapObjs().size());
                 break;
             case "reload":
-                Server.getInstance().reloadScripts();
-                Config.reload();
-                MapleSignIn.initSignRewards();
+                NpcData.refreshShop();
                 break;
             case "em":
                 c.getMapleChannel().broadcast(WorldPacket.eventMessage("测试测试", 2, 3000));

@@ -179,6 +179,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case USER_SCRIPT_MESSAGE_ANSWER:
                 NpcHandler.handleUserScriptMessageAnswer(inPacket, c);
                 break;
+            case USER_SHOP_REQUEST:
+                NpcHandler.handleUserShopRequest(inPacket, c);
+                break;
             case TRUNK_OPERATION:
                 WorldHandler.handleTrunkOperation(inPacket, c);
                 break;

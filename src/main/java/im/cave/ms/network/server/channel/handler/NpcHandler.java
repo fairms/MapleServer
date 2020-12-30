@@ -10,6 +10,7 @@ import im.cave.ms.client.movement.Movement;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.NpcMessageType;
+import im.cave.ms.enums.ShopRequestType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.NpcPacket;
@@ -22,6 +23,8 @@ import im.cave.ms.scripting.npc.NpcScriptManager;
 import im.cave.ms.scripting.quest.QuestActionManager;
 import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.Position;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -31,6 +34,7 @@ import im.cave.ms.tools.Position;
  * @date 11/30 19:10
  */
 public class NpcHandler {
+    private static final Logger log = LoggerFactory.getLogger(NpcHandler.class);
 
     public static void handleUserSelectNPC(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
@@ -61,7 +65,7 @@ public class NpcHandler {
         }
         if (script == null) {
             NpcShop shop = NpcData.getShopById(npcId);
-            if (shop != null) {
+            if (npc.isShop()) {
                 chr.setShop(shop);
                 chr.announce(NpcPacket.openShop(npcId, 0, shop));
                 chr.chatMessage(String.format("Opening shop %s", npc.getTemplateId()));
@@ -166,5 +170,100 @@ public class NpcHandler {
             }
         }
         c.announce(NpcPacket.npcAnimation(objectID, oneTimeAction, chatIdx, duration, movement, keyPadState));
+    }
+
+    public static void handleUserShopRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        byte type = inPacket.readByte();
+        ShopRequestType shr = ShopRequestType.getByVal(type);
+        if (shr == null) {
+            return;
+        }
+        NpcShop shop = player.getShop();
+        if (shop == null) {
+            player.chatMessage("You are currently not in a shop.");
+            return;
+        }
+        switch (shr) {
+            case BUY:
+//                short itemIndex = inPacket.readShort();
+//                int itemId = inPacket.readInt();
+//                short quantity = inPacket.readShort();
+//                NpcShopItem nsi = shop.getItemByIndex(itemIndex);
+//                if (nsi == null || nsi.getItemID() != itemId) {
+//                    player.chatMessage("The server's item at that position was different than the client's.");
+//                    log.warn(String.format("Possible hack: expected shop itemID %d, got %d (chr %d)", nsi.getItemID(), itemId, player.getId()));
+//                    return;
+//                }
+//                if (!player.canHold(itemId)) {
+////                    player.announce(ShopDlg.shopResult(new MsgShopResult(ShopResultType.FullInvMsg)));
+//                    return;
+//                }
+//                if (nsi.getTokenItemID() != 0) {
+//                    int cost = nsi.getTokenPrice() * quantity;
+//                    if (chr.hasItemCount(nsi.getTokenItemID(), cost)) {
+//                        chr.consumeItem(nsi.getTokenItemID(), cost);
+//                    } else {
+//                        chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.NotEnoughMesosMsg)));
+//                        return;
+//                    }
+//                } else {
+//                    long cost = nsi.getPrice() * quantity;
+//                    if (chr.getMoney() < cost) {
+//                        chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.NotEnoughMesosMsg)));
+//                        return;
+//                    }
+//                    chr.deductMoney(cost);
+//                }
+//                int itemQuantity = nsi.getQuantity() > 0 ? nsi.getQuantity() : 1;
+//                Item item = ItemData.getItemDeepCopy(itemID);
+//                item.setQuantity(quantity * itemQuantity);
+//                chr.addItemToInventory(item);
+//                chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.Success)));
+                break;
+            case RECHARGE:
+//                short slot = inPacket.decodeShort();
+//                item = chr.getConsumeInventory().getItemBySlot(slot);
+//                if (item == null || !ItemConstants.isRechargable(item.getItemId())) {
+//                    chr.chatMessage(String.format("Was not able to find a rechargable item at position %d.", slot));
+//                    return;
+//                }
+//                ItemInfo ii = ItemData.getItemInfoByID(item.getItemId());
+//                long cost = ii.getSlotMax() - item.getQuantity();
+//                if (chr.getMoney() < cost) {
+//                    chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.NotEnoughMesosMsg)));
+//                    return;
+//                }
+//                chr.deductMoney(cost);
+//                item.addQuantity(ii.getSlotMax());
+//                chr.write(WvsContext.inventoryOperation(true, false,
+//                        InventoryOperation.UPDATE_QUANTITY, slot, (short) 0, 0, item));
+//                chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.Success)));
+                break;
+            case SELL:
+//                slot = inPacket.decodeShort();
+//                itemID = inPacket.decodeInt();
+//                quantity = inPacket.decodeShort();
+//                InvType it = ItemConstants.getInvTypeByItemID(itemID);
+//                item = chr.getInventoryByType(it).getItemBySlot(slot);
+//                if (item == null || item.getItemId() != itemID) {
+//                    chr.chatMessage("Could not find that item.");
+//                    return;
+//                }
+//                if (ItemConstants.isEquip(itemID)) {
+//                    cost = ((Equip) item).getPrice();
+//                } else {
+//                    cost = ItemData.getItemInfoByID(itemID).getPrice() * quantity;
+//                }
+//                chr.consumeItem(itemID, quantity);
+//                chr.addMoney(cost);
+//                chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.Success)));
+                break;
+            case CLOSE:
+                player.setShop(null);
+                break;
+            default:
+                log.error(String.format("Unhandled shop request type %s", shr));
+        }
     }
 }

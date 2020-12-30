@@ -70,7 +70,7 @@ public class NpcData {
                 String name = attr.getName();
                 switch (name) {
                     case "shop":
-                        npc.setShop(MapleDataTool.getInt(attr, 0) == 1);
+                        npc.setShop(MapleDataTool.getInt(attr, 0) != 0);
                         break;
                     case "trunkGet":
                         npc.setTrunkGet(MapleDataTool.getInt(attr));
@@ -98,7 +98,11 @@ public class NpcData {
     }
 
     public static NpcShop getShopById(int npcId) {
-        return shops.getOrDefault(npcId, loadNpcShopFromDB(npcId));
+        NpcShop shop = shops.get(npcId);
+        if (shop == null) {
+            shop = loadNpcShopFromDB(npcId);
+        }
+        return shop;
     }
 
     private static NpcShop loadNpcShopFromDB(int id) {
@@ -114,5 +118,9 @@ public class NpcData {
 
     private static void addShop(int id, NpcShop ns) {
         shops.put(id, ns);
+    }
+
+    public static void refreshShop() {
+        shops.clear();
     }
 }
