@@ -1,12 +1,15 @@
 package im.cave.ms.network.server.world;
 
+import im.cave.ms.client.party.Party;
 import im.cave.ms.config.Config;
 import im.cave.ms.config.WorldConfig;
 import im.cave.ms.network.server.cashshop.CashShopServer;
 import im.cave.ms.network.server.channel.MapleChannel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author fair
@@ -17,6 +20,8 @@ import java.util.List;
 public class World {
     private int id;
     private List<MapleChannel> channels = new ArrayList<>();
+    private final Map<Integer, Party> parties = new HashMap<>();
+    private Integer partyId = 1;
     private CashShopServer cashShopServer;
     private String eventMessage;
 
@@ -53,6 +58,18 @@ public class World {
         return channels.size();
     }
 
+    public int getPartyIdAndIncrement() {
+        return partyId++;
+    }
+
+    public void addParty(Party party) {
+        int id = getPartyIdAndIncrement();
+        parties.put(id, party);
+        party.setId(id);
+        if (party.getWorld() == null) {
+            party.setWorld(this);
+        }
+    }
 
     public void init() {
         WorldConfig.WorldInfo info = Config.worldConfig.getWorldInfo(id);

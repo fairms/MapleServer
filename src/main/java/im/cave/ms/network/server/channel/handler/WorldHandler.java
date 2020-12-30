@@ -5,6 +5,7 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.MapleSignIn;
 import im.cave.ms.client.Trunk;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
@@ -12,14 +13,18 @@ import im.cave.ms.client.items.Item;
 import im.cave.ms.client.job.JobManager;
 import im.cave.ms.client.miniroom.TradeRoom;
 import im.cave.ms.client.movement.MovementInfo;
+import im.cave.ms.client.party.Party;
+import im.cave.ms.client.party.PartyResult;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.DimensionalMirror;
+import im.cave.ms.enums.FieldOption;
 import im.cave.ms.enums.InstanceTableType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.MiniRoomType;
+import im.cave.ms.enums.PartyType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.LoginPacket;
@@ -274,7 +279,7 @@ public class WorldHandler {
         player.changeChannel(channel);
     }
 
-    public static void handleEnterWorld(InPacket inPacket, MapleClient c) {
+    public static void handleUserEnterWorld(InPacket inPacket, MapleClient c) {
         int worldId = inPacket.readInt();
         int charId = inPacket.readInt();
         byte[] machineId = inPacket.read(16);
@@ -334,7 +339,7 @@ public class WorldHandler {
         }
         TradeRoom tradeRoom = (TradeRoom) player.getMiniRoom();
         switch (type) {
-            case TradeInviteRequest:
+            case TradeInviteRequest: {
                 int charId = inPacket.readInt();
                 MapleCharacter other = player.getMap().getCharById(charId);
                 if (other == null) {
@@ -342,22 +347,106 @@ public class WorldHandler {
                     return;
                 }
                 other.announce(MiniRoomPacket.tradeInvite(player));
-                tradeRoom = new TradeRoom(player, other);
-                player.setMiniRoom(tradeRoom);
-                other.setMiniRoom(tradeRoom);
                 break;
-            case ExitTrade:
-                if (tradeRoom != null) {
-                    tradeRoom.cancelTrade();
-                    tradeRoom.getOtherChar(player).announce(MiniRoomPacket.cancelTrade(false));
+            }
+            case Accept: {
+                int charId = inPacket.readInt();
+                MapleCharacter other = player.getMap().getCharById(charId);
+                if (other == null) {
+                    other = Server.getInstance().getCharById(charId, player.getWorld());
+                    if (other == null) {
+                        player.chatMessage("交易已取消");
+                        return;
+                    }
+                    if (other.getMiniRoom() != null) {
+                        ((TradeRoom) other.getMiniRoom()).cancelTrade();
+                        return;
+                    }
                 }
-                break;
-            case Create:
-                if (tradeRoom == null) {
-                    player.chatMessage("Your trade partner cancelled the trade.");
+                if (other.getMiniRoom() == null) {
+                    player.chatMessage("交易已取消");
                     return;
                 }
+                player.setMiniRoom(other.getMiniRoom());
+                tradeRoom = ((TradeRoom) player.getMiniRoom());
+                tradeRoom.setOther(player);
                 player.announce(MiniRoomPacket.enterTrade(tradeRoom, player));
+                tradeRoom.getChr().announce(MiniRoomPacket.acceptTradeInvite(player));
+                tradeRoom.sendTips();
+                break;
+            }
+            case InviteResultStatic: {
+                int charId = inPacket.readInt();
+                MapleCharacter other = player.getMap().getCharById(charId);
+                if (other == null) {
+                    return;
+                }
+                ((TradeRoom) other.getMiniRoom()).cancelTrade();
+            }
+            case ExitTrade: {
+                if (tradeRoom != null) {
+                    tradeRoom.cancelTrade();
+                }
+                break;
+            }
+            case Chat: {
+                player.setTick(inPacket.readInt());
+                String msg = inPacket.readMapleAsciiString();
+                if (tradeRoom == null) {
+                    player.chatMessage("You are currently not in a room.");
+                    return;
+                }
+                String msgWithName = String.format("%s : %s", player.getName(), msg);
+                player.announce(MiniRoomPacket.chat(0, msgWithName, player));
+                tradeRoom.getOtherChar(player).announce(MiniRoomPacket.chat(1, msgWithName, player));
+                break;
+            }
+            case Create:
+                tradeRoom = new TradeRoom(player);
+                player.setMiniRoom(tradeRoom);
+                player.announce(MiniRoomPacket.enterTrade(tradeRoom, player));
+                break;
+        }
+    }
+
+    public static void handleUserFieldTransferRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        MapleMap map = player.getMap();
+        if ((map.getFieldLimit() & FieldOption.TeleportItemLimit.getVal()) > 0 ||
+                (map.getFieldLimit() & FieldOption.MigrateLimit.getVal()) > 0 ||
+                (map.getFieldLimit() & FieldOption.PortalScrollLimit.getVal()) > 0) {
+            player.chatMessage("You may not warp to that map.");
+            UserPacket.enableActions();
+            return;
+        }
+        int mapId = inPacket.readInt();
+        if (mapId == 7860) { //匠人街
+            player.changeMap(GameConstants.ARDENTMILL);
+        }
+    }
+
+    public static void handlePartyRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        PartyType type = PartyType.getByVal(inPacket.readByte());
+        Party party = player.getParty();
+        if (type == null) {
+            log.error("未知组队请求.");
+            return;
+        }
+        switch (type) {
+            case PartyReq_CreateNewParty: {
+                if (party != null) {
+                    player.chatMessage("You are already in a party.");
+                    return;
+                }
+                boolean appliable = inPacket.readByte() != 0;
+                String name = inPacket.readMapleAsciiString();
+                party = Party.createNewParty(appliable, name, player.getMapleWorld());
+                party.addPartyMember(player);
+                party.broadcast(WorldPacket.partyResult(PartyResult.createNewParty(party)));
+                break;
+            }
+            case PartyReq_WithdrawParty:
                 break;
         }
     }

@@ -2,6 +2,7 @@ package im.cave.ms.network.server;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.config.Config;
 import im.cave.ms.config.WorldConfig;
 import im.cave.ms.network.server.cashshop.CashShopServer;
@@ -80,7 +81,6 @@ public class Server {
         online = true;
     }
 
-
     private void worldInit() {
         for (World world : worlds) {
             log.info("World-{} is starting... ", world.getId());
@@ -88,7 +88,6 @@ public class Server {
             log.info("World-{} is running... ", world.getId());
         }
     }
-
 
     public boolean isAccountLoggedIn(Account account) {
         return accounts.contains(account.getId());
@@ -147,5 +146,16 @@ public class Server {
 
     public void setServerCurrentTime(long serverCurrentTime) {
         this.serverCurrentTime = serverCurrentTime;
+    }
+
+    public MapleCharacter getCharById(int charId, byte worldId) {
+        World world = getWorldById(worldId);
+        for (MapleChannel channel : world.getChannels()) {
+            MapleCharacter player = channel.getPlayer(charId);
+            if (player != null) {
+                return player;
+            }
+        }
+        return null;
     }
 }

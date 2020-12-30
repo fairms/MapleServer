@@ -69,6 +69,7 @@ public class PacketHelper {
         addCharStats(outPacket, chr);
         outPacket.writeZeroBytes(12);
         addCharLook(outPacket, chr, true, false);
+        outPacket.write(0);
     }
 
     public static void addCharLook(OutPacket outPacket, MapleCharacter chr, boolean mega, boolean second) {

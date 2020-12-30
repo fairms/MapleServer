@@ -116,7 +116,7 @@ public class MapleMap {
             if (onUserEnter.length() != 0) {
                 msm.runMapScript(chr.getClient(), "onUserEnter/" + onUserEnter, false);
             }
-            broadcastMessage(chr, WorldPacket.charEnterMap(chr), false);
+            broadcastMessage(chr, WorldPacket.userEnterMap(chr), false);
         }
     }
 
@@ -140,7 +140,7 @@ public class MapleMap {
         }
         for (MapleCharacter character : characters) {
             if (!chr.getVisibleChar().contains(character)) {
-                chr.announce(WorldPacket.charEnterMap(character));
+                chr.announce(WorldPacket.userEnterMap(character));
                 chr.getVisibleChar().add(character);
             }
         }

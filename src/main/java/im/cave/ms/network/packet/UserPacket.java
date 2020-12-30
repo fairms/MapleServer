@@ -7,13 +7,14 @@ import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.items.Equip;
+import im.cave.ms.client.items.InventoryOperation;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ScrollUpgradeInfo;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.client.skill.Skill;
 import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.EquipmentEnchantType;
-import im.cave.ms.enums.InventoryOperation;
+import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.network.crypto.TripleDESCipher;
@@ -127,72 +128,17 @@ public class UserPacket {
 
     }
 
-    public static OutPacket inventoryOperation(boolean exclRequestSent, boolean notRemoveAddInfo,
-                                               InventoryOperation type,
+    public static OutPacket inventoryOperation(boolean exclRequestSent,
+                                               InventoryOperationType type,
                                                short oldPos, short newPos,
                                                int bagPos, Item item) {
-        OutPacket outPacket = new OutPacket();
-        InventoryType invType = item.getInvType();
-        if ((oldPos > 0 && newPos < 0 && invType == EQUIPPED) ||
-                (invType == EQUIPPED && oldPos < 0)) {
-            invType = InventoryType.EQUIP;
-        }
-        outPacket.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
-        outPacket.writeBool(exclRequestSent);
-        outPacket.write(1); // size
-        outPacket.writeBool(notRemoveAddInfo);
-        byte equipMove = 0;
-        boolean addMovementInfo = false;
-        outPacket.write(type.getVal());
-        outPacket.write(invType.getVal());
-        outPacket.writeShort(oldPos);
-        switch (type) {
-            case ADD:
-                PacketHelper.addItemInfo(outPacket, item);
-                addMovementInfo = true;
-                break;
-            case UPDATE_QUANTITY:
-                outPacket.writeShort(item.getQuantity());
-                break;
-            case MOVE:
-                outPacket.writeShort(newPos);
-                if (invType == InventoryType.EQUIP && (oldPos < 0 || newPos < 0)) {
-                    addMovementInfo = true;
-                    if (oldPos < 0) {
-                        equipMove = 2;
-                    } else {
-                        equipMove = 1;
-                    }
-                }
-                break;
-            case REMOVE:
-                if (invType == InventoryType.EQUIP && (oldPos < 0 || newPos < 0)) {
-                    addMovementInfo = true;
-                }
-                break;
-            case ITEM_EXP:
-                outPacket.writeLong(((Equip) item).getExp());
-                break;
-            case UPDATE_BAG_POS:
-                outPacket.writeInt(bagPos);
-                break;
-            case UPDATE_BAG_QUANTITY:
-                outPacket.writeShort(newPos);
-                break;
-            case UNK_1:
-            case UNK_3:
-                break;
-            case UNK_2:
-                outPacket.writeShort(bagPos); // ?
-                break;
-            case UPDATE_ITEM_INFO:
-                PacketHelper.addItemInfo(outPacket, item);
-                break;
-        }
-        if (addMovementInfo) {
-            outPacket.write(equipMove);
-        }
-        return outPacket;
+        InventoryOperation inventoryOperation = new InventoryOperation(type);
+        inventoryOperation.setItem(item);
+        inventoryOperation.setBagPos(bagPos);
+        inventoryOperation.setNewPos(newPos);
+        inventoryOperation.setOldPos(oldPos);
+        List<InventoryOperation> operations = Collections.singletonList(inventoryOperation);
+        return inventoryOperation(exclRequestSent, operations);
     }
 
     public static OutPacket move(MapleCharacter player, MovementInfo movementInfo) {
@@ -230,7 +176,7 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket cancelChair(int charId, short id) {
+    public static OutPacket sitResult(int charId, short id) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.CANCEL_CHAIR.getValue());
         outPacket.writeInt(charId);
@@ -333,9 +279,7 @@ public class UserPacket {
         for (int i : tsm.getRemovedMask()) {
             outPacket.writeInt(i);
         }
-        tsm.getRemovedStats().forEach((characterTemporaryStat, options) -> {
-            outPacket.writeInt(0);
-        });
+        tsm.getRemovedStats().forEach((characterTemporaryStat, options) -> outPacket.writeInt(0));
         if (demount) {
             outPacket.writeBool(true);
         }
@@ -349,7 +293,6 @@ public class UserPacket {
         tsm.encodeForLocal(outPacket);
         return outPacket;
     }
-
 
     public static OutPacket effect(Effect effect) {
         OutPacket outPacket = new OutPacket();
@@ -626,6 +569,100 @@ public class UserPacket {
         outPacket.write(5);
         outPacket.writeMapleAsciiString(charName);
         outPacket.write(mode);
+        return outPacket;
+    }
+
+    public static OutPacket inventoryOperation(boolean exclRequestSent, List<InventoryOperation> operations) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
+        outPacket.writeBool(exclRequestSent);
+        outPacket.writeShort(operations.size());
+        byte equipMove = 0;
+        boolean addMovementInfo = false;
+        for (InventoryOperation operation : operations) {
+            Item item = operation.getItem();
+            short newPos = operation.getNewPos();
+            short oldPos = operation.getOldPos();
+            int bagPos = operation.getBagPos();
+            InventoryOperationType type = operation.getType();
+            InventoryType invType = item.getInvType();
+            if ((oldPos > 0 && newPos < 0 && invType == EQUIPPED) ||
+                    (invType == EQUIPPED && oldPos < 0)) {
+                invType = InventoryType.EQUIP;
+            }
+            outPacket.write(type.getVal());
+            outPacket.write(invType.getVal());
+            outPacket.writeShort(oldPos);
+            switch (type) {
+                case ADD:
+                    PacketHelper.addItemInfo(outPacket, item);
+                    addMovementInfo = true;
+                    break;
+                case UPDATE_QUANTITY:
+                    outPacket.writeShort(item.getQuantity());
+                    break;
+                case MOVE:
+                    outPacket.writeShort(newPos);
+                    if (invType == InventoryType.EQUIP && (oldPos < 0 || newPos < 0)) {
+                        addMovementInfo = true;
+                        if (oldPos < 0) {
+                            equipMove += 2;
+                        } else {
+                            equipMove += 1;
+                        }
+                    }
+                    break;
+                case REMOVE:
+                    if (invType == InventoryType.EQUIP && (oldPos < 0 || newPos < 0)) {
+                        addMovementInfo = true;
+                    }
+                    break;
+                case ITEM_EXP:
+                    outPacket.writeLong(((Equip) item).getExp());
+                    break;
+                case UPDATE_BAG_POS:
+                    outPacket.writeInt(bagPos);
+                    break;
+                case UPDATE_BAG_QUANTITY:
+                    outPacket.writeShort(newPos);
+                    break;
+                case UNK_1:
+                case UNK_3:
+                    break;
+                case UNK_2:
+                    outPacket.writeShort(bagPos);
+                    break;
+                case UPDATE_ITEM_INFO:
+                    PacketHelper.addItemInfo(outPacket, item);
+                    break;
+            }
+        }
+        if (addMovementInfo) {
+            outPacket.write(equipMove);
+        }
+        return outPacket;
+    }
+
+    public static OutPacket gatherItemResult(byte val) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.GATHER_ITEM_RESULT.getValue());
+        outPacket.write(1);
+        outPacket.write(val);
+        return outPacket;
+    }
+
+    public static OutPacket sortItemResult(byte val) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SORT_ITEM_RESULT.getValue());
+        outPacket.write(1);
+        outPacket.write(val);
+        return outPacket;
+    }
+
+    public static OutPacket chairSitResult() {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeInt(SendOpcode.SIT_RESULT.getValue());
+        outPacket.writeInt(0);
         return outPacket;
     }
 }

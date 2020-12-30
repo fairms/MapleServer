@@ -135,6 +135,10 @@ public class Effect {
                 outPacket.writeMapleAsciiString("");
                 break;
             case FieldExpItemConsumed:
+            case LeftMonsterNumber:
+                //  true/false
+            case ItemMaker:
+            case IncDecHPEffect_EX:
                 outPacket.writeInt(getArg1()); // Exp Gained
                 break;
             case SkillMode:
@@ -173,25 +177,18 @@ public class Effect {
                 outPacket.writeInt(getArg3());// tFadeOut
                 outPacket.write(getArg4()); // nAlpha
                 break;
-            case LeftMonsterNumber:
-                outPacket.writeInt(getArg1()); // Number on Arrow
-                break;
+            // Number on Arrow
             case JewelCraft:
                 outPacket.write(getArg1()); // Result  0,2 = Success,     5 = Unk error,      Other = Fail
                 outPacket.writeInt(getArg2()); // Item ID
                 break;
             case AswanSiegeAttack:
+            case IncDecHPEffect:
+            case BlindEffect:
                 outPacket.write(getArg1()); // 0 = Red Colour,     1 = Orange Colour
                 break;
-            case BlindEffect:
-                outPacket.write(getArg1()); //  true/false
-                break;
-            case ItemMaker:
-                outPacket.writeInt(getArg1());  // success or failure      0 = Success,  1 = Failure
-                break;
-            case IncDecHPEffect:
-                outPacket.write(getArg1()); // amount being healed     0 = Miss
-                break;
+            // success or failure      0 = Success,  1 = Failure
+            // amount being healed     0 = Miss
             case AvatarOriented:
                 outPacket.writeMapleAsciiString(getString());
                 break;

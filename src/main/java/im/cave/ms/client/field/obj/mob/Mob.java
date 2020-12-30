@@ -2,6 +2,7 @@ package im.cave.ms.client.field.obj.mob;
 
 import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.FieldEffect;
 import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.DropInfo;
@@ -10,6 +11,7 @@ import im.cave.ms.config.Config;
 import im.cave.ms.enums.RemoveMobType;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.MobPacket;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Tuple;
 import lombok.Getter;
@@ -358,17 +360,20 @@ public class Mob extends MapleMapObj {
     public void damage(MapleCharacter chr, long damage) {
         addDamage(chr, damage);
         long maxHp = getMaxHp();
-        long hp = getHp();
-        hp = hp - damage;
-        if (hp <= 0) {
-            setHp(0);
+        long oldHp = getHp();
+        long newHp = oldHp - damage;
+        setHp(newHp);
+        if (oldHp > 0 && newHp <= 0) {
             die();
+            if (isBoss() && getHpTagColor() != 0) {
+                getMap().broadcastMessage(WorldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(this)));
+            }
+        } else if (isBoss() && getHpTagColor() != 0) {
+            getMap().broadcastMessage(WorldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(this)));
         } else {
-            setHp(hp);
-            double percentage = (double) hp / maxHp;
+            double percentage = (double) newHp / maxHp;
             getMap().broadcastMessage(MobPacket.hpIndicator(getObjectId(), (byte) (percentage * 100)));
         }
-
     }
 
     private void addDamage(MapleCharacter chr, long damage) {

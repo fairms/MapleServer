@@ -20,17 +20,13 @@ import im.cave.ms.provider.data.ItemData;
  * @date 11/20 21:46
  */
 public class CreateCharHandler {
-    public static void afterCreate(InPacket inPacket, MapleClient c) {
-
-    }
-
     public static void checkName(InPacket inPacket, MapleClient c) {
         String name = inPacket.readMapleAsciiString();
         int state = MapleCharacter.nameCheck(name);
         c.announce(LoginPacket.checkNameResponse(name, (byte) state));
     }
 
-    public static void createChar(InPacket inPacket, MapleClient c) {
+    public static void handleCreateCharRequest(InPacket inPacket, MapleClient c) {
         String name;
         byte gender, skin;
         short subcategory;
@@ -84,6 +80,7 @@ public class CreateCharHandler {
             }
         }
         c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
+        c.setPlayer(chr);
         chr.changeChannel(c.getChannel());
     }
 }

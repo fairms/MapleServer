@@ -89,14 +89,17 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             return;
         }
         switch (opcode) {
-            case PLAYER_LOGIN:
-                WorldHandler.handleEnterWorld(inPacket, c);
+            case USER_ENTER_WORLD:
+                WorldHandler.handleUserEnterWorld(inPacket, c);
                 break;
             case ERROR_PACKET:
                 ErrorPacketHandler.handlePacket(inPacket);
                 break;
             case GENERAL_CHAT:
                 UserHandler.handleUserGeneralChat(inPacket, c);
+                break;
+            case CHAR_EMOTION:
+                UserHandler.handleCharEmotion(inPacket, c);
                 break;
             case USER_ACTIVATE_NICK_ITEM:
                 UserHandler.handleUserActivateNickItem(inPacket, c);
@@ -131,7 +134,13 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case NPC_ANIMATION:
                 NpcHandler.handleNpcAnimation(inPacket, c);
                 break;
-            case ITEM_MOVE:
+            case USER_GATHER_ITEM_REQUEST:
+                InventoryHandler.handleUserGatherItemRequest(inPacket, c);
+                break;
+            case USER_SORT_ITEM_REQUEST:
+                InventoryHandler.handleUserSortItemRequest(inPacket, c);
+                break;
+            case USER_CHANGE_SLOT_POSITION_REQUEST:
                 InventoryHandler.handleChangeInvPos(c, inPacket);
                 break;
             case USER_STAT_CHANGE_ITEM_USE_REQUEST:
@@ -145,6 +154,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 break;
             case USER_PORTAL_SCROLL_USE_REQUEST:
                 InventoryHandler.handleUserPortalScrollUseRequest(inPacket, c);
+                break;
+            case USER_FIELD_TRANSFER_REQUEST:
+                WorldHandler.handleUserFieldTransferRequest(inPacket, c);
                 break;
             case USER_UPGRADE_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserUpgradeItemUseRequest(inPacket, c);
@@ -219,6 +231,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case MINI_ROOM:
                 WorldHandler.handleMiniRoom(inPacket, c);
                 break;
+            case PARTY_REQUEST:
+                WorldHandler.handlePartyRequest(inPacket, c);
+                break;
             case CHANGE_KEYMAP:
                 UserHandler.handleChangeKeyMap(inPacket, c);
                 break;
@@ -240,11 +255,11 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case SKILL_COMMAND_LOCK:
                 c.getPlayer().changeSkillState(inPacket.readInt());
                 break;
-            case CANCEL_CHAIR:
-                UserHandler.cancelChair(inPacket, c);
-                break;
             case USER_SIT_REQUEST:
                 UserHandler.handleUserSitRequest(inPacket, c);
+                break;
+            case USER_PORTABLE_CHAIR_SIT_REQUEST:
+                UserHandler.handleUserPortableChairSitRequest(inPacket, c);
                 break;
             case PICK_UP_ITEM:
                 UserHandler.handlePickUp(inPacket, c);

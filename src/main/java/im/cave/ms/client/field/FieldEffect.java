@@ -191,7 +191,6 @@ public class FieldEffect {
     public static FieldEffect mobHPTagFieldEffect(Mob mob) {
         FieldEffect fieldEffect = new FieldEffect();
         fieldEffect.setFieldEffectType(FieldEffectType.MobHPTag);
-
         fieldEffect.setArg1(mob.getTemplateId());
         int maxHP = Util.maxInt(mob.getMaxHp());
         double ratio = mob.getMaxHp() / (double) Integer.MAX_VALUE;
@@ -199,7 +198,6 @@ public class FieldEffect {
         fieldEffect.setArg3(maxHP);
         fieldEffect.setArg4(mob.getHpTagColor());
         fieldEffect.setArg5(mob.getHpTagBgcolor());
-
         return fieldEffect;
     }
 

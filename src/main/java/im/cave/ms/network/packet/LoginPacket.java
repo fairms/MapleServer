@@ -199,6 +199,7 @@ public class LoginPacket {
         outPacket.write(characters.size());
         characters.forEach(chr -> PacketHelper.addCharEntry(outPacket, chr));
         outPacket.write(0); // bLoginOpt
+        outPacket.write(0); // bQuerySSNOnCreateNewCharacter
         outPacket.writeInt(c.getAccount().getCharacterSlots());
         outPacket.writeInt(0); // buying char slots
         outPacket.writeInt(-1); // nEventNewCharJob

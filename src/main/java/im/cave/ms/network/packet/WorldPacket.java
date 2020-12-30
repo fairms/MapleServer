@@ -12,6 +12,7 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.party.PartyResult;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DimensionalMirror;
@@ -105,6 +106,13 @@ public class WorldPacket {
         outPacket.write(1);
         outPacket.writeInt(0);
 
+        return outPacket;
+    }
+
+    public static OutPacket userLeaveMap(int charId) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.USER_LEAVE_FIELD.getValue());
+        outPacket.writeInt(charId);
         return outPacket;
     }
 
@@ -523,7 +531,7 @@ public class WorldPacket {
         return outPacket;
     }
 
-    public static OutPacket charEnterMap(MapleCharacter chr) {
+    public static OutPacket userEnterMap(MapleCharacter chr) {
         OutPacket outPacket = new OutPacket();
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         outPacket.writeShort(SendOpcode.USER_ENTER_FIELD.getValue());
@@ -540,11 +548,13 @@ public class WorldPacket {
         outPacket.writeInt(chr.getTotalChuc());
         outPacket.writeInt(0);
         PacketHelper.addCharLook(outPacket, chr, false, false);
-        outPacket.writeShort(0);
-        outPacket.write(-1);
+
+        outPacket.writeInt(0); // int or short
+        outPacket.write(0xFF);
         outPacket.writeInt(0);
-        outPacket.write(-1);
+        outPacket.write(0xFF);
         outPacket.writeInt(0);
+
         outPacket.writeZeroBytes(70);
         for (int i = 0; i < 6; i++) {
             outPacket.write(-1); // unk
@@ -557,7 +567,7 @@ public class WorldPacket {
         outPacket.write(1);
         outPacket.writeZeroBytes(28);
         for (int i = 0; i < 5; i++) {
-            outPacket.write(-1); // activeEventNameTag
+            outPacket.write(-1);
         }
         outPacket.writeInt(0);
         outPacket.write(0);
@@ -566,10 +576,8 @@ public class WorldPacket {
         outPacket.write(1);
         outPacket.write(0);
         outPacket.write(0);
-
         outPacket.writeInt(1051291);
         outPacket.writeZeroBytes(31);
-
         return outPacket;
     }
 
@@ -604,6 +612,13 @@ public class WorldPacket {
         outPacket.writeMapleAsciiString(message);
         outPacket.writeInt(duration);
         outPacket.write(0);
+        return outPacket;
+    }
+
+    public static OutPacket partyResult(PartyResult partyResult) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.PARTY_RESULT.getValue());
+        partyResult.encode(outPacket);
         return outPacket;
     }
 }

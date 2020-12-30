@@ -19,6 +19,7 @@ import im.cave.ms.client.items.ItemInfo;
 import im.cave.ms.client.job.JobManager;
 import im.cave.ms.client.job.MapleJob;
 import im.cave.ms.client.miniroom.MiniRoom;
+import im.cave.ms.client.party.Party;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.client.skill.Skill;
@@ -32,7 +33,7 @@ import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipSpecialAttribute;
-import im.cave.ms.enums.InventoryOperation;
+import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapleTraitType;
 import im.cave.ms.enums.MessageType;
@@ -96,8 +97,8 @@ import static im.cave.ms.constants.QuestConstants.QUEST_DAMAGE_SKIN;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_MOB_KILL_COUNT;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
 import static im.cave.ms.enums.ChatType.SystemNotice;
-import static im.cave.ms.enums.InventoryOperation.REMOVE;
-import static im.cave.ms.enums.InventoryOperation.UPDATE_QUANTITY;
+import static im.cave.ms.enums.InventoryOperationType.REMOVE;
+import static im.cave.ms.enums.InventoryOperationType.UPDATE_QUANTITY;
 import static im.cave.ms.enums.InventoryType.CASH;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
 
@@ -139,7 +140,10 @@ public class MapleCharacter implements Serializable {
     private MapleMap map;
     @Column(name = "map")
     private int mapId;
-    private int party;
+    @Column(name = "party")
+    private int partyId;
+    @Transient
+    private Party party;
     private String remainingSp;
     private byte buddyCapacity, skin, hairColorBase = -1, hairColorMixed, hairColorProb, spawnPoint = 0;
     private boolean gm;
@@ -245,6 +249,8 @@ public class MapleCharacter implements Serializable {
     private int combo;
     @Transient
     private NpcShop shop;
+    @Transient
+    private boolean online;
 
 
     public MapleCharacter() {
@@ -368,7 +374,7 @@ public class MapleCharacter implements Serializable {
                     rec = true;
                 }
                 existingItem.addQuantity(quantity);
-                announce(UserPacket.inventoryOperation(true, false, InventoryOperation.UPDATE_QUANTITY, (short) existingItem.getPos(), (short) -1, 0, existingItem));
+                announce(UserPacket.inventoryOperation(true, InventoryOperationType.UPDATE_QUANTITY, (short) existingItem.getPos(), (short) -1, 0, existingItem));
                 if (rec) {
                     addItemToInv(item);
                 }
@@ -389,7 +395,7 @@ public class MapleCharacter implements Serializable {
 
                 }
                 inventory.addItem(item);
-                announce(UserPacket.inventoryOperation(true, false, InventoryOperation.ADD, (short) item.getPos(), (short) -1, 0, item));
+                announce(UserPacket.inventoryOperation(true, InventoryOperationType.ADD, (short) item.getPos(), (short) -1, 0, item));
                 if (rec) {
                     addItemToInv(itemCopy);
                 }
@@ -514,6 +520,7 @@ public class MapleCharacter implements Serializable {
         getVisibleChar().clear();
         if (getMap() != null) {
             getMap().removePlayer(this);
+            getMap().broadcastMessage(WorldPacket.userLeaveMap(getId()));
         }
         setMap(map);
         Portal targetPortal = map.getPortal(portal) == null ? map.getDefaultPortal() : map.getPortal(portal);
@@ -530,7 +537,7 @@ public class MapleCharacter implements Serializable {
         announce(UserPacket.initSkillMacro());
         announce(UserPacket.updateVoucher(this));
         map.sendMapObjectPackets(this);
-        announce(UserPacket.hiddenEffectEquips(this)); //broadcast?
+        map.broadcastMessage(UserPacket.hiddenEffectEquips(this)); //broadcast?
         announce(WorldPacket.quickMove(map.isTown()));
     }
 
@@ -820,10 +827,10 @@ public class MapleCharacter implements Serializable {
             item.setQuantity(0);
             inventory.removeItem(item);
             short pos = (short) item.getPos();
-            announce(UserPacket.inventoryOperation(true, false, REMOVE, pos, (short) 0, 0, item));
+            announce(UserPacket.inventoryOperation(true, REMOVE, pos, (short) 0, 0, item));
         } else {
             item.setQuantity(item.getQuantity() - 1);
-            announce(UserPacket.inventoryOperation(true, false, UPDATE_QUANTITY, (short) item.getPos(), (short) -1, 0, item));
+            announce(UserPacket.inventoryOperation(true, UPDATE_QUANTITY, (short) item.getPos(), (short) -1, 0, item));
         }
     }
 
@@ -887,6 +894,8 @@ public class MapleCharacter implements Serializable {
         MapleMap map = channel.getMap(mapId);
         if (map != null) {
             changeMap(map, getSpawnPoint(), load);
+        } else {
+            announce(UserPacket.enableActions());
         }
     }
 
@@ -1017,6 +1026,7 @@ public class MapleCharacter implements Serializable {
             setSpawnPoint((byte) 0); //todo
         }
         map.removePlayer(this);
+        map.broadcastMessage(WorldPacket.userLeaveMap(getId()));
         this.map = null;
         Server.getInstance().addClientInTransfer(channel, getId(), getClient());
         int port = Server.getInstance().getChannel(world, channel).getPort();
@@ -1363,5 +1373,9 @@ public class MapleCharacter implements Serializable {
         chr.setInstallInventory(getInstallInventory().deepCopy());
         chr.setCashInventory(getCashInventory().deepCopy());
         return chr;
+    }
+
+    public World getMapleWorld() {
+        return Server.getInstance().getWorldById(world);
     }
 }

@@ -4,7 +4,9 @@ package im.cave.ms.client.miniroom;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.constants.GameConstants;
+import im.cave.ms.network.packet.MiniRoomPacket;
 import im.cave.ms.tools.Tuple;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,16 +19,28 @@ import java.util.Set;
  * @author Sjonnie
  * Created on 8/10/2018.
  */
+@Setter
 public class TradeRoom implements MiniRoom {
     private Map<MapleCharacter, List<Tuple<Integer, Item>>> offeredItems = new HashMap<>(); // wow
     private Map<MapleCharacter, Long> money = new HashMap<>();
     private Set<MapleCharacter> confirmedPlayers = new HashSet<>();
-    private MapleCharacter other;
     private MapleCharacter chr;
+    private MapleCharacter other;
 
     public TradeRoom(MapleCharacter chr, MapleCharacter other) {
         this.chr = chr;
         offeredItems.put(chr, new ArrayList<>());
+        this.other = other;
+        offeredItems.put(other, new ArrayList<>());
+    }
+
+    public TradeRoom(MapleCharacter chr) {
+        this.chr = chr;
+        offeredItems.put(chr, new ArrayList<>());
+    }
+
+
+    public void setOther(MapleCharacter other) {
         this.other = other;
         offeredItems.put(other, new ArrayList<>());
     }
@@ -68,6 +82,9 @@ public class TradeRoom implements MiniRoom {
     public void restoreItems() {
         MapleCharacter[] MapleCharacters = new MapleCharacter[]{getChr(), getOther()};
         for (MapleCharacter chr : MapleCharacters) {
+            if (chr == null) {
+                continue;
+            }
             for (Tuple<Integer, Item> entry : getOfferedItems().get(chr)) {
                 chr.addItemToInv(entry.getRight());
             }
@@ -123,11 +140,21 @@ public class TradeRoom implements MiniRoom {
 
     public void cancelTrade() {
         chr.setMiniRoom(null);
-        other.setMiniRoom(null);
+        chr.announce(MiniRoomPacket.cancelTrade(true));
+        if (other != null) {
+            other.setMiniRoom(null);
+            other.announce(MiniRoomPacket.cancelTrade(false));
+        }
         restoreItems();
+
     }
 
     public MapleCharacter getOtherChar(MapleCharacter chr) {
         return chr == getChr() ? getOther() : getChr();
+    }
+
+    public void sendTips() {
+        getChr().announce(MiniRoomPacket.chat(0, "提示信息", getChr()));
+        getOther().announce(MiniRoomPacket.chat(0, "提示信息", getOther()));
     }
 }

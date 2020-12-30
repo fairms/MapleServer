@@ -34,12 +34,10 @@ import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.network.netty.InPacket;
-import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.packet.UserRemote;
 import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
-import im.cave.ms.network.packet.opcode.SendOpcode;
 import im.cave.ms.network.server.CommandHandler;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.provider.data.SkillData;
@@ -329,22 +327,33 @@ public class UserHandler {
     /*
     取消椅子/城镇椅子
      */
-    public static void cancelChair(InPacket inPacket, MapleClient c) {
+    public static void handleUserSitRequest(InPacket inPacket, MapleClient c) {
         short id = inPacket.readShort();
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
         player.setChairId(id);
-        c.announce(UserPacket.cancelChair(player.getId(), id));
+        c.announce(UserPacket.sitResult(player.getId(), id));
+        player.getMap().broadcastMessage(player, UserRemote.sitResult(player.getId(), 0, 0, (short) 0, 0, (byte) 0), false);
     }
 
-    public static void handleUserSitRequest(InPacket inPacket, MapleClient c) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeInt(SendOpcode.SIT_RESULT.getValue());
-        outPacket.writeInt(0);
-        c.announce(outPacket);
+    public static void handleUserPortableChairSitRequest(InPacket inPacket, MapleClient c) {
+        int mapId = inPacket.readInt();
+        int chairId = inPacket.readInt();
+        int pos = inPacket.readByte();
+        boolean textChair = inPacket.readInt() != 0;
+        Position position = inPacket.readPosInt();
+        inPacket.readInt();
+        int unk1 = inPacket.readInt();
+        short unk2 = inPacket.readShort();
+        inPacket.skip(3);
+        int unk3 = inPacket.readInt();
+        byte unk4 = inPacket.readByte();
         c.announce(UserPacket.enableActions());
+        c.announce(UserPacket.chairSitResult());
+        MapleCharacter player = c.getPlayer();
+        player.getMap().broadcastMessage(player, UserRemote.sitResult(player.getId(), chairId, unk1, unk2, unk3, unk4), false);
     }
 
     public static void handlePickUp(InPacket inPacket, MapleClient c) {
@@ -377,7 +386,7 @@ public class UserHandler {
             return;
         }
         equip.setShowEffect(!equip.isShowEffect());
-        c.announce(UserPacket.hiddenEffectEquips(player));
+        player.getMap().broadcastMessage(UserPacket.hiddenEffectEquips(player));
     }
 
     public static void handleSkillUp(InPacket inPacket, MapleClient c) {
@@ -795,5 +804,15 @@ public class UserHandler {
         other.addStatAndSendPacket(MapleStat.FAME, fameChange);
         player.announce(UserPacket.addFameResponse(player, mode, other.getFame()));
         other.announce(UserPacket.receiveFame(mode, player.getName()));
+    }
+
+    public static void handleCharEmotion(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        int emotion = inPacket.readInt();
+        int duration = inPacket.readInt();
+        boolean byItemOption = inPacket.readByte() != 0;
+        if (GameConstants.isValidEmotion(emotion)) {
+            player.getMap().broadcastMessage(player, UserRemote.emotion(player.getId(), emotion, duration, byItemOption), false);
+        }
     }
 }

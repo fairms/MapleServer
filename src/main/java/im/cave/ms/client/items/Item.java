@@ -29,7 +29,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import static im.cave.ms.constants.GameConstants.MAX_TIME;
-import static im.cave.ms.enums.InventoryOperation.ADD;
+import static im.cave.ms.enums.InventoryOperationType.ADD;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
 
 /**
@@ -107,7 +107,7 @@ public class Item implements Serializable {
 
     public void updateToChar(MapleCharacter player) {
         short bagIndex = (short) (getInvType() == EQUIPPED ? -getPos() : getPos());
-        player.announce(UserPacket.inventoryOperation(true, false, ADD,
+        player.announce(UserPacket.inventoryOperation(true, ADD,
                 bagIndex, (short) 0, 0, this));
     }
 

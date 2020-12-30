@@ -97,9 +97,6 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<InPacket> {
             case CHAR_SELECTED:
                 CharOperationHandler.handleSelectChar(inPacket, c);
                 break;
-            case AFTER_CHAR_CREATED:
-                CreateCharHandler.afterCreate(inPacket, c);
-                break;
             case CHECK_CHAR_NAME_REQUEST:
                 CreateCharHandler.checkName(inPacket, c);
                 break;
@@ -107,7 +104,7 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<InPacket> {
                 ServerListHandler.serverList(inPacket, c);
                 break;
             case CREATE_CHAR_REQUEST:
-                CreateCharHandler.createChar(inPacket, c);
+                CreateCharHandler.handleCreateCharRequest(inPacket, c);
                 break;
             case DELETE_CHAR:
                 CharOperationHandler.handleDeleteChar(inPacket, c);

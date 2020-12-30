@@ -3,7 +3,7 @@ package im.cave.ms.enums;
 /**
  * Created on 2/28/2018.
  */
-public enum InventoryOperation {
+public enum InventoryOperationType {
     ADD(0),
     UPDATE_QUANTITY(1),
     MOVE(2),
@@ -19,7 +19,7 @@ public enum InventoryOperation {
 
     private final byte val;
 
-    InventoryOperation(int val) {
+    InventoryOperationType(int val) {
         this.val = (byte) val;
     }
 

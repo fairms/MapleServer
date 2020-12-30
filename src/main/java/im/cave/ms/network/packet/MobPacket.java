@@ -107,6 +107,7 @@ public class MobPacket {
             outPacket.writePos(pos);
         }
         movementInfo.encode(outPacket);
+        outPacket.write(0);
         return outPacket;
     }
 }

@@ -7,6 +7,7 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
+import im.cave.ms.client.items.InventoryOperation;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemBuffs;
 import im.cave.ms.client.items.ItemInfo;
@@ -17,6 +18,7 @@ import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.EquipmentEnchantType;
+import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ScrollStat;
 import im.cave.ms.enums.SpecStat;
@@ -27,15 +29,17 @@ import im.cave.ms.scripting.item.ItemScriptManager;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Util;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import static im.cave.ms.enums.ChatType.SystemNotice;
 import static im.cave.ms.enums.EquipBaseStat.cuc;
 import static im.cave.ms.enums.EquipBaseStat.tuc;
-import static im.cave.ms.enums.InventoryOperation.MOVE;
-import static im.cave.ms.enums.InventoryOperation.REMOVE;
-import static im.cave.ms.enums.InventoryOperation.UPDATE_QUANTITY;
+import static im.cave.ms.enums.InventoryOperationType.MOVE;
+import static im.cave.ms.enums.InventoryOperationType.REMOVE;
+import static im.cave.ms.enums.InventoryOperationType.UPDATE_QUANTITY;
 import static im.cave.ms.enums.InventoryType.EQUIP;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
 
@@ -87,9 +91,9 @@ public class InventoryHandler {
             drop.setCanBePickedUpByPet(false);
             map.drop(drop, position, new Position(position.getX(), fh.getYFromX(position.getX())));
             if (fullDrop) {
-                c.announce(UserPacket.inventoryOperation(true, false, REMOVE, oldPos, newPos, 0, item));
+                c.announce(UserPacket.inventoryOperation(true, REMOVE, oldPos, newPos, 0, item));
             } else {
-                c.announce(UserPacket.inventoryOperation(true, false, UPDATE_QUANTITY, oldPos, newPos, 0, item));
+                c.announce(UserPacket.inventoryOperation(true, UPDATE_QUANTITY, oldPos, newPos, 0, item));
             }
         } else {
             Item swapItem = player.getInventory(invTypeTo).getItem(newPos < 0 ? (short) -newPos : newPos);
@@ -108,7 +112,7 @@ public class InventoryHandler {
             if (swapItem != null) {
                 swapItem.setPos(oldPos);
             }
-            c.announce(UserPacket.inventoryOperation(true, false, MOVE, oldPos, newPos, 0, item));
+            c.announce(UserPacket.inventoryOperation(true, MOVE, oldPos, newPos, 0, item));
         }
 
     }
@@ -347,5 +351,55 @@ public class InventoryHandler {
         int itemId = inPacket.readInt();
         byte unk = inPacket.readByte();
         player.consumeItem(itemId, 1);
+    }
+
+    public static void handleUserGatherItemRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        InventoryType invType = InventoryType.getTypeById(inPacket.readByte());
+        if (invType == null) {
+            return;
+        }
+        Inventory inv = player.getInventory(invType);
+        List<Item> items = new ArrayList<>(inv.getItems());
+        items.sort(Comparator.comparingInt(Item::getPos));
+        List<InventoryOperation> operations = new ArrayList<>();
+        for (Item item : items) {
+            int freeSlot = inv.getNextFreeSlot();
+            if (freeSlot < item.getPos()) {
+                short oldPos = (short) item.getPos();
+                item.setPos(freeSlot);
+                operations.add(new InventoryOperation(oldPos, (short) freeSlot, item));
+            }
+        }
+        c.announce(UserPacket.inventoryOperation(true, operations));
+        c.announce(UserPacket.gatherItemResult(invType.getVal()));
+    }
+
+    public static void handleUserSortItemRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        InventoryType invType = InventoryType.getTypeById(inPacket.readByte());
+        if (invType == null) {
+            return;
+        }
+        Inventory inv = player.getInventory(invType);
+        List<Item> items = new ArrayList<>(inv.getItems());
+        items.sort(Comparator.comparingInt(Item::getItemId));
+        for (Item item : items) {
+            if (item.getPos() != items.indexOf(item) + 1) {
+                player.announce(UserPacket.inventoryOperation(true, InventoryOperationType.REMOVE,
+                        (short) item.getPos(), (short) 0, -1, item));
+            }
+        }
+        for (Item item : items) {
+            int index = items.indexOf(item) + 1;
+            if (item.getPos() != index) {
+                item.setPos(index);
+                player.announce(UserPacket.inventoryOperation(true, InventoryOperationType.ADD,
+                        (short) item.getPos(), (short) 0, -1, item));
+            }
+        }
+        c.announce(UserPacket.sortItemResult(invType.getVal()));
     }
 }

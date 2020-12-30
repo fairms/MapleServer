@@ -66,7 +66,9 @@ public class UserRemote {
         outPacket.write(attackInfo.mobCount << 4 | attackInfo.hits);
         outPacket.writeInt(player.getLevel());
         outPacket.writeInt(attackInfo.skillLevel);
-        outPacket.writeInt(attackInfo.skillId);
+        if (attackInfo.skillLevel > 0) {
+            outPacket.writeInt(attackInfo.skillId);
+        }
         outPacket.writeZeroBytes(10);
         outPacket.write(attackInfo.attackAction);
         outPacket.write(attackInfo.direction);
@@ -151,6 +153,31 @@ public class UserRemote {
         outPacket.write(3);
         outPacket.write(1);
         outPacket.write(-1);
+        return outPacket;
+    }
+
+    public static OutPacket emotion(Integer charId, int emotion, int duration, boolean byItemOption) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.REMOTE_EMOTION.getValue());
+        outPacket.writeInt(charId);
+        outPacket.writeInt(emotion);
+        outPacket.writeInt(duration);
+        outPacket.writeBool(byItemOption);
+        return outPacket;
+    }
+
+    public static OutPacket sitResult(Integer charId, int chairId, int unk1, short unk2, int unk3, byte unk4) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.REMOTE_SET_ACTIVE_PORTABLE_CHAIR.getValue());
+        outPacket.writeInt(charId);
+        outPacket.writeInt(chairId);
+        outPacket.writeInt(0);
+        outPacket.writeInt(unk3);
+        outPacket.write(unk4);
+        outPacket.writeBool(chairId != 0);
+        outPacket.writeInt(0);
+        outPacket.writeInt(unk1);
+        outPacket.writeShort(unk2);
         return outPacket;
     }
 }

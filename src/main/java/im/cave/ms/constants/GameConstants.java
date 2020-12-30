@@ -41,6 +41,15 @@ public class GameConstants {
     public static final int[] CUSTOM_ACTION = {46, 27, 30, 0, 1, 19, 14, 15, 52, 17, 11, 8, 3, 20, 26, 16, 22, 9, 50, 51, 2, 31, 29, 5, 7, 4, 53, 54, 100, 101, 102, 103, 104, 105, 106, 47, 12, 13, 23, 10, 18};
     // Trading
     public static final int MAX_TRADE_ITEMS = 9;
+    // Field
+    public static final int NO_MAP_ID = 999999999;
+    public static final int VIDEO_FIELD = 931050990; // Used for Effects and/or Videos
+    public static final int ARDENTMILL = 910001000;
+    public static final int FOREST_OF_TENACITY = 993001000;
+    public static final int DEFAULT_FIELD_MOB_CAPACITY = 25;
+    public static final double DEFAULT_FIELD_MOB_RATE_BY_MOBGEN_COUNT = 1.5;
+    public static final int BASE_MOB_RESPAWN_RATE = 5000; // In milliseconds
+    private static List<QuickMoveInfo> quickMoveInfos;
 
     //drop
     public static final int DROP_HEIGHT = 100; // was 20
@@ -62,13 +71,6 @@ public class GameConstants {
     public static final int CHAR_POT_GRADE_LOCK_COST = 10000;
     public static final int CHAR_POT_LOCK_1_COST = 3000;
     public static final int CHAR_POT_LOCK_2_COST = 5000;
-
-
-    public static final int BASE_MOB_RESPAWN_RATE = 10000; // In milliseconds
-
-    //map
-    public static final int NO_MAP_ID = 999999999;
-    private static List<QuickMoveInfo> quickMoveInfos;
 
     public static int[][][] INC_HP_MP = {
             // first array = per job
@@ -398,5 +400,9 @@ public class GameConstants {
 
     public static long applyTax(long money) {
         return Math.round(money * 0.95);
+    }
+
+    public static boolean isValidEmotion(int emotion) {
+        return emotion >= 0 && emotion <= 10;
     }
 }
