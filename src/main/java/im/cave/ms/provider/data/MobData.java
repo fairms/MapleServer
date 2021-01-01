@@ -638,4 +638,8 @@ public class MobData {
         return copy;
 
     }
+
+    public static void init() {
+
+    }
 }

@@ -60,8 +60,8 @@ public class MovementInfo {
 
     public void encode(OutPacket outPacket) {
         outPacket.writeLong(encodedGatherDuration);
-        outPacket.writePos(oldPos);
-        outPacket.writePos(oldVPos);
+        outPacket.writePosition(oldPos);
+        outPacket.writePosition(oldVPos);
         outPacket.write(movements.size());
         for (Movement m : movements) {
             m.encode(outPacket);

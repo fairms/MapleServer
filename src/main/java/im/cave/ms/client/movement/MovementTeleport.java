@@ -31,7 +31,7 @@ public class MovementTeleport extends MovementBase {
     @Override
     public void encode(OutPacket outPacket) {
         outPacket.write(getCommand());
-        outPacket.writePos(getPosition());
+        outPacket.writePosition(getPosition());
         outPacket.writeShort(getFh());
         outPacket.write(getMoveAction());
         outPacket.writeShort(getDuration());

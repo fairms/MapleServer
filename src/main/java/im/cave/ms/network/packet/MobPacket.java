@@ -104,7 +104,7 @@ public class MobPacket {
         outPacket.writeZeroBytes(6);
         outPacket.write(msai.multiTargetForBalls.size());
         for (Position pos : msai.multiTargetForBalls) {
-            outPacket.writePos(pos);
+            outPacket.writePosition(pos);
         }
         movementInfo.encode(outPacket);
         outPacket.write(0);

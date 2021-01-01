@@ -33,7 +33,7 @@ public class MovementStartFallDown extends MovementBase {
     @Override
     public void encode(OutPacket outPacket) {
         outPacket.write(getCommand());
-        outPacket.writePos(getVPosition());
+        outPacket.writePosition(getVPosition());
         outPacket.writeShort(getFootStart());
         outPacket.write(getMoveAction());
         outPacket.writeShort(getDuration());

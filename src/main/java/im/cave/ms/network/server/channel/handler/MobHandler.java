@@ -38,13 +38,14 @@ public class MobHandler {
         MobSkillAttackInfo msai = new MobSkillAttackInfo();
         short moveId = inPacket.readShort();
         msai.actionAndDirMask = inPacket.readByte();
-        byte action = inPacket.readByte();
+        byte action = inPacket.readByte(); //FF
         msai.action = (byte) (action >> 1);
         mob.setMoveAction(action);
 //        int skillId = msai.action - 30;
 //        int skillSN = skillId;
         int slv = 0;
         msai.targetInfo = inPacket.readLong();
+        inPacket.read(6);
         boolean useSkill = action != -1;
         byte multiTargetForBallSize = inPacket.readByte();
         for (int i = 0; i < multiTargetForBallSize; i++) {

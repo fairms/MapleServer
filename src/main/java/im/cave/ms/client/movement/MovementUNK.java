@@ -30,7 +30,7 @@ public class MovementUNK extends MovementBase {
     @Override
     public void encode(OutPacket outPacket) {
         outPacket.write(getCommand());
-        outPacket.writePos(getVPosition());
+        outPacket.writePosition(getVPosition());
         outPacket.write(getMoveAction());
         outPacket.writeShort(getDuration());
         outPacket.write(getForcedStop());

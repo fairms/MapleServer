@@ -37,12 +37,12 @@ public class MovementJump extends MovementBase {
     @Override
     public void encode(OutPacket outPacket) {
         outPacket.write(getCommand());
-        outPacket.writePos(getVPosition());
+        outPacket.writePosition(getVPosition());
         if (getCommand() == 21 || getCommand() == 22) {
             outPacket.writeShort(getFootStart());
         }
         if (getCommand() == 60) {
-            outPacket.writePos(getOffset());
+            outPacket.writePosition(getOffset());
         }
         outPacket.write(getMoveAction());
         outPacket.writeShort(getDuration());

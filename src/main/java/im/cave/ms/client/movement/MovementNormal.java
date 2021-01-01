@@ -46,13 +46,13 @@ public class MovementNormal extends MovementBase {
     @Override
     public void encode(OutPacket outPacket) {
         outPacket.write(getCommand());
-        outPacket.writePos(getPosition());
-        outPacket.writePos(getVPosition());
+        outPacket.writePosition(getPosition());
+        outPacket.writePosition(getVPosition());
         outPacket.writeShort(getFh());
         if (getCommand() == 15 || getCommand() == 17) {
             outPacket.writeShort(getFootStart());
         }
-        outPacket.writePos(getOffset());
+        outPacket.writePosition(getOffset());
         outPacket.writeShort(getUNK());
         outPacket.write(getMoveAction());
         outPacket.writeShort(getDuration());
