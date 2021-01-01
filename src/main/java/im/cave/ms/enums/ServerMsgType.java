@@ -42,7 +42,7 @@ public enum ServerMsgType {
     UNK31(31),
     UNK32(32),
     UNK33(33),
-    UNK34(34),
+    WITH_ITEM(34),
     UNK35(35),
     UNK36(36);
     private byte val;

@@ -8,7 +8,12 @@ import im.cave.ms.config.WorldConfig;
 import im.cave.ms.network.server.cashshop.CashShopServer;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.network.server.login.LoginServer;
+import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.network.server.world.World;
+import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.provider.data.MobData;
+import im.cave.ms.provider.data.QuestData;
+import im.cave.ms.provider.data.StringData;
 import im.cave.ms.scripting.map.MapScriptManager;
 import im.cave.ms.scripting.npc.NpcScriptManager;
 import im.cave.ms.scripting.portal.PortalScriptManager;
@@ -70,22 +75,29 @@ public class Server {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             //todo
         }));
-
-//        QuestData.loadQuests();
-
         loginServer = LoginServer.getInstance();
-        for (WorldConfig.WorldInfo world : Config.worldConfig.worlds) {
-            worlds.add(new World(world.id, world.event_message));
+        for (WorldConfig.WorldInfo worldInfo : Config.worldConfig.worlds) {
+            log.info("World-{} is 开始启动", worldInfo.id);
+            World world = new World(worldInfo.id, worldInfo.event_message);
+            if (world.init()) {
+                worlds.add(world);
+                log.info("World-{} is 正在运行", world.getId());
+            } else {
+                log.info("World-{} 启动失败", worldInfo.id);
+            }
         }
-        worldInit();
+        //加载WZ
+        EventManager.addEvent(StringData::init, 0);
+        EventManager.addEvent(QuestData::init, 0);
+        EventManager.addEvent(ItemData::init, 0);
+        EventManager.addEvent(MobData::init, 0);
+
         online = true;
     }
 
     private void worldInit() {
         for (World world : worlds) {
-            log.info("World-{} is starting... ", world.getId());
             world.init();
-            log.info("World-{} is running... ", world.getId());
         }
     }
 
@@ -157,5 +169,25 @@ public class Server {
             }
         }
         return null;
+    }
+
+    public MapleCharacter findCharByName(String name, byte worldId) {
+        World world = getWorldById(worldId);
+        for (MapleChannel channel : world.getChannels()) {
+            MapleCharacter player = channel.getPlayer(name);
+            if (player != null) {
+                return player;
+            }
+        }
+        return null;
+    }
+
+
+    public LoginServer getLoginServer() {
+        return loginServer;
+    }
+
+    public void setLoginServer(LoginServer loginServer) {
+        this.loginServer = loginServer;
     }
 }

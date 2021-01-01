@@ -16,6 +16,7 @@ import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.FieldOption;
 import im.cave.ms.enums.FieldType;
 import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.UserRemote;
 import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.ItemData;
@@ -141,6 +142,8 @@ public class MapleMap {
         for (MapleCharacter character : characters) {
             if (!chr.getVisibleChar().contains(character)) {
                 chr.announce(WorldPacket.userEnterMap(character));
+                chr.announce(UserRemote.hiddenEffectEquips(character));
+                chr.announce(UserRemote.soulEffect(character));
                 chr.getVisibleChar().add(character);
             }
         }

@@ -250,17 +250,17 @@ public class PacketHelper {
     }
 
     public static void addCharSP(OutPacket outPacket, MapleCharacter chr) {
-        int[] remainingSps = chr.getRemainingSps();
+        List<Integer> remainingSp = chr.getRemainingSp();
         if (JobConstants.isExtendSpJob(chr.getJobId())) {
             outPacket.write(chr.getRemainingSpsSize());
-            for (int i = 0; i < remainingSps.length; i++) {
-                if (remainingSps[i] > 0) {
+            for (int i = 0; i < remainingSp.size(); i++) {
+                if (remainingSp.get(i) > 0) {
                     outPacket.write(i + 1);
-                    outPacket.writeInt(remainingSps[i]);
+                    outPacket.writeInt(remainingSp.get(i));
                 }
             }
         } else {
-            outPacket.writeShort(remainingSps[0]);
+            outPacket.writeShort(remainingSp.get(0));
         }
     }
 

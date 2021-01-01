@@ -1,5 +1,6 @@
 package im.cave.ms.network.server.login.handler;
 
+import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
@@ -50,5 +51,20 @@ public class CharOperationHandler {
         character.setDeleted(false);
         character.setDeleteTime(0L);
         c.announce(LoginPacket.cancelDeleteChar(charId));
+    }
+
+    public static void handleAccountCharSlotsExpand(InPacket inPacket, MapleClient c) {
+        int accId = inPacket.readInt();
+        int i = inPacket.readInt(); //3
+        int i1 = inPacket.readInt(); //
+        int sn = inPacket.readInt();
+        boolean cash = inPacket.readByte() == 0;
+        Account account = c.getAccount();
+        if (accId != account.getId() || account.getPoint() < 3000) {
+            return;
+        }
+        account.addPoint(-3000);
+        account.addSlot(1);
+        c.announce(LoginPacket.charSlotsExpandResult(i1, account.getPoint(), cash));
     }
 }

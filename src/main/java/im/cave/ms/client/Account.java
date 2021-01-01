@@ -1,6 +1,7 @@
 package im.cave.ms.client;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.constants.GameConstants;
 import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.network.server.Server;
 import lombok.Getter;
@@ -68,8 +69,8 @@ public class Account {
         this.account = account;
         this.password = password;
         lastLogin = System.currentTimeMillis();
-        trunk = new Trunk((byte) 20);
-        cashTrunk = new Trunk((byte) 124);
+        trunk = new Trunk((byte) 8);
+        cashTrunk = new Trunk(GameConstants.MAX_LOCKER_SIZE);
     }
 
     public Account() {
@@ -138,4 +139,11 @@ public class Account {
         }
     }
 
+    public void addPoint(int amount) {
+        point += amount;
+    }
+
+    public void addSlot(int i) {
+        characterSlots += i;
+    }
 }

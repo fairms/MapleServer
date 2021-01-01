@@ -171,13 +171,14 @@ public abstract class MapleJob {
             HashMap<Integer, Integer> cooltimes = new HashMap<>();
             chr.addSkillCooltime(skillId, cooltime * 1000);
             cooltimes.put(skillId, cooltime * 1000);
-            c.announce(UserPacket.skillCoolTimes(cooltimes));
+            c.announce(UserPacket.skillCoolTimeSet(cooltimes));
             //todo
             EventManager.addEvent(() -> c.announce(UserPacket.skillCoolDown(skillId)), cooltime, TimeUnit.SECONDS);
         }
         if (inPacket != null && isBuff(skillId)) {
             handleJobLessBuff(c, inPacket, skillId, slv);
         } else {
+
         }
     }
 

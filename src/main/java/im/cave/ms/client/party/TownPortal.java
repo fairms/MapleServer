@@ -52,7 +52,7 @@ public class TownPortal {
         outPacket.writeInt(getTownID());
         outPacket.writeInt(getFieldID());
         outPacket.writeInt(getSkillID());
-        outPacket.writePos(getFieldPortal());
+        outPacket.writePosition(getFieldPortal());
     }
 
 }

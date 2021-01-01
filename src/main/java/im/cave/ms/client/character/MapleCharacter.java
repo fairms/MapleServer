@@ -9,9 +9,12 @@ import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.Familiar;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.Portal;
+import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.MapleMapObj;
+import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
+import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
@@ -30,6 +33,7 @@ import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.BaseStat;
+import im.cave.ms.enums.BodyPart;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipSpecialAttribute;
@@ -41,7 +45,6 @@ import im.cave.ms.enums.SpecStat;
 import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.network.db.InlinedIntArrayConverter;
 import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.LoginPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.packet.UserRemote;
 import im.cave.ms.network.packet.WorldPacket;
@@ -144,7 +147,8 @@ public class MapleCharacter implements Serializable {
     private int partyId;
     @Transient
     private Party party;
-    private String remainingSp;
+    @Convert(converter = InlinedIntArrayConverter.class)
+    private List<Integer> remainingSp;
     private byte buddyCapacity, skin, hairColorBase = -1, hairColorMixed, hairColorProb, spawnPoint = 0;
     private boolean gm;
     private boolean isDeleted;
@@ -251,6 +255,14 @@ public class MapleCharacter implements Serializable {
     private NpcShop shop;
     @Transient
     private boolean online;
+    @Transient
+    private List<NpcShopItem> repurchaseItems = new ArrayList<>();
+    @Transient
+    private Npc npc;
+    @Transient
+    private List<Integer> cashCart = new ArrayList<>(12);
+    @Transient
+    private Android android;
 
 
     public MapleCharacter() {
@@ -278,7 +290,7 @@ public class MapleCharacter implements Serializable {
         character.setJob(job);
         character.setBuddyCapacity((byte) 20);
         character.setStats(new CharStats());
-        character.setRemainingSp("0,0,0,0,0,0,0,0,0,0");
+        character.setRemainingSp(new ArrayList<>(6));
         character.setKeyMap(new MapleKeyMap());
         return character;
     }
@@ -306,32 +318,10 @@ public class MapleCharacter implements Serializable {
         return job.getJobId();
     }
 
-    public int[] getRemainingSps() {
-        String remainingSp = getRemainingSp();
-        String[] sps = remainingSp.split(","); //0,1,2,3
-        int size = 0;
-        for (String sp : sps) {
-            if (!Util.isNumber(sp)) {
-                continue;
-            }
-            size++;
-        }
-        int[] remainingSps = new int[size];
-        for (int i = 0; i < sps.length; i++) {
-            if (!Util.isNumber(sps[i])) {
-                continue;
-            }
-            int sp = Integer.parseInt(sps[i]);
-            remainingSps[i] = sp;
-        }
-        return remainingSps;
-    }
-
-
     public int getRemainingSpsSize() {
-        int[] remainingSps = getRemainingSps();
+        List<Integer> remainingSp = getRemainingSp();
         int i = 0;
-        for (int sp : remainingSps) {
+        for (int sp : remainingSp) {
             if (sp > 0) {
                 i++;
             }
@@ -375,7 +365,7 @@ public class MapleCharacter implements Serializable {
                     rec = true;
                 }
                 existingItem.addQuantity(quantity);
-                announce(UserPacket.inventoryOperation(true, InventoryOperationType.UPDATE_QUANTITY, (short) existingItem.getPos(), (short) -1, 0, existingItem));
+                announce(UserPacket.inventoryOperation(true, UPDATE_QUANTITY, (short) existingItem.getPos(), (short) -1, 0, existingItem));
                 if (rec) {
                     addItemToInv(item);
                 }
@@ -385,7 +375,7 @@ public class MapleCharacter implements Serializable {
                 }
                 Item itemCopy = null;
                 if (item.getInvType().isStackable() && ii != null && item.getQuantity() > ii.getSlotMax()) {
-                    itemCopy = item.deepCopy(); //剩余的
+                    itemCopy = item.deepCopy();
                     quantity = quantity - ii.getSlotMax();
                     itemCopy.setQuantity(quantity);
                     item.setQuantity(ii.getSlotMax());
@@ -532,14 +522,10 @@ public class MapleCharacter implements Serializable {
             announce(WorldPacket.getWarpToMap(this, map, portal));
         }
         map.addPlayer(this);
-        announce(LoginPacket.account(getAccount()));
-        announce(UserPacket.keymapInit(this));
-        announce(UserPacket.quickslotInit(this));
-        announce(UserPacket.initSkillMacro());
-        announce(UserPacket.updateVoucher(this));
         map.sendMapObjectPackets(this);
-        map.broadcastMessage(UserPacket.hiddenEffectEquips(this)); //broadcast?
-        announce(WorldPacket.quickMove(map.isTown()));
+        map.broadcastMessage(UserRemote.hiddenEffectEquips(this));
+        map.broadcastMessage(UserRemote.soulEffect(this));
+        announce(WorldPacket.quickMove(map.isTown() && (map.getId() % 1000000) == 0));
     }
 
     public void announce(OutPacket outPacket) {
@@ -558,7 +544,22 @@ public class MapleCharacter implements Serializable {
         }
         getEquipInventory().removeItem(item);
         getEquippedInventory().addItem(item);
+        if (ItemConstants.isAndroid(item.getItemId()) || ItemConstants.isMechanicalHeart(item.getItemId())) {
+            if (getEquippedEquip(BodyPart.Android) != null && getEquippedEquip(BodyPart.MechanicalHeart) != null) {
+                Equip androidEquip = getEquippedEquip(BodyPart.Android);
+                Android android = androidEquip.getAndroid();
+                if (android == null) {
+                    android = ItemData.createAndroidFromItem(androidEquip);
+                }
+                setAndroid(android);
+            }
+        }
         return true;
+    }
+
+
+    public Equip getEquippedEquip(BodyPart bodyPart) {
+        return (Equip) getEquippedInventory().getItem((short) bodyPart.getVal());
     }
 
     public void unequip(Item item) {
@@ -866,20 +867,17 @@ public class MapleCharacter implements Serializable {
         announce(UserPacket.updatePlayerStats(stats, this));
     }
 
-    public void addSpToJobByCurrentLevel(int num) {
-        int[] remainingSps = getRemainingSps();
+    public void addSpToJobByCurrentLevel(int amount) {
         byte jobLevel = (byte) JobConstants.getJobLevelByCharLevel(getJob().getJobId(), getLevel());
-        if (jobLevel == 0) {
+        addSp(amount, jobLevel);
+    }
+
+    public void addSp(int amount, int jobLevel) {
+        List<Integer> remainingSp = getRemainingSp();
+        if (jobLevel == 0) {  //新手没有技能点
             return;
         }
-        remainingSps[jobLevel - 1] += num;
-        StringBuilder sb = new StringBuilder();
-        for (int sp : remainingSps) {
-            sb.append(sp);
-            sb.append(",");
-        }
-        String r = sb.substring(0, sb.length() - 1);
-        setRemainingSp(r);
+        remainingSp.set(jobLevel, remainingSp.get(jobLevel - 1) + amount);
     }
 
 
@@ -955,7 +953,7 @@ public class MapleCharacter implements Serializable {
         }
     }
 
-    private void addToBaseStatCache(Skill skill) {
+    public void addToBaseStatCache(Skill skill) {
         SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
         if (SkillConstants.isPassiveSkill(skill.getSkillId())) {
             Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel(), skill.getSkillId());
@@ -996,19 +994,6 @@ public class MapleCharacter implements Serializable {
             getSkills().remove(skill);
 
         }
-    }
-
-    public void setRemainingSp(String remainingSp) {
-        this.remainingSp = remainingSp;
-    }
-
-    public void setRemainingSp(int[] remainingSps) {
-        StringBuilder sb = new StringBuilder();
-        for (int sp : remainingSps) {
-            sb.append(sp);
-            sb.append(",");
-        }
-        setRemainingSp(sb.substring(0, sb.length() - 1));
     }
 
     public void enterCashShop() {
@@ -1388,5 +1373,59 @@ public class MapleCharacter implements Serializable {
 
     public World getMapleWorld() {
         return Server.getInstance().getWorldById(world);
+    }
+
+    public int getSpentHyperStatSp() {
+        int sp = 0;
+        for (int skillId = 80000400; skillId <= 80000418; skillId++) {
+            Skill skill = getSkill(skillId);
+            if (skill != null) {
+                sp += SkillConstants.getTotalNeededSpForHyperStatSkill(skill.getCurrentLevel());
+            }
+        }
+        return sp;
+    }
+
+    public void deductMoney(long amount) {
+        addMeso(-amount);
+    }
+
+    public int getSpentHyperPassiveSkillSp() {
+        int i = 0;
+        for (Skill skill : getSkills()) {
+            SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
+            if (si.getHyper() == 1) {
+                i++;
+            }
+        }
+        return i;
+    }
+
+    public int getSpentHyperActiveSkillSp() {
+        int i = 0;
+        for (Skill skill : getSkills()) {
+            SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
+            if (si.getHyper() == 2) {
+                i++;
+            }
+        }
+        return i;
+    }
+
+
+    public void addRepurchaseItem(NpcShopItem item) {
+        getRepurchaseItems().add(item);
+    }
+
+    public Npc getNpc() {
+        return npc;
+    }
+
+    public void setNpc(Npc npc) {
+        this.npc = npc;
+    }
+
+    public void enableAction() {
+        announce(UserPacket.enableActions());
     }
 }

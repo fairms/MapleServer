@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import static im.cave.ms.constants.ServerConstants.DESKEY;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
@@ -189,24 +188,10 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket hiddenEffectEquips(MapleCharacter player) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.HIDDEN_EFFECT_EQUIP.getValue());
-        outPacket.writeInt(player.getId());
-        List<Item> items = player.getEquippedInventory().getItems();
-        List<Item> equips = items.stream().filter(item -> !((Equip) item).isShowEffect()).collect(Collectors.toList());
-        outPacket.writeInt(equips.size());
-        for (Item equip : equips) {
-            outPacket.writeInt(equip.getPos());
-        }
-        outPacket.writeBool(false);
-        return outPacket;
-    }
-
     public static OutPacket sendRebirthConfirm(boolean onDeadRevive, boolean onDeadProtectForBuff, boolean onDeadProtectBuffMaplePoint,
                                                boolean onDeadProtectExpMaplePoint, boolean anniversary, int reviveType, int protectType) {
         OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.DEATH_CONFIRM.getValue());
+        outPacket.writeShort(SendOpcode.OPEN_DEAD_UI.getValue());
         int reviveMask = 0;
         if (onDeadRevive) {
             reviveMask |= 0x1;
@@ -253,9 +238,9 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket skillCoolTimes(Map<Integer, Integer> cooltimes) {
+    public static OutPacket skillCoolTimeSet(Map<Integer, Integer> cooltimes) {
         OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SKILL_COOLTIME.getValue());
+        outPacket.writeShort(SendOpcode.SKILL_COOLTIME_SET.getValue());
         outPacket.writeInt(cooltimes.size());
         cooltimes.forEach((id, cooltime) -> {
             outPacket.writeInt(id);
@@ -267,7 +252,7 @@ public class UserPacket {
     public static OutPacket skillCoolDown(int skillId) {
         HashMap<Integer, Integer> skills = new HashMap<>();
         skills.put(skillId, 0);
-        return skillCoolTimes(skills);
+        return skillCoolTimeSet(skills);
     }
 
     public static OutPacket removeBuff(TemporaryStatManager tsm, boolean demount) {
@@ -306,7 +291,8 @@ public class UserPacket {
         outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
         outPacket.write(MessageType.INC_MONEY_MESSAGE.getVal());
         outPacket.writeInt(amount);
-        outPacket.writeInt(amount > 0 ? 1 : -1);
+        outPacket.writeInt(-1);
+        outPacket.writeInt(amount > 0 ? 0 : -1);
         return outPacket;
     }
 
@@ -399,7 +385,7 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket initSkillMacro() {
+    public static OutPacket initSkillMacro(MapleCharacter chr) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.INIT_SKILL_MACRO.getValue());
         outPacket.write(0); //size
@@ -434,15 +420,6 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket setDamageSkin(MapleCharacter chr) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SET_DAMAGE_SKIN.getValue());
-        outPacket.writeInt(chr.getId());
-        outPacket.writeInt(chr.getDamageSkin().getDamageSkinID());
-        outPacket.writeInt(0); //unk
-        return outPacket;
-
-    }
 
     public static OutPacket damageSkinSaveResult(DamageSkinType req, DamageSkinType res, MapleCharacter chr) {
         OutPacket outPacket = new OutPacket();
@@ -466,17 +443,6 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket showItemUpgradeEffect(int charId, boolean success, boolean enchantDlg, int uItemId, int eItemId, boolean boom) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SHOW_ITEM_UPGRADE_EFFECT.getValue());
-        outPacket.writeInt(charId);
-        outPacket.write(boom ? 2 : success ? 1 : 0);
-        outPacket.writeBool(enchantDlg);
-        outPacket.writeInt(uItemId);
-        outPacket.writeInt(eItemId);
-        outPacket.write(0);
-        return outPacket;
-    }
 
     public static OutPacket keymapInit(MapleCharacter character) {
         OutPacket outPacket = new OutPacket();
@@ -663,6 +629,28 @@ public class UserPacket {
         OutPacket outPacket = new OutPacket();
         outPacket.writeInt(SendOpcode.SIT_RESULT.getValue());
         outPacket.writeInt(0);
+        return outPacket;
+    }
+
+    public static OutPacket finalAttack(MapleCharacter chr, int weapon, int skillId, int finalSkillId) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.FINAL_ATTACK.getValue());
+        outPacket.writeInt(chr.getTick());
+        outPacket.writeInt(finalSkillId > 0);
+        outPacket.writeInt(skillId);
+        outPacket.writeInt(finalSkillId);
+        outPacket.writeInt(weapon);
+        return outPacket;
+    }
+
+    public static OutPacket invExpandResult(int i, int point, boolean cash) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SLOT_EXPAND_RESULT.getValue());
+        outPacket.writeInt(i);
+        outPacket.writeInt(0);
+        outPacket.writeInt(point);
+        outPacket.write(2);
+        outPacket.writeShort(cash ? 1 : 0);
         return outPacket;
     }
 }

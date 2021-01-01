@@ -35,22 +35,27 @@ public class FieldEffect {
                 outPacket.writeInt(getArg3());// y1
                 break;
             case Tremble:
-                outPacket.write(getArg1());
-                outPacket.write(getArg2());
-                outPacket.writeInt(getArg3());
-                outPacket.writeShort(getArg4());
+                outPacket.write(getArg1());  // 1
+                outPacket.write(getArg2());  // 1
+                outPacket.writeInt(getArg3()); // duration
+                outPacket.writeShort(getArg4()); // level
                 break;
             case ObjectStateByString:
+            case TopScreen:
+            case Screen:
                 outPacket.writeMapleAsciiString(getString());// sName
                 break;
             case DisableEffectObject:
                 outPacket.writeMapleAsciiString(getString());// sName
                 outPacket.write(getArg1());    // bCheckPreWord
                 break;
-            case Screen:
-                outPacket.writeMapleAsciiString(getString());// String
-                break;
+            // String
             case PlaySound:
+            case BackScreen:
+                // Directory to the Effect
+                // Delay in ms
+            case TopScreenEffect:                   // Goes over other effects
+            case ScreenEffect:
                 outPacket.writeMapleAsciiString(getString());// Sound
                 outPacket.writeInt(getArg1());// Volume
                 break;
@@ -78,21 +83,8 @@ public class FieldEffect {
                 outPacket.writeInt(getArg2());     // Reward Part ID
                 outPacket.writeInt(getArg3());     // Reward Level ID
                 break;
-            case TopScreen:
-                outPacket.writeMapleAsciiString(getString());// Directory to the Effect
-                break;
-            case BackScreen:
-                outPacket.writeMapleAsciiString(getString());// Directory to the Effect
-                outPacket.writeInt(getArg1());     // Delay in ms
-                break;
-            case TopScreenEffect:                   // Goes over other effects
-                outPacket.writeMapleAsciiString(getString());// Directory to the Effect
-                outPacket.writeInt(getArg1());     // Delay in ms
-                break;
-            case ScreenEffect:
-                outPacket.writeMapleAsciiString(getString());// Path to the Effect
-                outPacket.writeInt(getArg1());     // Delay in ms
-                break;
+            // Directory to the Effect
+            // Path to the Effect
             case ScreenFloatingEffect:
                 outPacket.writeMapleAsciiString(getString());
                 outPacket.write(getArg1());
@@ -132,6 +124,8 @@ public class FieldEffect {
                 }
                 break;
             case OverlapScreen:                    // Takes a Snapshot of the Client and slowly fades away
+            case StageClearExpOnly:
+            case RemoveOverlapScreen:
                 outPacket.writeInt(getArg1());     // Duration of the overlap (ms)
                 break;
             case OverlapScreenDetail:
@@ -140,9 +134,7 @@ public class FieldEffect {
                 outPacket.writeInt(getArg3());     // Fade Out
                 outPacket.write(getArg4());    // some boolean
                 break;
-            case RemoveOverlapScreen:
-                outPacket.writeInt(getArg1());     // Fade Out duration
-                break;
+            // Fade Out duration
             case ChangeColor:
                 outPacket.writeShort(getArg1());   // GreyField Type (but doesn't contain Reactor
                 outPacket.writeShort(getArg2());   // red      (250 is normal value)
@@ -154,9 +146,7 @@ public class FieldEffect {
                     outPacket.writeInt(0);
                 }
                 break;
-            case StageClearExpOnly:
-                outPacket.writeInt(getArg1());     // Exp Number given
-                break;
+            // Exp Number given
             case SpineScreen:
                 outPacket.write(getArg1());// bBinary
                 outPacket.write(getArg2());// bLoop

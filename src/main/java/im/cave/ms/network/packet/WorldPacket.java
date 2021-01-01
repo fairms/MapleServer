@@ -27,7 +27,6 @@ import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Randomizer;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -272,6 +271,10 @@ public class WorldPacket {
         return serverMsg(content, type, null);
     }
 
+    public static OutPacket serverMsgWithItem(String content, ServerMsgType type, Item item) {
+        return serverMsg(content, type, item);
+    }
+
     public static OutPacket serverMsg(String content, ServerMsgType type, Item item) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.SERVER_MSG.getValue());
@@ -294,6 +297,14 @@ public class WorldPacket {
             case PICKUP_ITEM_WORLD:
                 outPacket.writeMapleAsciiString(content);
                 outPacket.write(item.getItemId());
+                PacketHelper.addItemInfo(outPacket, item);
+                break;
+            case WITH_ITEM:
+                outPacket.writeMapleAsciiString(content);
+                outPacket.writeInt(item.getItemId());
+                outPacket.writeInt(3);
+                outPacket.writeInt(3);
+                outPacket.write(0x2E);
                 PacketHelper.addItemInfo(outPacket, item);
                 break;
         }
@@ -348,11 +359,11 @@ public class WorldPacket {
         outPacket.writeInt(!drop.isMoney() ? drop.getItem().getItemId() : drop.getMoney());
         outPacket.writeInt(drop.getOwnerID());
         outPacket.write(2); // 0 = timeout for non-owner, 1 = timeout for non-owner's party, 2 = FFA, 3 = explosive/FFA
-        outPacket.writePos(posTo);
+        outPacket.writePosition(posTo);
         outPacket.writeInt(0); // drop from id
         outPacket.writeZeroBytes(42);
         if (dropEnterType != Instant) {
-            outPacket.writePos(posFrom);
+            outPacket.writePosition(posFrom);
             outPacket.writeInt(delay); //delay
         }
         outPacket.write(0); //unk
@@ -500,12 +511,14 @@ public class WorldPacket {
 
     public static OutPacket trunkMsg(TrunkOpType trunkOpType) {
         OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
         outPacket.write(trunkOpType.getVal());
         return outPacket;
     }
 
     public static OutPacket getMoneyFromTrunk(long mount, Trunk trunk) {
         OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
         outPacket.write(TrunkOpType.TrunkRes_MoneySuccess.getVal());
         outPacket.write(trunk.getSlotCount());
         outPacket.writeLong(0x02);
@@ -513,16 +526,11 @@ public class WorldPacket {
         return outPacket;
     }
 
-    public static OutPacket getItemFromTrunk(Collection<Item> items, Trunk trunk, InventoryType type) {
+    public static OutPacket getItemFromTrunk(Trunk trunk, InventoryType type) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
         outPacket.write(TrunkOpType.TrunkRes_GetSuccess.getVal());
-        outPacket.write(trunk.getSlotCount());
-        outPacket.writeLong(type.getBitfieldEncoding());
-        outPacket.write(items.size());
-        for (Item item : items) {
-            PacketHelper.addItemInfo(outPacket, item);
-        }
+        trunk.encode(outPacket, type.getBitfieldEncoding());
         return outPacket;
     }
 
@@ -565,7 +573,7 @@ public class WorldPacket {
             outPacket.write(-1); // unk
         }
         outPacket.writeZeroBytes(14);
-        outPacket.writePos(chr.getPosition());
+        outPacket.writePosition(chr.getPosition());
         outPacket.write(chr.getMoveAction());
         outPacket.writeShort(chr.getFoothold());
         outPacket.writeZeroBytes(3); //unk
@@ -627,4 +635,40 @@ public class WorldPacket {
         return outPacket;
     }
 
+    public static OutPacket elfTip(int elf, int duration, String msg) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.ELF_TIP.getValue());
+        outPacket.writeInt(elf);
+        outPacket.writeInt(duration);
+        outPacket.writeMapleAsciiString(msg);
+        outPacket.write(0);
+        outPacket.write(0);
+        outPacket.write(0);
+        return outPacket;
+    }
+
+    public static OutPacket putItemToTrunk(Trunk trunk, InventoryType inventoryType) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
+        outPacket.write(TrunkOpType.TrunkRes_PutSuccess.getVal());
+        trunk.encode(outPacket, inventoryType.getBitfieldEncoding());
+        return outPacket;
+    }
+
+    public static OutPacket sortedTrunkItems(Trunk trunk) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
+        outPacket.write(TrunkOpType.TrunkRes_SortItem.getVal());
+        trunk.encode(outPacket, 0x7C);
+        return outPacket;
+    }
+
+
+    public static OutPacket queryCashPointResult(Account account) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CASH_POINT_RESULT.getValue());
+        outPacket.writeInt(account.getPoint());
+        outPacket.writeInt(account.getVoucher());
+        return outPacket;
+    }
 }

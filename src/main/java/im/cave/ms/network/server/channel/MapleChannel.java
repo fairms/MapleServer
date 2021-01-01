@@ -25,6 +25,7 @@ public class MapleChannel extends AbstractServer {
     private final List<MapleCharacter> players = new ArrayList<>();
     private final List<MapleMap> maps;
 
+
     public MapleChannel(int worldId, int channelId) {
         super(worldId, channelId);
         type = ServerType.CHANNEL;
@@ -32,7 +33,11 @@ public class MapleChannel extends AbstractServer {
         acceptor = new ServerAcceptor(this);
         new Thread(acceptor).start();
         maps = new CopyOnWriteArrayList<>();
-        log.info("Channel-{} listening on port {}", channelId, port);
+        if (acceptor.isOnline()) {
+            log.info("Channel-{} listening on port {}", channelId, port);
+        } else {
+            log.error("Channel-{} 启动失败", channelId);
+        }
     }
 
     public void addPlayer(MapleCharacter player) {
@@ -44,6 +49,10 @@ public class MapleChannel extends AbstractServer {
 
     public MapleCharacter getPlayer(int charId) {
         return players.stream().filter(character -> character.getId() == charId).findAny().orElse(null);
+    }
+
+    public MapleCharacter getPlayer(String name) {
+        return players.stream().filter(character -> character.getName().equals(name)).findAny().orElse(null);
     }
 
     public Integer getPlayerCount() {
@@ -78,5 +87,10 @@ public class MapleChannel extends AbstractServer {
         for (MapleMap map : maps) {
             map.broadcastMessage(outPacket);
         }
+    }
+
+
+    public boolean isOnline() {
+        return acceptor.isOnline();
     }
 }

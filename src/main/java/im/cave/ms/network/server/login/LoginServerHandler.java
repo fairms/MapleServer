@@ -7,6 +7,7 @@ import im.cave.ms.enums.ServerType;
 import im.cave.ms.network.crypto.AESCipher;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.LoginPacket;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
 import im.cave.ms.network.server.ErrorPacketHandler;
 import im.cave.ms.network.server.login.handler.CharOperationHandler;
@@ -120,6 +121,11 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<InPacket> {
                 break;
             case OPEN_CREATE_CHAR_LAYOUT:
                 c.announce(LoginPacket.getOpenCreateChar());
+                break;
+            case USER_CASH_POINT_REQUEST:
+                c.announce(WorldPacket.queryCashPointResult(c.getAccount()));
+            case USER_SLOT_EXPAND_REQUEST:
+                CharOperationHandler.handleAccountCharSlotsExpand(inPacket, c);
                 break;
             default:
                 handleUnknown(inPacket, op);

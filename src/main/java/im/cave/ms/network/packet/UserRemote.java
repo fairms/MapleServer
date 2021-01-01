@@ -2,11 +2,16 @@ package im.cave.ms.network.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Effect;
+import im.cave.ms.client.items.Equip;
+import im.cave.ms.client.items.Item;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.client.skill.HitInfo;
 import im.cave.ms.client.skill.MobAttackInfo;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author fair
@@ -179,5 +184,75 @@ public class UserRemote {
         outPacket.writeInt(unk1);
         outPacket.writeShort(unk2);
         return outPacket;
+    }
+
+    public static OutPacket charLookModified(MapleCharacter chr) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.REMOTE_AVATAR_MODIFIED.getValue());
+        outPacket.writeInt(chr.getId());
+        outPacket.write(1);
+        PacketHelper.addCharLook(outPacket, chr, true, false);
+        outPacket.writeInt(0);
+        outPacket.write(0xFF);
+        outPacket.writeInt(0);
+        outPacket.write(0xFF);
+        outPacket.writeZeroBytes(15);
+        return outPacket;
+    }
+
+    public static OutPacket showItemUpgradeEffect(int charId, boolean success, boolean enchantDlg, int uItemId, int eItemId, boolean boom) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SHOW_ITEM_UPGRADE_EFFECT.getValue());
+        outPacket.writeInt(charId);
+        outPacket.write(boom ? 2 : success ? 1 : 0);
+        outPacket.writeBool(enchantDlg);
+        outPacket.writeInt(uItemId);
+        outPacket.writeInt(eItemId);
+        outPacket.write(0);
+        return outPacket;
+    }
+
+    public static OutPacket hiddenEffectEquips(MapleCharacter player) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.HIDDEN_EFFECT_EQUIP.getValue());
+        outPacket.writeInt(player.getId());
+        List<Item> items = player.getEquippedInventory().getItems();
+        List<Item> equips = items.stream().filter(item -> !((Equip) item).isShowEffect()).collect(Collectors.toList());
+        outPacket.writeInt(equips.size());
+        for (Item equip : equips) {
+            outPacket.writeInt(equip.getPos());
+        }
+        outPacket.writeBool(false);
+        return outPacket;
+    }
+
+    public static OutPacket soulEffect(MapleCharacter player) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SET_SOUL_EFFECT.getValue());
+        outPacket.writeInt(player.getId());
+        outPacket.writeInt(0);
+        outPacket.write(0);
+        outPacket.writeShort(0);
+        return outPacket;
+    }
+
+    public static OutPacket setDamageSkin(MapleCharacter chr) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SET_DAMAGE_SKIN.getValue());
+        outPacket.writeInt(chr.getId());
+        outPacket.writeInt(chr.getDamageSkin().getDamageSkinID());
+        outPacket.writeInt(0); //unk
+        return outPacket;
+    }
+
+    public static OutPacket showItemReleaseEffect(int charId, short ePos, boolean bonus) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SHOW_ITEM_RELEASE_EFFECT.getValue());
+        outPacket.writeInt(charId);
+        outPacket.writeShort(ePos);
+        outPacket.writeBool(bonus);
+
+        return outPacket;
+
     }
 }

@@ -21,7 +21,7 @@ public class SummonPacket {
         outPacket.writeInt(summon.getCharLevel());
         outPacket.writeInt(summon.getSlv());
         // CSummoned::Init
-        outPacket.writePos(summon.getPosition());
+        outPacket.writePosition(summon.getPosition());
         outPacket.write(summon.getMoveAction());
         outPacket.writeShort(summon.getCurFoothold());
         outPacket.write(summon.getMoveAbility().getVal()); // 1

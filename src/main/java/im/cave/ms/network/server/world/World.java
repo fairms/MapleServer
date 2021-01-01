@@ -21,7 +21,7 @@ public class World {
     private int id;
     private List<MapleChannel> channels = new ArrayList<>();
     private final Map<Integer, Party> parties = new HashMap<>();
-    private Integer partyId = 1;
+    private Integer partyCounter = 1;
     private CashShopServer cashShopServer;
     private String eventMessage;
 
@@ -59,7 +59,7 @@ public class World {
     }
 
     public int getPartyIdAndIncrement() {
-        return partyId++;
+        return partyCounter++;
     }
 
     public void addParty(Party party) {
@@ -71,13 +71,20 @@ public class World {
         }
     }
 
-    public void init() {
-        WorldConfig.WorldInfo info = Config.worldConfig.getWorldInfo(id);
-        for (int i = 0; i < info.channels; i++) {
-            MapleChannel channel = new MapleChannel(id, i);
-            channels.add(channel);
+    public boolean init() {
+        try {
+            WorldConfig.WorldInfo info = Config.worldConfig.getWorldInfo(id);
+            for (int i = 0; i < info.channels; i++) {
+                MapleChannel channel = new MapleChannel(id, i);
+                if (channel.isOnline()) {
+                    channels.add(channel);
+                }
+            }
+            cashShopServer = new CashShopServer(id);
+        } catch (Exception e) {
+            return false;
         }
-        cashShopServer = new CashShopServer(id);
+        return channels.size() > 0;
     }
 
     public String getEventMessage() {
@@ -85,9 +92,14 @@ public class World {
     }
 
     public CashShopServer getCashShop() {
-        if (cashShopServer == null) {
-            cashShopServer = new CashShopServer(id);
-        }
         return cashShopServer;
+    }
+
+    public void removeParty(Party party) {
+        parties.remove(party.getId(), party);
+    }
+
+    public Party getPartyById(int id) {
+        return parties.getOrDefault(id, null);
     }
 }

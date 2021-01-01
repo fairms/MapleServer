@@ -199,6 +199,26 @@ public class SkillConstants {
         return level == 150 || level == 170 || level == 200 ? 1 : 0;
     }
 
+    public static int getTotalHyperPassiveSkillSp(int level) {
+        if (level >= 140) {
+            return 1 + ((Math.min(level, 220) - 140) / 10);
+        } else {
+            return 0;
+        }
+    }
+
+    public static int getTotalHyperActiveSkillSp(int level) {
+        if (level >= 200) {
+            return 3;
+        } else if (level >= 170) {
+            return 2;
+        } else if (level >= 150) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
     public static int getHyperStatSpByLv(short level) {
         return 3 + ((level - 140) / 10);
     }

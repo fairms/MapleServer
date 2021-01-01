@@ -9,6 +9,7 @@ import im.cave.ms.network.crypto.AESCipher;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.LoginPacket;
 import im.cave.ms.network.packet.UserPacket;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
 import im.cave.ms.network.server.ErrorPacketHandler;
 import im.cave.ms.network.server.channel.handler.InventoryHandler;
@@ -88,6 +89,12 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             return;
         }
         switch (opcode) {
+            case USER_CASH_POINT_REQUEST:
+                c.announce(WorldPacket.queryCashPointResult(c.getAccount()));
+                break;
+            case USER_SLOT_EXPAND_REQUEST:
+                InventoryHandler.handleUserSlotExpandRequest(inPacket, c);
+                break;
             case USER_ENTER_SERVER:
                 WorldHandler.handleUserEnterServer(inPacket, c, ServerType.CHANNEL);
                 break;
@@ -114,6 +121,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 break;
             case USER_QUEST_REQUEST:
                 EventManager.addEvent(() -> QuestHandler.handleQuestRequest(inPacket, c), 0);
+                break;
+            case USER_LOTTERY_ITEM_USE_REQUEST:
+                InventoryHandler.handleUserLotteryItemUseRequest(inPacket, c);
                 break;
             case USER_TRANSFER_FIELD_REQUEST:
                 UserHandler.handleChangeMapRequest(inPacket, c);
@@ -148,8 +158,14 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case USER_SCRIPT_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserScriptItemUseRequest(inPacket, c);
                 break;
+            case USER_CONSUME_CASH_ITEM_USE_REQUEST:
+                InventoryHandler.handleUserConsumeCashItemUseRequest(inPacket, c);
+                break;
             case EQUIP_ENCHANT_REQUEST:
                 InventoryHandler.handleEquipEnchanting(inPacket, c);
+                break;
+            case USER_ITEM_RELEASE_REQUEST:
+                InventoryHandler.handleUserItemReleaseRequest(inPacket, c);
                 break;
             case USER_PORTAL_SCROLL_USE_REQUEST:
                 InventoryHandler.handleUserPortalScrollUseRequest(inPacket, c);
@@ -162,6 +178,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 break;
             case USER_FLAME_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserFlameItemUseRequest(inPacket, c);
+                break;
+            case USER_ITEM_OPTION_UPGRADE_ITEM_USE_REQUEST:
+                InventoryHandler.handleUserItemOptionUpgradeItemUseRequest(inPacket, c);
                 break;
             case USER_ABILITY_UP_REQUEST:
                 UserHandler.handleAPUpdateRequest(inPacket, c);
@@ -236,8 +255,21 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case PARTY_REQUEST:
                 WorldHandler.handlePartyRequest(inPacket, c);
                 break;
+            case PARTY_INVITE_RESPONSE:
+                WorldHandler.handlePartyInviteResponse(inPacket, c);
+                break;
             case CHANGE_KEYMAP:
                 UserHandler.handleChangeKeyMap(inPacket, c);
+                break;
+            case USER_HYPER_SKILL_UP_REQUEST:
+            case USER_HYPER_STAT_UP_REQUEST:
+                UserHandler.handleUserHyperUpRequest(inPacket, c);
+                break;
+            case USER_HYPER_SKILL_RESET_REQUEST:
+                UserHandler.handleUserHyperSkillResetRequest(inPacket, c);
+                break;
+            case USER_HYPER_STAT_RESET_REQUEST:
+                UserHandler.handleUserHyperStatResetRequest(inPacket, c);
                 break;
             case CHANGE_CHAR_REQUEST:
                 WorldHandler.handleChangeCharRequest(inPacket, c);

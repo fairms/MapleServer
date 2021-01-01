@@ -312,4 +312,15 @@ public class LoginPacket {
         outPacket.write(0);
         return outPacket;
     }
+
+    public static OutPacket charSlotsExpandResult(int i1, int point, boolean cash) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeInt(SendOpcode.CHAR_SLOTS_EXPAND_RESULT.getValue());
+        outPacket.writeInt(i1);
+        outPacket.writeInt(60);
+        outPacket.writeInt(point);
+        outPacket.write(1);
+        outPacket.writeShort(cash ? 0 : 1);
+        return outPacket;
+    }
 }

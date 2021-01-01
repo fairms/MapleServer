@@ -1,6 +1,9 @@
 package im.cave.ms.network.server.channel.handler;
 
+import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.Trunk;
+import im.cave.ms.client.cashshop.CashItemInfo;
 import im.cave.ms.client.character.DamageSkinSaveData;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleKeyMap;
@@ -27,20 +30,26 @@ import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
+import im.cave.ms.enums.CashItemType;
 import im.cave.ms.enums.CharPotGrade;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.DropLeaveType;
+import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.network.netty.InPacket;
+import im.cave.ms.network.packet.CashShopPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.packet.UserRemote;
 import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
 import im.cave.ms.network.server.CommandHandler;
+import im.cave.ms.network.server.Server;
+import im.cave.ms.network.server.cashshop.CashShopServer;
 import im.cave.ms.network.server.channel.MapleChannel;
+import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
@@ -216,7 +225,6 @@ public class UserHandler {
         if (!player.applyMpCon(skillId, attackInfo.skillLevel)) {
             return;
         }
-
         if (attackInfo.attackHeader != null) {
             switch (attackInfo.attackHeader) {
 //                case SUMMONED_ATTACK:
@@ -262,20 +270,6 @@ public class UserHandler {
             //todo
             player.announce(UserPacket.stylishKillMessage(1000, killedCount));
             player.addExp(1000, null);
-        }
-
-        if (attackInfo.attackHeader != null) {
-            switch (attackInfo.attackHeader) {
-                //todo
-//                case SUMMONED_ATTACK:
-//                    chr.getField().broadcastPacket(Summoned.summonedAttack(chr.getId(), attackInfo, false), chr);
-//                    break;
-//                case FAMILIAR_ATTACK:
-//                    chr.getField().broadcastPacket(CFamiliar.familiarAttack(chr.getId(), attackInfo), chr);
-//                    break;
-                default:
-                    player.getMap().broadcastMessage(player, UserRemote.attack(player, attackInfo), false);
-            }
         }
     }
 
@@ -387,7 +381,7 @@ public class UserHandler {
             return;
         }
         equip.setShowEffect(!equip.isShowEffect());
-        player.getMap().broadcastMessage(UserPacket.hiddenEffectEquips(player));
+        player.getMap().broadcastMessage(UserRemote.hiddenEffectEquips(player));
     }
 
     public static void handleSkillUp(InPacket inPacket, MapleClient c) {
@@ -436,15 +430,14 @@ public class UserHandler {
                 skill.setCurrentLevel(newLevel);
             }
         } else if (JobConstants.isExtendSpJob(player.getJobId())) {
-            int[] remainingSps = player.getRemainingSps();
-            int remainingSp = remainingSps[jobLevel - 1];
-            if (remainingSp >= level) {
+            List<Integer> remainingSp = player.getRemainingSp();
+            Integer sp = remainingSp.get(jobLevel - 1);
+            if (sp >= level) {
                 int curLevel = curSkill == null ? 0 : curSkill.getCurrentLevel();
                 int max = curSkill == null ? skill.getMaxLevel() : curSkill.getMaxLevel();
                 int newLevel = Math.min(curLevel + level, max);
                 skill.setCurrentLevel(newLevel);
-                remainingSps[jobLevel - 1] = remainingSp - level;
-                player.setRemainingSp(remainingSps);
+                player.addSp(-level, jobLevel);
                 stats = new HashMap<>();
                 stats.put(MapleStat.AVAILABLESP, (long) 1);
             } else {
@@ -454,15 +447,13 @@ public class UserHandler {
                 return;
             }
         } else {
-            int[] remainingSps = player.getRemainingSps();
-            int currentSp = remainingSps[0];
+            Integer currentSp = player.getRemainingSp().get(0);
             if (currentSp >= level) {
                 int curLevel = curSkill == null ? 0 : curSkill.getCurrentLevel();
                 int max = curSkill == null ? skill.getMaxLevel() : curSkill.getMaxLevel();
                 int newLevel = Math.min(curLevel + level, max);
                 skill.setCurrentLevel(newLevel);
-                remainingSps[0] = currentSp - level;
-                player.setRemainingSp(remainingSps);
+                player.addSp(-level, 1);
                 stats = new HashMap<>();
                 stats.put(MapleStat.AVAILABLESP, (long) 1);
             } else {
@@ -734,7 +725,7 @@ public class UserHandler {
         int damageSkinId = inPacket.readInt();
         MapleCharacter chr = c.getPlayer();
         chr.setDamageSkin(chr.getDamageSkinBySkinId(damageSkinId));
-        chr.announce(UserPacket.setDamageSkin(chr));
+        chr.getMap().broadcastMessage(chr, UserRemote.setDamageSkin(chr), true);
     }
 
     public static void handleChangeMapRequest(InPacket inPacket, MapleClient c) {
@@ -819,6 +810,179 @@ public class UserHandler {
         boolean byItemOption = inPacket.readByte() != 0;
         if (GameConstants.isValidEmotion(emotion)) {
             player.getMap().broadcastMessage(player, UserRemote.emotion(player.getId(), emotion, duration, byItemOption), false);
+        }
+    }
+
+    public static void handleUserHyperUpRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        int skillId = inPacket.readInt();
+        SkillInfo si = SkillData.getSkillInfo(skillId);
+        if (si == null) {
+            player.chatMessage("attempted assigning hyper SP to a skill with null");
+            return;
+        }
+        if (si.getHyper() == 0 && si.getHyperStat() == 0) {
+            log.error(String.format("Character %d attempted assigning hyper SP to a wrong skill (skill id %d, player job %d)", player.getId(), skillId, player.getJob()));
+            return;
+        }
+        Skill skill = player.getSkill(skillId, true);
+        if (si.getHyper() != 0) { //超级技能
+            if (si.getHyper() == 1) {
+                int totalSp = SkillConstants.getTotalHyperPassiveSkillSp(player.getLevel());
+                int spentSp = player.getSpentHyperPassiveSkillSp();
+                int availableSp = totalSp - spentSp;
+                if (availableSp <= 0 || skill.getCurrentLevel() != 0) {
+                    return;
+                }
+            } else if (si.getHyper() == 2) {
+                int totalSp = SkillConstants.getTotalHyperActiveSkillSp(player.getLevel());
+                int spentSp = player.getSpentHyperActiveSkillSp();
+                int availableSp = totalSp - spentSp;
+                if (availableSp <= 0 || skill.getCurrentLevel() != 0) {
+                    return;
+                }
+            }
+        } else if (si.getHyperStat() != 0) { //超级属性
+            int totalHyperSp = SkillConstants.getHyperStatSpByLv((short) player.getLevel());
+            int spentSp = player.getSpentHyperStatSp();
+            int availableSp = totalHyperSp - spentSp;
+            int neededSp = SkillConstants.getNeededSpForHyperStatSkill(skill.getCurrentLevel() + 1);
+            if (skill.getCurrentLevel() >= skill.getMaxLevel() || availableSp < neededSp) {
+                return;
+            }
+        } else {
+            log.error(String.format("Character %d attempted assigning hyper stat to an improper skill. (%d, job %d)", player.getId(), skillId, player.getJob().getJobId()));
+            return;
+        }
+        player.removeFromBaseStatCache(skill);
+        skill.setCurrentLevel(skill.getCurrentLevel() + 1);
+        player.addToBaseStatCache(skill);
+        List<Skill> skills = new ArrayList<>();
+        skills.add(skill);
+        player.addSkill(skill);
+        player.announce(UserPacket.changeSkillRecordResult(skills, true, false, false, false));
+    }
+
+    public static void handleUserHyperSkillResetRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        if (player.getMeso() < GameConstants.HYPER_SKILL_RESET_COST) {
+            player.chatMessage("Not enough money for this operation.");
+        } else {
+            player.deductMoney(GameConstants.HYPER_SKILL_RESET_COST);
+            List<Skill> skills = new ArrayList<>();
+            for (int skillId = 80000400; skillId <= 80000418; skillId++) {
+                Skill skill = player.getSkill(skillId);
+                if (skill != null) {
+                    skill.setCurrentLevel(0);
+                    skills.add(skill);
+                    player.addSkill(skill);
+                }
+            }
+            player.announce(UserPacket.changeSkillRecordResult(skills, true, false, false, false));
+        }
+    }
+
+    public static void handleUserHyperStatResetRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        if (player.getMeso() < GameConstants.HYPER_STAT_RESET_COST) {
+            player.chatMessage("Not enough money for this operation.");
+        } else {
+            player.deductMoney(GameConstants.HYPER_STAT_RESET_COST);
+            List<Skill> skills = new ArrayList<>();
+            int skillBaseId = player.getJobId() * 10000 + 31;
+            for (int skillId = skillBaseId; skillId <= skillBaseId + 100; skillId++) {
+                Skill skill = player.getSkill(skillId);
+                if (skill != null) {
+                    skill.setCurrentLevel(0);
+                    skills.add(skill);
+                    player.addSkill(skill);
+                }
+            }
+            player.announce(UserPacket.changeSkillRecordResult(skills, true, false, false, false));
+        }
+    }
+
+    public static void handleCashShopCashItemRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        Account account = player.getAccount();
+        Trunk cashTrunk = account.getCashTrunk();
+        byte type = inPacket.readByte();
+        CashItemType cit = CashItemType.getRequestTypeByVal(type);
+        CashShopServer cashShop = Server.getInstance().getCashShop(player.getWorld());
+        if (cit == null) {
+            log.error("Unhandled cash shop cash item request " + type);
+            return;
+        }
+        switch (cit) {
+            case Req_SetCart: {
+                inPacket.readByte();
+                ArrayList<Integer> carts = new ArrayList<>();
+                while (inPacket.available() >= 4) {
+                    carts.add(inPacket.readInt());
+                }
+                player.getCashCart().clear();
+                player.getCashCart().addAll(carts);
+                break;
+            }
+            case Req_Buy: {
+                boolean cash = inPacket.readByte() == 0; // 0：点券 1:抵用
+                inPacket.readShort();
+                int sn = inPacket.readInt();
+                int quantity = inPacket.readInt();
+                CashItemInfo cashItemInfo = ItemData.getCashItemInfo(sn);
+                if (cashItemInfo == null) {
+                    return;
+                }
+                int price = cashItemInfo.getPrice();
+                int cost = price * quantity;
+                if (cost > account.getPoint()) {
+                    return;
+                }
+                account.addPoint(-cost);
+                Item itemCopy = ItemData.getItemCopy(cashItemInfo.getItemId(), false);
+                itemCopy.setCashItemSerialNumber(cashShop.getNextSerialNumber());
+                cashTrunk.addCashItem(itemCopy);
+                player.announce(CashShopPacket.cashItemBuyResult(account, itemCopy));
+                player.announce(CashShopPacket.queryCashResult(account));
+                break;
+            }
+            case Req_MoveLtoS: {
+                long serialNumber = inPacket.readLong();
+                int itemId = inPacket.readInt();
+                byte val = inPacket.readByte();
+                short pos = inPacket.readShort();
+                InventoryType inventoryType = InventoryType.getTypeById(val);
+                Item item = cashTrunk.getItemBySerialNumber(serialNumber);
+                if (item.getItemId() != itemId || inventoryType == null) {
+                    return;
+                }
+                item.setPos(pos);
+                cashTrunk.removeItemBySerialNumber(serialNumber);
+                player.getInventory(inventoryType).addItem(item);
+                player.announce(CashShopPacket.moveItemToTrunkResult(item));
+                break;
+            }
+            case Req_MoveStoL: {
+                long serialNumber = inPacket.readLong();
+                int itemId = inPacket.readInt();
+                byte val = inPacket.readByte();
+                short pos = inPacket.readShort();
+                InventoryType inventoryType = InventoryType.getTypeById(val);
+                if (inventoryType == null) {
+                    return;
+                }
+                Item item = player.getInventory(inventoryType).getItem(pos);
+                if (item.getItemId() != itemId || item.getCashItemSerialNumber() != serialNumber) {
+                    return;
+                }
+                item.setInvType(null);
+                cashTrunk.addCashItem(item);
+                player.announce(CashShopPacket.getItemFromTrunkResult(account, item));
+                break;
+            }
         }
     }
 }

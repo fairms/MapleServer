@@ -9,6 +9,7 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
+import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.job.JobManager;
 import im.cave.ms.client.miniroom.TradeRoom;
@@ -17,6 +18,7 @@ import im.cave.ms.client.party.Party;
 import im.cave.ms.client.party.PartyMember;
 import im.cave.ms.client.party.PartyResult;
 import im.cave.ms.constants.GameConstants;
+import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.DimensionalMirror;
 import im.cave.ms.enums.FieldOption;
@@ -161,7 +163,7 @@ public class WorldHandler {
             return;
         }
         switch (trunkOpType) {
-            case TrunkReq_GetItem:
+            case TrunkReq_GetItem: {
                 int pos = inPacket.readShort() - 1;
                 short quantity = inPacket.readShort(); //todo
                 if (pos >= 0 && pos < trunk.getItems().size()) {
@@ -170,22 +172,58 @@ public class WorldHandler {
                         trunk.removeItem(item);
                         player.addItemToInv(item);
                         InventoryType invType = item.getInvType();
-                        List<Item> items = trunk.getItems(invType);
-                        player.announce(WorldPacket.getItemFromTrunk(items, trunk, invType));
+                        player.announce(WorldPacket.getItemFromTrunk(trunk, invType));
                     } else {
                         player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_GetUnknown));
                     }
                 }
                 break;
-            case TrunkReq_Money:
-                long amount = inPacket.readLong();
-                if (trunk.getMoney() >= amount) {
-                    trunk.addMoney(-amount);
-                    player.addMeso(amount);
-                    player.announce(WorldPacket.getMoneyFromTrunk(amount, trunk));
-                } else {
-                    player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_GetNoMoney));
+            }
+            case TrunkReq_PutItem: {
+                if (player.getMeso() < player.getNpc().getTrunkPut()) {
+                    player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_PutNoMoney));
+                    return;
                 }
+                short pos = inPacket.readShort();
+                int itemId = inPacket.readInt();
+                short quantity = inPacket.readShort();
+                InventoryType invType = ItemConstants.getInvTypeByItemId(itemId);
+                if (invType == null) {
+                    //todo
+                    player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_PutUnknown));
+                    return;
+                }
+                Inventory inventory = player.getInventory(invType);
+                Item item = inventory.getItem(pos);
+                if (item.getId() != itemId) {
+                    player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_PutUnknown));
+                    return;
+                }
+                player.consumeItem(itemId, quantity);
+                trunk.addItem(item, quantity);
+                player.announce(WorldPacket.putItemToTrunk(trunk, item.getInvType()));
+                break;
+            }
+            case TrunkReq_Money: {
+                long amount = inPacket.readLong();
+                long trunkMoney = trunk.getMoney();
+                long meso = player.getMeso();
+                if (trunkMoney - amount < 0 || meso + amount < 0) {
+                    player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_GetNoMoney));
+                    return;
+                }
+                trunk.addMoney(-amount);
+                player.addMeso(amount);
+                player.announce(WorldPacket.getMoneyFromTrunk(amount, trunk));
+                break;
+            }
+            case TrunkReq_SortItem:
+                trunk.sort();
+                player.announce(WorldPacket.sortedTrunkItems(trunk));
+                break;
+            case TrunkReq_CloseDialog:
+                player.setNpc(null);
+                player.setConversation(false);
                 break;
         }
     }
@@ -331,6 +369,11 @@ public class WorldHandler {
                 player.changeMap(player.getMapId(), true);
                 player.initBaseStats();
                 player.buildQuestEx();
+                c.announce(UserPacket.keymapInit(player));
+                c.announce(LoginPacket.account(player.getAccount()));
+                c.announce(UserPacket.quickslotInit(player));
+                c.announce(UserPacket.initSkillMacro(player));
+                c.announce(UserPacket.updateVoucher(player));
                 c.getAccount().buildSharedQuestEx();
                 c.announce(MapleSignIn.getRewardPacket());
                 break;
@@ -340,10 +383,10 @@ public class WorldHandler {
                 cashShop.addChar(player);
                 c.announce(CashShopPacket.getWrapToCashShop(player));
                 c.announce(CashShopPacket.setCashShop(cashShop));
-                c.announce(CashShopPacket.setCashTrunk(player.getAccount()));
-                c.announce(CashShopPacket.setGifts());
-                c.announce(CashShopPacket.setCart());
-                c.announce(CashShopPacket.updateCashPoint(player.getAccount()));
+                c.announce(CashShopPacket.loadLocker(player.getAccount()));
+                c.announce(CashShopPacket.loadGift());
+                c.announce(CashShopPacket.loadCart(player));
+                c.announce(CashShopPacket.queryCashResult(player.getAccount()));
                 c.announce(CashShopPacket.cashShopEvent());
                 break;
         }
@@ -460,7 +503,7 @@ public class WorldHandler {
                     player.chatMessage("You are already in a party.");
                     return;
                 }
-                boolean appliable = inPacket.readByte() != 0;
+                boolean appliable = inPacket.readByte() != 0; //公开
                 String name = inPacket.readMapleAsciiString();
                 party = Party.createNewParty(appliable, name, player.getMapleWorld());
                 party.addPartyMember(player);
@@ -475,9 +518,67 @@ public class WorldHandler {
                     party.broadcast(WorldPacket.partyResult(PartyResult.withdrawParty(party, leaver, true, false)));
                     party.removePartyMember(leaver);
                     party.updateFull();
+                    player.enableAction();
+                }
+                break;
+            }
+            case PartyReq_InviteParty: {
+                String name = inPacket.readMapleAsciiString();
+                MapleCharacter chr = Server.getInstance().findCharByName(name, player.getWorld());
+                if (chr == null) {
+                    player.chatMessage("Can't find this player");
+                    player.enableAction();
+                    return;
+                }
+                chr.announce(WorldPacket.partyResult(PartyResult.inviteIntrusion(party, player)));
+                party.broadcast(WorldPacket.partyResult(PartyResult.inviteSent(name)));
+                break;
+            }
+            case PartyReq_KickParty: {
+                if (party == null) {
+                    break;
+                }
+                int charId = inPacket.readInt();
+                party.expel(charId);
+                break;
+            }
+            case PartyReq_PartySetting: {
+                boolean appliable = inPacket.readByte() != 0;
+                String name = inPacket.readMapleAsciiString();
+                party.broadcast(WorldPacket.partyResult(PartyResult.partySetting(appliable, name)));
+            }
+        }
+    }
+
+    public static void handlePartyInviteResponse(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        PartyType type = PartyType.getByVal(inPacket.readByte());
+        Party party;
+        if (type == null) {
+            log.error("未知组队请求.");
+            return;
+        }
+        switch (type) {
+            case PartyRes_InviteParty_Sent: { //收到组队邀请
+                break;
+            }
+            case PartyRes_InviteParty_Rejected: { //拒绝组队邀请
+                int partyId = inPacket.readInt();
+                party = player.getMapleWorld().getPartyById(partyId);
+                if (party != null) {
+                    party.getPartyLeader().getChr().chatMessage(String.format("`%s`玩家拒绝了组队招待.", player.getName()));
+                }
+                break;
+            }
+            case PartyRes_InviteParty_Accepted: {
+                int partyId = inPacket.readInt();
+                party = player.getMapleWorld().getPartyById(partyId);
+                if (party != null) {
+                    party.addPartyMember(player);
                 }
                 break;
             }
         }
+
     }
 }
