@@ -93,8 +93,12 @@ public class CashShopHandler extends SimpleChannelInboundHandler<InPacket> {
                 UserHandler.handleChangeMapRequest(inPacket, c);
                 break;
             case CASH_SHOP_POINT_REQUEST:
-                c.announce(CashShopPacket.updateCashPoint(c.getAccount()));
+                c.announce(CashShopPacket.queryCashResult(c.getAccount()));
                 break;
+            case CASH_SHOP_CASH_ITEM_REQUEST:
+                UserHandler.handleCashShopCashItemRequest(inPacket, c);
+                break;
+
         }
     }
 

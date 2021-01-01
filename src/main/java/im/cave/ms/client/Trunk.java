@@ -1,11 +1,13 @@
 package im.cave.ms.client;
 
 import im.cave.ms.client.items.Equip;
-import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.network.db.DataBaseManager;
+import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.PacketHelper;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.Util;
 
@@ -18,6 +20,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,5 +111,66 @@ public class Trunk {
 
     public void removeItem(Item getItem) {
         getItems().remove(getItem);
+    }
+
+    public void encode(OutPacket outPacket, long mask) {
+        outPacket.write(getSlotCount());
+        outPacket.writeLong(mask);
+        ArrayList<Item> itemList = new ArrayList<>();
+        if ((mask & 0x7E) != 0) {
+            outPacket.writeLong(getMoney());
+            outPacket.write(items.size());
+            for (Item item : items) {
+                PacketHelper.addItemInfo(outPacket, item);
+            }
+            return;
+        }
+        if ((mask & 0x04) != 0) {
+            itemList.addAll(getItems(InventoryType.EQUIP));
+        }
+        if ((mask & 0x08) != 0) {
+            itemList.addAll(getItems(InventoryType.CONSUME));
+        }
+        if ((mask & 0x10) != 0) {
+            itemList.addAll(getItems(InventoryType.INSTALL));
+        }
+        if ((mask & 0x20) != 0) {
+            itemList.addAll(getItems(InventoryType.ETC));
+        }
+        if ((mask & 0x40) != 0) {
+            itemList.addAll(getItems(InventoryType.CASH));
+        }
+        outPacket.write(itemList.size());
+        for (Item item : itemList) {
+            PacketHelper.addItemInfo(outPacket, item);
+        }
+    }
+
+    public void sort() {
+        Comparator<Item> byType = Comparator.comparingInt(value -> value.getInvType().getVal());
+        Comparator<Item> byItemId = Comparator.comparingInt(Item::getItemId);
+        Comparator<Item> byLevel = Comparator.comparingInt(value -> {
+            if (value instanceof Equip) {
+                return ((Equip) value).getRLevel();
+            } else {
+                return 0;
+            }
+        });
+        items.sort(byType.thenComparing(byItemId).thenComparing(byLevel));
+    }
+
+    public void addCashItem(Item item) {
+        items.add(item);
+        if (item.getId() == 0) {
+            DataBaseManager.saveToDB(this);
+        }
+    }
+
+    public Item getItemBySerialNumber(long serialNumber) {
+        return Util.findWithPred(items, item -> item.getCashItemSerialNumber() == serialNumber);
+    }
+
+    public void removeItemBySerialNumber(long serialNumber) {
+        items.removeIf(item -> item.getCashItemSerialNumber() == serialNumber);
     }
 }
