@@ -9,7 +9,7 @@ public enum PartyType {
     PartyReq_WithdrawParty(2),
     PartyReq_JoinParty(3),
     PartyReq_InviteParty(4),
-    PartyReq_InviteIntrusion(5), // member -> party request
+    PartyReq_InviteIntrusion(4), // member -> party request
     PartyReq_KickParty(6), // party -> member request
     PartyReq_ChangePartyBoss(7),
     PartyReq_ApplyParty(8),
@@ -100,7 +100,7 @@ public enum PartyType {
     PartyRes_FoundPossibleMember(83),// v202.3
     PartyRes_FoundPossibleParty(84),// v202.3
 
-    PartyRes_PartySettingDone(85),// v202.3
+    PartyRes_PartySettingDone(86),// v202.3
     PartyRes_Load_StarGrade_Result(86),// v202.3
     PartyRes_Load_StarGrade_Result2(87),// v202.3
     PartyRes_Member_Rename(88),// v202.3

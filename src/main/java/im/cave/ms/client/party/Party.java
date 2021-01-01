@@ -112,7 +112,7 @@ public class Party {
         outPacket.writeBool(isAppliable() && !isFull());
         outPacket.write(0);
         outPacket.writeMapleAsciiString(getName());
-        //
+
         outPacket.writeZeroBytes(7);
         outPacket.writeInt(2);
         outPacket.writeZeroBytes(20);
@@ -142,12 +142,14 @@ public class Party {
             if (partyMembers[i] == null) {
                 partyMembers[i] = pm;
                 chr.setParty(this);
+                chr.setPartyId(getId());
                 added = true;
                 break;
             }
         }
-        if (added) {
-//            broadcast(WvsContext.partyResult(PartyResult.joinParty(this, chr.getName())));
+        if (added && chr.getId()
+                != partyLeaderId) {
+            broadcast(WorldPacket.partyResult(PartyResult.joinParty(this, chr.getName())));
         }
     }
 
@@ -168,18 +170,16 @@ public class Party {
     }
 
     public void disband() {
-//        broadcast(WvsContext.partyResult(PartyResult.withdrawParty(this, getPartyLeader(), false, false)));
-//        for (MapleCharacter chr : getOnlineMapleCharacters()) {
-//            chr.setParty(null);
-//        }
-//        for (int i = 0; i < getPartyMembers().length; i++) {
-//            getPartyMembers()[i] = null;
-//        }
-//        getWorld().removeParty(this);
-//        setWorld(null);
+        broadcast(WorldPacket.partyResult(PartyResult.withdrawParty(this, getPartyLeader(), false, false)));
+        for (MapleCharacter chr : getOnlineChar()) {
+            chr.setParty(null);
+        }
+        Arrays.fill(getPartyMembers(), null);
+        getWorld().removeParty(this);
+        setWorld(null);
     }
 
-    public List<MapleCharacter> getOnlineMapleCharacters() {
+    public List<MapleCharacter> getOnlineChar() {
         return getOnlineMembers().stream().filter(pm -> pm.getChr() != null).map(PartyMember::getChr).collect(Collectors.toList());
     }
 
@@ -218,6 +218,7 @@ public class Party {
             PartyMember pm = getPartyMembers()[i];
             if (pm != null && pm.equals(partyMember)) {
                 pm.getChr().setParty(null);
+                pm.getChr().setPartyId(0);
                 getPartyMembers()[i] = null;
                 break;
             }
@@ -226,7 +227,7 @@ public class Party {
 
     public void expel(int expelID) {
         PartyMember leaver = getPartyMemberByID(expelID);
-//        broadcast(WvsContext.partyResult(PartyResult.withdrawParty(this, leaver, true, true)));
+        broadcast(WorldPacket.partyResult(PartyResult.withdrawParty(this, leaver, true, true)));
         removePartyMember(leaver);
         updateFull();
     }

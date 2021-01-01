@@ -92,9 +92,25 @@ public class PartyResult {
         return pr;
     }
 
+    public static PartyResult partySetting(boolean appliable, String name) {
+        PartyResult pr = new PartyResult(PartyType.PartyRes_PartySettingDone);
+        pr.bool = appliable;
+        pr.str = name;
+        return pr;
+    }
+
+    public static PartyResult inviteSent(String name) {
+        PartyResult pr = new PartyResult(PartyType.PartyRes_InviteParty_Sent);
+        pr.str = name;
+        return pr;
+    }
+
     public void encode(OutPacket outPacket) {
         outPacket.write(type.getVal());
         switch (type) {
+            case PartyRes_InviteParty_Sent:
+                outPacket.writeMapleAsciiString(str);
+                break;
             case PartyRes_LoadParty_Done:
                 outPacket.writeInt(party.getId());
                 party.encode(outPacket);
@@ -114,6 +130,7 @@ public class PartyResult {
                 outPacket.writeInt(chr.getLevel());
                 outPacket.writeInt(chr.getJob().getJobId());
                 outPacket.writeInt(0);
+                outPacket.writeShort(0);
                 break;
             case PartyReq_ApplyParty:
                 outPacket.writeInt(party.getId());
@@ -135,14 +152,14 @@ public class PartyResult {
                     outPacket.writeMapleAsciiString(member.getCharName());
 //                    party.encode(outPacket);
                 }
-                outPacket.write(member.getCharId());
+                outPacket.writeInt(member.getCharId());
                 break;
             case PartyRes_JoinParty_Done:
                 outPacket.writeInt(party.getId());
                 outPacket.writeMapleAsciiString(str); // sJoinerName
                 outPacket.write(0);// unknown
                 outPacket.writeInt(0);// unknown
-//                party.encode(outPacket);
+                party.encode(outPacket);
                 break;
             case PartyRes_UserMigration:
                 outPacket.writeInt(party.getId());
@@ -156,6 +173,11 @@ public class PartyResult {
             case PartyRes_UpdateShutdownStatus:
                 outPacket.writeInt(chr.getId());
                 outPacket.writeBool(chr.isOnline());
+                break;
+            case PartyRes_PartySettingDone:
+                outPacket.writeBool(bool);
+                outPacket.writeMapleAsciiString(str);
+                outPacket.writeLong(0);
                 break;
         }
     }
