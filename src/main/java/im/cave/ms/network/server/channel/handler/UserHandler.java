@@ -14,6 +14,8 @@ import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.Portal;
+import im.cave.ms.client.field.obj.Android;
+import im.cave.ms.client.field.obj.AndroidInfo;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.mob.Mob;
@@ -983,6 +985,21 @@ public class UserHandler {
                 player.announce(CashShopPacket.getItemFromTrunkResult(account, item));
                 break;
             }
+        }
+    }
+
+    public static void handleUserSelectAndroid(InPacket inPacket, MapleClient c) {
+        inPacket.readInt(); //charId
+        int type = inPacket.readInt();
+        Position position = inPacket.readPosInt();
+        MapleCharacter player = c.getPlayer();
+        Android android = player.getAndroid();
+        AndroidInfo androidInfo = ItemData.getAndroidInfoByType(type);
+        if (androidInfo == null || android == null) {
+            return;
+        }
+        if (androidInfo.isShopUsable()) {
+            player.dropMessage("机器人商店");
         }
     }
 }

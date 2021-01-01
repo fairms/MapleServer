@@ -24,6 +24,7 @@ public class GameConstants {
     public static int MAX_VIEW_Y = 768;
 
     public static long[] charExp = new long[276];
+    public static final int MAX_PET_AMOUNT = 3;
     public static int maxLevel = 275;
     public static final long MAX_MONEY = 3000000000L;
     public static final short DAMAGE_SKIN_MAX_SIZE = 20;

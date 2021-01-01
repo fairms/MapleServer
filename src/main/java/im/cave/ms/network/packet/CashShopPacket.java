@@ -173,6 +173,5 @@ public class CashShopPacket {
         outPacket.write(1);
         PacketHelper.addItemInfo(outPacket, item);
         return outPacket;
-
     }
 }

@@ -22,6 +22,7 @@ import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -96,10 +97,11 @@ public class Trunk {
         Item curItem = getItemByItemID(item.getItemId());
         if (curItem == null || curItem.getInvType() == InventoryType.EQUIP) {
             Item newItem = ItemConstants.isEquip(item.getItemId())
-                    ? ((Equip) item).deepCopy()
+                    ? item
                     : ItemData.getItemCopy(item.getItemId(), false);
             newItem.setQuantity(quantity);
             getItems().add(newItem);
+            sortByInvType();
         } else {
             curItem.setQuantity(curItem.getQuantity() + quantity);
         }
@@ -117,13 +119,16 @@ public class Trunk {
         outPacket.write(getSlotCount());
         outPacket.writeLong(mask);
         ArrayList<Item> itemList = new ArrayList<>();
-        if ((mask & 0x7E) != 0) {
+        if (mask == 0x7E) {
             outPacket.writeLong(getMoney());
             outPacket.write(items.size());
             for (Item item : items) {
                 PacketHelper.addItemInfo(outPacket, item);
             }
             return;
+        }
+        if ((mask & 0x02) != 0) {
+            outPacket.writeLong(getMoney());
         }
         if ((mask & 0x04) != 0) {
             itemList.addAll(getItems(InventoryType.EQUIP));
@@ -172,5 +177,15 @@ public class Trunk {
 
     public void removeItemBySerialNumber(long serialNumber) {
         items.removeIf(item -> item.getCashItemSerialNumber() == serialNumber);
+    }
+
+    public void trim() {
+        List<Item> items = getItems().stream().filter(Objects::nonNull).collect(Collectors.toList());
+        setItems(items);
+    }
+
+    public void sortByInvType() {
+        Comparator<Item> byType = Comparator.comparingInt(value -> value.getInvType().getVal());
+        items.sort(byType.thenComparing(byType));
     }
 }

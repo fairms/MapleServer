@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ServerAcceptor implements Runnable {
     public AbstractServer server;
-    private boolean online;
     private static final Logger log = LoggerFactory.getLogger(ServerAcceptor.class);
 
     public ServerAcceptor(AbstractServer server) {
@@ -38,16 +37,11 @@ public class ServerAcceptor implements Runnable {
             sb.childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture channelFuture = sb.bind(server.getPort()).sync();
             channelFuture.channel().closeFuture().sync();
-            online = true;
         } catch (Exception e) {
             log.error("端口：{} 被占用", server.getPort());
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
-    }
-
-    public boolean isOnline() {
-        return online;
     }
 }

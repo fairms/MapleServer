@@ -798,27 +798,27 @@ public class Equip extends Item {
                 case LUK:
                     setFLUK((short) (getFLUK() + iAddedStatExtended));
                     break;
-                case STRDEX:
+                case STR_DEX:
                     setFSTR((short) (getFSTR() + iAddedStat));
                     setFDEX((short) (getFDEX() + iAddedStat));
                     break;
-                case STRINT:
+                case STR_INT:
                     setFSTR((short) (getFSTR() + iAddedStat));
                     setFINT((short) (getFINT() + iAddedStat));
                     break;
-                case STRLUK:
+                case STR_LUK:
                     setFSTR((short) (getFSTR() + iAddedStat));
                     setFLUK((short) (getFLUK() + iAddedStat));
                     break;
-                case DEXINT:
+                case DEX_INT:
                     setFDEX((short) (getFDEX() + iAddedStat));
                     setFINT((short) (getFINT() + iAddedStat));
                     break;
-                case DEXLUK:
+                case DEX_LUK:
                     setFDEX((short) (getFDEX() + iAddedStat));
                     setFLUK((short) (getFLUK() + iAddedStat));
                     break;
-                case INTLUK:
+                case INT_LUK:
                     setFINT((short) (getFINT() + iAddedStat));
                     setFLUK((short) (getFLUK() + iAddedStat));
                     break;
@@ -953,4 +953,8 @@ public class Equip extends Item {
         return data.get(Util.getRandom(data.size() - 1));
     }
 
+    @Override
+    public Type getType() {
+        return Type.EQUIP;
+    }
 }

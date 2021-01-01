@@ -38,12 +38,6 @@ public class CashShopServer extends AbstractServer {
         acceptor = new ServerAcceptor(this);
         acceptor.server = this;
         new Thread(acceptor).start();
-        if (acceptor.isOnline()) {
-            log.info("CashShop listening on port {}", port);
-            loadCashItemCounter();
-        } else {
-            log.error("CashShop 运行失败");
-        }
     }
 
     private void loadCashItemCounter() {

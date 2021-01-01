@@ -1380,4 +1380,9 @@ public class ItemData {
             androids.put(type, androidInfo);
         }
     }
+
+
+    public static AndroidInfo getAndroidInfoByType(int type) {
+        return androids.get(type);
+    }
 }

@@ -7,6 +7,7 @@ import im.cave.ms.client.field.Familiar;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.pet.PetItem;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.client.skill.Skill;
@@ -822,6 +823,22 @@ public class PacketHelper {
             outPacket.writeLong(ZERO_TIME);
             outPacket.writeLong(MAX_TIME);
             outPacket.writeLong(equip.getLimitBreak());
+        } else if (item instanceof PetItem) {
+            PetItem pet = (PetItem) item;
+            outPacket.writeAsciiString(pet.getName(), 13);
+            outPacket.write(pet.getLevel());
+            outPacket.writeShort(pet.getTameness() + 1);
+            outPacket.write(pet.getRepleteness());
+            outPacket.writeLong(pet.getDeadDate());
+            outPacket.writeShort(pet.getPetAttribute()); // 0
+            outPacket.writeShort(pet.getPetSkill()); // 1
+            outPacket.writeInt(pet.getRemainLife()); // 0
+            outPacket.writeShort(pet.getAttribute()); // 2 0
+            outPacket.write(pet.getActiveState());
+            outPacket.writeInt(pet.getAutoBuffSkill());
+            outPacket.writeInt(pet.getPetHue());
+            outPacket.writeShort(pet.getGiantRate()); //巨大化
+            outPacket.writeZeroBytes(13); // 不知道
         } else {
             outPacket.writeShort(item.getQuantity());
             outPacket.writeMapleAsciiString(item.getOwner());

@@ -64,12 +64,13 @@ public class Item implements Serializable {
     protected boolean isCash;
     @Transient
     private short flag;
+    //todo 改成FamiliarItem 和 AndroidItem
     @JoinColumn(name = "familiarId")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @NotFound(action = NotFoundAction.IGNORE)
     private Familiar familiar;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "androidId")
     @NotFound(action = NotFoundAction.IGNORE)
     private Android android;
     private String owner = "";

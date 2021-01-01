@@ -501,10 +501,7 @@ public class WorldPacket {
         outPacket.write(TrunkOpType.TrunkRes_OpenTrunkDlg.getVal());
         outPacket.writeInt(npcId);
         Trunk trunk = account.getTrunk();
-        outPacket.write(trunk.getSlotCount());
-        outPacket.writeLong(0x7E); //unk
-        outPacket.writeLong(trunk.getMoney());
-        outPacket.write(trunk.getItems().size());
+        trunk.encode(outPacket, 0x7E);
         outPacket.writeInt(0);
         return outPacket;
     }

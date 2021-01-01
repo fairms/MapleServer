@@ -1,6 +1,7 @@
 package im.cave.ms.network.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.items.Item;
 import im.cave.ms.client.miniroom.TradeRoom;
 import im.cave.ms.enums.MiniRoomType;
 import im.cave.ms.enums.RoomLeaveType;
@@ -25,11 +26,11 @@ public class MiniRoomPacket {
         return outPacket;
     }
 
-    public static OutPacket cancelTrade(boolean sponsor) {
+    public static OutPacket cancelTrade(int user) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
         outPacket.write(MiniRoomType.ExitTrade.getVal());
-        outPacket.writeBool(!sponsor); // other user cancelled
+        outPacket.write(user); // other user cancelled
         outPacket.write(RoomLeaveType.MRLeave_Closed.getVal());
         return outPacket;
     }
@@ -76,4 +77,22 @@ public class MiniRoomPacket {
         return outPacket;
     }
 
+    public static OutPacket putItem(int user, byte tradePos, Item item) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
+        outPacket.write(MiniRoomType.PlaceItem.getVal());
+        outPacket.write(user);
+        outPacket.write(tradePos);
+        PacketHelper.addItemInfo(outPacket, item);
+        return outPacket;
+    }
+
+    public static OutPacket putMeso(int user, long meso) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
+        outPacket.write(MiniRoomType.SetMesos.getVal());
+        outPacket.write(user);
+        outPacket.writeLong(meso);
+        return outPacket;
+    }
 }

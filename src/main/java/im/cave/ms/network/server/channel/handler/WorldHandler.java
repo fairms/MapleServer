@@ -7,6 +7,7 @@ import im.cave.ms.client.Trunk;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
+import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.items.Inventory;
@@ -31,6 +32,7 @@ import im.cave.ms.enums.PartyType;
 import im.cave.ms.enums.ServerType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.network.netty.InPacket;
+import im.cave.ms.network.packet.AndroidPacket;
 import im.cave.ms.network.packet.CashShopPacket;
 import im.cave.ms.network.packet.LoginPacket;
 import im.cave.ms.network.packet.MiniRoomPacket;
@@ -164,18 +166,28 @@ public class WorldHandler {
         }
         switch (trunkOpType) {
             case TrunkReq_GetItem: {
-                int pos = inPacket.readShort() - 1;
+                if (player.getMeso() < player.getNpc().getTrunkGet()) {
+                    player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_GetNoMoney));
+                    return;
+                }
+                byte inv = inPacket.readByte();
+                byte index = inPacket.readByte();
                 short quantity = inPacket.readShort(); //todo
-                if (pos >= 0 && pos < trunk.getItems().size()) {
-                    Item item = trunk.getItems().get(pos);
+                List<Item> items = trunk.getItems(InventoryType.getTypeById(inv));
+                if (index >= 0 && index < items.size()) {
+                    Item item = items.get(index);
                     if (player.getInventory(item.getInvType()).canPickUp(item)) {
                         trunk.removeItem(item);
                         player.addItemToInv(item);
                         InventoryType invType = item.getInvType();
                         player.announce(WorldPacket.getItemFromTrunk(trunk, invType));
+                        player.deductMoney(player.getNpc().getTrunkGet());
+                        trunk.trim();
                     } else {
-                        player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_GetUnknown));
+                        player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_PutNoSpace));
                     }
+                } else {
+                    player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_GetUnknown));
                 }
                 break;
             }
@@ -195,10 +207,11 @@ public class WorldHandler {
                 }
                 Inventory inventory = player.getInventory(invType);
                 Item item = inventory.getItem(pos);
-                if (item.getId() != itemId) {
+                if (item.getItemId() != itemId) {
                     player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_PutUnknown));
                     return;
                 }
+                player.deductMoney(player.getNpc().getTrunkPut());
                 player.consumeItem(itemId, quantity);
                 trunk.addItem(item, quantity);
                 player.announce(WorldPacket.putItemToTrunk(trunk, item.getInvType()));
@@ -464,11 +477,69 @@ public class WorldHandler {
                 tradeRoom.getOtherChar(player).announce(MiniRoomPacket.chat(1, msgWithName, player));
                 break;
             }
-            case Create:
+            case Create: {
                 tradeRoom = new TradeRoom(player);
                 player.setMiniRoom(tradeRoom);
                 player.announce(MiniRoomPacket.enterTrade(tradeRoom, player));
                 break;
+            }
+            case PlaceItem:
+            case PlaceItem_2:
+            case PlaceItem_3:
+            case PlaceItem_4: {
+                byte invType = inPacket.readByte();
+                short bagPos = inPacket.readShort();
+                short quantity = inPacket.readShort();
+                byte tradePos = inPacket.readByte();
+                InventoryType ivt = InventoryType.getTypeById(invType);
+                if (ivt == null) {
+                    return;
+                }
+                Item item = player.getInventory(ivt).getItem(bagPos);
+                if (item.getQuantity() < quantity) {
+                    return;
+                }
+                if (!item.isTradable()) {
+                    return;
+                }
+                if (player.getMiniRoom() == null) {
+                    player.chatMessage("You are currently not trading.");
+                    return;
+                }
+                Item offer = ItemData.getItemCopy(item.getItemId(), false);
+                offer.setQuantity(quantity);
+                if (tradeRoom.canAddItem(player)) {
+                    int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
+                    item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
+                    player.consumeItem(item);
+                    tradeRoom.addItem(player, tradePos, offer);
+                }
+                MapleCharacter other = tradeRoom.getOtherChar(player);
+                player.announce(MiniRoomPacket.putItem(0, tradePos, offer));
+                other.announce(MiniRoomPacket.putItem(1, tradePos, offer));
+                break;
+            }
+            case SetMesos:
+            case SetMesos_2:
+            case SetMesos_3:
+            case SetMesos_4: {
+                long meso = inPacket.readLong();
+                if (tradeRoom == null) {
+                    player.chatMessage("You are currently not trading.");
+                    return;
+                }
+                if (meso < 0 || meso > player.getMeso()) {
+                    return;
+                }
+                player.deductMoney(meso);
+                player.addMeso(tradeRoom.getMoney(player));
+                tradeRoom.putMoney(player, meso);
+                MapleCharacter other = tradeRoom.getOtherChar(player);
+                player.announce(MiniRoomPacket.putMeso(0, meso));
+                other.announce(MiniRoomPacket.putMeso(1, meso));
+                break;
+            }
+
         }
     }
 
@@ -580,5 +651,17 @@ public class WorldHandler {
             }
         }
 
+    }
+
+    public static void handleAndroidMove(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        Android android = player.getAndroid();
+        if (android == null) {
+            return;
+        }
+        inPacket.readInt();
+        MovementInfo mi = new MovementInfo(inPacket);
+        mi.applyTo(android);
+        player.getMap().broadcastMessage(player, AndroidPacket.move(android, mi), false);
     }
 }

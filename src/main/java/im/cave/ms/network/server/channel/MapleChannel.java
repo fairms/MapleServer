@@ -33,11 +33,6 @@ public class MapleChannel extends AbstractServer {
         acceptor = new ServerAcceptor(this);
         new Thread(acceptor).start();
         maps = new CopyOnWriteArrayList<>();
-        if (acceptor.isOnline()) {
-            log.info("Channel-{} listening on port {}", channelId, port);
-        } else {
-            log.error("Channel-{} 启动失败", channelId);
-        }
     }
 
     public void addPlayer(MapleCharacter player) {
@@ -89,8 +84,4 @@ public class MapleChannel extends AbstractServer {
         }
     }
 
-
-    public boolean isOnline() {
-        return acceptor.isOnline();
-    }
 }

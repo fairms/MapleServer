@@ -1,6 +1,8 @@
 package im.cave.ms.scripting.npc;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.items.Equip;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.network.packet.NpcPacket;
 import im.cave.ms.scripting.AbstractPlayerInteraction;
@@ -200,5 +202,14 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
     public int getNpcId() {
         return npcId;
+    }
+
+
+    public void test() {
+        MapleCharacter player = c.getPlayer();
+        Equip item = ((Equip) player.getEquipInventory().getItem((short) 1));
+        item.setFlame(item.getFlame() + 10);
+        player.dropMessage("当前" + item.getFlame());
+        item.updateToChar(player);
     }
 }

@@ -47,9 +47,9 @@ public class Android extends MapleMapObj {
 
 
     public void encodeAndroidInfo(OutPacket outPacket) {
-        outPacket.writeShort(getSkin());
-        outPacket.writeShort(getHair());
-        outPacket.writeShort(getFace());
+        outPacket.writeShort(getSkin() >= 2000 ? getSkin() - 2000 : getSkin());
+        outPacket.writeShort(getHair() - 30000);
+        outPacket.writeShort(getFace() - 20000);
         outPacket.writeMapleAsciiString(getName());
     }
 }

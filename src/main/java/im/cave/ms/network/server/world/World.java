@@ -76,9 +76,7 @@ public class World {
             WorldConfig.WorldInfo info = Config.worldConfig.getWorldInfo(id);
             for (int i = 0; i < info.channels; i++) {
                 MapleChannel channel = new MapleChannel(id, i);
-                if (channel.isOnline()) {
-                    channels.add(channel);
-                }
+                channels.add(channel);
             }
             cashShopServer = new CashShopServer(id);
         } catch (Exception e) {

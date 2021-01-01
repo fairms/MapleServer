@@ -36,6 +36,13 @@ public class CommandHandler {
     public static void handle(MapleClient c, String content) {
         String[] s = content.substring(1).split(" ");
         switch (s[0]) {
+            case "aa": {
+                MapleCharacter player = c.getPlayer();
+                Equip item = ((Equip) player.getEquipInventory().getItem((short) 1));
+                item.setFlame(item.getFlame() + 1);
+                item.updateToChar(player);
+                break;
+            }
             case "save":
                 c.getPlayer().saveToDB();
                 c.announce(WorldPacket.chatMessage("保存角色", Notice));

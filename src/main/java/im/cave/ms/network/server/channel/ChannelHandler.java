@@ -15,6 +15,7 @@ import im.cave.ms.network.server.ErrorPacketHandler;
 import im.cave.ms.network.server.channel.handler.InventoryHandler;
 import im.cave.ms.network.server.channel.handler.MobHandler;
 import im.cave.ms.network.server.channel.handler.NpcHandler;
+import im.cave.ms.network.server.channel.handler.PetHandler;
 import im.cave.ms.network.server.channel.handler.QuestHandler;
 import im.cave.ms.network.server.channel.handler.UserHandler;
 import im.cave.ms.network.server.channel.handler.WorldHandler;
@@ -240,11 +241,17 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case CHAR_INFO_REQUEST:
                 UserHandler.handleCharInfoReq(inPacket, c);
                 break;
+            case USER_ACTIVATE_PET_REQUEST:
+                PetHandler.handleUserActivatePetReuqest(inPacket, c);
+                break;
             case COMBO_KILL_CHECK:
                 WorldHandler.handleComboKill(inPacket, c);
                 break;
             case SUMMON_MOVE:
                 WorldHandler.handleSummonMove(inPacket, c);
+                break;
+            case ANDROID_MOVE:
+                WorldHandler.handleAndroidMove(inPacket, c);
                 break;
             case CHANGE_QUICKSLOT:
                 UserHandler.handleChangeQuickslot(inPacket, c);
@@ -273,6 +280,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 break;
             case CHANGE_CHAR_REQUEST:
                 WorldHandler.handleChangeCharRequest(inPacket, c);
+                break;
+            case USER_SELECT_ANDROID:
+                UserHandler.handleUserSelectAndroid(inPacket, c);
                 break;
             case UPDATE_TICK:
                 c.getPlayer().setTick(inPacket.readInt());

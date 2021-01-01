@@ -140,10 +140,10 @@ public class TradeRoom implements MiniRoom {
 
     public void cancelTrade() {
         chr.setMiniRoom(null);
-        chr.announce(MiniRoomPacket.cancelTrade(true));
+        chr.announce(MiniRoomPacket.cancelTrade(1));
         if (other != null) {
             other.setMiniRoom(null);
-            other.announce(MiniRoomPacket.cancelTrade(false));
+            other.announce(MiniRoomPacket.cancelTrade(0));
         }
         restoreItems();
 

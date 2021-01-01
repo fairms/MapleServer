@@ -5,6 +5,7 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.field.Clock;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.Familiar;
 import im.cave.ms.client.field.MapleMap;
@@ -12,6 +13,7 @@ import im.cave.ms.client.field.Portal;
 import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.MapleMapObj;
+import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
@@ -220,6 +222,8 @@ public class MapleCharacter implements Serializable {
     private transient String blessOfFairyOrigin;
     private transient String blessOfEmpressOrigin;
     @Transient
+    private List<Pet> pets;
+    @Transient
     private final Map<Integer, String> entered = new HashMap<>();
     @Transient
     private boolean isConversation = false;
@@ -263,6 +267,8 @@ public class MapleCharacter implements Serializable {
     private List<Integer> cashCart = new ArrayList<>(12);
     @Transient
     private Android android;
+    @Transient
+    private Clock clock;
 
 
     public MapleCharacter() {
@@ -1412,6 +1418,9 @@ public class MapleCharacter implements Serializable {
         return i;
     }
 
+    public MapleChannel getMapleChannel() {
+        return client.getMapleChannel();
+    }
 
     public void addRepurchaseItem(NpcShopItem item) {
         getRepurchaseItems().add(item);
@@ -1427,5 +1436,28 @@ public class MapleCharacter implements Serializable {
 
     public void enableAction() {
         announce(UserPacket.enableActions());
+    }
+
+    public void addPet(Pet pet) {
+        pets.add(pet);
+    }
+
+    public int getFirstPetIdx() {
+        int chosenIdx = -1;
+        for (int i = 0; i < GameConstants.MAX_PET_AMOUNT; i++) {
+            Pet p = getPetByIdx(i);
+            if (p == null) {
+                chosenIdx = i;
+                break;
+            }
+        }
+        return chosenIdx;
+    }
+
+    public Pet getPetByIdx(int idx) {
+        return getPets().stream()
+                .filter(p -> p.getIdx() == idx)
+                .findAny()
+                .orElse(null);
     }
 }
