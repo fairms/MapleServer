@@ -2,6 +2,8 @@ package im.cave.ms.provider.data;
 
 import im.cave.ms.client.cashshop.CashItemInfo;
 import im.cave.ms.client.character.FamiliarInfo;
+import im.cave.ms.client.field.obj.Android;
+import im.cave.ms.client.field.obj.AndroidInfo;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemInfo;
@@ -90,81 +92,22 @@ public class ItemData {
     public static Map<Integer, CashItemInfo> oldCashItems = new HashMap<>();
     public static Map<Integer, List<Integer>> itemPackages = new HashMap<>();
     public static Map<Integer, Integer> snLookUp = new HashMap<>();
+    public static Map<Integer, AndroidInfo> androids = new HashMap<>();
 
-    static {
+    public static void init() {
         loadStartItems();
-        loadHotSpotItems();
         loadItemOptions();
         loadFamiliars();
         loadFamiliarOptions();
+        loadCashShopItems();
+        loadAndroidsInfo();
     }
 
 
     private static void loadCashShopItems() {
         //在售
         MapleData commodities = etcData.getData("Commodity.img");
-        for (MapleData commodity : commodities.getChildren()) {
-            CashItemInfo itemInfo = new CashItemInfo();
-            String name = commodity.getName();
-            int value = MapleDataTool.getInt(commodity, 0);
-            switch (name) {
-                case "SN":
-                    itemInfo.setSN(value);
-                    break;
-                case "ItemId":
-                    itemInfo.setItemId(value);
-                    break;
-                case "Count":
-                    itemInfo.setCount(value);
-                    break;
-                case "Price":
-                    itemInfo.setPrice(value);
-                    break;
-                case "Bonus":
-                    itemInfo.setBonus(value);
-                    break;
-                case "Period":
-                    itemInfo.setPeriod(value);
-                    break;
-                case "Priority":
-                    itemInfo.setPriority(value);
-                    break;
-                case "ReqPOP":
-                    itemInfo.setReqPop(value);
-                    break;
-                case "ReqLEV":
-                    itemInfo.setReqLev(value);
-                    break;
-                case "Gender":
-                    itemInfo.setGender(value);
-                    break;
-                case "OnSale":
-                    itemInfo.setOnSale(value != 0);
-                    break;
-                case "Class":
-                    itemInfo.setClazz(value);
-                    break;
-                case "PbCash":
-                    itemInfo.setPbCash(value);
-                    break;
-                case "PbPoint":
-                    itemInfo.setPbPoint(value);
-                    break;
-                case "PbGift":
-                    itemInfo.setPbGift(value);
-                    break;
-                case "Refundable":
-                    itemInfo.setRefundable(value != 0);
-                    break;
-                case "WebShop":
-                    itemInfo.setWebShop(value != 0);
-                    break;
-            }
-            if (itemInfo.getSN() > 0) {
-                cashItems.put(itemInfo.getSN(), itemInfo);
-                snLookUp.put(itemInfo.getItemId(), itemInfo.getSN());
-            }
-        }
+        loadCashItemInfo(commodities, cashItems);
         //礼包
         MapleData packageData = etcData.getData("CashPackage.img");
         for (MapleData pack : packageData.getChildren()) {
@@ -183,69 +126,75 @@ public class ItemData {
         MapleDataDirectoryEntry etcDataRoot = etcData.getRoot();
         for (MapleDataFileEntry file : etcDataRoot.getFiles()) {
             if (file.getName().startsWith("OldCommodity")) {
-                MapleData Commodity = etcData.getData(file.getName());
-                for (MapleData child : Commodity.getChildren()) {
-                    CashItemInfo itemInfo = new CashItemInfo();
-                    String name = child.getName();
-                    int value = MapleDataTool.getInt(child);
-                    switch (name) {
-                        case "SN":
-                            itemInfo.setSN(value);
-                            break;
-                        case "ItemId":
-                            itemInfo.setItemId(value);
-                            break;
-                        case "Count":
-                            itemInfo.setCount(value);
-                            break;
-                        case "Price":
-                            itemInfo.setPrice(value);
-                            break;
-                        case "Bonus":
-                            itemInfo.setBonus(value);
-                            break;
-                        case "Period":
-                            itemInfo.setPeriod(value);
-                            break;
-                        case "Priority":
-                            itemInfo.setPriority(value);
-                            break;
-                        case "ReqPOP":
-                            itemInfo.setReqPop(value);
-                            break;
-                        case "ReqLEV":
-                            itemInfo.setReqLev(value);
-                            break;
-                        case "Gender":
-                            itemInfo.setGender(value);
-                            break;
-                        case "OnSale":
-                            itemInfo.setOnSale(value != 0);
-                            break;
-                        case "Class":
-                            itemInfo.setClazz(value);
-                            break;
-                        case "PbCash":
-                            itemInfo.setPbCash(value);
-                            break;
-                        case "PbPoint":
-                            itemInfo.setPbPoint(value);
-                            break;
-                        case "PbGift":
-                            itemInfo.setPbGift(value);
-                            break;
-                        case "Refundable":
-                            itemInfo.setRefundable(value != 0);
-                            break;
-                        case "WebShop":
-                            itemInfo.setWebShop(value != 0);
-                            break;
-                    }
-                    if (itemInfo.getSN() > 0) {
-                        oldCashItems.put(itemInfo.getSN(), itemInfo);
-                        snLookUp.put(itemInfo.getItemId(), itemInfo.getSN());
-                    }
+                MapleData commodity = etcData.getData(file.getName());
+                loadCashItemInfo(commodity, oldCashItems);
+            }
+        }
+    }
+
+    private static void loadCashItemInfo(MapleData commodityData, Map<Integer, CashItemInfo> items) {
+        for (MapleData child : commodityData.getChildren()) {
+            CashItemInfo itemInfo = new CashItemInfo();
+            for (MapleData attr : child.getChildren()) {
+                String name = attr.getName();
+                int value = MapleDataTool.getInt(attr, 0);
+                switch (name) {
+                    case "SN":
+                        itemInfo.setSN(value);
+                        break;
+                    case "ItemId":
+                        itemInfo.setItemId(value);
+                        break;
+                    case "Count":
+                        itemInfo.setCount(value);
+                        break;
+                    case "Price":
+                        itemInfo.setPrice(value);
+                        break;
+                    case "Bonus":
+                        itemInfo.setBonus(value);
+                        break;
+                    case "Period":
+                        itemInfo.setPeriod(value);
+                        break;
+                    case "Priority":
+                        itemInfo.setPriority(value);
+                        break;
+                    case "ReqPOP":
+                        itemInfo.setReqPop(value);
+                        break;
+                    case "ReqLEV":
+                        itemInfo.setReqLev(value);
+                        break;
+                    case "Gender":
+                        itemInfo.setGender(value);
+                        break;
+                    case "OnSale":
+                        itemInfo.setOnSale(value != 0);
+                        break;
+                    case "Class":
+                        itemInfo.setClazz(value);
+                        break;
+                    case "PbCash":
+                        itemInfo.setPbCash(value);
+                        break;
+                    case "PbPoint":
+                        itemInfo.setPbPoint(value);
+                        break;
+                    case "PbGift":
+                        itemInfo.setPbGift(value);
+                        break;
+                    case "Refundable":
+                        itemInfo.setRefundable(value != 0);
+                        break;
+                    case "WebShop":
+                        itemInfo.setWebShop(value != 0);
+                        break;
                 }
+            }
+            if (itemInfo.getSN() > 0) {
+                items.put(itemInfo.getSN(), itemInfo);
+                snLookUp.put(itemInfo.getItemId(), itemInfo.getSN());
             }
         }
     }
@@ -286,10 +235,6 @@ public class ItemData {
             }
             familiars.put(familiarCardId, familiarInfo);
         }
-    }
-
-    private static void loadHotSpotItems() {
-
     }
 
 
@@ -1126,7 +1071,7 @@ public class ItemData {
         loadItemOptions("itemOption.img", getItemOptions());
     }
 
-    private static Map<Integer, ItemOption> getItemOptions() {
+    public static Map<Integer, ItemOption> getItemOptions() {
         return itemOptions;
     }
 
@@ -1360,11 +1305,79 @@ public class ItemData {
     }
 
 
+    public static CashItemInfo getCashItemInfo(int sn) {
+        CashItemInfo itemInfo = cashItems.get(sn);
+        if (itemInfo == null) {
+            itemInfo = oldCashItems.get(sn);
+        }
+        return itemInfo;
+    }
+
     public static int getFamiliarId(int familiarCardId) {
         return familiars.get(familiarCardId).getFamiliarId();
     }
 
     public static int getSn(int itemId) {
         return snLookUp.get(itemId);
+    }
+
+    public static Android createAndroidFromItem(Equip androidEquip) {
+        Android android = new Android();
+        ItemInfo itemInfo = getItemInfoById(androidEquip.getItemId());
+        int type = itemInfo.getAndroid();
+        AndroidInfo androidInfo = androids.get(type);
+        android.setType(androidInfo.getType());
+        android.setFace(androidInfo.getRandomFace());
+        android.setHair(androidInfo.getRandomHair());
+        android.setSkin(androidInfo.getRandomSkins());
+        android.setItemId(androidEquip.getId());
+        android.setName(StringData.getEquipName(androidEquip.getItemId()));
+        return android;
+    }
+
+
+    public static void loadAndroidsInfo() {
+        MapleDataDirectoryEntry android = (MapleDataDirectoryEntry) etcData.getRoot().getEntry("Android");
+        for (MapleDataFileEntry file : android.getFiles()) {
+            MapleData androidInfoData = etcData.getData("/Android/" + file.getName());
+            String name = file.getName().substring(0, 4);
+            int type = Integer.parseInt(name);
+            AndroidInfo androidInfo = new AndroidInfo((byte) type);
+            MapleData info = androidInfoData.getChildByPath("info");
+            if (info != null) {
+                androidInfo.setGender((byte) MapleDataTool.getInt("gender", info, 0));
+                androidInfo.setShopUsable(MapleDataTool.getInt("shopUsable", info, 0) != 0);
+                androidInfo.setNameTag(MapleDataTool.getInt("nameTag", info, 0));
+                androidInfo.setChatBalloon(MapleDataTool.getInt("chatBalloon", info, 0));
+            }
+            MapleData basic = androidInfoData.getChildByPath("basic");
+            if (basic != null) {
+                androidInfo.setAccessory(MapleDataTool.getInt("accessory", info, 0));
+                androidInfo.setLongcoat(MapleDataTool.getInt("longcoat", info, 0));
+                androidInfo.setShoes(MapleDataTool.getInt("shoes", info, 0));
+            }
+            MapleData costume = androidInfoData.getChildByPath("costume");
+            if (costume != null) {
+                MapleData skins = costume.getChildByPath("skin");
+                if (skins != null) {
+                    for (MapleData skin : skins.getChildren()) {
+                        androidInfo.addSkin(MapleDataTool.getInt(skin));
+                    }
+                }
+                MapleData faces = costume.getChildByPath("face");
+                if (faces != null) {
+                    for (MapleData face : faces.getChildren()) {
+                        androidInfo.addFace(MapleDataTool.getInt(face));
+                    }
+                }
+                MapleData hairs = costume.getChildByPath("hair");
+                if (hairs != null) {
+                    for (MapleData hair : hairs.getChildren()) {
+                        androidInfo.addHair(MapleDataTool.getInt(hair));
+                    }
+                }
+            }
+            androids.put(type, androidInfo);
+        }
     }
 }
