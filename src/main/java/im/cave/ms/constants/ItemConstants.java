@@ -2,21 +2,34 @@ package im.cave.ms.constants;
 
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.items.ItemInfo;
+import im.cave.ms.client.items.ItemOption;
 import im.cave.ms.client.items.ScrollUpgradeInfo;
 import im.cave.ms.enums.BodyPart;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipPrefix;
+import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.ItemGrade;
+import im.cave.ms.enums.ItemOptionType;
 import im.cave.ms.enums.RequiredJob;
+import im.cave.ms.enums.ScrollStat;
 import im.cave.ms.enums.SpellTraceScrollType;
+import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import static im.cave.ms.enums.InventoryType.EQUIP;
 
 
 /**
@@ -522,12 +535,12 @@ public class ItemConstants {
                 isMechanicalHeart(itemid);
     }
 
-//    public static boolean canEquipHavePotential(Equip equip) {
-//        return !equip.isCash() &&
-//                canEquipTypeHavePotential(equip.getItemId()) &&
-//                !equip.isNoPotential() &&
-//                (ItemData.getEquipById(equip.getItemId()).getTuc() >= 1 || isTucIgnoreItem(equip.getItemId()));
-//    }
+    public static boolean canEquipHavePotential(Equip equip) {
+        return !equip.isCash() &&
+                canEquipTypeHavePotential(equip.getItemId()) &&
+                !equip.isNoPotential() &&
+                (ItemData.getEquipById(equip.getItemId()).getTuc() >= 1 || isTucIgnoreItem(equip.getItemId()));
+    }
 
     public static boolean canEquipHaveFlame(Equip equip) {
         return !equip.isCash() && (isPendant(equip.getItemId()) ||
@@ -565,12 +578,12 @@ public class ItemConstants {
      * @param line  Potential line.
      * @param grade Our current potential grade.
      */
-//    public static ItemGrade getLineTier(int line, ItemGrade grade) {
-//        if (line == 0 || Util.succeedProp(PRIME_LINE_CHANCE)) {
-//            return grade;
-//        }
-//        return ItemGrade.getOneTierLower(grade.getVal());
-//    }
+    public static ItemGrade getLineTier(int line, ItemGrade grade) {
+        if (line == 0 || Util.succeedProp(PRIME_LINE_CHANCE)) {
+            return grade;
+        }
+        return ItemGrade.getOneTierLower(grade.getVal());
+    }
 
     /**
      * Determines whether a nebulite can be mounted on an equip.
@@ -578,123 +591,124 @@ public class ItemConstants {
      * @param equip    Equip item.
      * @param nebulite The nebulite to mount on the equip.
      */
-//    public static boolean nebuliteFitsEquip(Equip equip, Item nebulite) {
-//        int nebuliteId = nebulite.getItemId();
-//        Map<ScrollStat, Integer> vals = ItemData.getItemInfoByID(nebuliteId).getScrollStats();
-//        if (vals.size() == 0) {
-//            return false;
-//        }
-//        ItemOptionType type = ItemOptionType.getByVal(vals.getOrDefault(ScrollStat.optionType, 0));
-//        int equipId = equip.getItemId();
-//        switch (type) {
-//            case AnyEquip:
-//                return true;
-//            case Weapon: // no emblems for nebs here
-//                return isWeapon(equipId) || isShield(equipId);
-//            case AnyExceptWeapon:
-//                return !isWeapon(equipId) && !isShield(equipId);
-//            case ArmorExceptGlove:
-//                return isBelt(equipId) || isHat(equipId) || isOverall(equipId) || isTop(equipId) || isBottom(equipId) || isShoe(equipId) || isCape(equipId);
-//            case Accessory:
-//                return isRing(equipId) || isPendant(equipId) || isFaceAccessory(equipId) || isEyeAccessory(equipId) || isEarrings(equipId) || isShoulder(equipId);
-//            case Hat:
-//                return isHat(equipId);
-//            case Top:
-//                return isTop(equipId) || isOverall(equipId);
-//            case Bottom:
-//                return isBottom(equipId) || isOverall(equipId);
-//            case Glove:
-//                return isGlove(equipId);
-//            case Shoes:
-//                return isShoe(equipId);
-//            default:
-//                return false;
-//        }
-//    }
+    public static boolean nebuliteFitsEquip(Equip equip, Item nebulite) {
+        int nebuliteId = nebulite.getItemId();
+        Map<ScrollStat, Integer> vals = ItemData.getItemInfoById(nebuliteId).getScrollStats();
+        if (vals.size() == 0) {
+            return false;
+        }
+        ItemOptionType type = ItemOptionType.getByVal(vals.getOrDefault(ScrollStat.optionType, 0));
+        int equipId = equip.getItemId();
+        switch (type) {
+            case AnyEquip:
+                return true;
+            case Weapon: // no emblems for nebs here
+                return isWeapon(equipId) || isShield(equipId);
+            case AnyExceptWeapon:
+                return !isWeapon(equipId) && !isShield(equipId);
+            case ArmorExceptGlove:
+                return isBelt(equipId) || isHat(equipId) || isOverall(equipId) || isTop(equipId) || isBottom(equipId) || isShoe(equipId) || isCape(equipId);
+            case Accessory:
+                return isRing(equipId) || isPendant(equipId) || isFaceAccessory(equipId) || isEyeAccessory(equipId) || isEarrings(equipId) || isShoulder(equipId);
+            case Hat:
+                return isHat(equipId);
+            case Top:
+                return isTop(equipId) || isOverall(equipId);
+            case Bottom:
+                return isBottom(equipId) || isOverall(equipId);
+            case Glove:
+                return isGlove(equipId);
+            case Shoes:
+                return isShoe(equipId);
+            default:
+                return false;
+        }
+    }
 
-//    public static List<ItemOption> getOptionsByEquip(Equip equip, boolean bonus, int line) {
-//        int id = equip.getItemId();
-//        Collection<ItemOption> data = ItemData.getItemOptions().values();
-//        ItemGrade grade = getLineTier(line, ItemGrade.getGradeByVal(bonus ? equip.getBonusGrade() : equip.getBaseGrade()));
-//
-//        // need a list, as we take a random item from it later on
-//        List<ItemOption> res = data.stream().filter(
-//                io -> io.getOptionType() == ItemOptionType.AnyEquip.getVal() &&
-//                        io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
-//                .collect(Collectors.toList());
-//        if (isWeapon(id) || isShield(id) || isEmblem(id)) {
-//            // TODO: block boss% on emblem
-//            res.addAll(data.stream().filter(
-//                    io -> io.getOptionType() == ItemOptionType.Weapon.getVal()
-//                            && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus
-//            ).collect(Collectors.toList()));
-//        } else {
-//            res.addAll(data.stream().filter(
-//                    io -> io.getOptionType() == ItemOptionType.AnyExceptWeapon.getVal()
-//                            && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
-//                    .collect(Collectors.toList()));
-//            if (isRing(id) || isPendant(id) || isFaceAccessory(id) || isEyeAccessory(id) || isEarrings(id)) {
-//                res.addAll(data.stream().filter(
-//                        io -> io.getOptionType() == ItemOptionType.Accessory.getVal()
-//                                && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
-//                        .collect(Collectors.toList()));
-//            } else {
-//                if (isHat(id)) {
-//                    res.addAll(data.stream().filter(
-//                            io -> io.getOptionType() == ItemOptionType.Hat.getVal()
-//                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
-//                            .collect(Collectors.toList()));
-//                }
-//                if (isTop(id) || isOverall(id)) {
-//                    res.addAll(data.stream().filter(
-//                            io -> io.getOptionType() == ItemOptionType.Top.getVal()
-//                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
-//                            .collect(Collectors.toList()));
-//                }
-//                if (isBottom(id) || isOverall(id)) {
-//                    res.addAll(data.stream().filter(
-//                            io -> io.getOptionType() == ItemOptionType.Bottom.getVal()
-//                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
-//                            .collect(Collectors.toList()));
-//                }
-//                if (isGlove(id)) {
-//                    res.addAll(data.stream().filter(
-//                            io -> io.getOptionType() == ItemOptionType.Glove.getVal()
-//                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
-//                            .collect(Collectors.toList()));
-//                } else {
-//                    // gloves are not counted for this one
-//                    res.addAll(data.stream().filter(
-//                            io -> io.getOptionType() == ItemOptionType.ArmorExceptGlove.getVal()
-//                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
-//                            .collect(Collectors.toList()));
-//                }
-//                if (isShoe(id)) {
-//                    res.addAll(data.stream().filter(
-//                            io -> io.getOptionType() == ItemOptionType.Shoes.getVal()
-//                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
-//                            .collect(Collectors.toList()));
-//                }
-//            }
-//        }
-//        return res.stream().filter(io -> io.getReqLevel() <= equip.getrLevel() + equip.getiIncReq()).collect(Collectors.toList());
-//    }
-//
-//    public static List<Integer> getWeightedOptionsByEquip(Equip equip, boolean bonus, int line) {
-//        List<Integer> res = new ArrayList<>();
-//        List<ItemOption> data = getOptionsByEquip(equip, bonus, line);
-//        for (ItemOption io : data) {
-//            for (int i = 0; i < io.getWeight(); i++) {
-//                res.add(io.getId());
-//            }
-//        }
-//        return res;
-//    }
-//
-//    public static int getRandomOption(Equip equip, boolean bonus, int line) {
-//        List<Integer> data = getWeightedOptionsByEquip(equip, bonus, line);
-//        return data.get(Util.getRandom(data.size()));
-//    }
+    public static List<ItemOption> getOptionsByEquip(Equip equip, boolean bonus, int line) {
+        int id = equip.getItemId();
+        Collection<ItemOption> data = ItemData.getItemOptions().values();
+        ItemGrade grade = getLineTier(line, ItemGrade.getGradeByVal(bonus ? equip.getBonusGrade() : equip.getBaseGrade()));
+
+        // need a list, as we take a random item from it later on
+        List<ItemOption> res = data.stream().filter(
+                io -> io.getOptionType() == ItemOptionType.AnyEquip.getVal() &&
+                        io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
+                .collect(Collectors.toList());
+        if (isWeapon(id) || isShield(id) || isEmblem(id)) {
+            // TODO: block boss% on emblem
+            res.addAll(data.stream().filter(
+                    io -> io.getOptionType() == ItemOptionType.Weapon.getVal()
+                            && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus
+            ).collect(Collectors.toList()));
+        } else {
+            res.addAll(data.stream().filter(
+                    io -> io.getOptionType() == ItemOptionType.AnyExceptWeapon.getVal()
+                            && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
+                    .collect(Collectors.toList()));
+            if (isRing(id) || isPendant(id) || isFaceAccessory(id) || isEyeAccessory(id) || isEarrings(id)) {
+                res.addAll(data.stream().filter(
+                        io -> io.getOptionType() == ItemOptionType.Accessory.getVal()
+                                && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
+                        .collect(Collectors.toList()));
+            } else {
+                if (isHat(id)) {
+                    res.addAll(data.stream().filter(
+                            io -> io.getOptionType() == ItemOptionType.Hat.getVal()
+                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
+                            .collect(Collectors.toList()));
+                }
+                if (isTop(id) || isOverall(id)) {
+                    res.addAll(data.stream().filter(
+                            io -> io.getOptionType() == ItemOptionType.Top.getVal()
+                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
+                            .collect(Collectors.toList()));
+                }
+                if (isBottom(id) || isOverall(id)) {
+                    res.addAll(data.stream().filter(
+                            io -> io.getOptionType() == ItemOptionType.Bottom.getVal()
+                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
+                            .collect(Collectors.toList()));
+                }
+                if (isGlove(id)) {
+                    res.addAll(data.stream().filter(
+                            io -> io.getOptionType() == ItemOptionType.Glove.getVal()
+                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
+                            .collect(Collectors.toList()));
+                } else {
+                    // gloves are not counted for this one
+                    res.addAll(data.stream().filter(
+                            io -> io.getOptionType() == ItemOptionType.ArmorExceptGlove.getVal()
+                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
+                            .collect(Collectors.toList()));
+                }
+                if (isShoe(id)) {
+                    res.addAll(data.stream().filter(
+                            io -> io.getOptionType() == ItemOptionType.Shoes.getVal()
+                                    && io.hasMatchingGrade(grade.getVal()) && io.isBonus() == bonus)
+                            .collect(Collectors.toList()));
+                }
+            }
+        }
+        return res.stream().filter(io -> io.getReqLevel() <= equip.getRLevel() + equip.getIIncReq()).collect(Collectors.toList());
+    }
+
+    public static List<Integer> getWeightedOptionsByEquip(Equip equip, boolean bonus, int line) {
+        List<Integer> res = new ArrayList<>();
+        List<ItemOption> data = getOptionsByEquip(equip, bonus, line);
+        for (ItemOption io : data) {
+            for (int i = 0; i < io.getWeight(); i++) {
+                res.add(io.getId());
+            }
+        }
+        return res;
+    }
+
+    public static int getRandomOption(Equip equip, boolean bonus, int line) {
+        List<Integer> data = getWeightedOptionsByEquip(equip, bonus, line);
+        return data.get(Util.getRandom(data.size()));
+    }
+
     public static int getTierUpChance(int id) {
         int res = 0;
         switch (id) {
@@ -733,18 +747,6 @@ public class ItemConstants {
     public static boolean isXBowArrow(int id) {
         return id / 1000 == 2061;
     }
-//
-//    public static InventoryType getInvTypeByItemID(int itemID) {
-//        if (isEquip(itemID)) {
-//            return EQUIP;
-//        } else {
-//            ItemInfo ii = ItemData.getItemInfoByID(itemID);
-//            if (ii == null) {
-//                return null;
-//            }
-//            return ii.getInvType();
-//        }
-//    }
 
     public static Set<Integer> getRechargeablesList() {
         Set<Integer> itemList = new HashSet<>();
@@ -1812,6 +1814,17 @@ public class ItemConstants {
         return itemID / 10000 == 251;
     }
 
+    public static InventoryType getInvTypeByItemId(int itemId) {
+        if (isEquip(itemId)) {
+            return EQUIP;
+        } else {
+            ItemInfo ii = ItemData.getItemInfoById(itemId);
+            if (ii == null) {
+                return null;
+            }
+            return ii.getInvType();
+        }
+    }
 //    public static Set<DropInfo> getConsumableMobDrops(int level) {
 //        level = Math.min(100, (level / 20) * 20); // round it to the nearest 20th level + max of level 100
 //        return consumableDropsPerLevel.getOrDefault(level, new HashSet<>());

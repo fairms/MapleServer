@@ -2,6 +2,7 @@ package im.cave.ms.client.items;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Familiar;
+import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.provider.data.ItemData;
@@ -44,8 +45,8 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "items")
 public class Item implements Serializable {
-    protected long expireTime = MAX_TIME;
 
+    protected long expireTime = MAX_TIME;
     protected int itemId;
     protected int pos;
     @Column(name = "sn")
@@ -67,6 +68,10 @@ public class Item implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @NotFound(action = NotFoundAction.IGNORE)
     private Familiar familiar;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Android android;
     private String owner = "";
 
     public void drop() {

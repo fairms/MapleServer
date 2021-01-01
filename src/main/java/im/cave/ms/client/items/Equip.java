@@ -443,19 +443,19 @@ public class Equip extends Item {
         return getBaseGrade();
     }
 
-    private short getBaseGrade() {
+    public short getBaseGrade() {
         return ItemGrade.getGradeByOption(getOptionBase(0)).getVal();
     }
 
-    private int getOptionBase(int num) {
+    public int getOptionBase(int num) {
         return getOptions().get(num);
     }
 
-    private int getBonusGrade() {
+    public int getBonusGrade() {
         return ItemGrade.getGradeByOption(getOptionBonus(0)).getVal();
     }
 
-    private int getOptionBonus(int num) {
+    public int getOptionBonus(int num) {
         return getOptions().get(num + 3);
     }
 
@@ -898,6 +898,59 @@ public class Equip extends Item {
         this.fBoss = 0;
         this.fDamage = 0;
         this.fLevel = 0;
+    }
+
+    public void setHiddenOptionBase(short val, int thirdLineChance) {
+        if (!ItemConstants.canEquipHavePotential(this)) {
+            return;
+        }
+        int max = 3;
+        if (getOptionBase(3) == 0) {
+            // If this equip did not have a 3rd line already, thirdLineChance to get it
+            if (Util.succeedProp(100 - thirdLineChance)) {
+                max = 2;
+            }
+        }
+        for (int i = 0; i < max; i++) {
+            setOptionBase(i, -val);
+        }
+    }
+
+    public int getOption(int num, boolean bonus) {
+        return bonus ? getOptionBonus(num) : getOptionBase(num);
+    }
+
+    public void setOption(int num, int val, boolean bonus) {
+        if (bonus) {
+            setOptionBonus(num, val);
+        } else {
+            setOptionBase(num, val);
+        }
+    }
+
+    public void setOptionBonus(int num, int val) {
+        getOptions().set(num + 3, val);
+    }
+
+    private void setOptionBase(int num, int val) {
+        getOptions().set(num, val);
+    }
+
+    public void releaseOptions(boolean bonus) {
+        if (!ItemConstants.canEquipHavePotential(this)) {
+            return;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (getOption(i, bonus) < 0) {
+                setOption(i, getRandomOption(bonus, i), bonus);
+            }
+        }
+    }
+
+    public int getRandomOption(boolean bonus, int line) {
+        List<Integer> data = ItemConstants.getWeightedOptionsByEquip(this, bonus, line);
+        return data.get(Util.getRandom(data.size() - 1));
     }
 
 }

@@ -1,5 +1,6 @@
 package im.cave.ms.network.server.channel.handler;
 
+import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Foothold;
@@ -20,10 +21,12 @@ import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.ItemGrade;
 import im.cave.ms.enums.ScrollStat;
 import im.cave.ms.enums.SpecStat;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.UserPacket;
+import im.cave.ms.network.packet.UserRemote;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.scripting.item.ItemScriptManager;
 import im.cave.ms.tools.Position;
@@ -34,6 +37,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import static im.cave.ms.enums.ChatType.Mob;
 import static im.cave.ms.enums.ChatType.SystemNotice;
 import static im.cave.ms.enums.EquipBaseStat.cuc;
 import static im.cave.ms.enums.EquipBaseStat.tuc;
@@ -264,7 +268,7 @@ public class InventoryHandler {
             equip.removeAttribute(EquipAttribute.ProtectionScroll);
             equip.removeAttribute(EquipAttribute.LuckyDay);
             equip.removeAttribute(EquipAttribute.UpgradeCountProtection);
-            c.announce(UserPacket.showItemUpgradeEffect(player.getId(), success, false, scrollId, equip.getItemId(), boom));
+            c.announce(UserRemote.showItemUpgradeEffect(player.getId(), success, false, scrollId, equip.getItemId(), boom));
             if (!boom) {
                 equip.reCalcEnchantmentStats();
                 equip.updateToChar(player);
@@ -334,8 +338,7 @@ public class InventoryHandler {
             }
 
             equip.updateToChar(player);
-            c.announce(UserPacket.showItemUpgradeEffect(player.getId(), success, false, flame.getItemId(), equip.getItemId(), false));
-
+            c.announce(UserRemote.showItemUpgradeEffect(player.getId(), success, false, flame.getItemId(), equip.getItemId(), false));
             player.consumeItem(flame);
         }
 
@@ -399,5 +402,140 @@ public class InventoryHandler {
         }
         c.announce(UserPacket.inventoryOperation(true, operations));
         c.announce(UserPacket.sortItemResult(invType.getVal()));
+    }
+
+    public static void handleUserSlotExpandRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        Account account = player.getAccount();
+        int accId = inPacket.readInt();
+        int charId = inPacket.readInt();
+        int i = inPacket.readInt();
+        int sn = inPacket.readInt();
+        boolean cash = inPacket.readByte() != 0;
+        InventoryType invType = InventoryType.getTypeById((byte) (i - 10));
+        if (player.getId() != charId || account.getId() != accId || invType == null) {
+            return;
+        }
+        player.getInventory(invType).expandSlot(6);
+        player.announce(UserPacket.invExpandResult(i, account.getPoint(), cash));
+    }
+
+    public static void handleUserConsumeCashItemUseRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        short pos = inPacket.readShort();
+        int itemId = inPacket.readInt();
+        InventoryType inventoryType = ItemConstants.getInvTypeByItemId(itemId);
+        if (inventoryType == null) {
+            return;
+        }
+        Item item = player.getInventory(inventoryType).getItem(pos);
+        if (item.getItemId() != itemId) {
+            return;
+        }
+        player.consumeItem(itemId, 1);
+        player.enableAction();
+    }
+
+    public static void handleUserLotteryItemUseRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        short pos = inPacket.readShort();
+        int itemId = inPacket.readInt();
+        InventoryType invType = ItemConstants.getInvTypeByItemId(itemId);
+        if (invType == null) {
+            return;
+        }
+        Item item = player.getInventory(invType).getItem(pos);
+        if (item.getItemId() != itemId) {
+            return;
+        }
+        player.dropMessage(String.format("%d 道具使用", itemId));
+        player.consumeItem(itemId, 1);
+    }
+
+    //潜能附加
+    public static void handleUserItemOptionUpgradeItemUseRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        short uPos = inPacket.readShort();
+        short ePos = inPacket.readShort();
+        inPacket.readByte(); //enchantSkill
+        Item scroll = player.getConsumeInventory().getItem(uPos);
+        InventoryType invType = ePos < 0 ? EQUIPPED : EQUIP;
+        Equip equip = (Equip) player.getInventory(invType).getItem(ePos);
+        if (scroll == null || equip == null) {
+            player.chatMessage(SystemNotice, "Could not find scroll or equip.");
+            return;
+        } else if (!ItemConstants.canEquipHavePotential(equip)) {
+            return;
+        }
+        int scrollItemId = scroll.getItemId();
+        Map<ScrollStat, Integer> vals = ItemData.getItemInfoById(scrollItemId).getScrollStats();
+        int chance = vals.getOrDefault(ScrollStat.success, 100);
+        int curse = vals.getOrDefault(ScrollStat.cursed, 0);
+        boolean success = Util.succeedProp(chance);
+        if (success) {
+            short val;
+            int thirdLineChance = ItemConstants.THIRD_LINE_CHANCE;
+            switch (scrollItemId / 10) {
+                case 204940: // Rare Pot
+                case 204941:
+                case 204942:
+                case 204943:
+                case 204944:
+                case 204945:
+                case 204946:
+                    val = ItemGrade.HiddenRare.getVal();
+                    equip.setHiddenOptionBase(val, thirdLineChance);
+                    break;
+                case 204970: // Epic pot
+                case 204971:
+                    val = ItemGrade.HiddenEpic.getVal();
+                    equip.setHiddenOptionBase(val, thirdLineChance);
+                    break;
+                case 204974: // Unique Pot
+                case 204975:
+                case 204976:
+                case 204979:
+                    val = ItemGrade.HiddenUnique.getVal();
+                    equip.setHiddenOptionBase(val, thirdLineChance);
+                    break;
+                case 204978: // Legendary Pot
+                    val = ItemGrade.HiddenLegendary.getVal();
+                    equip.setHiddenOptionBase(val, thirdLineChance);
+                    break;
+                default:
+                    player.chatMessage(Mob, "Unhandled scroll " + scrollItemId);
+                    player.enableAction();
+                    return;
+            }
+        }
+        player.getMap().broadcastMessage(UserRemote.showItemUpgradeEffect(player.getId(), success, false, scrollItemId, equip.getItemId(), false));
+        equip.updateToChar(player);
+        player.consumeItem(scroll);
+    }
+
+    public static void handleUserItemReleaseRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        short uPos = inPacket.readShort();
+        short ePos = inPacket.readShort();
+        Item item = player.getConsumeInventory().getItem(uPos); // 放大镜
+        InventoryType invType = ePos < 0 ? EQUIPPED : EQUIP;
+        Equip equip = (Equip) player.getInventory(invType).getItem(ePos);
+        if (equip == null) {
+            player.chatMessage(SystemNotice, "Could not find equip.");
+            return;
+        }
+        boolean base = equip.getOptionBase(0) < 0;
+        boolean bonus = equip.getOptionBonus(0) < 0;
+        if (base && bonus) {
+            equip.releaseOptions(true);
+            equip.releaseOptions(false);
+        } else {
+            equip.releaseOptions(bonus);
+        }
+        player.getMap().broadcastMessage(UserRemote.showItemReleaseEffect(player.getId(), ePos, bonus));
+        equip.updateToChar(player);
     }
 }

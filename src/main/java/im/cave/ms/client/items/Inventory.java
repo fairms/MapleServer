@@ -3,6 +3,7 @@ package im.cave.ms.client.items;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.tools.Util;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -146,5 +147,13 @@ public class Inventory {
         Inventory inventory = new Inventory(getType(), getSlots());
         inventory.setItems(new CopyOnWriteArrayList<>(getItems()));
         return inventory;
+    }
+
+    public Item getItemBySerialNumber(long serialNumber) {
+        return Util.findWithPred(items, item -> item.getCashItemSerialNumber() == serialNumber);
+    }
+
+    public void expandSlot(int i) {
+        slots += i;
     }
 }
