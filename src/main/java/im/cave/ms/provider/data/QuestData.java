@@ -42,9 +42,7 @@ import java.util.Map;
 public class QuestData {
     private static final Logger log = LoggerFactory.getLogger(QuestData.class);
     private static final MapleDataProvider questData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Quest.wz"));
-
     private static final Map<Integer, QuestInfo> quests = new HashMap<>();
-
 
     public static void loadQuests() {
         MapleData checkData = questData.getData("/Check.img");
@@ -73,14 +71,12 @@ public class QuestData {
         }
     }
 
-
     public static QuestInfo getQuestInfo(int questId) {
         if (!quests.containsKey(questId)) {
             return getQuestInfoFromWz(questId);
         }
         return quests.get(questId);
     }
-
 
     // 慎用
     private static QuestInfo getQuestInfoFromWz(int questId) {
@@ -110,7 +106,6 @@ public class QuestData {
         }
         return quest;
     }
-
 
     private static QuestInfo getQuestInfo(int questId, MapleData baseData) {
         QuestInfo quest = new QuestInfo();
@@ -421,7 +416,7 @@ public class QuestData {
                                     case "levelCondition":
                                         break;
                                     default:
-                                        log.warn("unknown quest skill req attr :{} quest:{}", name, questId);
+//                                        log.warn("unknown quest skill req attr :{} quest:{}", name, questId);
                                         break;
                                 }
                             }
@@ -449,7 +444,7 @@ public class QuestData {
                                         order = Integer.parseInt(reqValue);
                                         break;
                                     default:
-                                        log.warn("unknown quest npc speech req attr :{} quest:{}", name, questId);
+//                                        log.warn("unknown quest npc speech req attr :{} quest:{}", name, questId);
                                         break;
                                 }
                             }
@@ -459,8 +454,25 @@ public class QuestData {
                             }
                         }
                         break;
+                    case "job_CN":
+                    case "allPet":
+                    case "totalStarForce": // 装备星之力要求
+                    case "weaponStarForce": //武器星之力要求
+                    case "worldList":
+                    case "petEquipAll":
+                    case "petEquipAtLeastOne":
+                    case "itemEquip":
+                    case "suddenMissionClearCount":
+                    case "teraBurningCharacter":
+                    case "fieldID":
+                    case "exceptEventMob":
+                    case "toadCount":
+                    case "worldGaugeMin":
+                    case "worldGaugeMax":
+                    case "worldGaugeIndex":
+                        break;
                     default:
-                        log.warn(String.format("(%d) Unk name %s with value %s", questId, name, value));
+//                        log.warn(String.format("(%d) Unk name %s with value %s", questId, name, value));
                         break;
                 }
             }
@@ -518,16 +530,54 @@ public class QuestData {
                                     case "gender":
                                         qir.setGender(Integer.parseInt(itemValue));
                                         break;
+                                    case "job":
+                                    case "period":
+                                    case "jobEx":
+                                    case "resignRemove":
+                                    case "var":
+                                    case "potentialCount":
+                                    case "dateExpire":
+                                        break;
                                     default:
-                                        log.warn(String.format("(%d) Unk item name %s with value %s status %d", questId, itemName, itemValue, status));
+//                                        log.warn(String.format("(%d) Unk item name %s with value %s status %d", questId, itemName, itemValue, status));
                                         break;
                                 }
                             }
                             quest.addReward(qir);
                         }
                         break;
+                    case "skill":
+                    case "senseEXP":
+                    case "willEXP":
+                    case "insightEXP":
+                    case "charismaEXP":
+                    case "craftEXP":
+                    case "npc":
+                    case "npcAct":
+                    case "lvmin":
+                    case "quest":
+                    case "allPet":
+                    case "portalName":
+                    case "pettameness":
+                    case "0":
+                    case "1":
+                    case "2":
+                    case "3":
+                    case "ask":
+                    case "stop":
+                    case "yes":
+                    case "no":
+                    case "setEx":
+                    case "info":
+                    case "message":
+                    case "jobEx_CN":
+                    case "expTable":
+                    case "startscript":
+                    case "normalAutoStart":
+                    case "petskill":
+                        break;
                     default:
-                        log.warn(String.format("(%d) Unk name %s with value %s status %d", questId, name, value, status));
+//                        log.warn(String.format("(%d) Unk name %s with value %s status %d", questId, name, value, status));
                         break;
                 }
             }
@@ -553,5 +603,9 @@ public class QuestData {
         }
         return quest;
 
+    }
+
+    public static void init() {
+        loadQuests();
     }
 }

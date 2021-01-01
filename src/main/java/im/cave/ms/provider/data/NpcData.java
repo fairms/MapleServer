@@ -110,7 +110,7 @@ public class NpcData {
         ns.setNpcTemplateId(id);
         ns.setShopId(id);
         List<NpcShopItem> items = (List<NpcShopItem>) DataBaseManager.getObjListFromDB(NpcShopItem.class, "shopId", id);
-        items.sort(Comparator.comparingInt(NpcShopItem::getItemID));
+        items.sort(Comparator.comparingInt(NpcShopItem::getItemId));
         ns.setItems(items);
         addShop(id, ns);
         return ns;

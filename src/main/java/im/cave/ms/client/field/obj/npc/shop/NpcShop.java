@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * @author fair
@@ -32,11 +33,28 @@ public class NpcShop {
         this.items = items;
     }
 
-    public void encode(OutPacket outPacket) {
+    public void encode(OutPacket outPacket, List<NpcShopItem> repurchaseItems) {
         outPacket.writeZeroBytes(20);
         outPacket.writeInt(DateUtil.getTime());
-        outPacket.writeBool(false); //hasQuest
-        outPacket.writeShort(items.size());
+        outPacket.writeBool(false);
+        outPacket.writeShort(items.size() + repurchaseItems.size());
         items.forEach(npcShopItem -> npcShopItem.encode(outPacket));
+        ListIterator<NpcShopItem> itemListIterator;
+        for (itemListIterator = repurchaseItems.listIterator(); itemListIterator.hasNext(); ) {
+            itemListIterator.next();
+        }
+        while (itemListIterator.hasPrevious()) {
+            NpcShopItem shopItem = itemListIterator.previous();
+            shopItem.encode(outPacket);
+        }
     }
+
+    public NpcShopItem getItemByIndex(int idx) {
+        NpcShopItem item = null;
+        if (idx >= 0 && idx < getItems().size()) {
+            item = getItems().get(idx);
+        }
+        return item;
+    }
+
 }

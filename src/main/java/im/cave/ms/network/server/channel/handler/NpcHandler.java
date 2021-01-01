@@ -6,17 +6,25 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
+import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
+import im.cave.ms.client.items.Equip;
+import im.cave.ms.client.items.Item;
 import im.cave.ms.client.movement.Movement;
 import im.cave.ms.client.movement.MovementInfo;
+import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.enums.ShopRequestType;
+import im.cave.ms.enums.ShopResultType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.NpcPacket;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
 import im.cave.ms.network.server.service.EventManager;
+import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.NpcData;
 import im.cave.ms.scripting.npc.NpcConversationManager;
 import im.cave.ms.scripting.npc.NpcScriptManager;
@@ -25,6 +33,12 @@ import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static im.cave.ms.enums.InventoryOperationType.ADD;
 
 
 /**
@@ -60,6 +74,8 @@ public class NpcHandler {
         int npcId = npc.getTemplateId();
         String script = npc.getScripts().get(0);
         if (npc.getTrunkPut() > 0 || npc.getTrunkGet() > 0) {
+            chr.setConversation(true);
+            chr.setNpc(npc);
             chr.announce(WorldPacket.openTrunk(npcId, chr.getAccount()));
             return;
         }
@@ -67,7 +83,7 @@ public class NpcHandler {
             NpcShop shop = NpcData.getShopById(npcId);
             if (npc.isShop()) {
                 chr.setShop(shop);
-                chr.announce(NpcPacket.openShop(npcId, 0, shop));
+                chr.announce(NpcPacket.openShop(npcId, 0, shop, chr.getRepurchaseItems()));
                 chr.chatMessage(String.format("Opening shop %s", npc.getTemplateId()));
                 return;
             } else {
@@ -185,42 +201,61 @@ public class NpcHandler {
             return;
         }
         switch (shr) {
-            case BUY:
-//                short itemIndex = inPacket.readShort();
-//                int itemId = inPacket.readInt();
-//                short quantity = inPacket.readShort();
-//                NpcShopItem nsi = shop.getItemByIndex(itemIndex);
-//                if (nsi == null || nsi.getItemID() != itemId) {
-//                    player.chatMessage("The server's item at that position was different than the client's.");
-//                    log.warn(String.format("Possible hack: expected shop itemID %d, got %d (chr %d)", nsi.getItemID(), itemId, player.getId()));
-//                    return;
-//                }
-//                if (!player.canHold(itemId)) {
-////                    player.announce(ShopDlg.shopResult(new MsgShopResult(ShopResultType.FullInvMsg)));
-//                    return;
-//                }
-//                if (nsi.getTokenItemID() != 0) {
-//                    int cost = nsi.getTokenPrice() * quantity;
-//                    if (chr.hasItemCount(nsi.getTokenItemID(), cost)) {
-//                        chr.consumeItem(nsi.getTokenItemID(), cost);
-//                    } else {
-//                        chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.NotEnoughMesosMsg)));
-//                        return;
-//                    }
-//                } else {
-//                    long cost = nsi.getPrice() * quantity;
-//                    if (chr.getMoney() < cost) {
-//                        chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.NotEnoughMesosMsg)));
-//                        return;
-//                    }
-//                    chr.deductMoney(cost);
-//                }
-//                int itemQuantity = nsi.getQuantity() > 0 ? nsi.getQuantity() : 1;
-//                Item item = ItemData.getItemDeepCopy(itemID);
-//                item.setQuantity(quantity * itemQuantity);
-//                chr.addItemToInventory(item);
-//                chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.Success)));
+            case BUY: {
+                short itemIndex = inPacket.readShort();
+                int itemId = inPacket.readInt();
+                short quantity = inPacket.readShort();
+                NpcShopItem shopItem = shop.getItemByIndex(itemIndex);
+                int index = -1;
+                boolean repurchase = false;
+                if (itemIndex >= shop.getItems().size()) {
+                    List<NpcShopItem> repurchaseItems = player.getRepurchaseItems();
+                    index = repurchaseItems.size() - 1 - (itemIndex - shop.getItems().size());
+                    shopItem = player.getRepurchaseItems().get(index);
+                    repurchase = true;
+                }
+                if (shopItem == null || shopItem.getItemId() != itemId) {
+                    player.chatMessage("The server's item at that position was different than the client's.");
+                    log.warn(String.format("Possible hack: expected shop itemId %d, got %d (chr %d)", shopItem.getItemId(), itemId, player.getId()));
+                    return;
+                }
+                if (!player.canHold(itemId)) {
+                    player.announce(NpcPacket.shopResult(ShopResultType.FullInvMsg, repurchase, index));
+                    return;
+                }
+                if (shopItem.getTokenItemId() != 0) {
+                    int cost = shopItem.getTokenPrice() * quantity;
+                    if (player.hasItemCount(shopItem.getTokenItemId(), cost)) {
+                        player.consumeItem(shopItem.getTokenItemId(), cost);
+                    } else {
+                        player.announce(NpcPacket.shopResult(ShopResultType.NotEnoughMesosMsg));
+                        return;
+                    }
+                } else {
+                    long cost = shopItem.getPrice() * quantity;
+                    if (player.getMeso() < cost) {
+                        player.announce(NpcPacket.shopResult(ShopResultType.NotEnoughMesosMsg));
+                        return;
+                    }
+                    player.deductMoney(cost);
+                }
+                if (repurchase) {
+                    shopItem = player.getRepurchaseItems().get(index);
+                    Item item = shopItem.getItem();
+                    item.setQuantity(shopItem.getQuantity());
+                    player.getInventory(item.getInvType()).addItem(item);
+                    player.announce(UserPacket.inventoryOperation(false, ADD, (short) item.getPos(), (short) -1, 0, item));
+                    player.getRepurchaseItems().remove(index);
+                    player.setRepurchaseItems(player.getRepurchaseItems().stream().filter(Objects::nonNull).collect(Collectors.toList()));
+                } else {
+                    int itemQuantity = shopItem.getQuantity() > 0 ? shopItem.getQuantity() : 1;
+                    Item itemCopy = ItemData.getItemCopy(itemId, false);
+                    itemCopy.setQuantity((short) (quantity * itemQuantity));
+                    player.addItemToInv(itemCopy);
+                }
+                player.announce(NpcPacket.shopResult(ShopResultType.Buy, repurchase, index));
                 break;
+            }
             case RECHARGE:
 //                short slot = inPacket.decodeShort();
 //                item = chr.getConsumeInventory().getItemBySlot(slot);
@@ -241,23 +276,31 @@ public class NpcHandler {
 //                chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.Success)));
                 break;
             case SELL:
-//                slot = inPacket.decodeShort();
-//                itemID = inPacket.decodeInt();
-//                quantity = inPacket.decodeShort();
-//                InvType it = ItemConstants.getInvTypeByItemID(itemID);
-//                item = chr.getInventoryByType(it).getItemBySlot(slot);
-//                if (item == null || item.getItemId() != itemID) {
-//                    chr.chatMessage("Could not find that item.");
-//                    return;
-//                }
-//                if (ItemConstants.isEquip(itemID)) {
-//                    cost = ((Equip) item).getPrice();
-//                } else {
-//                    cost = ItemData.getItemInfoByID(itemID).getPrice() * quantity;
-//                }
-//                chr.consumeItem(itemID, quantity);
-//                chr.addMoney(cost);
-//                chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.Success)));
+                int slot = inPacket.readShort();
+                int itemId = inPacket.readInt();
+                int quantity = inPacket.readShort();
+                InventoryType it = ItemConstants.getInvTypeByItemId(itemId);
+                Item item = player.getInventory(it).getItem((short) slot);
+                if (item == null || item.getItemId() != itemId) {
+                    player.chatMessage("Could not find that item.");
+                    return;
+                }
+                int cost;
+                if (ItemConstants.isEquip(itemId)) {
+                    cost = ((Equip) item).getPrice();
+                } else {
+                    cost = ItemData.getItemInfoById(itemId).getPrice() * quantity;
+                }
+                NpcShopItem shopItem = new NpcShopItem();
+                shopItem.setItemID(itemId);
+                shopItem.setItem(item);
+                shopItem.setPrice(cost);
+                shopItem.setQuantity((short) quantity);
+                shopItem.setMaxPerSlot((short) ItemData.getItemInfoById(itemId).getSlotMax());
+                player.addRepurchaseItem(shopItem);
+                player.consumeItem(itemId, quantity);
+                player.addMeso(cost);
+                player.announce(NpcPacket.shopResult(ShopResultType.SellResult, shop, player.getRepurchaseItems()));
                 break;
             case CLOSE:
                 player.setShop(null);

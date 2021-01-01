@@ -2,6 +2,7 @@ package im.cave.ms.client.field.obj.npc.shop;
 
 import im.cave.ms.client.items.Item;
 import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.network.packet.PacketHelper;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -60,13 +61,13 @@ public class NpcShopItem {
 
     public void encode(OutPacket outPacket) {
         outPacket.writeInt(1000000);
-        outPacket.writeInt(getItemID());
+        outPacket.writeInt(getItemId());
         outPacket.writeInt(0);
         outPacket.writeInt(1000000);
         outPacket.writeInt(0);
         outPacket.writeInt(0);
         outPacket.writeInt(getPrice());
-        outPacket.writeInt(getTokenItemID());
+        outPacket.writeInt(getTokenItemId());
         outPacket.writeInt(getTokenPrice());
         outPacket.writeInt(getPointQuestID());
         outPacket.writeInt(getPointPrice());
@@ -86,14 +87,14 @@ public class NpcShopItem {
         outPacket.writeLong(getSellStart());
         outPacket.writeLong(getSellEnd());
         outPacket.writeInt(getTabIndex());
-        outPacket.writeShort(1);
+        outPacket.writeShort(1); // show?
         outPacket.writeBool(isWorldBlock());
         outPacket.writeInt(getquestExId());
         outPacket.writeMapleAsciiString(getQuestExKey());
         outPacket.writeInt(getQuestExValue());
         outPacket.writeInt(getPotentialGrade());
         outPacket.write(0);
-        int prefix = getItemID() / 10000;
+        int prefix = getItemId() / 10000;
         if (prefix != 207 && prefix != 233) {
             outPacket.writeShort(getQuantity());
         } else {
@@ -111,11 +112,13 @@ public class NpcShopItem {
             outPacket.writeInt(i);
             outPacket.writeInt(0);
         }
-
-        outPacket.write(0);
+        outPacket.writeBool(item != null);
+        if (item != null) {
+            PacketHelper.addItemInfo(outPacket, item);
+        }
     }
 
-    public int getItemID() {
+    public int getItemId() {
         return itemId;
     }
 
@@ -142,7 +145,7 @@ public class NpcShopItem {
         this.price = price;
     }
 
-    public int getTokenItemID() {
+    public int getTokenItemId() {
         return tokenItemId;
     }
 

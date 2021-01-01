@@ -57,6 +57,10 @@ public class OutPacket implements AutoCloseable {
         byteBuf.writeIntLE(i);
     }
 
+    public void writeInt(boolean b) {
+        byteBuf.writeIntLE(b ? 1 : 0);
+    }
+
     public void writeLong(long l) {
         byteBuf.writeLongLE(l);
     }
@@ -101,13 +105,23 @@ public class OutPacket implements AutoCloseable {
         writeAsciiString(s, s.getBytes(ASCII).length);
     }
 
-    public void writePos(Position position) {
+    public void writePosition(Position position) {
         if (position == null) {
             writeShort(0);
             writeShort(0);
         } else {
             writeShort(position.getX());
             writeShort(position.getY());
+        }
+    }
+
+    public void writePositionInt(Position position) {
+        if (position == null) {
+            writeInt(0);
+            writeInt(0);
+        } else {
+            writeInt(position.getX());
+            writeInt(position.getY());
         }
     }
 

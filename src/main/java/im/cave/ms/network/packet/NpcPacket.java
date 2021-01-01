@@ -2,11 +2,15 @@ package im.cave.ms.network.packet;
 
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
+import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.NpcMessageType;
+import im.cave.ms.enums.ShopResultType;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
 import im.cave.ms.scripting.npc.NpcScriptInfo;
+
+import java.util.List;
 
 /**
  * @author fair
@@ -210,7 +214,7 @@ public class NpcPacket {
         return outPacket;
     }
 
-    public static OutPacket openShop(int npcId, int petTemplateId, NpcShop shop) {
+    public static OutPacket openShop(int npcId, int petTemplateId, NpcShop shop, List<NpcShopItem> repurchaseItems) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.NPC_SHOP_OPEN.getValue());
         outPacket.writeInt(npcId);
@@ -218,7 +222,44 @@ public class NpcPacket {
         if (petTemplateId != 0) {
             outPacket.writeInt(petTemplateId);
         }
-        shop.encode(outPacket);
+        shop.encode(outPacket, repurchaseItems);
+        return outPacket;
+    }
+
+    public static OutPacket shopResult(ShopResultType type) {
+        return shopResult(type, false, 0, 0, null, null);
+    }
+
+    public static OutPacket shopResult(ShopResultType type, NpcShop shop, List<NpcShopItem> repurchaseItems) {
+        return shopResult(type, false, 0, 0, shop, repurchaseItems);
+    }
+
+    public static OutPacket shopResult(ShopResultType type, boolean repurchase, int index) {
+        return shopResult(type, repurchase, index, 0, null, null);
+    }
+
+
+    public static OutPacket shopResult(ShopResultType type, boolean repurchase, int index, int itemId, NpcShop shop, List<NpcShopItem> repurchaseItems) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.NPC_SHOP_RESULT.getValue());
+        outPacket.write(type.getVal());
+        switch (type) {
+            case FullInvMsg:
+            case Buy: {
+                outPacket.writeBool(repurchase);
+                if (repurchase) {
+                    outPacket.write(index);
+                } else {
+                    outPacket.writeInt(itemId);
+                    outPacket.writeInt(1000000);
+                }
+                outPacket.writeInt(0);
+                break;
+            }
+            case SellResult:
+                shop.encode(outPacket, repurchaseItems);
+                break;
+        }
         return outPacket;
     }
 }
