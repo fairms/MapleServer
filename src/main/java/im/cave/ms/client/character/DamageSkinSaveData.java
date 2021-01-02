@@ -45,9 +45,9 @@ public class DamageSkinSaveData {
     public void encode(OutPacket outPacket) {
         outPacket.writeInt(getDamageSkinID());
         outPacket.writeInt(getItemID());
-        outPacket.writeBool(isNotSave());
-        outPacket.writeInt(0);
+        outPacket.writeBool(!isNotSave());
         outPacket.writeMapleAsciiString(getDescription());
+        outPacket.writeInt(0);
     }
 
     public long getId() {

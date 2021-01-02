@@ -118,12 +118,12 @@ public class UserRemote {
         //todo 收藏任务id+完成时间
         chr.encodeDamageSkins(outPacket);
         //倾向
-        outPacket.write(1);
-        outPacket.write(2);
-        outPacket.write(3);
-        outPacket.write(4);
-        outPacket.write(5);
-        outPacket.write(6);
+        outPacket.write(100);
+        outPacket.write(100);
+        outPacket.write(100);
+        outPacket.write(100);
+        outPacket.write(100);
+        outPacket.write(100);
         //
         outPacket.write(0);
         outPacket.writeZeroBytes(8);

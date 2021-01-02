@@ -82,7 +82,7 @@ public class Inventory {
     }
 
     public int getNextFreeSlot() {
-        for (byte i = 1; i < slots; i++) {
+        for (byte i = 1; i <= slots; i++) {
             byte finalI = i;
             Item item = items.stream().filter(e -> e.getPos() == finalI).findAny().orElse(null);
             if (item == null) {

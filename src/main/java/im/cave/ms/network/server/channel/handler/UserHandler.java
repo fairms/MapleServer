@@ -24,6 +24,7 @@ import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.job.MapleJob;
 import im.cave.ms.client.movement.MovementInfo;
+import im.cave.ms.client.party.PartyMember;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.client.skill.HitInfo;
 import im.cave.ms.client.skill.MobAttackInfo;
@@ -542,28 +543,26 @@ public class UserHandler {
                 Rect rect = skillInfo.getFirstRect();
                 if (rect != null) {
                     Rect rectAround = player.getRectAround(rect);
-//                    for (PartyMember pm : chr.getParty().getOnlineMembers()) {
-//                        if (pm.getChr() != null
-//                                && pm.getFieldID() == chr.getFieldID()
-//                                && rectAround.hasPositionInside(pm.getChr().getPosition())) {
-//                            Char ptChr = pm.getChr();
-//                            Effect effect = Effect.skillAffected(skillID, slv, 0);
-//                            if (ptChr != chr) { // Caster shouldn't get the Affected Skill Effect
-//                                chr.getField().broadcastPacket(
-//                                        UserPacket.effect(ptChr.getId(), effect)
-//                                        , ptChr);
-//                                ptChr.write(User.effect(effect));
-//                            }
-//                            sourceJobHandler.handleSkill(pm.getChr().getClient(), skillID, slv, inPacket);
-//                        }
-//                    }
+                    for (PartyMember pm : player.getParty().getOnlineMembers()) {
+                        if (pm.getChr() != null
+                                && pm.getMapId() == player.getMapId()
+                                && rectAround.hasPositionInside(pm.getChr().getPosition())) {
+                            MapleCharacter ptChr = pm.getChr();
+                            Effect effect = Effect.skillAffected(skillId, skillLevel, 0);
+                            if (ptChr != player) { // Caster shouldn't get the Affected Skill Effect
+                                ptChr.getMap().broadcastMessage(ptChr,
+                                        UserRemote.effect(ptChr.getId(), effect)
+                                        , false);
+                                ptChr.announce(UserPacket.effect(effect));
+                            }
+                            sourceJobHandler.handleSkill(pm.getChr().getClient(), skillId, skillLevel, inPacket);
+                        }
+                    }
                 }
                 sourceJobHandler.handleSkill(c, skillId, skillLevel, inPacket);
-
             } else {
                 sourceJobHandler.handleSkill(c, skillId, skillLevel, inPacket);
             }
-
         }
     }
 

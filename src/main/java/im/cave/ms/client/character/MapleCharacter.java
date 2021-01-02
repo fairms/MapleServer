@@ -262,7 +262,7 @@ public class MapleCharacter implements Serializable {
     @Transient
     private List<NpcShopItem> repurchaseItems = new ArrayList<>();
     @Transient
-    private Npc npc;
+    private Npc npc; //当前对话的NPC对象
     @Transient
     private List<Integer> cashCart = new ArrayList<>(12);
     @Transient
@@ -819,26 +819,41 @@ public class MapleCharacter implements Serializable {
         stats.setExp(newExp);
     }
 
+    public void consumeItem(int itemId, int quantity, boolean excl) {
+        Item checkItem = ItemData.getItemCopy(itemId, false);
+        Item item = getInventory(checkItem.getInvType()).getItemByItemID(itemId);
+        if (item != null) {
+            int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
+            item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
+            consumeItem(item, excl);
+        }
+    }
+
+
     public void consumeItem(int itemId, int quantity) {
         Item checkItem = ItemData.getItemCopy(itemId, false);
         Item item = getInventory(checkItem.getInvType()).getItemByItemID(itemId);
         if (item != null) {
             int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
             item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
-            consumeItem(item);
+            consumeItem(item, true);
         }
     }
 
     public void consumeItem(Item item) {
+        consumeItem(item, true);
+    }
+
+    public void consumeItem(Item item, boolean excl) {
         Inventory inventory = getInventory(item.getInvType());
         if (item.getQuantity() <= 1 && !ItemConstants.isThrowingItem(item.getItemId())) {
             item.setQuantity(0);
             inventory.removeItem(item);
             short pos = (short) item.getPos();
-            announce(UserPacket.inventoryOperation(true, REMOVE, pos, (short) 0, 0, item));
+            announce(UserPacket.inventoryOperation(excl, REMOVE, pos, (short) 0, 0, item));
         } else {
             item.setQuantity(item.getQuantity() - 1);
-            announce(UserPacket.inventoryOperation(true, UPDATE_QUANTITY, (short) item.getPos(), (short) -1, 0, item));
+            announce(UserPacket.inventoryOperation(excl, UPDATE_QUANTITY, (short) item.getPos(), (short) -1, 0, item));
         }
     }
 

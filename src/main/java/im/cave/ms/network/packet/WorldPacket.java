@@ -495,6 +495,10 @@ public class WorldPacket {
         return outPacket;
     }
 
+    /*
+        仓库操作 开始
+     */
+
     public static OutPacket openTrunk(int npcId, Account account) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
@@ -530,6 +534,28 @@ public class WorldPacket {
         trunk.encode(outPacket, type.getBitfieldEncoding());
         return outPacket;
     }
+
+    public static OutPacket putItemToTrunk(Trunk trunk, InventoryType inventoryType) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
+        outPacket.write(TrunkOpType.TrunkRes_PutSuccess.getVal());
+        trunk.encode(outPacket, inventoryType.getBitfieldEncoding());
+        return outPacket;
+    }
+
+    public static OutPacket sortedTrunkItems(Trunk trunk) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
+        outPacket.write(TrunkOpType.TrunkRes_SortItem.getVal());
+        trunk.encode(outPacket, 0x7C);
+        outPacket.writeInt(0);
+        return outPacket;
+    }
+
+        /*
+        仓库操作 结束
+     */
+
 
     public static OutPacket eventMessage(String msg, int type, int duration) {
         OutPacket outPacket = new OutPacket();
@@ -641,22 +667,6 @@ public class WorldPacket {
         outPacket.write(0);
         outPacket.write(0);
         outPacket.write(0);
-        return outPacket;
-    }
-
-    public static OutPacket putItemToTrunk(Trunk trunk, InventoryType inventoryType) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
-        outPacket.write(TrunkOpType.TrunkRes_PutSuccess.getVal());
-        trunk.encode(outPacket, inventoryType.getBitfieldEncoding());
-        return outPacket;
-    }
-
-    public static OutPacket sortedTrunkItems(Trunk trunk) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.TRUNK_OPERATION.getValue());
-        outPacket.write(TrunkOpType.TrunkRes_SortItem.getVal());
-        trunk.encode(outPacket, 0x7C);
         return outPacket;
     }
 

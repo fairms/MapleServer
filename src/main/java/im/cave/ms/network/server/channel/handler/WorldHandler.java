@@ -172,17 +172,17 @@ public class WorldHandler {
                 }
                 byte inv = inPacket.readByte();
                 byte index = inPacket.readByte();
-                short quantity = inPacket.readShort(); //todo
+                short quantity = inPacket.readShort();
                 List<Item> items = trunk.getItems(InventoryType.getTypeById(inv));
                 if (index >= 0 && index < items.size()) {
                     Item item = items.get(index);
                     if (player.getInventory(item.getInvType()).canPickUp(item)) {
-                        trunk.removeItem(item);
+                        trunk.removeItem(item, quantity);
                         player.addItemToInv(item);
                         InventoryType invType = item.getInvType();
+                        trunk.trim();
                         player.announce(WorldPacket.getItemFromTrunk(trunk, invType));
                         player.deductMoney(player.getNpc().getTrunkGet());
-                        trunk.trim();
                     } else {
                         player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_PutNoSpace));
                     }
@@ -201,18 +201,17 @@ public class WorldHandler {
                 short quantity = inPacket.readShort();
                 InventoryType invType = ItemConstants.getInvTypeByItemId(itemId);
                 if (invType == null) {
-                    //todo
                     player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_PutUnknown));
                     return;
                 }
                 Inventory inventory = player.getInventory(invType);
                 Item item = inventory.getItem(pos);
-                if (item.getItemId() != itemId) {
+                if (item == null || item.getItemId() != itemId) {
                     player.announce(WorldPacket.trunkMsg(TrunkOpType.TrunkRes_PutUnknown));
                     return;
                 }
                 player.deductMoney(player.getNpc().getTrunkPut());
-                player.consumeItem(itemId, quantity);
+                player.consumeItem(itemId, quantity, false); //仓库存入 excl = false
                 trunk.addItem(item, quantity);
                 player.announce(WorldPacket.putItemToTrunk(trunk, item.getInvType()));
                 break;
@@ -230,21 +229,23 @@ public class WorldHandler {
                 player.announce(WorldPacket.getMoneyFromTrunk(amount, trunk));
                 break;
             }
-            case TrunkReq_SortItem:
+            case TrunkReq_SortItem: {
                 trunk.sort();
                 player.announce(WorldPacket.sortedTrunkItems(trunk));
                 break;
-            case TrunkReq_CloseDialog:
+            }
+            case TrunkReq_CloseDialog: {
                 player.setNpc(null);
                 player.setConversation(false);
                 break;
+            }
         }
     }
 
     public static void handleChangeCharRequest(InPacket inPacket, MapleClient c) {
         String account = inPacket.readMapleAsciiString();
         if (!account.equals(c.getAccount().getAccount())) {
-            c.getPlayer().dropMessage("有问题");
+            c.close();
             return;
         }
         c.announce(LoginPacket.changePlayer(c));
@@ -260,7 +261,6 @@ public class WorldHandler {
         player.addQuestEx(questId, options);
         c.announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_COMBO_KILL, player.getQuestsExStorage().get(QUEST_EX_COMBO_KILL), (byte) 0));
         c.announce(QuestPacket.updateQuestEx(QUEST_EX_COMBO_KILL));
-
     }
 
     public static void handleSignIn(InPacket inPacket, MapleClient c) {

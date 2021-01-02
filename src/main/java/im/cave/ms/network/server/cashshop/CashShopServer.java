@@ -31,6 +31,11 @@ public class CashShopServer extends AbstractServer {
     private Map<Integer, Byte> hotItems = new HashMap<>();
     private AtomicInteger cashItemCounter;
 
+    {
+        loadCashItemCounter();
+    }
+
+
     public CashShopServer(int worldId) {
         super(worldId, -1);
         type = ServerType.CASHSHOP;

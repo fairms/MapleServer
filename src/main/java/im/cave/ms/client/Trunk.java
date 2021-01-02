@@ -111,8 +111,12 @@ public class Trunk {
         return getItems().stream().filter(i -> i.getItemId() == itemID).findAny().orElse(null);
     }
 
-    public void removeItem(Item getItem) {
-        getItems().remove(getItem);
+    public void removeItem(Item getItem, int quantity) {
+        if (getItem.getType() == Item.Type.EQUIP || quantity == getItem.getQuantity()) {
+            getItems().remove(getItem);
+        } else {
+            getItem.setQuantity(getItem.getQuantity() - quantity);
+        }
     }
 
     public void encode(OutPacket outPacket, long mask) {
@@ -188,4 +192,5 @@ public class Trunk {
         Comparator<Item> byType = Comparator.comparingInt(value -> value.getInvType().getVal());
         items.sort(byType.thenComparing(byType));
     }
+
 }

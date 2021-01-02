@@ -95,12 +95,16 @@ public class ItemData {
     public static Map<Integer, AndroidInfo> androids = new HashMap<>();
 
     public static void init() {
+        log.info("----------------加载道具信息----------------");
         loadStartItems();
         loadItemOptions();
         loadFamiliars();
         loadFamiliarOptions();
+        log.info("开始加载商城道具");
         loadCashShopItems();
+        log.info("商城道具加载完成");
         loadAndroidsInfo();
+        log.info("--------------加载道具信息结束--------------");
     }
 
 
