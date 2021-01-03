@@ -112,7 +112,7 @@ public class Party {
         outPacket.writeBool(isAppliable() && !isFull());
         outPacket.write(0);
         outPacket.writeMapleAsciiString(getName());
-
+        //todo unk
         outPacket.writeZeroBytes(7);
         outPacket.writeInt(2);
         outPacket.writeZeroBytes(20);

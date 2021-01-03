@@ -267,6 +267,7 @@ public class PacketHelper {
 
     public static void addCharInfo(OutPacket outPacket, MapleCharacter chr) {
         outPacket.writeLong(-1); // 开始生成角色信息 mask  0xFFFFFFFFFFFFFFFFL
+        //begin character
         outPacket.write(0); //getCombatOrders
         outPacket.writeInt(-1); // pet getActiveSkillCoolTime
         outPacket.writeInt(-1);
@@ -297,19 +298,17 @@ public class PacketHelper {
         outPacket.write(-1);
         outPacket.writeInt(0);
         outPacket.write(-1);
-
+        //end character
         outPacket.writeLong(chr.getMeso());
         outPacket.writeInt(chr.getId());
         outPacket.writeInt(0); //打豆豆.豆子
         outPacket.writeInt(0);
         outPacket.writeInt(0);
 
-        outPacket.writeInt(0); //todo
-//        outPacket.writeInt(chr.getPotionPot() != null ? 1 : 0); //药剂罐信息
-//        if (chr.getPotionPot() != null) {
-//            addPotionPotInfo(outPacket, chr.getPotionPot());
-//        }
-
+        outPacket.writeInt(chr.getPotionPot() != null);
+        if (chr.getPotionPot() != null) {
+            chr.getPotionPot().encode(outPacket);
+        }
         //背包容量
         outPacket.write(chr.getInventory(InventoryType.EQUIP).getSlots());
         outPacket.write(chr.getInventory(InventoryType.CONSUME).getSlots());
@@ -317,7 +316,7 @@ public class PacketHelper {
         outPacket.write(chr.getInventory(InventoryType.ETC).getSlots());
         outPacket.write(chr.getInventory(InventoryType.CASH).getSlots());
 
-//        //扩充吊坠栏
+        //扩充吊坠栏
 //        MapleQuestStatus stat = chr.getQuestNoAdd(MapleQuest.getInstance(122700));
 //        if (stat != null && stat.getCustomData() != null && Long.parseLong(stat.getCustomData()) > System.currentTimeMillis()) {
 //            outPacket.writeLong(getTime(Long.parseLong(stat.getCustomData())));
@@ -326,8 +325,8 @@ public class PacketHelper {
 //        }
         outPacket.writeLong(ZERO_TIME); //todo
 
+        outPacket.write(0); //END
 
-        outPacket.write(0); //未知
         addInventoryInfo(outPacket, chr);
         addSkillInfo(outPacket, chr);
         addQuestInfo(outPacket, chr);
@@ -383,8 +382,8 @@ public class PacketHelper {
         outPacket.writeInt(chr.getId());
         outPacket.writeZeroBytes(12);
         outPacket.writeLong(ZERO_TIME);
-        outPacket.writeInt(0x0A);
-        outPacket.writeZeroBytes(20);
+        outPacket.writeInt(0x0A); // xxx size
+        outPacket.writeZeroBytes(20); // xxx
 
         //角色共享任务数据
         Account account = chr.getAccount();
@@ -395,7 +394,10 @@ public class PacketHelper {
             outPacket.writeMapleAsciiString(qrValue);
         });
 
-        outPacket.writeZeroBytes(13);
+        outPacket.writeShort(0); //unk size
+
+        outPacket.writeZeroBytes(7);
+        outPacket.writeInt(0); //五转核心数目
 
         //未知
         int ffff = 19;
@@ -838,7 +840,7 @@ public class PacketHelper {
             outPacket.writeInt(pet.getAutoBuffSkill());
             outPacket.writeInt(pet.getPetHue());
             outPacket.writeShort(pet.getGiantRate()); //巨大化
-            outPacket.writeZeroBytes(13); // 不知道
+            outPacket.writeZeroBytes(14); // 不知道
         } else {
             outPacket.writeShort(item.getQuantity());
             outPacket.writeMapleAsciiString(item.getOwner());

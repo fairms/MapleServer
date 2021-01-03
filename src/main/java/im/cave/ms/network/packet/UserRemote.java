@@ -11,7 +11,10 @@ import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static im.cave.ms.constants.QuestConstants.QUEST_EX_SOUL_EFFECT;
 
 /**
  * @author fair
@@ -171,7 +174,7 @@ public class UserRemote {
         return outPacket;
     }
 
-    public static OutPacket sitResult(Integer charId, int chairId, int unk1, short unk2, int unk3, byte unk4) {
+    public static OutPacket remoteSetActivePortableChair(int charId, int chairId, int unk1, short unk2, int unk3, byte unk4) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.REMOTE_SET_ACTIVE_PORTABLE_CHAIR.getValue());
         outPacket.writeInt(charId);
@@ -226,16 +229,6 @@ public class UserRemote {
         return outPacket;
     }
 
-    public static OutPacket soulEffect(MapleCharacter player) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SET_SOUL_EFFECT.getValue());
-        outPacket.writeInt(player.getId());
-        outPacket.writeInt(0);
-        outPacket.write(0);
-        outPacket.writeShort(0);
-        return outPacket;
-    }
-
     public static OutPacket setDamageSkin(MapleCharacter chr) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.SET_DAMAGE_SKIN.getValue());
@@ -254,5 +247,26 @@ public class UserRemote {
 
         return outPacket;
 
+    }
+
+    public static OutPacket setSoulEffect(Integer charId, boolean set) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SET_SOUL_EFFECT.getValue());
+        outPacket.writeInt(charId);
+        outPacket.writeBool(set);
+        return outPacket;
+    }
+
+    public static OutPacket setSoulEffect(MapleCharacter player) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.SET_SOUL_EFFECT.getValue());
+        outPacket.writeInt(player.getId());
+        Map<String, String> options = player.getQuestEx().get(QUEST_EX_SOUL_EFFECT);
+        boolean set = false;
+        if (options != null && options.containsKey("effect")) {
+            set = options.get("effect").equals("1");
+        }
+        outPacket.writeBool(set);
+        return outPacket;
     }
 }

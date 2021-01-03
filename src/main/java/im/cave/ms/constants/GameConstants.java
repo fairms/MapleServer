@@ -33,7 +33,7 @@ public class GameConstants {
     public static final int RESISTANCE_SP_MAX_LV = 10;
     public static final int QUICKSLOT_SIZE = 32;
     public static final byte MAX_LOCKER_SIZE = 124;
-
+    public static final int POTION_POT_MAX_LIMIT = 10000000;
     //  default keymap
     public static final byte[] DEFAULT_KEY = {1, 2, 3, 4, 5, 6, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 31, 34, 35, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 48, 50, 56, 57, 59, 60, 61, 63, 64, 65, 66, 70};
     public static final byte[] DEFAULT_TYPE = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 4};

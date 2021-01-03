@@ -143,7 +143,7 @@ public class MapleMap {
             if (!chr.getVisibleChar().contains(character)) {
                 chr.announce(WorldPacket.userEnterMap(character));
                 chr.announce(UserRemote.hiddenEffectEquips(character));
-                chr.announce(UserRemote.soulEffect(character));
+                chr.announce(UserRemote.setSoulEffect(character));
                 chr.getVisibleChar().add(character);
             }
         }

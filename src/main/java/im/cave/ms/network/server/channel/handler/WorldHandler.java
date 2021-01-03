@@ -258,8 +258,7 @@ public class WorldHandler {
         MapleCharacter player = c.getPlayer();
         HashMap<String, String> options = new HashMap<>();
         options.put("ComboK", String.valueOf(combo));
-        player.addQuestEx(questId, options);
-        c.announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_COMBO_KILL, player.getQuestsExStorage().get(QUEST_EX_COMBO_KILL), (byte) 0));
+        player.addQuestExAndSendPacket(questId, options);
         c.announce(QuestPacket.updateQuestEx(QUEST_EX_COMBO_KILL));
     }
 
@@ -379,13 +378,17 @@ public class WorldHandler {
                     player.setMapId(player.getMap().getReturnMap());
                     player.heal(50);
                 }
+                Party party = player.getMapleWorld().getPartyById(player.getPartyId());
+                if (party != null) {
+                    player.setParty(party);
+                }
                 player.changeMap(player.getMapId(), true);
                 player.initBaseStats();
                 player.buildQuestEx();
                 c.announce(UserPacket.keymapInit(player));
                 c.announce(LoginPacket.account(player.getAccount()));
                 c.announce(UserPacket.quickslotInit(player));
-                c.announce(UserPacket.initSkillMacro(player));
+                c.announce(UserPacket.macroSysDataInit(player));
                 c.announce(UserPacket.updateVoucher(player));
                 c.getAccount().buildSharedQuestEx();
                 c.announce(MapleSignIn.getRewardPacket());

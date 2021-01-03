@@ -19,8 +19,10 @@ import im.cave.ms.enums.DimensionalMirror;
 import im.cave.ms.enums.DropEnterType;
 import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.MapTransferType;
 import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.enums.TrunkOpType;
+import im.cave.ms.enums.UIType;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
 import im.cave.ms.tools.DateUtil;
@@ -670,12 +672,35 @@ public class WorldPacket {
         return outPacket;
     }
 
-
     public static OutPacket queryCashPointResult(Account account) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.CASH_POINT_RESULT.getValue());
         outPacket.writeInt(account.getPoint());
         outPacket.writeInt(account.getVoucher());
+        return outPacket;
+    }
+
+    public static OutPacket openUI(UIType uiType) {
+        return openUI(uiType.getVal());
+    }
+
+    public static OutPacket openUI(int uiId) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.OPEN_UI.getValue());
+        outPacket.writeInt(uiId);
+        return outPacket;
+    }
+
+    public static OutPacket mapTransferResult(MapTransferType mapTransferType, byte itemType, int[] hyperRockFields) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.MAP_TRANSFER_RESULT.getValue());
+        outPacket.write(mapTransferType.getVal());
+        outPacket.write(itemType);
+        if (mapTransferType == MapTransferType.DeleteListSend || mapTransferType == MapTransferType.RegisterListSend) {
+            for (int mapId : hyperRockFields) {
+                outPacket.writeInt(mapId); // Target Field ID
+            }
+        }
         return outPacket;
     }
 }

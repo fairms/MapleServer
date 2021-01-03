@@ -5,6 +5,7 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.Trunk;
 import im.cave.ms.client.cashshop.CashItemInfo;
 import im.cave.ms.client.character.DamageSkinSaveData;
+import im.cave.ms.client.character.Macro;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleKeyMap;
 import im.cave.ms.client.character.MapleStat;
@@ -40,7 +41,7 @@ import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
-import im.cave.ms.enums.MessageType;
+import im.cave.ms.enums.MapTransferType;
 import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.CashShopPacket;
@@ -70,6 +71,7 @@ import java.util.Set;
 
 import static im.cave.ms.constants.GameConstants.QUICKSLOT_SIZE;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_NICK_ITEM;
+import static im.cave.ms.constants.QuestConstants.QUEST_EX_SOUL_EFFECT;
 import static im.cave.ms.network.packet.opcode.RecvOpcode.CLOSE_RANGE_ATTACK;
 import static im.cave.ms.network.packet.opcode.RecvOpcode.MAGIC_ATTACK;
 import static im.cave.ms.network.packet.opcode.RecvOpcode.RANGED_ATTACK;
@@ -292,6 +294,7 @@ public class UserHandler {
         player.getMap().broadcastMessage(player, UserPacket.move(player, movementInfo), false);
     }
 
+    //todo 优先使用道具 -》 免费 超时空卷 -》 点券 超时空卷
     public static void handleWorldMapTransfer(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
@@ -302,11 +305,17 @@ public class UserHandler {
         MapleChannel channel = c.getMapleChannel();
         MapleMap map = channel.getMap(mapId);
         if (map == null) {
+            player.announce(WorldPacket.mapTransferResult(MapTransferType.TargetNotExist, (byte) 0, null));
+            return;
+        } else if (map == player.getMap()) {
+            player.announce(WorldPacket.mapTransferResult(MapTransferType.AlreadyInMap, (byte) 0, null));
             return;
         }
-        player.changeMap(map, map.getDefaultPortal() == null ? 0 : map.getDefaultPortal().getId());
+        //todo
+        player.changeMap(map.getId());
     }
 
+    //打开角色的信息面板
     public static void handleCharInfoReq(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
@@ -322,18 +331,16 @@ public class UserHandler {
         c.announce(UserRemote.charInfo(chr));
     }
 
-    /*
-    取消椅子/城镇椅子
-     */
+    //取消椅子
     public static void handleUserSitRequest(InPacket inPacket, MapleClient c) {
-        short id = inPacket.readShort();
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
-        player.setChairId(id);
-        c.announce(UserPacket.sitResult(player.getId(), id));
-        player.getMap().broadcastMessage(player, UserRemote.sitResult(player.getId(), 0, 0, (short) 0, 0, (byte) 0), false);
+        short fieldSeatId = inPacket.readShort();
+        player.setChairId(fieldSeatId);
+        c.announce(UserPacket.sitResult(player.getId(), fieldSeatId));
+        player.getMap().broadcastMessage(player, UserRemote.remoteSetActivePortableChair(player.getId(), 0, 0, (short) 0, 0, (byte) 0), false);
     }
 
     public static void handleUserPortableChairSitRequest(InPacket inPacket, MapleClient c) {
@@ -349,44 +356,14 @@ public class UserHandler {
         int unk3 = inPacket.readInt();
         byte unk4 = inPacket.readByte();
         c.announce(UserPacket.enableActions());
-        c.announce(UserPacket.chairSitResult());
+        c.announce(UserPacket.userSit());
         MapleCharacter player = c.getPlayer();
-        player.getMap().broadcastMessage(player, UserRemote.sitResult(player.getId(), chairId, unk1, unk2, unk3, unk4), false);
+        player.getMap().broadcastMessage(player, UserRemote.remoteSetActivePortableChair(player.getId(), chairId, unk1, unk2, unk3, unk4), false);
     }
 
-    public static void handlePickUp(InPacket inPacket, MapleClient c) {
-        MapleCharacter player = c.getPlayer();
-        if (player == null) {
-            return;
-        }
-        byte mapKey = inPacket.readByte();
-        player.setTick(inPacket.readInt());
-        Position position = inPacket.readPos();
-        int dropId = inPacket.readInt();
-        MapleMap map = player.getMap();
-        MapleMapObj obj = map.getObj(dropId);
-        if (obj instanceof Drop) {
-            Drop drop = (Drop) obj;
-            player.addDrop(drop);
-            map.removeDrop(dropId, DropLeaveType.CharPickup1, player.getId(), false);
-        }
-    }
-
-    public static void handleEquipEffectOpt(int pos, MapleClient c) {
-        MapleCharacter player = c.getPlayer();
-        if (player == null) {
-            return;
-        }
-        Inventory inventory = player.getEquippedInventory();
-        Equip equip = (Equip) inventory.getItem((short) pos);
-        if (equip == null) {
-            c.announce(UserPacket.enableActions());
-            return;
-        }
-        equip.setShowEffect(!equip.isShowEffect());
-        player.getMap().broadcastMessage(UserRemote.hiddenEffectEquips(player));
-    }
-
+    /*
+        技能开始
+     */
     public static void handleSkillUp(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
@@ -473,60 +450,6 @@ public class UserHandler {
 
     }
 
-    //自动回复
-    public static void handleChangeStatRequest(InPacket inPacket, MapleClient c) {
-
-        MapleCharacter player = c.getPlayer();
-        if (player == null) {
-            return;
-        }
-        player.setTick(inPacket.readInt());
-        long mask = inPacket.readLong();
-        List<MapleStat> stats = MapleStat.getStatsByMask(mask);
-        HashMap<MapleStat, Long> updatedStats = new HashMap<>();
-        for (MapleStat stat : stats) {
-            updatedStats.put(stat, (long) inPacket.readShort());
-        }
-        if (updatedStats.containsKey(MapleStat.HP)) {
-            player.heal(Math.toIntExact(updatedStats.get(MapleStat.HP)));
-        }
-        if (updatedStats.containsKey(MapleStat.MP)) {
-            player.healMP(Math.toIntExact(updatedStats.get(MapleStat.MP)));
-        }
-//        c.announce(UserPacket.updatePlayerStats(updatedStats, player));
-    }
-
-    public static void handleChangeQuickslot(InPacket inPacket, MapleClient c) {
-        MapleCharacter player = c.getPlayer();
-        if (player == null) {
-            return;
-        }
-        ArrayList<Integer> aKeys = new ArrayList<>();
-        if (inPacket.available() == QUICKSLOT_SIZE * 4) {
-            for (int i = 0; i < QUICKSLOT_SIZE; i++) {
-                aKeys.add(inPacket.readInt());
-            }
-        }
-        player.setQuickslots(aKeys);
-    }
-
-    public static void handleChangeKeyMap(InPacket inPacket, MapleClient c) {
-        inPacket.skip(4);
-        int size = inPacket.readInt();
-        MapleKeyMap keyMap = c.getPlayer().getKeyMap();
-        if (keyMap == null) {
-            keyMap = new MapleKeyMap();
-            keyMap.setDefault(false);
-        }
-        for (int i = 0; i < size; i++) {
-            int key = inPacket.readInt();
-            byte type = inPacket.readByte();
-            int action = inPacket.readInt();
-            keyMap.putKeyBinding(key, type, action);
-        }
-        c.getPlayer().setKeyMap(keyMap);
-    }
-
     public static void handleUseSkill(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
@@ -572,6 +495,97 @@ public class UserHandler {
         MapleCharacter player = c.getPlayer();
         TemporaryStatManager tsm = player.getTemporaryStatManager();
         tsm.removeStatsBySkill(skillId);
+    }
+
+    /*
+        技能结束
+     */
+
+    //拾取
+    public static void handlePickUp(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        byte mapKey = inPacket.readByte();
+        player.setTick(inPacket.readInt());
+        Position position = inPacket.readPos();
+        int dropId = inPacket.readInt();
+        MapleMap map = player.getMap();
+        MapleMapObj obj = map.getObj(dropId);
+        if (obj instanceof Drop) {
+            Drop drop = (Drop) obj;
+            player.addDrop(drop);
+            map.removeDrop(dropId, DropLeaveType.CharPickup1, player.getId(), false);
+        }
+    }
+
+    public static void handleEquipEffectOpt(int pos, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        Inventory inventory = player.getEquippedInventory();
+        Equip equip = (Equip) inventory.getItem((short) pos);
+        if (equip == null) {
+            c.announce(UserPacket.enableActions());
+            return;
+        }
+        equip.setShowEffect(!equip.isShowEffect());
+        player.getMap().broadcastMessage(UserRemote.hiddenEffectEquips(player));
+    }
+
+    //自动回复
+    public static void handleChangeStatRequest(InPacket inPacket, MapleClient c) {
+
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        player.setTick(inPacket.readInt());
+        long mask = inPacket.readLong();
+        List<MapleStat> stats = MapleStat.getStatsByMask(mask);
+        HashMap<MapleStat, Long> updatedStats = new HashMap<>();
+        for (MapleStat stat : stats) {
+            updatedStats.put(stat, (long) inPacket.readShort());
+        }
+        if (updatedStats.containsKey(MapleStat.HP)) {
+            player.heal(Math.toIntExact(updatedStats.get(MapleStat.HP)));
+        }
+        if (updatedStats.containsKey(MapleStat.MP)) {
+            player.healMP(Math.toIntExact(updatedStats.get(MapleStat.MP)));
+        }
+    }
+
+    public static void handleChangeQuickSlot(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        if (player == null) {
+            return;
+        }
+        ArrayList<Integer> aKeys = new ArrayList<>();
+        if (inPacket.available() == QUICKSLOT_SIZE * 4) {
+            for (int i = 0; i < QUICKSLOT_SIZE; i++) {
+                aKeys.add(inPacket.readInt());
+            }
+        }
+        player.setQuickslots(aKeys);
+    }
+
+    public static void handleChangeKeyMap(InPacket inPacket, MapleClient c) {
+        inPacket.skip(4);
+        int size = inPacket.readInt();
+        MapleKeyMap keyMap = c.getPlayer().getKeyMap();
+        if (keyMap == null) {
+            keyMap = new MapleKeyMap();
+            keyMap.setDefault(false);
+        }
+        for (int i = 0; i < size; i++) {
+            int key = inPacket.readInt();
+            byte type = inPacket.readByte();
+            int action = inPacket.readInt();
+            keyMap.putKeyBinding(key, type, action);
+        }
+        c.getPlayer().setKeyMap(keyMap);
     }
 
     public static void handleAPUpdateRequest(InPacket inPacket, MapleClient c) {
@@ -633,6 +647,7 @@ public class UserHandler {
         c.announce(UserPacket.updatePlayerStats(stats, true, player));
     }
 
+    //内在能力
     public static void handleUserRequestCharacterPotentialSkillRandSetUi(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
@@ -718,8 +733,7 @@ public class UserHandler {
         value.put("id", String.valueOf(itemId));
         value.put("date", date);
         value.put("expired", expired);
-        player.addQuestEx(QUEST_EX_NICK_ITEM, value);
-        c.announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_NICK_ITEM, player.getQuestsExStorage().get(QUEST_EX_NICK_ITEM), (byte) 0));
+        player.addQuestExAndSendPacket(QUEST_EX_NICK_ITEM, value);
     }
 
     public static void handleUserActivateDamageSkin(InPacket inPacket, MapleClient c) {
@@ -729,6 +743,9 @@ public class UserHandler {
         chr.getMap().broadcastMessage(chr, UserRemote.setDamageSkin(chr), true);
     }
 
+    /*
+        切换地图
+     */
     public static void handleChangeMapRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
@@ -754,6 +771,26 @@ public class UserHandler {
         }
     }
 
+    public static void handleUserEnterPortalSpecialRequest(InPacket inPacket, MapleClient c) {
+        byte type = inPacket.readByte();
+        String portalName = inPacket.readMapleAsciiString();
+        Portal portal = c.getPlayer().getMap().getPortal(portalName);
+        if (portal == null) {
+            c.announce(UserPacket.enableActions());
+            return;
+        }
+        if (c.getPlayer().isChangingChannel()) {
+            c.announce(UserPacket.enableActions());
+            return;
+        }
+
+        portal.enterPortal(c);
+
+    }
+
+    /*
+        角色聊天
+     */
     public static void handleUserGeneralChat(InPacket inPacket, MapleClient c) {
         int tick = inPacket.readInt();
         MapleCharacter player = c.getPlayer();
@@ -772,23 +809,8 @@ public class UserHandler {
         player.getMap().broadcastMessage(player, UserRemote.getChatText(player, content), true);
     }
 
-    public static void handleUserEnterPortalSpecialRequest(InPacket inPacket, MapleClient c) {
-        byte type = inPacket.readByte();
-        String portalName = inPacket.readMapleAsciiString();
-        Portal portal = c.getPlayer().getMap().getPortal(portalName);
-        if (portal == null) {
-            c.announce(UserPacket.enableActions());
-            return;
-        }
-        if (c.getPlayer().isChangingChannel()) {
-            c.announce(UserPacket.enableActions());
-            return;
-        }
 
-        portal.enterPortal(c);
-
-    }
-
+    //给其他角色增加人气
     public static void handleUserAddFameRequest(InPacket inPacket, MapleClient c) {
         int charId = inPacket.readInt();
         MapleCharacter player = c.getPlayer();
@@ -804,6 +826,7 @@ public class UserHandler {
         other.announce(UserPacket.receiveFame(mode, player.getName()));
     }
 
+    //角色表情
     public static void handleCharEmotion(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         int emotion = inPacket.readInt();
@@ -814,6 +837,9 @@ public class UserHandler {
         }
     }
 
+    /*
+        超级技能/属性
+     */
     public static void handleUserHyperUpRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         player.setTick(inPacket.readInt());
@@ -906,6 +932,7 @@ public class UserHandler {
         }
     }
 
+    // 商城操作
     public static void handleCashShopCashItemRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         Account account = player.getAccount();
@@ -929,8 +956,8 @@ public class UserHandler {
                 break;
             }
             case Req_Buy: {
-                boolean cash = inPacket.readByte() == 0; // 0：点券 1:抵用
-                inPacket.readShort();
+                boolean cash = inPacket.readByte() == 0; // 使用点券？
+                inPacket.readShort(); // 00 00
                 int sn = inPacket.readInt();
                 int quantity = inPacket.readInt();
                 CashItemInfo cashItemInfo = ItemData.getCashItemInfo(sn);
@@ -950,11 +977,17 @@ public class UserHandler {
                 player.announce(CashShopPacket.queryCashResult(account));
                 break;
             }
-            case Req_MoveLtoS: {
+            case Req_EnableEquipSlotExt: {
+                inPacket.readByte();
+                int sn = inPacket.readInt();
+                player.announce(CashShopPacket.enableEquipSlotExtResult(100));
+                break;
+            }
+            case Req_MoveLtoS: { // 保管箱-》背包
                 long serialNumber = inPacket.readLong();
                 int itemId = inPacket.readInt();
-                byte val = inPacket.readByte();
-                short pos = inPacket.readShort();
+                byte val = inPacket.readByte(); //invType
+                short pos = inPacket.readShort(); //toPos
                 InventoryType inventoryType = InventoryType.getTypeById(val);
                 Item item = cashTrunk.getItemBySerialNumber(serialNumber);
                 if (item.getItemId() != itemId || inventoryType == null) {
@@ -963,7 +996,7 @@ public class UserHandler {
                 item.setPos(pos);
                 cashTrunk.removeItemBySerialNumber(serialNumber);
                 player.getInventory(inventoryType).addItem(item);
-                player.announce(CashShopPacket.moveItemToTrunkResult(item));
+                player.announce(CashShopPacket.getItemFromTrunkResult(item));
                 break;
             }
             case Req_MoveStoL: {
@@ -981,12 +1014,13 @@ public class UserHandler {
                 }
                 item.setInvType(null);
                 cashTrunk.addCashItem(item);
-                player.announce(CashShopPacket.getItemFromTrunkResult(account, item));
+                player.announce(CashShopPacket.moveItemToCashTrunk(account, item));
                 break;
             }
         }
     }
 
+    // todo 点击机器人打开商店
     public static void handleUserSelectAndroid(InPacket inPacket, MapleClient c) {
         inPacket.readInt(); //charId
         int type = inPacket.readInt();
@@ -1000,5 +1034,31 @@ public class UserHandler {
         if (androidInfo.isShopUsable()) {
             player.dropMessage("机器人商店");
         }
+    }
+
+    public static void handleUserSoulEffectRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        boolean set = inPacket.readByte() != 0;
+        HashMap<String, String> options = new HashMap<>();
+        options.put("effect", set ? "1" : "0");
+        chr.addQuestExAndSendPacket(QUEST_EX_SOUL_EFFECT, options);
+        chr.getMap().broadcastMessage(UserRemote.setSoulEffect(chr.getId(), set));
+    }
+
+    public static void handleUserMacroSysDataModified(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        List<Macro> macros = new ArrayList<>();
+        byte size = inPacket.readByte();
+        for (byte i = 0; i < size; i++) {
+            Macro macro = new Macro();
+            macro.setName(inPacket.readMapleAsciiString());
+            macro.setMuted(inPacket.readByte() != 0);
+            for (int j = 0; j < 3; j++) {
+                macro.setSkillAtPos(j, inPacket.readInt());
+            }
+            macros.add(macro);
+        }
+        player.getMacros().clear();
+        player.getMacros().addAll(macros); // don't set macros directly, as a new row will be made in the DB
     }
 }

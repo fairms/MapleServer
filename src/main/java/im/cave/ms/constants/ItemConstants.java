@@ -49,7 +49,6 @@ public class ItemConstants {
             3100002,
             3100001,
             3100000,
-
     };
     private static final Logger log = LoggerFactory.getLogger(ItemConstants.class);
 
@@ -147,6 +146,12 @@ public class ItemConstants {
             1113015, // Secret Ring
     };
 
+    // ConsumeCashItem
+    public static final int Royal_Hair_Coupon = 5150040;
+    public static final int Item_Tag = 5060000;
+    public static final int Vicious_Hammer = 5570000;
+    public static final int Platinum_Scissors_of_Karma = 5520001;
+    public static final int Maple_Any_Door = 5044011;
 
     public static int getGenderFromId(int nItemID) {
         int result;

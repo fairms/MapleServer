@@ -9,10 +9,12 @@ import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.items.ItemInfo;
 import im.cave.ms.client.movement.Movement;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.enums.ShopRequestType;
@@ -154,6 +156,7 @@ public class NpcHandler {
     }
 
     public static void handleNpcAnimation(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.NPC_ANIMATION.getValue());
         int objectID = inPacket.readInt();
@@ -162,7 +165,7 @@ public class NpcHandler {
         int duration = inPacket.readInt();
         byte keyPadState = 0;
         MovementInfo movement = null;
-        MapleMapObj obj = c.getPlayer().getMap().getObj(objectID);
+        MapleMapObj obj = player.getMap().getObj(objectID);
         if (obj instanceof Npc && ((Npc) obj).isMove()) {
             Npc npc = (Npc) obj;
             if (inPacket.available() > 0) {
@@ -185,7 +188,7 @@ public class NpcHandler {
                 }
             }
         }
-        c.announce(NpcPacket.npcAnimation(objectID, oneTimeAction, chatIdx, duration, movement, keyPadState));
+        player.getMap().broadcastMessage(NpcPacket.npcAnimation(objectID, oneTimeAction, chatIdx, duration, movement, keyPadState));
     }
 
     public static void handleUserShopRequest(InPacket inPacket, MapleClient c) {
@@ -256,30 +259,34 @@ public class NpcHandler {
                 player.announce(NpcPacket.shopResult(ShopResultType.Buy, repurchase, index));
                 break;
             }
-            case RECHARGE:
-//                short slot = inPacket.decodeShort();
-//                item = chr.getConsumeInventory().getItemBySlot(slot);
-//                if (item == null || !ItemConstants.isRechargable(item.getItemId())) {
-//                    chr.chatMessage(String.format("Was not able to find a rechargable item at position %d.", slot));
-//                    return;
-//                }
-//                ItemInfo ii = ItemData.getItemInfoByID(item.getItemId());
-//                long cost = ii.getSlotMax() - item.getQuantity();
-//                if (chr.getMoney() < cost) {
-//                    chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.NotEnoughMesosMsg)));
-//                    return;
-//                }
-//                chr.deductMoney(cost);
-//                item.addQuantity(ii.getSlotMax());
-//                chr.write(WvsContext.inventoryOperation(true, false,
-//                        InventoryOperation.UPDATE_QUANTITY, slot, (short) 0, 0, item));
-//                chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.Success)));
+            case RECHARGE: {
+                short pos = inPacket.readShort();
+                Item item = player.getConsumeInventory().getItem(pos);
+                if (item == null || !ItemConstants.isRechargable(item.getItemId())) {
+                    player.chatMessage(String.format("Was not able to find a chargeable item at position %d.", pos));
+                    return;
+                }
+                ItemInfo ii = ItemData.getItemInfoById(item.getItemId());
+                long cost = ii.getSlotMax() - item.getQuantity();
+                if (player.getMeso() < cost) {
+                    player.announce(NpcPacket.shopResult(ShopResultType.NotEnoughMesosMsg));
+                    return;
+                }
+                player.deductMoney(cost);
+                item.setQuantity(ii.getSlotMax());
+                player.announce(UserPacket.inventoryOperation(true,
+                        InventoryOperationType.UPDATE_QUANTITY, pos, (short) 0, 0, item));
+                player.announce(NpcPacket.shopResult(ShopResultType.RechargeSuccess));
                 break;
-            case SELL:
+            }
+            case SELL: {
                 int slot = inPacket.readShort();
                 int itemId = inPacket.readInt();
                 int quantity = inPacket.readShort();
                 InventoryType it = ItemConstants.getInvTypeByItemId(itemId);
+                if (it == null) {
+                    return;
+                }
                 Item item = player.getInventory(it).getItem((short) slot);
                 if (item == null || item.getItemId() != itemId) {
                     player.chatMessage("Could not find that item.");
@@ -302,6 +309,7 @@ public class NpcHandler {
                 player.addMeso(cost);
                 player.announce(NpcPacket.shopResult(ShopResultType.SellResult, shop, player.getRepurchaseItems()));
                 break;
+            }
             case CLOSE:
                 player.setShop(null);
                 break;

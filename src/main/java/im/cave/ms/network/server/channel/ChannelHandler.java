@@ -123,6 +123,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case USER_QUEST_REQUEST:
                 EventManager.addEvent(() -> QuestHandler.handleQuestRequest(inPacket, c), 0);
                 break;
+            case USER_MACRO_SYS_DATA_MODIFIED:
+                UserHandler.handleUserMacroSysDataModified(inPacket, c);
+                break;
             case USER_LOTTERY_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserLotteryItemUseRequest(inPacket, c);
                 break;
@@ -247,6 +250,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case COMBO_KILL_CHECK:
                 WorldHandler.handleComboKill(inPacket, c);
                 break;
+            case USER_SOUL_EFFECT_REQUEST:
+                UserHandler.handleUserSoulEffectRequest(inPacket, c);
+                break;
             case SUMMON_MOVE:
                 WorldHandler.handleSummonMove(inPacket, c);
                 break;
@@ -254,7 +260,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 WorldHandler.handleAndroidMove(inPacket, c);
                 break;
             case CHANGE_QUICKSLOT:
-                UserHandler.handleChangeQuickslot(inPacket, c);
+                UserHandler.handleChangeQuickSlot(inPacket, c);
                 break;
             case MINI_ROOM:
                 WorldHandler.handleMiniRoom(inPacket, c);
@@ -292,6 +298,12 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 break;
             case UNITY_PORTAL_REQUEST:
                 WorldHandler.handleUnityPortalSelect(inPacket, c);
+                break;
+            case POTION_POT_USE_REQUEST:
+                InventoryHandler.handlePotionPotUseRequest(inPacket, c);
+                break;
+            case POTION_POT_INC_REQUEST:
+                InventoryHandler.handlePotionPotIncRequest(inPacket, c);
                 break;
             case USER_OPEN_MYSTERY_EGG:
                 InventoryHandler.handleUserOpenMysteryEgg(inPacket, c);

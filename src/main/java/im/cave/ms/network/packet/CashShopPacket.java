@@ -5,6 +5,7 @@ import im.cave.ms.client.Trunk;
 import im.cave.ms.client.cashshop.CashShopItem;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.items.Item;
+import im.cave.ms.client.items.PotionPot;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.CashShopAction;
 import im.cave.ms.network.netty.OutPacket;
@@ -26,6 +27,14 @@ import static im.cave.ms.tools.DateUtil.ZERO_TIME;
  * @date 12/30 17:21
  */
 public class CashShopPacket {
+
+    public static OutPacket buyFailed(int reason) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.write(CashShopAction.Res_Buy_Failed.getVal());
+        outPacket.write(reason);
+        outPacket.writeInt(0);
+        return outPacket;
+    }
 
     public static OutPacket getWrapToCashShop(MapleCharacter player) {
         OutPacket outPacket = new OutPacket();
@@ -136,31 +145,32 @@ public class CashShopPacket {
         outPacket.writeShort(item.getQuantity());
         outPacket.writeAsciiString(item.getOwner(), 13);
         outPacket.writeLong(item.getExpireTime());
-        outPacket.writeLong(item.getExpireTime() == MAX_TIME ? 0x1F : 0);
+        outPacket.writeLong(item.getExpireTime() == MAX_TIME ? 0x1e : 0);
         outPacket.writeZeroBytes(15);
-        outPacket.write(1);
+        outPacket.writeBool(true); //modified
         PacketHelper.addItemInfo(outPacket, item);
+        outPacket.write(0);
         outPacket.writeLong(0);
-        outPacket.write(0);
         return outPacket;
     }
 
-    public static OutPacket moveItemToTrunkResult(Item item) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT.getValue());
-        outPacket.write(CashShopAction.Res_Move_Item_Done.getVal());
-        outPacket.write(1);
-        outPacket.write(item.getPos());
-        PacketHelper.addItemInfo(outPacket, item);
-        outPacket.writeInt(0);
-        outPacket.write(0);
-        return outPacket;
-    }
-
-    public static OutPacket getItemFromTrunkResult(Account account, Item item) {
+    public static OutPacket getItemFromTrunkResult(Item item) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT.getValue());
         outPacket.write(CashShopAction.Res_Get_Item_Done.getVal());
+        outPacket.write(1);
+        outPacket.write(item.getPos());
+        PacketHelper.addItemInfo(outPacket, item);
+        outPacket.write(0);
+        outPacket.writeInt(0);
+        return outPacket;
+    }
+
+    public static OutPacket moveItemToCashTrunk(Account account, Item item) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT.getValue());
+        outPacket.write(CashShopAction.Res_Move_Item_Done.getVal());
+        outPacket.write(0);
         outPacket.writeLong(item.getCashItemSerialNumber());
         outPacket.writeLong(account.getId());
         outPacket.writeInt(item.getItemId());
@@ -168,10 +178,26 @@ public class CashShopPacket {
         outPacket.writeShort(item.getQuantity());
         outPacket.writeAsciiString(item.getOwner(), 13);
         outPacket.writeLong(item.getExpireTime());
-        outPacket.writeLong(item.getExpireTime() == MAX_TIME ? 0x1F : 0);
+        outPacket.writeLong(item.getExpireTime() == MAX_TIME ? 0x1e : 0);
         outPacket.writeZeroBytes(15);
-        outPacket.write(1);
+        outPacket.writeBool(true); //modified
         PacketHelper.addItemInfo(outPacket, item);
+        return outPacket;
+    }
+
+    public static OutPacket enableEquipSlotExtResult(int remainDays) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.write(CashShopAction.Res_EquipSlotExt_Done.getVal());
+        outPacket.writeShort(0);
+        outPacket.writeShort(remainDays);
+        outPacket.writeInt(0);
+        return outPacket;
+    }
+
+    public static OutPacket getPotionPot(PotionPot pot) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.POTION_POT_CREATE.getValue());
+        pot.encode(outPacket);
         return outPacket;
     }
 }

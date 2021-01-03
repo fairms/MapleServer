@@ -12,6 +12,7 @@ import im.cave.ms.client.items.InventoryOperation;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemBuffs;
 import im.cave.ms.client.items.ItemInfo;
+import im.cave.ms.client.items.PotionPot;
 import im.cave.ms.client.items.ScrollUpgradeInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
@@ -37,6 +38,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import static im.cave.ms.constants.ItemConstants.Item_Tag;
+import static im.cave.ms.constants.ItemConstants.Maple_Any_Door;
+import static im.cave.ms.constants.ItemConstants.Platinum_Scissors_of_Karma;
+import static im.cave.ms.constants.ItemConstants.Royal_Hair_Coupon;
+import static im.cave.ms.constants.ItemConstants.Vicious_Hammer;
 import static im.cave.ms.enums.ChatType.Mob;
 import static im.cave.ms.enums.ChatType.SystemNotice;
 import static im.cave.ms.enums.EquipBaseStat.cuc;
@@ -423,15 +429,41 @@ public class InventoryHandler {
     public static void handleUserConsumeCashItemUseRequest(InPacket inPacket, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         player.setTick(inPacket.readInt());
-        short pos = inPacket.readShort();
+        short uPos = inPacket.readShort();
         int itemId = inPacket.readInt();
         InventoryType inventoryType = ItemConstants.getInvTypeByItemId(itemId);
         if (inventoryType == null) {
             return;
         }
-        Item item = player.getInventory(inventoryType).getItem(pos);
+        Item item = player.getInventory(inventoryType).getItem(uPos);
         if (item.getItemId() != itemId) {
             return;
+        }
+        switch (itemId) {
+            case Royal_Hair_Coupon: {
+                player.announce(UserPacket.characterModified(player));
+                //0x1E4
+                //58 95 4E 00 01 01 01 00 00 00 04 00 8A A2 00 00 F8 93 00 00 00 FF 00 00 00 00 FF
+                //0x1FB
+                break;
+            }
+            case Item_Tag: {
+                short ePos = inPacket.readShort();
+                break;
+            }
+            case Vicious_Hammer: {
+                int inc = inPacket.readInt();
+                short ePos = inPacket.readShort();
+                break;
+            }
+            case Platinum_Scissors_of_Karma: {
+                break;
+            }
+            case Maple_Any_Door: {
+                inPacket.readByte();
+                int targetId = inPacket.readInt();
+                player.changeMap(targetId);
+            }
         }
         player.consumeItem(itemId, 1);
         player.enableAction();
@@ -537,5 +569,47 @@ public class InventoryHandler {
         }
         player.getMap().broadcastMessage(UserRemote.showItemReleaseEffect(player.getId(), ePos, bonus));
         equip.updateToChar(player);
+    }
+
+    /*
+        药剂罐 开始
+     */
+    public static void handlePotionPotIncRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        inPacket.readByte();
+        int itemId = inPacket.readInt(); //5821000
+        short uPos = inPacket.readShort();
+        Item toUse = player.getCashInventory().getItem(uPos);
+        if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != itemId || itemId != 5821000) {
+            player.enableAction();
+            return;
+        }
+        PotionPot potionPot = player.getPotionPot();
+        boolean useItem = potionPot.addMaxValue();
+        if (useItem) {
+            player.consumeItem(itemId, 1);
+        }
+        c.announce(potionPot.updatePotionPot());
+        c.announce(potionPot.showPotionPotMsg((byte) 1, (byte) 3));
+    }
+
+    public static void handlePotionPotUseRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(inPacket.readInt());
+        short pos = inPacket.readShort();
+        int itemId = inPacket.readInt();
+        Item potItem = player.getCashInventory().getItem(pos);
+        if (potItem == null || potItem.getItemId() != itemId) {
+            player.enableAction();
+            return;
+        }
+        PotionPot potionPot = player.getPotionPot();
+        int healHp = player.getMaxHP() - player.getHp();
+        int healMp = player.getMaxMP() - player.getHp();
+        if (healHp > potionPot.getHp() && healMp > potionPot.getMp()) {
+            c.announce(potionPot.updatePotionPot());
+            c.announce(potionPot.showPotionPotMsg((byte) 0, (byte) 6));
+        }
     }
 }

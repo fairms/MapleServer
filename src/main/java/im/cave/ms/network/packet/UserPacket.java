@@ -148,16 +148,16 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket lockUI(boolean enable) {
+    public static OutPacket setInGameDirectionMode(boolean enable) {
         OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.LOCK_UI.getValue());
+        outPacket.writeShort(SendOpcode.SET_STAND_ALONE_MODE.getValue());
         outPacket.writeBool(enable);
         return outPacket;
     }
 
     public static OutPacket disableUI(boolean disable) {
         OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.DISABLE_UI.getValue());
+        outPacket.writeShort(SendOpcode.SET_IN_GAME_DIRECTION_MODE.getValue());
         outPacket.writeBool(disable);
         outPacket.writeBool(disable);
         if (disable) {
@@ -177,7 +177,7 @@ public class UserPacket {
 
     public static OutPacket sitResult(int charId, short id) {
         OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CANCEL_CHAIR.getValue());
+        outPacket.writeShort(SendOpcode.SIT_RESULT.getValue());
         outPacket.writeInt(charId);
         if (id != -1) {
             outPacket.write(1);
@@ -185,6 +185,13 @@ public class UserPacket {
         } else {
             outPacket.write(0);
         }
+        return outPacket;
+    }
+
+    public static OutPacket userSit() {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeInt(SendOpcode.USER_SIT.getValue());
+        outPacket.writeInt(0);
         return outPacket;
     }
 
@@ -385,9 +392,9 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket initSkillMacro(MapleCharacter chr) {
+    public static OutPacket macroSysDataInit(MapleCharacter chr) {
         OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.INIT_SKILL_MACRO.getValue());
+        outPacket.writeShort(SendOpcode.MACRO_SYS_DATA_INIT.getValue());
         outPacket.write(0); //size
         return outPacket;
     }
@@ -571,7 +578,7 @@ public class UserPacket {
                     outPacket.writeShort(newPos);
                     if (invType == InventoryType.EQUIP && (oldPos < 0 || newPos < 0)) {
                         addMovementInfo = true;
-                        if (oldPos < 0) {
+                        if (oldPos > 0) {
                             equipMove += 2;
                         } else {
                             equipMove += 1;
@@ -625,12 +632,6 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket chairSitResult() {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeInt(SendOpcode.SIT_RESULT.getValue());
-        outPacket.writeInt(0);
-        return outPacket;
-    }
 
     public static OutPacket finalAttack(MapleCharacter chr, int weapon, int skillId, int finalSkillId) {
         OutPacket outPacket = new OutPacket();
@@ -651,6 +652,14 @@ public class UserPacket {
         outPacket.writeInt(point);
         outPacket.write(2);
         outPacket.writeShort(cash ? 1 : 0);
+        return outPacket;
+    }
+
+    public static OutPacket characterModified(MapleCharacter player) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.CHARACTER_MODIFIED.getValue());
+        outPacket.write(1);
+//        PacketHelper.addCharInfo(outPacket, player, CharMask.Character);
         return outPacket;
     }
 }

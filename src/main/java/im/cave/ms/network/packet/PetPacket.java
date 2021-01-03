@@ -17,7 +17,7 @@ public class PetPacket {
         outPacket.writeInt(pet.getOwnerId());
         outPacket.writeInt(pet.getIdx());
         outPacket.writeBool(active);
-        outPacket.write(0);
+        outPacket.write(1);
         if (active) {
             pet.encode(outPacket);
         } else {

@@ -21,10 +21,12 @@ import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemInfo;
+import im.cave.ms.client.items.PotionPot;
 import im.cave.ms.client.job.JobManager;
 import im.cave.ms.client.job.MapleJob;
 import im.cave.ms.client.miniroom.MiniRoom;
 import im.cave.ms.client.party.Party;
+import im.cave.ms.client.party.PartyResult;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.client.skill.Skill;
@@ -41,6 +43,7 @@ import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.MapTransferType;
 import im.cave.ms.enums.MapleTraitType;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.SpecStat;
@@ -212,6 +215,9 @@ public class MapleCharacter implements Serializable {
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Familiar> familiars = new HashSet<>();
+    @JoinColumn(name = "charID")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Macro> macros = new ArrayList<>();
     @Transient
     private Map<Integer, Pair<Long, ScheduledFuture>> cooltimes;
     @Transient
@@ -269,6 +275,8 @@ public class MapleCharacter implements Serializable {
     private Android android;
     @Transient
     private Clock clock;
+    @Transient
+    private PotionPot potionPot;
 
 
     public MapleCharacter() {
@@ -508,31 +516,6 @@ public class MapleCharacter implements Serializable {
         entered.put(mapId, mapScriptPath);
     }
 
-    public void changeMap(MapleMap map, byte portal) {
-        changeMap(map, portal, false);
-    }
-
-    public void changeMap(MapleMap map, byte portal, boolean load) {
-        getVisibleMapObjs().clear();
-        getVisibleChar().clear();
-        if (getMap() != null) {
-            getMap().removePlayer(this);
-            getMap().broadcastMessage(WorldPacket.userLeaveMap(getId()));
-        }
-        setMap(map);
-        Portal targetPortal = map.getPortal(portal) == null ? map.getDefaultPortal() : map.getPortal(portal);
-        setPosition(new Position(targetPortal.getX(), targetPortal.getY()));
-        if (load) {
-            announce(WorldPacket.getWarpToMap(this, true));
-        } else {
-            announce(WorldPacket.getWarpToMap(this, map, portal));
-        }
-        map.addPlayer(this);
-        map.sendMapObjectPackets(this);
-        map.broadcastMessage(UserRemote.hiddenEffectEquips(this));
-        map.broadcastMessage(UserRemote.soulEffect(this));
-        announce(WorldPacket.quickMove(map.isTown() && (map.getId() % 1000000) == 0));
-    }
 
     public void announce(OutPacket outPacket) {
         client.announce(outPacket);
@@ -547,6 +530,10 @@ public class MapleCharacter implements Serializable {
             equip.setTradeBlock(true);
             equip.setEquipTradeBlock(false);
             equip.addAttribute(EquipAttribute.Untradable);
+        }
+        if (!equip.hasAttribute(EquipAttribute.NoNonCombatStatGain) && equip.getCharmEXP() != 0) {
+            addStatAndSendPacket(MapleStat.CHARM, equip.getCharmEXP());
+            equip.addAttribute(EquipAttribute.NoNonCombatStatGain);
         }
         getEquipInventory().removeItem(item);
         getEquippedInventory().addItem(item);
@@ -909,12 +896,21 @@ public class MapleCharacter implements Serializable {
         this.job = job;
     }
 
+    /*
+        地图切换 开始
+     */
+
     public void changeMap(int mapId, boolean load) {
         MapleChannel channel = Server.getInstance().getWorldById(world).getChannel(this.channel);
         MapleMap map = channel.getMap(mapId);
         if (map != null) {
-            changeMap(map, getSpawnPoint(), load);
-        } else {
+            if (map == getMap() && !load) {
+                announce(WorldPacket.mapTransferResult(MapTransferType.AlreadyInMap, (byte) 0, null));
+                return;
+            }
+            changeMap(map, getSpawnPoint(), true);
+        } else if (!load) {
+            announce(WorldPacket.mapTransferResult(MapTransferType.TargetNotExist, (byte) 0, null));
             announce(UserPacket.enableActions());
         }
     }
@@ -922,6 +918,38 @@ public class MapleCharacter implements Serializable {
     public void changeMap(int mapId) {
         changeMap(mapId, false);
     }
+
+    public void changeMap(MapleMap map, byte portal) {
+        changeMap(map, portal, false);
+    }
+
+    private void changeMap(MapleMap map, byte portal, boolean load) {
+        getVisibleMapObjs().clear();
+        getVisibleChar().clear();
+        if (getMap() != null) {
+            getMap().removePlayer(this);
+            getMap().broadcastMessage(WorldPacket.userLeaveMap(getId()));
+        }
+        setMap(map);
+        Portal targetPortal = map.getPortal(portal) == null ? map.getDefaultPortal() : map.getPortal(portal);
+        setPosition(new Position(targetPortal.getX(), targetPortal.getY()));
+        if (load) {
+            announce(WorldPacket.getWarpToMap(this, true));
+        } else {
+            announce(WorldPacket.getWarpToMap(this, map, portal));
+        }
+        map.addPlayer(this);
+        map.sendMapObjectPackets(this);
+        map.broadcastMessage(UserRemote.hiddenEffectEquips(this));
+        map.broadcastMessage(UserRemote.setSoulEffect(this));
+        announce(WorldPacket.quickMove(map.isTown() && (map.getId() % 1000000) == 0));
+        if (getParty() != null) {
+            announce(WorldPacket.partyResult(PartyResult.loadParty(getParty())));
+        }
+    }
+    /*
+        地图切换 结束
+     */
 
 
     public Skill getSkill(int skillId) {
@@ -1193,8 +1221,7 @@ public class MapleCharacter implements Serializable {
         } else {
             value.put(skill, "1");
         }
-        addQuestEx(QUEST_EX_SKILL_STATE, value);
-        announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_SKILL_STATE, questsExStorage.get(QUEST_EX_SKILL_STATE), (byte) 0));
+        addQuestExAndSendPacket(QUEST_EX_SKILL_STATE, value);
     }
 
     public void buildQuestEx() {
@@ -1229,6 +1256,11 @@ public class MapleCharacter implements Serializable {
             questEx.get(questId).putAll(value);
         }
         buildQuestExStorage();
+    }
+
+    public void addQuestExAndSendPacket(int questId, Map<String, String> value) {
+        addQuestEx(questId, value);
+        announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, questId, getQuestsExStorage().get(questId), (byte) 0));
     }
 
     public void addVisibleMapObj(MapleMapObj obj) {

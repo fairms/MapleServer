@@ -13,7 +13,7 @@ public enum ShopResultType {
     CannotBePurchasedRnMsg(6),
     FullInvMsg(10),
     SellResult(11),
-    RechargeSuccess(8),
+    RechargeSuccess(17),
     PlayerNotEnoughInStockMsg(9),
     GeneralErrorMsg(10),
     TooManyMesosMsg(11),

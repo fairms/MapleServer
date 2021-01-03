@@ -26,4 +26,9 @@ public class QuestConstants {
     //称号
     public static final int QUEST_NICK_ITEM = 7290;
     public static final int QUEST_EX_NICK_ITEM = 19019;
+    //灵魂武器特效
+    public static final int QUEST_EX_SOUL_EFFECT = 26535;
+    //超时空卷
+    public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_MAX = 16700;
+    public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED = 999991;
 }
