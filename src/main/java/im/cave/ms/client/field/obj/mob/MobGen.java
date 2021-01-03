@@ -4,10 +4,7 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.tools.Position;
 
-/**
- * @author Sjonnie
- * Created on 7/26/2018.
- */
+
 public class MobGen extends MapleMapObj {
 
     private Mob mob;

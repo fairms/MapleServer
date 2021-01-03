@@ -64,6 +64,10 @@ public class Account {
     private Map<Integer, String> sharedQuestExStorage;
     @Transient
     private Map<Integer, Map<String, String>> sharedQuestEx = new HashMap<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "accId")
+    private Set<Friend> friends;
+
 
     public Account(String account, String password) {
         this.account = account;
@@ -139,11 +143,26 @@ public class Account {
         }
     }
 
+    public Friend getFriendByAccId(int accId) {
+        return getFriends().stream().filter(f -> f.getFriendAccountId() == accId).findAny().orElse(null);
+    }
+
+
+    public void addFriend(Friend friend) {
+        if (getFriendByAccId(friend.getFriendAccountId()) == null) {
+            getFriends().add(friend);
+        }
+    }
+
     public void addPoint(int amount) {
         point += amount;
     }
 
     public void addSlot(int i) {
         characterSlots += i;
+    }
+
+    public void removeChar(int charId) {
+        getCharacters().removeIf(character -> character.getId() == charId);
     }
 }

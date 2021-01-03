@@ -2,9 +2,7 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * Created on 24/9/2018.
- */
+
 public enum EquipPrefix {
     Hat(100),
     FaceAccessory(101),

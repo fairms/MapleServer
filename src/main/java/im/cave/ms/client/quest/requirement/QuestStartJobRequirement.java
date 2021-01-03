@@ -5,9 +5,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created on 3/2/2018.
- */
+
 public class QuestStartJobRequirement implements QuestStartRequirement {
     private final Set<Short> jobReq;
 

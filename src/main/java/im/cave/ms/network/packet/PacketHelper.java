@@ -75,7 +75,7 @@ public class PacketHelper {
 
     public static void addCharLook(OutPacket outPacket, MapleCharacter chr, boolean mega, boolean second) {
 //      outPacket.write(second ? chr.getSecondGender() : chr.getGender());
-        outPacket.write(chr.getGender());
+        outPacket.write(chr.getGender()); // 0 男 1 女
         outPacket.write(chr.getSkin());
         outPacket.writeInt(chr.getFace());
 //        outPacket.writeInt(second ? chr.getSecondFace() : chr.getFace());

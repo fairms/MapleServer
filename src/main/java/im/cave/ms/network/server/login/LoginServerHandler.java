@@ -110,6 +110,9 @@ public class LoginServerHandler extends SimpleChannelInboundHandler<InPacket> {
             case DELETE_CHAR:
                 CharOperationHandler.handleDeleteChar(inPacket, c);
                 break;
+            case DELETE_CHAR_CONFIRM:
+                CharOperationHandler.handleDeleteCharConfirm(inPacket, c);
+                break;
             case CANCEL_DELETE_CHAR:
                 CharOperationHandler.handleCancelDelete(inPacket, c);
                 break;

@@ -12,9 +12,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * Created on 4/21/2018.
- */
 @Entity
 @Table(name = "cashshop_items")
 @Getter
@@ -32,9 +29,9 @@ public class CashShopItem {
     private int originalPrice;
     private int bundleQuantity;
     private int availableDays;
-    private short buyableWithMaplePoints;
-    private short buyableWithCredit;
-    private short buyableWithPrepaid;
+    private short pbCash;
+    private short pbPoint;
+    private short pbGift;
     private short meso;
     private int gender;
     private int likes;

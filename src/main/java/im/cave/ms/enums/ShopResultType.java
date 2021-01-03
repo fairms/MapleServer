@@ -1,8 +1,5 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 3/29/2018.
- */
 public enum ShopResultType {
     Buy(0),
     NotEnoughInStockMsg(1),

@@ -1,4 +1,4 @@
-package im.cave.ms.client.job.adventurer;
+package im.cave.ms.client.character.job.adventurer;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
@@ -9,10 +9,10 @@ import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.client.skill.Skill;
 import im.cave.ms.client.skill.SkillInfo;
-import im.cave.ms.client.skill.SkillStat;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.AssistType;
 import im.cave.ms.enums.MoveAbility;
+import im.cave.ms.enums.SkillStat;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Util;
@@ -31,14 +31,14 @@ import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MaxHP;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MaxMP;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.PDD;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.PowerGuard;
-import static im.cave.ms.client.skill.SkillStat.indieDamR;
-import static im.cave.ms.client.skill.SkillStat.indiePad;
-import static im.cave.ms.client.skill.SkillStat.indiePowerGuard;
-import static im.cave.ms.client.skill.SkillStat.pdd;
-import static im.cave.ms.client.skill.SkillStat.time;
-import static im.cave.ms.client.skill.SkillStat.x;
-import static im.cave.ms.client.skill.SkillStat.y;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
+import static im.cave.ms.enums.SkillStat.indieDamR;
+import static im.cave.ms.enums.SkillStat.indiePad;
+import static im.cave.ms.enums.SkillStat.indiePowerGuard;
+import static im.cave.ms.enums.SkillStat.pdd;
+import static im.cave.ms.enums.SkillStat.time;
+import static im.cave.ms.enums.SkillStat.x;
+import static im.cave.ms.enums.SkillStat.y;
 
 /**
  * @author fair

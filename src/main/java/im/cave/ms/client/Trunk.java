@@ -25,9 +25,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * Created on 4/7/2018.
- */
 @Entity
 @Table(name = "trunk")
 public class Trunk {

@@ -2,9 +2,7 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * Created on 4/7/2018.
- */
+
 public enum TrunkOpType {
     TrunkReq_Load(0),
     TrunkReq_Save(1),

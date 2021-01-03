@@ -1,8 +1,6 @@
 package im.cave.ms.client.character.temp;
 
-/**
- * Created on 2/3/2018.
- */
+
 public class TwoStateTemporaryStat extends TemporaryStatBase {
 
     public TwoStateTemporaryStat(boolean dynamicTermSet) {

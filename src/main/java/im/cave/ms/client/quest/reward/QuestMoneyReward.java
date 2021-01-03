@@ -4,9 +4,7 @@ package im.cave.ms.client.quest.reward;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.network.packet.UserPacket;
 
-/**
- * Created on 3/2/2018.
- */
+
 public class QuestMoneyReward implements QuestReward {
     private long money;
 

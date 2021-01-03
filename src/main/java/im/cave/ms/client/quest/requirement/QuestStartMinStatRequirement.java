@@ -3,9 +3,7 @@ package im.cave.ms.client.quest.requirement;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleStat;
 
-/**
- * Created on 3/2/2018.
- */
+
 public class QuestStartMinStatRequirement implements QuestStartRequirement {
 
     private MapleStat stat;

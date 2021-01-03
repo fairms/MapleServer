@@ -6,9 +6,7 @@ import im.cave.ms.network.netty.OutPacket;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created on 3/27/2018.
- */
+
 public class BuyLimitInfo {
 
     private int type;

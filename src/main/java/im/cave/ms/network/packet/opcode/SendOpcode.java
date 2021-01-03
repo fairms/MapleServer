@@ -3,7 +3,6 @@ package im.cave.ms.network.packet.opcode;
 import im.cave.ms.tools.Util;
 
 public enum SendOpcode {
-    //Login Server
     LOGIN_STATUS(0x00),
     SERVERLIST(0x01),
     SERVERSTATUS(0x05),//CHECK_USER_LIMIT_RESULT
@@ -34,6 +33,7 @@ public enum SendOpcode {
     SORT_ITEM_RESULT(0x9D),
     CHAR_INFO(0x9F),
     PARTY_RESULT(0xA0),
+    FRIEND_RESULT(0xAA),
     GUILD_RESULT(0xAD),
     SERVER_MSG(0xB0),
     PET_AUTO_EAT_MSG(0xBA),

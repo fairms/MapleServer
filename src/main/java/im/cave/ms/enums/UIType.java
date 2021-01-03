@@ -1,21 +1,19 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 5/31/2018.
- */
+
 public enum UIType {
     UI_ITEM(0),
     UI_EQUIP(1),
     UI_STAT(2),
     UI_SKILL(3),
-    UI_MINIMAP(4),
+    UI_MINIMAP(4), //none
     UI_KEYCONFIG(5),
     UI_QUESTINFO(6),
-    UI_USERLIST(7),
-    UI_MESSENGER(8),
-    UI_MONSTERBOOK(9),
+    UI_USERLIST(7), //none
+    UI_MESSENGER(8), //chat room
+    UI_MONSTERBOOK(9), //none
     UI_USERINFO(10),
-    UI_SHORTCUT(11),
+    UI_SHORTCUT(11),//none
     UI_MENU(12),
     UI_QUESTALARM(13),
     UI_PARTYHP(14),

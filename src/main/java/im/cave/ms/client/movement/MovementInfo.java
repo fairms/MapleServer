@@ -11,10 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Sjonnie
- * Created on 8/16/2018.
- */
 public class MovementInfo {
     private static final Logger log = LoggerFactory.getLogger(MovementInfo.class);
 

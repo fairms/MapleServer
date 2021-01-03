@@ -10,10 +10,7 @@ import im.cave.ms.tools.Util;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * @author Sjonnie
- * Created on 8/18/2018.
- */
+
 public class ScrollUpgradeInfo {
     private int iconID;
     private String title;

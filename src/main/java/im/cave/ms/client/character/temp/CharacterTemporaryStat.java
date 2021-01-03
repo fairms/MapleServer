@@ -8,9 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created on 1/2/2018.
- */
+
 public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat> {
     IndiePAD(0), // Checked
     IndieMAD(1),

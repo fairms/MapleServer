@@ -140,6 +140,9 @@ public class MapleMap {
             }
         }
         for (MapleCharacter character : characters) {
+            if (character == chr) {
+                continue;
+            }
             if (!chr.getVisibleChar().contains(character)) {
                 chr.announce(WorldPacket.userEnterMap(character));
                 chr.announce(UserRemote.hiddenEffectEquips(character));
@@ -247,6 +250,7 @@ public class MapleMap {
                 setRandomController(entry.getKey());
             }
         }
+        broadcastMessage(WorldPacket.userLeaveMap(player.getId()));
     }
 
 

@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 20/9/2018.
- */
+
 public enum RequiredJob {
     Beginner(-1),
     AnyJob(0),

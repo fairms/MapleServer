@@ -2,9 +2,6 @@ package im.cave.ms.client.quest.progress;
 
 import java.util.Arrays;
 
-/**
- * Created on 3/8/2018.
- */
 public enum QuestProgressRequirementType {
     ITEM(0),
     LEVEL(1),

@@ -1,8 +1,6 @@
-package im.cave.ms.client.skill;
+package im.cave.ms.enums;
 
-/**
- * Created on 3/18/2018.
- */
+
 public enum MobSkillStat {
     x,
     mpCon,

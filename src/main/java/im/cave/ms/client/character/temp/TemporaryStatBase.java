@@ -2,11 +2,7 @@ package im.cave.ms.client.character.temp;
 
 import im.cave.ms.client.character.Option;
 
-import java.nio.file.attribute.FileTime;
 
-/**
- * Created on 2/3/2018.
- */
 public class TemporaryStatBase {
     private Option option;
     private long lastUpdated;

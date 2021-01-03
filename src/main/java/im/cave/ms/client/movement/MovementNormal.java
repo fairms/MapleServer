@@ -9,10 +9,6 @@ import im.cave.ms.tools.Position;
 
 
 
-/**
- * Created on 1/2/2018.
- * These classes + children/parents are basically the same as Mushy, credits to @MaxCloud.
- */
 public class MovementNormal extends MovementBase {
     public MovementNormal(InPacket inPacket, byte command) {
         super();

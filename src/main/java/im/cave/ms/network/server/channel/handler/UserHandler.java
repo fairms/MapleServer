@@ -9,6 +9,7 @@ import im.cave.ms.client.character.Macro;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleKeyMap;
 import im.cave.ms.client.character.MapleStat;
+import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
@@ -23,7 +24,6 @@ import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
-import im.cave.ms.client.job.MapleJob;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.client.party.PartyMember;
 import im.cave.ms.client.skill.AttackInfo;
@@ -822,7 +822,7 @@ public class UserHandler {
         byte mode = inPacket.readByte();
         int fameChange = mode == 0 ? -1 : 1;
         other.addStatAndSendPacket(MapleStat.FAME, fameChange);
-        player.announce(UserPacket.addFameResponse(player, mode, other.getFame()));
+        player.announce(UserPacket.addFameResponse(other, mode, other.getFame()));
         other.announce(UserPacket.receiveFame(mode, player.getName()));
     }
 

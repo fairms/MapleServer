@@ -6,9 +6,7 @@ import im.cave.ms.client.items.Item;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.provider.data.ItemData;
 
-/**
- * Created on 3/2/2018.
- */
+
 public class QuestItemReward implements QuestReward {
     private int id;
     private short quantity;

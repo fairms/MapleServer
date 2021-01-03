@@ -2,9 +2,6 @@ package im.cave.ms.client.quest.requirement;
 
 import java.util.Arrays;
 
-/**
- * Created on 3/8/2018.
- */
 public enum QuestStartRequirementType {
 
     QUEST(0),

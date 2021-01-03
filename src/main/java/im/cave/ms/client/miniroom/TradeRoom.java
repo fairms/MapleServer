@@ -4,7 +4,9 @@ package im.cave.ms.client.miniroom;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.constants.GameConstants;
+import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.MiniRoomPacket;
+import im.cave.ms.network.packet.PacketHelper;
 import im.cave.ms.tools.Tuple;
 import lombok.Setter;
 
@@ -15,10 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * @author Sjonnie
- * Created on 8/10/2018.
- */
+
 @Setter
 public class TradeRoom implements MiniRoom {
     private Map<MapleCharacter, List<Tuple<Integer, Item>>> offeredItems = new HashMap<>(); // wow
@@ -140,10 +139,10 @@ public class TradeRoom implements MiniRoom {
 
     public void cancelTrade() {
         chr.setMiniRoom(null);
-        chr.announce(MiniRoomPacket.cancelTrade(1));
+        chr.announce(MiniRoomPacket.cancelTrade(0));
         if (other != null) {
             other.setMiniRoom(null);
-            other.announce(MiniRoomPacket.cancelTrade(0));
+            other.announce(MiniRoomPacket.cancelTrade(1));
         }
         restoreItems();
 
@@ -154,7 +153,23 @@ public class TradeRoom implements MiniRoom {
     }
 
     public void sendTips() {
-        getChr().announce(MiniRoomPacket.chat(0, "提示信息", getChr()));
-        getOther().announce(MiniRoomPacket.chat(0, "提示信息", getOther()));
+        getChr().announce(MiniRoomPacket.chat(0, "系统提示 : 交易时请仔细查看交易的道具信息", getChr()));
+        getOther().announce(MiniRoomPacket.chat(0, "系统提示 : 交易时请仔细查看交易的道具信息", getOther()));
+    }
+
+    public void encodeChar(OutPacket outPacket) {
+        if (chr != null) {
+            outPacket.write(0);
+            PacketHelper.addCharLook(outPacket, chr, true, false);
+            outPacket.writeMapleAsciiString(chr.getName());
+            outPacket.writeShort(chr.getJobId());
+        }
+        if (other != null) {
+            outPacket.write(0);
+            PacketHelper.addCharLook(outPacket, chr, true, false);
+            outPacket.writeMapleAsciiString(chr.getName());
+            outPacket.writeShort(chr.getJobId());
+        }
+        outPacket.write(-1);
     }
 }

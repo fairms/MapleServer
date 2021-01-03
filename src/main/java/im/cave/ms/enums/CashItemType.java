@@ -2,10 +2,7 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * @author Sjonnie
- * Created on 7/4/2018.
- */
+
 public enum CashItemType {
     Req_WebShopOrderGetList(0),
     Req_LoadLocker(1),

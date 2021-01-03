@@ -1,7 +1,10 @@
 package im.cave.ms.client.character;
 
 import im.cave.ms.client.Account;
+import im.cave.ms.client.Friend;
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.job.JobManager;
+import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
@@ -22,8 +25,6 @@ import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
 import im.cave.ms.client.items.ItemInfo;
 import im.cave.ms.client.items.PotionPot;
-import im.cave.ms.client.job.JobManager;
-import im.cave.ms.client.job.MapleJob;
 import im.cave.ms.client.miniroom.MiniRoom;
 import im.cave.ms.client.party.Party;
 import im.cave.ms.client.party.PartyResult;
@@ -31,7 +32,6 @@ import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.client.skill.Skill;
 import im.cave.ms.client.skill.SkillInfo;
-import im.cave.ms.client.skill.SkillStat;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
@@ -46,6 +46,7 @@ import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
 import im.cave.ms.enums.MapleTraitType;
 import im.cave.ms.enums.MessageType;
+import im.cave.ms.enums.SkillStat;
 import im.cave.ms.enums.SpecStat;
 import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.network.db.InlinedIntArrayConverter;
@@ -136,6 +137,9 @@ public class MapleCharacter implements Serializable {
     private MapleClient client;
     @Transient
     private Account account;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "charId")
+    private Set<Friend> friends;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charstats")
     private CharStats stats;
@@ -908,7 +912,7 @@ public class MapleCharacter implements Serializable {
                 announce(WorldPacket.mapTransferResult(MapTransferType.AlreadyInMap, (byte) 0, null));
                 return;
             }
-            changeMap(map, getSpawnPoint(), true);
+            changeMap(map, getSpawnPoint(), load);
         } else if (!load) {
             announce(WorldPacket.mapTransferResult(MapTransferType.TargetNotExist, (byte) 0, null));
             announce(UserPacket.enableActions());
@@ -928,7 +932,6 @@ public class MapleCharacter implements Serializable {
         getVisibleChar().clear();
         if (getMap() != null) {
             getMap().removePlayer(this);
-            getMap().broadcastMessage(WorldPacket.userLeaveMap(getId()));
         }
         setMap(map);
         Portal targetPortal = map.getPortal(portal) == null ? map.getDefaultPortal() : map.getPortal(portal);
@@ -1050,7 +1053,6 @@ public class MapleCharacter implements Serializable {
         logout();
         MapleMap map = getMap();
         map.removePlayer(this);
-        map.broadcastMessage(WorldPacket.userLeaveMap(getId()));
         Server.getInstance().addClientInTransfer((byte) channel, getId(), getClient());
         announce(WorldPacket.getChannelChange(Server.getInstance().getCashShop(getWorld()).getPort()));
     }
@@ -1071,7 +1073,6 @@ public class MapleCharacter implements Serializable {
             setSpawnPoint((byte) 0); //todo
         }
         map.removePlayer(this);
-        map.broadcastMessage(WorldPacket.userLeaveMap(getId()));
         this.map = null;
         Server.getInstance().addClientInTransfer(channel, getId(), getClient());
         int port = Server.getInstance().getChannel(world, channel).getPort();
@@ -1506,5 +1507,43 @@ public class MapleCharacter implements Serializable {
                 .filter(p -> p.getIdx() == idx)
                 .findAny()
                 .orElse(null);
+    }
+
+
+    /*
+        好友
+     */
+
+    public Set<Friend> getAllFriends() {
+        Set<Friend> res = new HashSet<>(getFriends());
+        res.addAll(getAccount().getFriends());
+        return res;
+    }
+
+    public Friend getFriendByCharId(int charId) {
+        return getFriends().stream().filter(f -> f.getFriendId() == charId).findAny().orElse(null);
+    }
+
+    public void removeFriend(Friend friend) {
+        if (friend != null) {
+            getFriends().remove(friend);
+        }
+    }
+
+    public void removeFriendByID(int charId) {
+        removeFriend(getFriendByCharId(charId));
+    }
+
+    public void addFriend(Friend friend) {
+        if (getFriendByCharId(friend.getFriendId()) == null) {
+            getFriends().add(friend);
+        }
+    }
+
+    public List<Item> getChairs() {
+        List<Item> items = getInstallInventory().getItems();
+        List<Item> charis = items.stream().filter(item -> item.getItemId() <= 3019999).collect(Collectors.toList());
+        //todo Cash椅子
+        return charis;
     }
 }

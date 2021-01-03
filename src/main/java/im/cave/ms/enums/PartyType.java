@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 3/19/2018.
- */
+
 public enum PartyType {
     PartyReq_LoadParty(0),
     PartyReq_CreateNewParty(1),
@@ -160,15 +158,17 @@ public enum PartyType {
 
     ;
 
-    private byte val;
+    private final byte val;
 
     PartyType(int val) {
         this.val = (byte) val;
     }
 
-    public static PartyType getByVal(byte type) {
-        if (type >= 0 && type <= values().length) {
-            return values()[type];
+    public static PartyType getByVal(byte val) {
+        for (PartyType type : PartyType.values()) {
+            if (type.getVal() == val) {
+                return type;
+            }
         }
         return null;
     }

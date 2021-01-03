@@ -1,8 +1,6 @@
 package im.cave.ms.client.skill;
 
-/**
- * Created on 1/11/2018.
- */
+
 public class HitInfo {
     public int hpDamage;
     public int templateID;

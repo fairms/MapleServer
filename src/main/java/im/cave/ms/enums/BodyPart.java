@@ -2,9 +2,7 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * Created on 1/7/2018.
- */
+
 public enum BodyPart {
     BPBase(0),
     Hair(0),

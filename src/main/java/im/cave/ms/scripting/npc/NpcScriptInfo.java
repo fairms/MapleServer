@@ -7,9 +7,7 @@ import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Created on 2/19/2018.
- */
+
 public class NpcScriptInfo {
     private int[] options;
     private byte speakerType = 4; // ?

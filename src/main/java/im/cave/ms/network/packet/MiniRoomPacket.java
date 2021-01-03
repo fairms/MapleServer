@@ -35,21 +35,14 @@ public class MiniRoomPacket {
         return outPacket;
     }
 
-    public static OutPacket enterTrade(TradeRoom tradeRoom, MapleCharacter player) {
+    public static OutPacket enterTrade(TradeRoom tradeRoom, int user) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
         outPacket.write(MiniRoomType.EnterTrade.getVal());
         outPacket.write(4);
         outPacket.write(2);
-        if (player == tradeRoom.getChr()) {
-            outPacket.writeShort(0);
-        } else {
-            outPacket.writeShort(1);
-        }
-        PacketHelper.addCharLook(outPacket, player, true, false);
-        outPacket.writeMapleAsciiString(player.getName());
-        outPacket.writeShort(player.getJobId());
-        outPacket.write(-1);
+        outPacket.write(user);
+        tradeRoom.encodeChar(outPacket);
         return outPacket;
     }
 
@@ -93,6 +86,22 @@ public class MiniRoomPacket {
         outPacket.write(MiniRoomType.SetMesos.getVal());
         outPacket.write(user);
         outPacket.writeLong(meso);
+        return outPacket;
+    }
+
+    public static OutPacket tradeConfirm() {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
+        outPacket.write(MiniRoomType.Trade.getVal());
+        return outPacket;
+    }
+
+    public static OutPacket tradeComplete(int user) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
+        outPacket.write(MiniRoomType.ExitTrade.getVal());
+        outPacket.write(user); // other user cancelled
+        outPacket.write(RoomLeaveType.TRLeave_TradeDone.getVal());
         return outPacket;
     }
 }

@@ -1,10 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 12/12/2017.
- *
- * @author Sjonnie
- */
+
 public enum LoginType {
     Success(0), //有用
     TempBlocked(1),

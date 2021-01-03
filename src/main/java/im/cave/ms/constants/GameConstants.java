@@ -68,6 +68,11 @@ public class GameConstants {
     public static final long HYPER_STAT_RESET_COST = 10000000;
     public static final long HYPER_SKILL_RESET_COST = 1000000;
 
+    //Party
+    public static final String DEFAULT_PARTY_NAME = "快去组队游戏吧，GoGo";
+
+    //Friend
+    public static final String DEFAULT_FRIEND_GROUP = "未指定群组";
 
     // Inner Ability
     public static final int CHAR_POT_BASE_ID = 70000000;

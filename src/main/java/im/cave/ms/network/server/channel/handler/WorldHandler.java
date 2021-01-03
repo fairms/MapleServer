@@ -1,10 +1,12 @@
 package im.cave.ms.network.server.channel.handler;
 
 import im.cave.ms.client.Account;
+import im.cave.ms.client.Friend;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.MapleSignIn;
 import im.cave.ms.client.Trunk;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.job.JobManager;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.Android;
@@ -12,7 +14,6 @@ import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
-import im.cave.ms.client.job.JobManager;
 import im.cave.ms.client.miniroom.TradeRoom;
 import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.client.party.Party;
@@ -23,6 +24,8 @@ import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.DimensionalMirror;
 import im.cave.ms.enums.FieldOption;
+import im.cave.ms.enums.FriendFlag;
+import im.cave.ms.enums.FriendType;
 import im.cave.ms.enums.InstanceTableType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
@@ -51,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -430,6 +434,7 @@ public class WorldHandler {
             }
             case Accept: {
                 int charId = inPacket.readInt();
+                inPacket.readShort(); // 00 00
                 MapleCharacter other = player.getMap().getCharById(charId);
                 if (other == null) {
                     other = Server.getInstance().getCharById(charId, player.getWorld());
@@ -449,18 +454,19 @@ public class WorldHandler {
                 player.setMiniRoom(other.getMiniRoom());
                 tradeRoom = ((TradeRoom) player.getMiniRoom());
                 tradeRoom.setOther(player);
-                player.announce(MiniRoomPacket.enterTrade(tradeRoom, player));
+                player.announce(MiniRoomPacket.enterTrade(tradeRoom, 1));
                 tradeRoom.getChr().announce(MiniRoomPacket.acceptTradeInvite(player));
                 tradeRoom.sendTips();
                 break;
             }
-            case InviteResultStatic: {
+            case InviteResultStatic: { // 拒绝邀请
                 int charId = inPacket.readInt();
                 MapleCharacter other = player.getMap().getCharById(charId);
                 if (other == null) {
                     return;
                 }
                 ((TradeRoom) other.getMiniRoom()).cancelTrade();
+                break;
             }
             case ExitTrade: {
                 if (tradeRoom != null) {
@@ -481,9 +487,10 @@ public class WorldHandler {
                 break;
             }
             case Create: {
+                inPacket.readShort(); // 04 00
                 tradeRoom = new TradeRoom(player);
                 player.setMiniRoom(tradeRoom);
-                player.announce(MiniRoomPacket.enterTrade(tradeRoom, player));
+                player.announce(MiniRoomPacket.enterTrade(tradeRoom, 0));
                 break;
             }
             case PlaceItem:
@@ -516,10 +523,10 @@ public class WorldHandler {
                     item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
                     player.consumeItem(item);
                     tradeRoom.addItem(player, tradePos, offer);
+                    MapleCharacter other = tradeRoom.getOtherChar(player);
+                    player.announce(MiniRoomPacket.putItem(0, tradePos, offer));
+                    other.announce(MiniRoomPacket.putItem(1, tradePos, offer));
                 }
-                MapleCharacter other = tradeRoom.getOtherChar(player);
-                player.announce(MiniRoomPacket.putItem(0, tradePos, offer));
-                other.announce(MiniRoomPacket.putItem(1, tradePos, offer));
                 break;
             }
             case SetMesos:
@@ -542,7 +549,28 @@ public class WorldHandler {
                 other.announce(MiniRoomPacket.putMeso(1, meso));
                 break;
             }
-
+            case TradeConfirm:
+            case TradeConfirm2:
+            case TradeConfirm3: {
+                MapleCharacter other = tradeRoom.getOtherChar(player);
+                other.announce(MiniRoomPacket.tradeConfirm());
+                if (tradeRoom.hasConfirmed(player)) {
+                    boolean success = tradeRoom.completeTrade();
+                    if (success) {
+                        player.announce(MiniRoomPacket.tradeComplete(0));
+                        other.announce(MiniRoomPacket.tradeComplete(1));
+                    } else {
+                        tradeRoom.cancelTrade();
+                    }
+                    player.setMiniRoom(null);
+                    other.setMiniRoom(null);
+                } else {
+                    tradeRoom.addConfirmedPlayer(player);
+                }
+                break;
+            }
+            case TradeConfirmRemoteResponse:
+                break;
         }
     }
 
@@ -597,6 +625,11 @@ public class WorldHandler {
                 break;
             }
             case PartyReq_InviteParty: {
+                if (party == null) {
+                    party = Party.createNewParty(true, GameConstants.DEFAULT_PARTY_NAME, player.getMapleWorld());
+                    party.addPartyMember(player);
+                    party.broadcast(WorldPacket.partyResult(PartyResult.createNewParty(party)));
+                }
                 String name = inPacket.readMapleAsciiString();
                 MapleCharacter chr = Server.getInstance().findCharByName(name, player.getWorld());
                 if (chr == null) {
@@ -634,13 +667,14 @@ public class WorldHandler {
         }
         switch (type) {
             case PartyRes_InviteParty_Sent: { //收到组队邀请
+                inPacket.readInt(); //party ID
                 break;
             }
             case PartyRes_InviteParty_Rejected: { //拒绝组队邀请
                 int partyId = inPacket.readInt();
                 party = player.getMapleWorld().getPartyById(partyId);
                 if (party != null) {
-                    party.getPartyLeader().getChr().chatMessage(String.format("`%s`玩家拒绝了组队招待.", player.getName()));
+                    party.getPartyLeader().getChr().chatMessage(String.format("'%s'玩家拒绝了组队招待.", player.getName()));
                 }
                 break;
             }
@@ -666,5 +700,73 @@ public class WorldHandler {
         MovementInfo mi = new MovementInfo(inPacket);
         mi.applyTo(android);
         player.getMap().broadcastMessage(player, AndroidPacket.move(android, mi), false);
+    }
+
+    public static void handleFriendRequest(InPacket inPacket, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        byte val = inPacket.readByte();
+        FriendType ft = FriendType.getByVal(val);
+        if (ft == null) {
+            player.dropMessage("Unhandled request" + val);
+            return;
+        }
+        switch (ft) {
+            case FriendReq_SetFriend: {
+                String name = inPacket.readMapleAsciiString();
+                MapleCharacter other = player.getMapleWorld().getCharByName(name);
+                String group = inPacket.readMapleAsciiString();
+                String memo = inPacket.readMapleAsciiString();
+                boolean account = inPacket.readByte() != 0;
+                String nick = "";
+                if (account) {
+                    nick = inPacket.readMapleAsciiString();
+                    if (nick.equalsIgnoreCase("")) {
+                        nick = name;
+                    }
+                }
+                Friend friend = new Friend();
+                friend.setFriendId(other.getId());
+                friend.setGroup(group);
+                friend.setMemo(memo);
+                friend.setFriendAccountId(other.getAccId());
+                if (account) {
+                    friend.setNickname(nick);
+                    friend.setFlag(FriendFlag.AccountFriendOffline);
+                    player.getAccount().addFriend(friend);
+                } else {
+                    player.getFriends().add(friend);
+                    friend.setFlag(FriendFlag.FriendOffline);
+                }
+                Friend otherFriend = new Friend();
+                otherFriend.setFriendId(player.getId());
+                otherFriend.setName(player.getName());
+                otherFriend.setFriendAccountId(player.getAccId());
+                otherFriend.setGroup(GameConstants.DEFAULT_FRIEND_GROUP);
+                if (account) {
+                    otherFriend.setNickname(player.getName());
+                    otherFriend.setFlag(FriendFlag.AccountFriendRequest);
+                    other.getAccount().addFriend(otherFriend);
+                } else {
+                    otherFriend.setFlag(FriendFlag.FriendRequest);
+                    other.addFriend(otherFriend);
+                }
+                c.announce(WorldPacket.friendResult(FriendType.FriendRes_SendSingleFriendInfo, Collections.singletonList(friend)));
+                c.announce(WorldPacket.friendResult(FriendType.FriendRes_SetFriend_Done, Collections.singletonList(friend)));
+                other.announce(WorldPacket.friendResult(FriendType.FriendRes_Invite, Collections.singletonList(otherFriend)));
+                break;
+            }
+            case FriendReq_DeleteFriend: {
+                int charId = inPacket.readInt();
+                player.removeFriendByID(charId);
+                player.announce(WorldPacket.friendResult(FriendType.FriendRes_DeleteFriend_Done, null));
+                break;
+            }
+            case FriendReq_RefuseFriend: {
+                int charId = inPacket.readInt();
+                player.announce(WorldPacket.friendResult(FriendType.FriendRes_DeleteFriend_Done, null));
+                break;
+            }
+        }
+
     }
 }

@@ -6,9 +6,6 @@ import im.cave.ms.tools.Position;
 
 import static im.cave.ms.constants.GameConstants.NO_MAP_ID;
 
-/**
- * Created on 3/19/2018.
- */
 public class TownPortal {
 
     private int townID = NO_MAP_ID;

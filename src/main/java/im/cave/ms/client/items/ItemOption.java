@@ -6,9 +6,7 @@ import im.cave.ms.enums.ItemGrade;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created on 1/26/2018.
- */
+
 public class ItemOption {
     private int optionType;
     private int weight;

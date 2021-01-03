@@ -9,9 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created on 3/2/2018.
- */
+
 public class QuestInfo {
     private int questID;
     private int startNpc;

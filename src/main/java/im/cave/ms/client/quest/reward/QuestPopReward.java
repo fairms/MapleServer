@@ -5,9 +5,7 @@ import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.network.packet.UserPacket;
 
-/**
- * Created on 3/6/2018.
- */
+
 public class QuestPopReward implements QuestReward {
 
     private int pop;

@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 1/25/2018.
- */
+
 public enum ExpIncreaseInfoFlags {
     SelectedMobBonusExp(0x1),
     PartyBonusPercentage(0x4),

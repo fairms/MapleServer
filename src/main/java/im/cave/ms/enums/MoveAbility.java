@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 1/6/2018.
- */
+
 public enum MoveAbility {
     Stop(0),
     Walk(1),

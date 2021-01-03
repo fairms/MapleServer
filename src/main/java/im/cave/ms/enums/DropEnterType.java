@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 2/21/2018.
- */
+
 public enum DropEnterType {
     Default(0),
     Floating(1),

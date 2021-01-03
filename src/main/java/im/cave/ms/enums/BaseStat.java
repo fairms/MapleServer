@@ -8,9 +8,7 @@ import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created on 5/4/2018.
- */
+
 public enum BaseStat {
     unk,
     str,

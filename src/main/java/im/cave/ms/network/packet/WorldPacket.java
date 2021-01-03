@@ -1,6 +1,7 @@
 package im.cave.ms.network.packet;
 
 import im.cave.ms.client.Account;
+import im.cave.ms.client.Friend;
 import im.cave.ms.client.Trunk;
 import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
@@ -18,6 +19,7 @@ import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DimensionalMirror;
 import im.cave.ms.enums.DropEnterType;
 import im.cave.ms.enums.DropLeaveType;
+import im.cave.ms.enums.FriendType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
 import im.cave.ms.enums.ServerMsgType;
@@ -700,6 +702,49 @@ public class WorldPacket {
             for (int mapId : hyperRockFields) {
                 outPacket.writeInt(mapId); // Target Field ID
             }
+        }
+        return outPacket;
+    }
+
+    public static OutPacket friendResult(FriendType type, List<Friend> friends) {
+        OutPacket outPacket = new OutPacket();
+        outPacket.writeShort(SendOpcode.FRIEND_RESULT.getValue());
+        outPacket.write(type.getVal());
+        switch (type) {
+            case FriendRes_SetFriend_UnknownUser:
+                break;
+            case FriendRes_SendSingleFriendInfo:
+                outPacket.writeInt(1);
+                friends.get(0).encode(outPacket);
+                break;
+            case FriendRes_SetFriend_Done:
+                outPacket.writeMapleAsciiString(friends.get(0).getName());
+                break;
+            case FriendRes_Invite: {
+                Friend friend = friends.get(0);
+                outPacket.writeBool(friend.getFriendAccountId() != 0);
+                outPacket.writeInt(friend.getFriendId());
+                outPacket.writeInt(friend.getFriendAccountId());
+                outPacket.writeMapleAsciiString(friend.getName());
+                outPacket.writeInt(friend.getChar().getLevel());
+                outPacket.writeInt(friend.getChar().getJobId());
+                outPacket.writeInt(0);
+                friend.encode(outPacket);
+                outPacket.write(0);
+                break;
+            }
+            case FriendRes_DeleteFriend_Done:
+                outPacket.writeInt(0);
+                break;
+            case FriendRes_LoadFriend_Done: {
+                outPacket.writeInt(friends.size());
+                for (Friend friend : friends) {
+                    friend.encode(outPacket);
+                }
+                outPacket.write(0);
+                break;
+            }
+
         }
         return outPacket;
     }

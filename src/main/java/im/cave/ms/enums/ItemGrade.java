@@ -2,9 +2,6 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * Created on 1/26/2018.
- */
 public enum ItemGrade {
     LegendaryBonusHidden(-12),
     UniqueBonusHidden(-13),

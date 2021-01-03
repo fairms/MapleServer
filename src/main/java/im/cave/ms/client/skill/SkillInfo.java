@@ -3,7 +3,7 @@ package im.cave.ms.client.skill;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.enums.BaseStat;
-import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.SkillStat;
 import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Tuple;
 import im.cave.ms.tools.Util;
@@ -20,9 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created on 12/20/2017.
- */
+
 public class SkillInfo {
     private static final Logger log = LoggerFactory.getLogger(SkillInfo.class);
 

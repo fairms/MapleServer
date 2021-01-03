@@ -9,10 +9,7 @@ import im.cave.ms.network.server.service.EventManager;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author Asura
- * Created on 14/09/2018.
- */
+
 public class Clock {
     private ClockType clockType;
     private MapleCharacter chr;

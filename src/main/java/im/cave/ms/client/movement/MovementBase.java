@@ -3,10 +3,6 @@ package im.cave.ms.client.movement;
 
 import im.cave.ms.tools.Position;
 
-/**
- * Created on 1/2/2018.
- * These classes + children/parents are basically the same as Mushy, credits to @MaxCloud.
- */
 public abstract class MovementBase implements Movement {
     protected byte command;
     protected byte moveAction;

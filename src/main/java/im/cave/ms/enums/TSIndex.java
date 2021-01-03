@@ -7,11 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created on 2/3/2018.
- *
- * @author Eric
- */
+
 public enum TSIndex {
     EnergyCharged(0),
     DashSpeed(1),

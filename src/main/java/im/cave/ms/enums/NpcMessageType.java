@@ -1,8 +1,5 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 2/19/2018.
- */
 public enum NpcMessageType {
     SayOk(0, false, false, ResponseType.Response),// v202.3
     SayNext(0, false, true, ResponseType.Response),// v202.3

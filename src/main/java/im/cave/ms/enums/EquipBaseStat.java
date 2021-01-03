@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 12/22/2017.
- */
+
 public enum EquipBaseStat {
     tuc(0x1, 0),
     cuc(0x2, 0),

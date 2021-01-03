@@ -5,10 +5,10 @@ import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.skill.Skill;
 import im.cave.ms.client.skill.SkillInfo;
-import im.cave.ms.client.skill.SkillStat;
 import im.cave.ms.enums.AssistType;
 import im.cave.ms.enums.EnterType;
 import im.cave.ms.enums.MoveAbility;
+import im.cave.ms.enums.SkillStat;
 import im.cave.ms.network.packet.SummonPacket;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Position;
@@ -21,9 +21,6 @@ import java.util.List;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieEmpty;
 
 
-/**
- * Created on 1/6/2018.
- */
 public class Summon extends MapleMapObj {
 
     private static final Logger log = LoggerFactory.getLogger(Summon.class);

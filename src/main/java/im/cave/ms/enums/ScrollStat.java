@@ -18,9 +18,7 @@ import static im.cave.ms.enums.EquipBaseStat.iReduceReq;
 import static im.cave.ms.enums.EquipBaseStat.iSpeed;
 import static im.cave.ms.enums.EquipBaseStat.iStr;
 
-/**
- * Created on 1/9/2018.
- */
+
 public enum ScrollStat {
     success,
     incSTR,

@@ -1,22 +1,19 @@
-package im.cave.ms.client.job;
+package im.cave.ms.client.character.job;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.job.adventurer.Archer;
-import im.cave.ms.client.job.adventurer.Beginner;
-import im.cave.ms.client.job.adventurer.Magician;
-import im.cave.ms.client.job.adventurer.Pirate;
-import im.cave.ms.client.job.adventurer.Thief;
-import im.cave.ms.client.job.adventurer.Warrior;
+import im.cave.ms.client.character.job.adventurer.Archer;
+import im.cave.ms.client.character.job.adventurer.Beginner;
+import im.cave.ms.client.character.job.adventurer.Magician;
+import im.cave.ms.client.character.job.adventurer.Pirate;
+import im.cave.ms.client.character.job.adventurer.Thief;
+import im.cave.ms.client.character.job.adventurer.Warrior;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.network.netty.InPacket;
 
 import java.lang.reflect.InvocationTargetException;
 
-/**
- * Created on 12/14/2017.
- */
 public class JobManager {
     private static final Class[] jobClasses = new Class[]{
 //            BeastTamer.class,

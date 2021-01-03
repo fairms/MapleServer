@@ -2,9 +2,7 @@ package im.cave.ms.client.quest.requirement;
 
 import im.cave.ms.client.character.MapleCharacter;
 
-/**
- * Created on 3/2/2018.
- */
+
 public class QuestStartCompletionRequirement implements QuestStartRequirement {
     private int questID;
     private byte questStatus;

@@ -4,10 +4,7 @@ import im.cave.ms.tools.Util;
 
 import java.util.Arrays;
 
-/**
- * @author Sjonnie
- * Created on 7/26/2018.
- */
+
 public enum InstanceTableType {
 
     HyperPassiveSkill("hyper", 28, 0),

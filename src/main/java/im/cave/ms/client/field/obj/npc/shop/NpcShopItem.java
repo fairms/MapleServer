@@ -13,9 +13,7 @@ import javax.persistence.Transient;
 import static im.cave.ms.constants.GameConstants.MAX_TIME;
 import static im.cave.ms.constants.GameConstants.ZERO_TIME;
 
-/**
- * Created on 3/27/2018.
- */
+
 @Entity
 @Table(name = "shop_items")
 public class NpcShopItem {

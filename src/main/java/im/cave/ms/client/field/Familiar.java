@@ -14,10 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Map;
 
-/**
- * @author Sjonnie
- * Created on 6/9/2018.
- */
+
 @Entity
 @Table(name = "familiars")
 @Getter

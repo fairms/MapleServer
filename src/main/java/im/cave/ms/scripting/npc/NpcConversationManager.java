@@ -5,6 +5,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.network.packet.NpcPacket;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.scripting.AbstractPlayerInteraction;
 
 import java.util.Map;
@@ -211,5 +212,11 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         item.setFlame(item.getFlame() + 10);
         player.dropMessage("当前" + item.getFlame());
         item.updateToChar(player);
+    }
+
+    public void openUI() {
+        MapleCharacter player = c.getPlayer();
+        c.announce(WorldPacket.openUI(player.getCombo()));
+        player.setCombo(player.getCombo() + 1);
     }
 }

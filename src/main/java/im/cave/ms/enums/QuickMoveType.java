@@ -1,9 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * @author Sjonnie
- * Created on 8/2/2018.
- */
+
 public enum QuickMoveType {
     Gladiator(0),
     MonsterPark(1),

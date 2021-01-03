@@ -21,9 +21,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-/**
- * Created on 2/28/2017.
- */
 public class Util {
 
     private static Map<Class, Class> boxedToPrimClasses = new HashMap<>();

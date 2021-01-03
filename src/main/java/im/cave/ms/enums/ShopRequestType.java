@@ -2,9 +2,7 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * Created on 3/28/2018.
- */
+
 public enum ShopRequestType {
     BUY(0),
     SELL(1),

@@ -5,9 +5,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created on 12/12/2017.
- */
+
 public class EventManager {
 
     private static final ScheduledExecutorService scheduler = new CathingScheduledThreadPoolExecutor(10);

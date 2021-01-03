@@ -8,9 +8,6 @@ import im.cave.ms.tools.Position;
 
 
 
-/**
- * Created on 1/2/2018.
- */
 public class MovementStartFallDown extends MovementBase {
     public MovementStartFallDown(InPacket inPacket, byte command) {
         super();

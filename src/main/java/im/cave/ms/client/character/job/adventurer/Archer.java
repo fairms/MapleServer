@@ -1,4 +1,4 @@
-package im.cave.ms.client.job.adventurer;
+package im.cave.ms.client.character.job.adventurer;
 
 /**
  * @author fair

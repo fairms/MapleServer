@@ -18,9 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Created on 3/19/2018.
- */
+
 public class Party {
     private final PartyMember[] partyMembers = new PartyMember[6];
     private final Map<Integer, MapleMap> maps = new HashMap<>();

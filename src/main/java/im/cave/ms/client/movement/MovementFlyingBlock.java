@@ -7,11 +7,6 @@ import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.tools.Position;
 
-
-
-/**
- * Created on 1/2/2018.
- */
 public class MovementFlyingBlock extends MovementBase {
     public MovementFlyingBlock(InPacket inPacket, byte command) {
         super();

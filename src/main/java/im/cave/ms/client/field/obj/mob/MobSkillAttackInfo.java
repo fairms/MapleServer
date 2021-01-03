@@ -6,9 +6,6 @@ import im.cave.ms.tools.Position;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created on 3/19/2018.
- */
 public class MobSkillAttackInfo {
     public byte actionAndDirMask;
     public byte action;

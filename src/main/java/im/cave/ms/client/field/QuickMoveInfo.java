@@ -5,10 +5,7 @@ import im.cave.ms.enums.QuickMoveType;
 import static im.cave.ms.constants.GameConstants.MAX_TIME;
 import static im.cave.ms.constants.GameConstants.ZERO_TIME;
 
-/**
- * @author Sjonnie
- * Created on 7/12/2018.
- */
+
 public class QuickMoveInfo {
     private int qmiID;
     private int templateID;

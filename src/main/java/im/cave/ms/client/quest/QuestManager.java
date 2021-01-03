@@ -36,9 +36,6 @@ import static im.cave.ms.enums.QuestStatus.Completed;
 import static im.cave.ms.enums.QuestStatus.NotStarted;
 import static im.cave.ms.enums.QuestStatus.Started;
 
-/**
- * Created on 12/20/2017.
- */
 @Entity
 @Table(name = "questmanagers")
 @Getter

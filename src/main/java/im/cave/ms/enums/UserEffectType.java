@@ -2,9 +2,7 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * Created on 6/7/2018.
- */
+
 public enum UserEffectType {
     LevelUp(0),// v202.3
     SkillUse(1),

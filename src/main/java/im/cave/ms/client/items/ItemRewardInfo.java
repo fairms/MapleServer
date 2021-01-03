@@ -1,9 +1,6 @@
 package im.cave.ms.client.items;
 
-/**
- * @author Sjonnie
- * Created on 7/21/2018.
- */
+
 public class ItemRewardInfo {
     private int count;
     private int itemID;

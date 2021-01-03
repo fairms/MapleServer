@@ -130,8 +130,11 @@ public class UserRemote {
         //
         outPacket.write(0);
         outPacket.writeZeroBytes(8);
-
-        outPacket.writeInt(0);//椅子数
+        List<Item> chairs = chr.getChairs();
+        outPacket.writeInt(chairs.size());//椅子数
+        for (Item chair : chairs) {
+            outPacket.writeInt(chair.getItemId());
+        }
         outPacket.writeInt(0);//勋章数
 
         return outPacket;

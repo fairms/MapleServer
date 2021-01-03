@@ -9,9 +9,6 @@ import im.cave.ms.tools.Position;
 
 
 
-/**
- * Created on 1/2/2018.
- */
 public class MovementTeleport extends MovementBase {
     public MovementTeleport(InPacket inPacket, byte command) {
         super();

@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 3/26/2018.
- */
+
 public enum FieldEffectType {
     Summon(0),
     Tremble(1),

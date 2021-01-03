@@ -2,9 +2,7 @@ package im.cave.ms.client.quest.reward;
 
 import java.util.Arrays;
 
-/**
- * Created on 3/8/2018.
- */
+
 public enum QuestRewardType {
     EXP(0),
     ITEM(1),

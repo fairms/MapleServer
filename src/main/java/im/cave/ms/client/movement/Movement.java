@@ -6,10 +6,6 @@ import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.tools.Position;
 
 
-/**
- * Created on 1/2/2018.
- * These classes + children/parents are basically the same as Mushy, credits to @MaxCloud.
- */
 public interface Movement {
     void encode(OutPacket outPacket);
 

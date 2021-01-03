@@ -5,9 +5,7 @@ import im.cave.ms.tools.Util;
 
 import java.util.Arrays;
 
-/**
- * Created on 28/8/2018.
- */
+
 public enum FlameStat {
     STR(0),
     DEX(1),

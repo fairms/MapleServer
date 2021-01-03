@@ -7,9 +7,6 @@ import im.cave.ms.tools.Util;
 
 import java.util.Set;
 
-/**
- * Created on 5/27/2018.
- */
 public class CharacterPotentialMan {
 
     private final MapleCharacter chr;

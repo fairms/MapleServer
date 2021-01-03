@@ -7,6 +7,7 @@ import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.netty.ServerAcceptor;
 import im.cave.ms.network.server.AbstractServer;
 import im.cave.ms.provider.data.MapData;
+import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,4 +85,7 @@ public class MapleChannel extends AbstractServer {
         }
     }
 
+    public MapleCharacter getCharByName(String charName) {
+        return Util.findWithPred(players, character -> character.getName().equals(charName));
+    }
 }

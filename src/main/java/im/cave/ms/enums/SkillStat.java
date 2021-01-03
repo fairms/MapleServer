@@ -1,10 +1,6 @@
-package im.cave.ms.client.skill;
+package im.cave.ms.enums;
 
-import im.cave.ms.enums.BaseStat;
 
-/**
- * Created on 12/20/2017.
- */
 public enum SkillStat {
     x,
     y,

@@ -1,8 +1,5 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 4/5/2018.
- */
 public enum DamageSkinType {
     DamageSkinSaveReq_Reg(0),
     DamageSkinSaveReq_Remove(1),

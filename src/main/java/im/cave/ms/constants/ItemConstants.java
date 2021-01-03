@@ -32,9 +32,6 @@ import java.util.stream.Collectors;
 import static im.cave.ms.enums.InventoryType.EQUIP;
 
 
-/**
- * Created on 12/12/2017.
- */
 public class ItemConstants {
     public static final int[] COMMODITY = {
             3100011,

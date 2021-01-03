@@ -2,9 +2,7 @@ package im.cave.ms.client.party;
 
 import im.cave.ms.client.character.MapleCharacter;
 
-/**
- * Created on 3/19/2018.
- */
+
 public class PartyMember {
 
     private MapleCharacter chr;

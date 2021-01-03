@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 2/28/2018.
- */
+
 public enum InventoryOperationType {
     ADD(0),
     UPDATE_QUANTITY(1),

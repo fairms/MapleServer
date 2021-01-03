@@ -2,9 +2,7 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * Created on 5/26/2018.
- */
+
 public enum QuestType {
     QuestReq_LostItem(0),
     QuestReq_AcceptQuest(1),

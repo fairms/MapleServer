@@ -35,9 +35,7 @@ import static im.cave.ms.enums.ExpIncreaseInfoFlags.UserHPRateBonusExp;
 import static im.cave.ms.enums.ExpIncreaseInfoFlags.ValuePackBonusExp;
 import static im.cave.ms.enums.ExpIncreaseInfoFlags.WeddingBonusExp;
 
-/**
- * Created on 1/25/2018.
- */
+
 public class ExpIncreaseInfo {
     private boolean isLastHit;
     private int incEXP;

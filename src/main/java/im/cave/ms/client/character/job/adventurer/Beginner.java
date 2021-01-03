@@ -1,24 +1,22 @@
-package im.cave.ms.client.job.adventurer;
+package im.cave.ms.client.character.job.adventurer;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
-import im.cave.ms.client.job.MapleJob;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.client.skill.Skill;
 import im.cave.ms.client.skill.SkillInfo;
-import im.cave.ms.client.skill.SkillStat;
 import im.cave.ms.constants.JobConstants;
+import im.cave.ms.enums.SkillStat;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.provider.data.SkillData;
 
 import java.util.Arrays;
 
-/**
- * Created on 12/14/2017.
- */
+
 public class Beginner extends MapleJob {
     public static final int THREE_SNAILS = 1000;
     public static final int RECOVERY = 1001;

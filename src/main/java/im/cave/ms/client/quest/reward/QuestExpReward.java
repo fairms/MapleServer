@@ -4,9 +4,7 @@ import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.tools.Util;
 
-/**
- * Created on 3/2/2018.
- */
+
 public class QuestExpReward implements QuestReward {
 
     private long exp;

@@ -2,7 +2,7 @@ package im.cave.ms.client.character.temp;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
-import im.cave.ms.client.job.MapleJob;
+import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
@@ -39,9 +39,7 @@ import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicl
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicleExpire;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Speed;
 
-/**
- * Created on 1/3/2018.
- */
+
 public class TemporaryStatManager {
     private static final Logger log = LoggerFactory.getLogger(TemporaryStatManager.class);
     private final Map<CharacterTemporaryStat, List<Option>> currentStats = new HashMap<>();

@@ -8,10 +8,6 @@ import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.tools.Position;
 
 
-
-/**
- * Created on 1/2/2018.
- */
 public class MovementStatChange extends MovementBase {
     public MovementStatChange(InPacket inPacket, byte command) {
         super();

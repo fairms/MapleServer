@@ -2,9 +2,6 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * Created on 1/2/2018.
- */
 public enum ChatType {
     Normal(0),
     Whisper(1),

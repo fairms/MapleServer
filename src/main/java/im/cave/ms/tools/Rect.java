@@ -1,9 +1,6 @@
 package im.cave.ms.tools;
 
 
-/**
- * Created on 1/5/2018.
- */
 public class Rect {
     private int left, top, right, bottom;
 

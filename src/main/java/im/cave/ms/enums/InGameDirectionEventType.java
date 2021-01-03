@@ -1,9 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * @author Sjonnie
- * Created on 8/31/2018.
- */
+
 public enum InGameDirectionEventType {
     ForcedAction(0),
     Delay(1),

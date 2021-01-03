@@ -19,8 +19,6 @@ public class QuestConstants {
     public static final int QUEST_EX_COMBO_KILL = 16027;
     // 宠物自动喂养
     public static final int QUEST_EX_PET_AUTO_EAT_FOOD = 1;
-    //签到记录
-    public static final int SHARE_QUEST_EX_SIGNIN_LOG = 7;
     //伤害皮肤
     public static final int QUEST_DAMAGE_SKIN = 7291;
     //称号
@@ -31,4 +29,12 @@ public class QuestConstants {
     //超时空卷
     public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_MAX = 16700;
     public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED = 999991;
+
+    //签到月份 //enter=202101
+    public static final int SHARE_QUEST_EX_SIGNIN_MONTH = 6;
+    //账号签到记录
+    public static final int SHARE_QUEST_EX_SIGNIN_LOG = 7;
+    //账号在线时间 //date=20210103;OnlineTime=138
+    public static final int SHARE_QUEST_EX_ONLINE_TIME = 900100;
+
 }

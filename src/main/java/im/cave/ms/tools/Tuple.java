@@ -2,9 +2,7 @@ package im.cave.ms.tools;
 
 import java.util.Objects;
 
-/**
- * Created on 1/1/2018.
- */
+
 public class Tuple<L, R> {
     private L left;
     private R right;

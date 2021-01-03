@@ -14,9 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created on 4/2/2018.
- */
+
 @Entity
 @Table(name = "macros")
 public class Macro {

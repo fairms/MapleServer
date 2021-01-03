@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 1/25/2018.
- */
+
 public enum EnchantStat implements Comparable<EnchantStat> {
     PAD(0x1),
     MAD(0x2),

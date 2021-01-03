@@ -4,9 +4,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.PartyType;
 import im.cave.ms.network.netty.OutPacket;
 
-/**
- * Created on 3/19/2018.
- */
+
 public class PartyResult {
 
     private final PartyType type;
@@ -150,7 +148,7 @@ public class PartyResult {
                 if (bool) {
                     outPacket.writeBool(bool2); // bExpelled
                     outPacket.writeMapleAsciiString(member.getCharName());
-//                    party.encode(outPacket);
+                    party.encode(outPacket);
                 }
                 outPacket.writeInt(member.getCharId());
                 break;

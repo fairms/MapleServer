@@ -1,8 +1,5 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 1/25/2018.
- */
 public enum MessageType {
     DROP_PICKUP_MESSAGE(0),
     QUEST_RECORD_MESSAGE(1),// v200

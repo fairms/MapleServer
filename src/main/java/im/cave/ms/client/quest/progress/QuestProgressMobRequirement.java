@@ -6,9 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
-/**
- * Created on 3/2/2018.
- */
+
 @Entity
 @DiscriminatorValue("mob")
 public class QuestProgressMobRequirement extends QuestProgressRequirement {

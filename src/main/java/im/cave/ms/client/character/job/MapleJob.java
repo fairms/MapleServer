@@ -1,4 +1,4 @@
-package im.cave.ms.client.job;
+package im.cave.ms.client.character.job;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
@@ -8,11 +8,11 @@ import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.skill.AttackInfo;
 import im.cave.ms.client.skill.SkillInfo;
-import im.cave.ms.client.skill.SkillStat;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.SkillStat;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.server.service.EventManager;
@@ -26,9 +26,6 @@ import java.util.concurrent.TimeUnit;
 ;
 
 
-/**
- * Created on 1/2/2018.
- */
 public abstract class MapleJob {
     protected MapleCharacter chr;
     protected MapleClient c;

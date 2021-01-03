@@ -5,8 +5,10 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
+import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.LoginPacket;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.server.Server;
 
 import java.time.LocalDateTime;
@@ -43,6 +45,15 @@ public class CharOperationHandler {
         long deleteTime = LocalDateTime.now().plusDays(3).toInstant(ZoneOffset.of("+8")).toEpochMilli();
         character.setDeleteTime(deleteTime);
         c.announce(LoginPacket.deleteTime(charId));
+    }
+
+    public static void handleDeleteCharConfirm(InPacket inPacket, MapleClient c) {
+        inPacket.readByte();
+        inPacket.readByte();
+        int charId = inPacket.readInt();
+        c.getAccount().removeChar(charId);
+        c.announce(LoginPacket.deleteTime(charId));
+        c.announce(WorldPacket.serverMsg("删除角色成功，请回到首页重新进入。", ServerMsgType.ALERT));
     }
 
     public static void handleCancelDelete(InPacket inPacket, MapleClient c) {

@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 1/2/2018.
- */
+
 public enum RemoveMobType {
     STAY(0),
     ANIMATION_DEATH(1),

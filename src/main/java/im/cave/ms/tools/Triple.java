@@ -1,8 +1,6 @@
 package im.cave.ms.tools;
 
-/**
- * Created on 1/11/2018.
- */
+
 public class Triple<L, M, R> {
     private L left;
     private M middle;

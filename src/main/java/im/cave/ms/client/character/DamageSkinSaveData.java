@@ -9,9 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * Created on 4/5/2018.
- */
+
 @Entity
 @Table(name = "damage_skins")
 public class DamageSkinSaveData {

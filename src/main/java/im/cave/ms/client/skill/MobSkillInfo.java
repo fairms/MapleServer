@@ -1,5 +1,6 @@
 package im.cave.ms.client.skill;
 
+import im.cave.ms.enums.MobSkillStat;
 import im.cave.ms.tools.Position;
 
 import java.util.HashMap;
@@ -7,9 +8,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created on 3/18/2018.
- */
+
 public class MobSkillInfo {
 
     private short id;

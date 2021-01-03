@@ -4,9 +4,7 @@ import im.cave.ms.tools.Util;
 
 import java.util.Arrays;
 
-/**
- * Created on 16/9/2018.
- */
+
 public enum ItemOptionType {
     AnyEquip(0),
     Weapon(10),

@@ -12,11 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Objects;
 
-/**
- * Class containg the properties of a single character potential.
- * Note that this class is equal to another instance iff the <code>key</code> properties are equal!
- * Created on 5/27/2018.
- */
+
 @Entity
 @Table(name = "character_potentials")
 public class CharacterPotential {

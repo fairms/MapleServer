@@ -1,9 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * @author Sjonnie
- * Created on 8/10/2018.
- */
+
 public enum RoomLeaveType {
     MRLeave_UserRequest(0),
     MRLeave_WrongPosition(1),

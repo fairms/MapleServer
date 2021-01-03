@@ -7,9 +7,6 @@ import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.tools.Util;
 
 
-/**
- * Created on 3/26/2018.
- */
 public class FieldEffect {
 
     private FieldEffectType fieldEffectType;

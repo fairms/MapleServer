@@ -1,5 +1,6 @@
 package im.cave.ms.network.server.world;
 
+import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.party.Party;
 import im.cave.ms.config.Config;
 import im.cave.ms.config.WorldConfig;
@@ -99,5 +100,16 @@ public class World {
 
     public Party getPartyById(int id) {
         return parties.getOrDefault(id, null);
+    }
+
+    public MapleCharacter getCharByName(String charName) {
+        MapleCharacter character = null;
+        for (MapleChannel channel : channels) {
+            character = channel.getCharByName(charName);
+            if (character != null) {
+                break;
+            }
+        }
+        return character;
     }
 }

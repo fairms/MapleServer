@@ -1,8 +1,6 @@
 package im.cave.ms.enums;
 
-/**
- * Created on 5/31/2018.
- */
+
 public enum ClockType {
     EventTimer(0),
     HMSClock(1),

@@ -2,7 +2,7 @@ package im.cave.ms.client.character;
 
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.skill.SkillInfo;
-import im.cave.ms.client.skill.SkillStat;
+import im.cave.ms.enums.SkillStat;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.tools.Util;
 
@@ -11,9 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-/**
- * Created on 1/3/2018.
- */
+
 public class Option {
     private static final Random keyRng = new Random();
     public int nOption;

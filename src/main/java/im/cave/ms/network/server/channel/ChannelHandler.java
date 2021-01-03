@@ -280,6 +280,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case PARTY_INVITE_RESPONSE:
                 WorldHandler.handlePartyInviteResponse(inPacket, c);
                 break;
+            case FRIEND_REQUEST:
+                WorldHandler.handleFriendRequest(inPacket, c);
+                break;
             case CHANGE_KEYMAP:
                 UserHandler.handleChangeKeyMap(inPacket, c);
                 break;
