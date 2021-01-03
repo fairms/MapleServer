@@ -5,8 +5,10 @@ import im.cave.ms.enums.ScrollStat;
 import im.cave.ms.enums.SpecStat;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,6 +56,9 @@ public class ItemInfo {
     private int familiarID;
     private double unitPrice;
     private int reqLevel;
+    private int incTameness;
+    private int incRepleteness;
+    private List<Integer> limitedPets = new ArrayList<>();
 
     public void putScrollStat(ScrollStat scrollStat, int val) {
         getScrollStats().put(scrollStat, val);
@@ -65,5 +70,9 @@ public class ItemInfo {
 
     public void putSpecStat(SpecStat ss, int i) {
         getSpecStats().put(ss, i);
+    }
+
+    public void addLimitedPet(int itemId) {
+        limitedPets.add(itemId);
     }
 }

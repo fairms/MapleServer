@@ -537,9 +537,7 @@ public class ItemData {
                 case "pquest":
                 case "bonusEXPRate":
                 case "notExtend":
-                    break;
                 case "skill":
-                case "spec":
                 case "stateChangeItem":
                 case "direction":
                 case "exGrade":
@@ -581,13 +579,6 @@ public class ItemData {
                 case "noCancelMouse":
                 case "soulItemType":
                 case "Rate":
-                    break;
-                case "unitPrice":
-                    item.setUnitPrice(MapleDataTool.getDouble(attr));
-                    break;
-                case "reqLevel":
-                    item.setReqLevel(MapleDataTool.getInt(attr));
-                    break;
                 case "delayMsg":
                 case "bridlePropZeroMsg":
                 case "create":
@@ -744,6 +735,13 @@ public class ItemData {
                 case "topOffset":
                 case "craftEXP":
                 case "willEXP":
+                case "spec":
+                    break;
+                case "unitPrice":
+                    item.setUnitPrice(MapleDataTool.getDouble(attr));
+                    break;
+                case "reqLevel":
+                    item.setReqLevel(MapleDataTool.getInt(attr));
                     break;
                 case "familiarID":
                     item.setFamiliarID(MapleDataTool.getInt(attr));
@@ -929,6 +927,10 @@ public class ItemData {
             for (MapleData specAttr : specData.getChildren()) {
                 String name = specAttr.getName();
                 String value = MapleDataTool.getString(specAttr);
+                if (Util.isNumber(name)) {
+                    item.addLimitedPet(Integer.parseInt(value));
+                    continue;
+                }
                 switch (name) {
                     case "script":
                         item.setScript(value);
@@ -938,6 +940,12 @@ public class ItemData {
                         break;
                     case "moveTo":
                         item.setMoveTo(Integer.parseInt(value));
+                        break;
+                    case "incRepleteness":
+                        item.setIncRepleteness(Integer.parseInt(value));
+                        break;
+                    case "incTameness":
+                        item.setIncTameness(Integer.parseInt(value));
                         break;
                     default:
                         SpecStat ss = SpecStat.getSpecStatByName(name);

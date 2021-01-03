@@ -7,7 +7,7 @@ import im.cave.ms.client.field.Familiar;
 import im.cave.ms.client.items.Equip;
 import im.cave.ms.client.items.Inventory;
 import im.cave.ms.client.items.Item;
-import im.cave.ms.client.pet.PetItem;
+import im.cave.ms.client.items.PetItem;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.client.skill.Skill;

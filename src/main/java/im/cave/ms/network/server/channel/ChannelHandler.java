@@ -159,6 +159,9 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
             case USER_STAT_CHANGE_ITEM_USE_REQUEST:
                 InventoryHandler.handleUseItem(inPacket, c);
                 break;
+            case USER_PET_FOOD_ITEM_USE_REQUEST:
+                PetHandler.handleUserPetFoodItemUseRequest(inPacket, c);
+                break;
             case USER_SCRIPT_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserScriptItemUseRequest(inPacket, c);
                 break;
@@ -245,13 +248,19 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 UserHandler.handleCharInfoReq(inPacket, c);
                 break;
             case USER_ACTIVATE_PET_REQUEST:
-                PetHandler.handleUserActivatePetReuqest(inPacket, c);
+                PetHandler.handleUserActivatePetRequest(inPacket, c);
                 break;
             case COMBO_KILL_CHECK:
                 WorldHandler.handleComboKill(inPacket, c);
                 break;
             case USER_SOUL_EFFECT_REQUEST:
                 UserHandler.handleUserSoulEffectRequest(inPacket, c);
+                break;
+            case PET_MOVE:
+                PetHandler.handlePetMove(inPacket, c);
+                break;
+            case PET_ACTION_SPEAK:
+                PetHandler.handlePetActionSpeak(inPacket, c);
                 break;
             case SUMMON_MOVE:
                 WorldHandler.handleSummonMove(inPacket, c);

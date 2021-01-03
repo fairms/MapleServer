@@ -1,6 +1,6 @@
 package im.cave.ms.client.field.obj;
 
-import im.cave.ms.client.pet.PetItem;
+import im.cave.ms.client.items.PetItem;
 import im.cave.ms.network.netty.OutPacket;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +23,7 @@ public class Pet extends MapleMapObj {
     private short giantRate = 100;
     private boolean transformed;
     private boolean reinforced;
-    private PetItem item;
+    private PetItem petItem;
 
     public Pet(int templateId, int ownerId) {
         super(templateId);
@@ -33,7 +33,7 @@ public class Pet extends MapleMapObj {
     public void encode(OutPacket outPacket) {
         outPacket.writeInt(getTemplateId());
         outPacket.writeMapleAsciiString(name);
-        outPacket.writeLong(getItem().getId());
+        outPacket.writeLong(getPetItem().getId());
         outPacket.writePosition(getPosition());
         outPacket.write(getMoveAction());
         outPacket.writeShort(getFh());

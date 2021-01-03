@@ -1,8 +1,7 @@
-package im.cave.ms.client.pet;
+package im.cave.ms.client.items;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.obj.Pet;
-import im.cave.ms.client.items.Item;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -54,7 +53,7 @@ public class PetItem extends Item {
         pet.setPetLockerSN(getId());
         pet.setHue(getPetHue());
         pet.setGiantRate(getGiantRate());
-        pet.setItem(this);
+        pet.setPetItem(this);
         return pet;
     }
 }

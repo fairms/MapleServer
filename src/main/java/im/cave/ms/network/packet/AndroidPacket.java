@@ -49,7 +49,7 @@ public class AndroidPacket {
     public static OutPacket move(Android android, MovementInfo mi) {
         OutPacket outPacket = new OutPacket();
         outPacket.writeShort(SendOpcode.ANDROID_MOVE.getValue());
-        outPacket.write(android.getOwner().getId());
+        outPacket.writeInt(android.getOwner().getId());
         mi.encode(outPacket);
         return outPacket;
     }
