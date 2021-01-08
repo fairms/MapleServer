@@ -33,19 +33,19 @@ public class NpcShop {
         this.items = items;
     }
 
-    public void encode(OutPacket outPacket, List<NpcShopItem> repurchaseItems) {
-        outPacket.writeZeroBytes(20);
-        outPacket.writeInt(DateUtil.getTime());
-        outPacket.writeBool(false);
-        outPacket.writeShort(items.size() + repurchaseItems.size());
-        items.forEach(npcShopItem -> npcShopItem.encode(outPacket));
+    public void encode(OutPacket out, List<NpcShopItem> repurchaseItems) {
+        out.writeZeroBytes(20);
+        out.writeInt(DateUtil.getTime());
+        out.writeBool(false);
+        out.writeShort(items.size() + repurchaseItems.size());
+        items.forEach(npcShopItem -> npcShopItem.encode(out));
         ListIterator<NpcShopItem> itemListIterator;
         for (itemListIterator = repurchaseItems.listIterator(); itemListIterator.hasNext(); ) {
             itemListIterator.next();
         }
         while (itemListIterator.hasPrevious()) {
             NpcShopItem shopItem = itemListIterator.previous();
-            shopItem.encode(outPacket);
+            shopItem.encode(out);
         }
     }
 

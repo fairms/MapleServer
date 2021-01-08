@@ -2,7 +2,6 @@ package im.cave.ms.provider.data;
 
 import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.client.quest.Quest;
-import im.cave.ms.client.quest.QuestInfo;
 import im.cave.ms.client.quest.progress.QuestProgressItemRequirement;
 import im.cave.ms.client.quest.progress.QuestProgressLevelRequirement;
 import im.cave.ms.client.quest.progress.QuestProgressMobRequirement;
@@ -21,6 +20,7 @@ import im.cave.ms.client.quest.reward.QuestMoneyReward;
 import im.cave.ms.client.quest.reward.QuestPopReward;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.QuestStatus;
+import im.cave.ms.provider.info.QuestInfo;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataProvider;
 import im.cave.ms.provider.wz.MapleDataProviderFactory;
@@ -605,7 +605,4 @@ public class QuestData {
 
     }
 
-    public static void init() {
-        loadQuests();
-    }
 }

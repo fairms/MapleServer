@@ -28,7 +28,7 @@ public class LoginServer extends AbstractServer {
         port = 8484;
         acceptor = new ServerAcceptor(this);
         new Thread(acceptor).start();
-        log.info("Login server listening on port {}", port);
+        log.info("登陆服务器启动成功 监听端口： {}", port);
     }
 
     public static LoginServer getInstance() {

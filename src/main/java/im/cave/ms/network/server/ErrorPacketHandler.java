@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
 public class ErrorPacketHandler {
     private static final Logger log = LoggerFactory.getLogger(ErrorPacketHandler.class);
 
-    public static void handlePacket(InPacket inPacket) {
-        inPacket.skip(6);
-        short packetLength = inPacket.readShort();
-        inPacket.skip(4);
-        int op = inPacket.readShort();
-        byte[] packet = inPacket.read(packetLength - 6);
+    public static void handlePacket(InPacket in) {
+        in.skip(6);
+        short packetLength = in.readShort();
+        in.skip(4);
+        int op = in.readShort();
+        byte[] packet = in.read(packetLength - 6);
         log.error("Send error opcode {} packet {} ", Integer.toHexString(op), packet);
     }
 }

@@ -20,11 +20,11 @@ public class JobConstants {
     }
 
     public static boolean isPinkBean(short job) {
-        return job == JobEnum.PINK_BEAN_0.getJobId() || job == JobEnum.PINK_BEAN_1.getJobId();
+        return job == JobEnum.PINK_BEAN_0.getJob() || job == JobEnum.PINK_BEAN_1.getJob();
     }
 
     public static JobEnum getJobEnumById(short jobId) {
-        return Arrays.stream(JobEnum.values()).filter(job -> job.getJobId() == jobId)
+        return Arrays.stream(JobEnum.values()).filter(job -> job.getJob() == jobId)
                 .findFirst().orElse(null);
     }
 
@@ -33,7 +33,7 @@ public class JobConstants {
     }
 
     public static boolean isAngelicBuster(int id) {
-        return id == JobConstants.JobEnum.ANGELIC_BUSTER.getJobId() || id / 100 == 65;
+        return id == JobConstants.JobEnum.ANGELIC_BUSTER.getJob() || id / 100 == 65;
     }
 
     public static boolean isBlazeWizard(short job) {
@@ -89,7 +89,7 @@ public class JobConstants {
     }
 
     public static boolean isJett(short job) {
-        return job / 10 == 57 || job == JobEnum.JETT1.getJobId();
+        return job / 10 == 57 || job == JobEnum.JETT1.getJob();
     }
 
     public static boolean isDemonSlayer(short job) {
@@ -101,11 +101,11 @@ public class JobConstants {
     }
 
     public static boolean isKanna(short id) {
-        return id == JobConstants.JobEnum.KANNA.getJobId() || id / 100 == 42;
+        return id == JobConstants.JobEnum.KANNA.getJob() || id / 100 == 42;
     }
 
     public static boolean isHayato(short id) {
-        return id == JobConstants.JobEnum.HAYATO.getJobId() || id / 100 == 41;
+        return id == JobConstants.JobEnum.HAYATO.getJob() || id / 100 == 41;
     }
 
     public static boolean isNightWalker(short id) {
@@ -121,7 +121,7 @@ public class JobConstants {
     }
 
     public static boolean isShade(short id) {
-        return id == JobEnum.SHADE.getJobId() || id / 100 == 25;
+        return id == JobEnum.SHADE.getJob() || id / 100 == 25;
     }
 
     public static boolean isWindArcher(short id) {
@@ -189,11 +189,11 @@ public class JobConstants {
     }
 
     public static boolean isMechanic(short id) {
-        return id >= JobConstants.JobEnum.MECHANIC_1.getJobId() && id <= JobConstants.JobEnum.MECHANIC_4.getJobId();
+        return id >= JobConstants.JobEnum.MECHANIC_1.getJob() && id <= JobConstants.JobEnum.MECHANIC_4.getJob();
     }
 
     public static boolean isBattleMage(short id) {
-        return id >= JobConstants.JobEnum.BATTLE_MAGE_1.getJobId() && id <= JobConstants.JobEnum.BATTLE_MAGE_4.getJobId();
+        return id >= JobConstants.JobEnum.BATTLE_MAGE_1.getJob() && id <= JobConstants.JobEnum.BATTLE_MAGE_4.getJob();
     }
 
     public static boolean isGmJob(short id) {
@@ -201,11 +201,11 @@ public class JobConstants {
     }
 
     public static boolean isGm(short id) {
-        return id == JobEnum.GM.getJobId();
+        return id == JobEnum.GM.getJob();
     }
 
     public static boolean isSuperGm(short id) {
-        return id == JobEnum.SUPER_GM.getJobId();
+        return id == JobEnum.SUPER_GM.getJob();
     }
 
     public enum JobEnum {
@@ -468,7 +468,7 @@ public class JobConstants {
             this((short) jobId, (short) beginnerJobId);
         }
 
-        public short getJobId() {
+        public short getJob() {
             return jobId;
         }
 
@@ -477,7 +477,7 @@ public class JobConstants {
         }
 
         public static JobEnum getJobById(short id) {
-            return Arrays.stream(JobEnum.values()).filter(j -> j.getJobId() == id).findAny().orElse(null);
+            return Arrays.stream(JobEnum.values()).filter(j -> j.getJob() == id).findAny().orElse(null);
         }
 
     }
@@ -631,7 +631,7 @@ public class JobConstants {
         return jobId / 100 == 24 || jobId == 2003;
     }
 
-    public static boolean iinPacketder(short jobId) {
+    public static boolean iinder(short jobId) {
         return jobId / 1000 == 5;
     }
 
@@ -640,7 +640,7 @@ public class JobConstants {
     }
 
     public static boolean isKaiser(short jobId) {
-        return jobId == JobConstants.JobEnum.KAISER.getJobId() || jobId / 100 == 61;
+        return jobId == JobConstants.JobEnum.KAISER.getJob() || jobId / 100 == 61;
     }
 
     public static boolean isZero(short jobId) {
@@ -668,15 +668,15 @@ public class JobConstants {
     }
 
     public static boolean isCadena(short jobId) {
-        return jobId == JobEnum.CADENA.getJobId() || jobId == JobEnum.CADENA1.getJobId() || jobId == JobEnum.CADENA2.getJobId() || jobId == JobEnum.CADENA3.getJobId() || jobId == JobEnum.CADENA4.getJobId();
+        return jobId == JobEnum.CADENA.getJob() || jobId == JobEnum.CADENA1.getJob() || jobId == JobEnum.CADENA2.getJob() || jobId == JobEnum.CADENA3.getJob() || jobId == JobEnum.CADENA4.getJob();
     }
 
     public static boolean isIllium(short jobId) {
-        return jobId == JobEnum.ILLIUM.getJobId() || jobId == JobEnum.ILLIUM1.getJobId() || jobId == JobEnum.ILLIUM2.getJobId() || jobId == JobEnum.ILLIUM3.getJobId() || jobId == JobEnum.ILLIUM4.getJobId();
+        return jobId == JobEnum.ILLIUM.getJob() || jobId == JobEnum.ILLIUM1.getJob() || jobId == JobEnum.ILLIUM2.getJob() || jobId == JobEnum.ILLIUM3.getJob() || jobId == JobEnum.ILLIUM4.getJob();
     }
 
     public static boolean isArk(short jobId) {
-        return jobId == JobEnum.ARK.getJobId() || jobId == JobEnum.ARK1.getJobId() || jobId == JobEnum.ARK2.getJobId() || jobId == JobEnum.ARK3.getJobId() || jobId == JobEnum.ARK4.getJobId();
+        return jobId == JobEnum.ARK.getJob() || jobId == JobEnum.ARK1.getJob() || jobId == JobEnum.ARK2.getJob() || jobId == JobEnum.ARK3.getJob() || jobId == JobEnum.ARK4.getJob();
     }
 
     public static boolean isBeginnerJob(short jobId) {

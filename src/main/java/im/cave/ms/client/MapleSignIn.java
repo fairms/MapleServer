@@ -1,6 +1,6 @@
 package im.cave.ms.client;
 
-import im.cave.ms.config.Config;
+import im.cave.ms.configs.Config;
 import im.cave.ms.constants.QuestConstants;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
@@ -8,8 +8,8 @@ import im.cave.ms.network.packet.opcode.SendOpcode;
 import java.util.ArrayList;
 import java.util.List;
 
-import static im.cave.ms.constants.GameConstants.MAX_TIME;
-import static im.cave.ms.constants.GameConstants.ZERO_TIME;
+import static im.cave.ms.constants.ServerConstants.MAX_TIME;
+import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
 
 /**
  * @author fair
@@ -32,32 +32,32 @@ public class MapleSignIn {
 
 
     public static OutPacket getRewardPacket() {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SIGNIN_REWARDS.getValue());
-        outPacket.write(0);
-        outPacket.write(1);
-        outPacket.writeLong(ZERO_TIME);
-        outPacket.writeLong(MAX_TIME);
-        outPacket.writeLong(signRewards.size());
-        outPacket.writeInt(QuestConstants.QUEST_EX_MOB_KILL_COUNT);
-        outPacket.writeInt(QuestConstants.MOB_KILL_COUNT_MAX);
-        outPacket.writeInt(signRewards.size());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SIGNIN_REWARDS.getValue());
+        out.write(0);
+        out.write(1);
+        out.writeLong(ZERO_TIME);
+        out.writeLong(MAX_TIME);
+        out.writeLong(signRewards.size());
+        out.writeInt(QuestConstants.QUEST_EX_MOB_KILL_COUNT);
+        out.writeInt(QuestConstants.MOB_KILL_COUNT_MAX);
+        out.writeInt(signRewards.size());
         for (SignInRewardInfo signReward : signRewards) {
-            outPacket.writeInt(signReward.getRank());
-            outPacket.writeInt(signReward.getItemId());
-            outPacket.writeInt(signReward.getQuantity());
+            out.writeInt(signReward.getRank());
+            out.writeInt(signReward.getItemId());
+            out.writeInt(signReward.getQuantity());
             if (signReward.getExpiredTime() > 0) {
-                outPacket.writeInt(1);
-                outPacket.writeInt(signReward.getExpiredTime());
+                out.writeInt(1);
+                out.writeInt(signReward.getExpiredTime());
             } else {
-                outPacket.writeLong(0);
+                out.writeLong(0);
             }
-            outPacket.writeInt(signReward.isCash);
-            outPacket.writeZeroBytes(6);
+            out.writeInt(signReward.isCash);
+            out.writeZeroBytes(6);
         }
-        outPacket.writeInt(MIN_LEVEL);
-        outPacket.writeZeroBytes(12);
-        return outPacket;
+        out.writeInt(MIN_LEVEL);
+        out.writeZeroBytes(12);
+        return out;
     }
 
     public static void initSignRewards() {
@@ -65,11 +65,11 @@ public class MapleSignIn {
     }
 
     public static OutPacket getSignInRewardPacket(int type, int itemId) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.write(2);
-        outPacket.writeInt(type);
-        outPacket.writeInt(itemId);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.write(2);
+        out.writeInt(type);
+        out.writeInt(itemId);
+        return out;
     }
 
     public static class SignInRewardInfo {

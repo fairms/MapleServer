@@ -28,13 +28,13 @@ public class QuestConstants {
     public static final int QUEST_EX_SOUL_EFFECT = 26535;
     //超时空卷
     public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_MAX = 16700;
-    public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED = 999991;
-
-    //签到月份 //enter=202101
-    public static final int SHARE_QUEST_EX_SIGNIN_MONTH = 6;
+    public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED = 999991; //count=0;date=20210112
+    public static final int QUEST_EX_MAP_TRANSFER_COUPON_CASH_HAVE = 999992; //count=40
+    //签到月份
+    public static final int SHARE_QUEST_EX_SIGNIN_MONTH = 6; //enter=202101
     //账号签到记录
     public static final int SHARE_QUEST_EX_SIGNIN_LOG = 7;
-    //账号在线时间 //date=20210103;OnlineTime=138
-    public static final int SHARE_QUEST_EX_ONLINE_TIME = 900100;
+    //账号在线时间
+    public static final int SHARE_QUEST_EX_ONLINE_TIME = 900100; //date=20210103;OnlineTime=138
 
 }

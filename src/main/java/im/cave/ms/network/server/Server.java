@@ -3,8 +3,8 @@ package im.cave.ms.network.server;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.config.Config;
-import im.cave.ms.config.WorldConfig;
+import im.cave.ms.configs.Config;
+import im.cave.ms.configs.WorldConfig;
 import im.cave.ms.network.server.cashshop.CashShopServer;
 import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.network.server.login.LoginServer;
@@ -71,34 +71,36 @@ public class Server {
     }
 
     public void init() {
-        log.info("Starting server.");
+        log.info("开始启动服务器.");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            //todo
+
         }));
         loginServer = LoginServer.getInstance();
         for (WorldConfig.WorldInfo worldInfo : Config.worldConfig.worlds) {
-            log.info("World-{} is 开始启动", worldInfo.id);
+            log.info("世界-{} 开始启动", worldInfo.id);
             World world = new World(worldInfo.id, worldInfo.event_message);
             if (world.init()) {
                 worlds.add(world);
-                log.info("World-{} is 正在运行", world.getId());
+                log.info("世界-{} 启动成功", world.getId());
+                for (MapleChannel channel : world.getChannels()) {
+                    log.info("频道-{} 监听端口：{}", channel.getChannelId(), channel.getPort());
+                }
+                log.info("商城服务器启动成功 监听端口：{}", world.getCashShop().getPort());
             } else {
-                log.info("World-{} 启动失败", worldInfo.id);
+                log.info("世界-{} 启动失败", world.getId());
+                return;
             }
         }
         //加载WZ
-        EventManager.addEvent(StringData::init, 0);
-        EventManager.addEvent(QuestData::init, 0);
-        EventManager.addEvent(ItemData::init, 0);
-        EventManager.addEvent(MobData::init, 0);
-
+        EventManager.addEvent(this::initDataProvider, 0);
         online = true;
     }
 
-    private void worldInit() {
-        for (World world : worlds) {
-            world.init();
-        }
+    private void initDataProvider() {
+        StringData.init();
+        MobData.init();
+        ItemData.init();
+        QuestData.loadQuests();
     }
 
     public boolean isAccountLoggedIn(Account account) {

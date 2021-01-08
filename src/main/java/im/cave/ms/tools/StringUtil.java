@@ -27,9 +27,7 @@ public class StringUtil {
     }
 
     public static String getRightPaddedStr(String in, char padchar, int length) { //右
-        StringBuilder builder = new StringBuilder(in);
-        builder.append(String.valueOf(padchar).repeat(Math.max(0, length - in.getBytes().length)));
-        return builder.toString();
+        return in + String.valueOf(padchar).repeat(Math.max(0, length - in.getBytes().length));
     }
 
 

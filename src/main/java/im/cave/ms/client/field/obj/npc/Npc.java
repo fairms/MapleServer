@@ -65,19 +65,19 @@ public class Npc extends MapleMapObj {
         }
     }
 
-    public void encode(OutPacket outPacket) {
-        outPacket.writeShort(getPosition().getX());
-        outPacket.writeShort(getPosition().getY());
-        outPacket.writeBool(isMove());
-        outPacket.writeBool(!isFlip());
-        outPacket.writeShort(getFh());
-        outPacket.writeShort(getRx0());
-        outPacket.writeShort(getRx1());
-        outPacket.writeBool(!isHide());
+    public void encode(OutPacket out) {
+        out.writeShort(getPosition().getX());
+        out.writeShort(getPosition().getY());
+        out.writeBool(isMove());
+        out.writeBool(!isFlip());
+        out.writeShort(getFh());
+        out.writeShort(getRx0());
+        out.writeShort(getRx1());
+        out.writeBool(!isHide());
         //todo
-        outPacket.writeZeroBytes(9);
-        outPacket.writeInt(-1);
-        outPacket.writeZeroBytes(12);
+        out.writeZeroBytes(9);
+        out.writeInt(-1);
+        out.writeZeroBytes(12);
     }
 
     public Npc deepCopy() {

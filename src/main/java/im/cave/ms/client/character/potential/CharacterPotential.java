@@ -1,6 +1,6 @@
 package im.cave.ms.client.character.potential;
 
-import im.cave.ms.client.skill.Skill;
+import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.provider.data.SkillData;
 
@@ -14,7 +14,7 @@ import java.util.Objects;
 
 
 @Entity
-@Table(name = "character_potentials")
+@Table(name = "character_potential")
 public class CharacterPotential {
 
     @Id
@@ -76,11 +76,11 @@ public class CharacterPotential {
         this.grade = grade;
     }
 
-    public void encode(OutPacket outPacket) {
-        outPacket.write(getKey());
-        outPacket.writeInt(getSkillID());
-        outPacket.write(getSlv());
-        outPacket.write(getGrade());
+    public void encode(OutPacket out) {
+        out.write(getKey());
+        out.writeInt(getSkillID());
+        out.write(getSlv());
+        out.write(getGrade());
     }
 
     @Override

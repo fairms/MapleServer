@@ -5,9 +5,8 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.potential.CharacterPotential;
+import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
-import im.cave.ms.client.skill.AttackInfo;
-import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
@@ -17,6 +16,7 @@ import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.info.SkillInfo;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -158,7 +158,7 @@ public abstract class MapleJob {
 //        }
     }
 
-    public void handleSkill(MapleClient c, int skillId, int slv, InPacket inPacket) {
+    public void handleSkill(MapleClient c, int skillId, int slv, InPacket in) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         MapleCharacter chr = c.getPlayer();
         SkillInfo si = SkillData.getSkillInfo(skillId);
@@ -172,14 +172,14 @@ public abstract class MapleJob {
             //todo
             EventManager.addEvent(() -> c.announce(UserPacket.skillCoolDown(skillId)), cooltime, TimeUnit.SECONDS);
         }
-        if (inPacket != null && isBuff(skillId)) {
-            handleJobLessBuff(c, inPacket, skillId, slv);
+        if (in != null && isBuff(skillId)) {
+            handleJobLessBuff(c, in, skillId, slv);
         } else {
 
         }
     }
 
-    public void handleJobLessBuff(MapleClient c, InPacket inPacket, int skillId, int slv) {
+    public void handleJobLessBuff(MapleClient c, InPacket in, int skillId, int slv) {
         MapleCharacter player = c.getPlayer();
         SkillInfo skillInfo = SkillData.getSkillInfo(skillId);
         TemporaryStatManager tsm = player.getTemporaryStatManager();
@@ -240,7 +240,7 @@ public abstract class MapleJob {
 
     }
 
-//    public void handleJoblessBuff(MapleClient c, InPacket inPacket, int skillID, byte slv) {
+//    public void handleJoblessBuff(MapleClient c, InPacket in, int skillID, byte slv) {
 //        MapleCharacter chr = c.getChr();
 //        SkillInfo si = SkillData.getSkillInfoById(skillID);
 //        TemporaryStatManager tsm = c.getChr().getTemporaryStatManager();
@@ -296,22 +296,22 @@ public abstract class MapleJob {
      * Handles the initial part of a hit, the initial packet processing.
      *
      * @param c        The MapleClient
-     * @param inPacket The packet to be processed
+     * @param in The packet to be processed
      */
-//    public void handleHit(MapleClient c, InPacket inPacket) {
-//        int idk1 = inPacket.decodeInt();
-//        inPacket.decodeInt(); // tick
-//        byte idk2 = inPacket.decodeByte(); // -1?
-//        byte idk3 = inPacket.decodeByte();
-//        int damage = inPacket.decodeInt();
-//        short idk4 = inPacket.decodeShort();
+//    public void handleHit(MapleClient c, InPacket in) {
+//        int idk1 = in.decodeInt();
+//        in.decodeInt(); // tick
+//        byte idk2 = in.decodeByte(); // -1?
+//        byte idk3 = in.decodeByte();
+//        int damage = in.decodeInt();
+//        short idk4 = in.decodeShort();
 //        int templateID = 0;
 //        int mobID = 0;
-//        if (inPacket.getUnreadAmount() >= 13) {
-//            templateID = inPacket.decodeInt();
-//            mobID = inPacket.decodeInt();
-//            boolean left = inPacket.decodeByte() != 0;
-//            int skillID = inPacket.decodeInt();
+//        if (in.getUnreadAmount() >= 13) {
+//            templateID = in.decodeInt();
+//            mobID = in.decodeInt();
+//            boolean left = in.decodeByte() != 0;
+//            int skillID = in.decodeInt();
 //        }
 //
 //        HitInfo hitInfo = new HitInfo();
@@ -323,7 +323,7 @@ public abstract class MapleJob {
 //            return;
 //        }
 //
-//        handleHit(c, inPacket, hitInfo);
+//        handleHit(c, in, hitInfo);
 //        handleHit(c, hitInfo);
 //    }
 
@@ -431,10 +431,10 @@ public abstract class MapleJob {
      * and puts this info in <code>hitInfo</code>.
      *
      * @param c        The MapleClient
-     * @param inPacket packet to be processed
+     * @param in packet to be processed
      * @param hitInfo  The hit info that should be altered if necessary
      */
-//    public void handleHit(MapleClient c, InPacket inPacket, HitInfo hitInfo) {
+//    public void handleHit(MapleClient c, InPacket in, HitInfo hitInfo) {
 //        MapleCharacter chr = c.getChr();
 //        TemporaryStatManager tsm = chr.getTemporaryStatManager();
 //
@@ -556,11 +556,11 @@ public abstract class MapleJob {
 //            }
 //        }
 
-        int[][] incVal = GameConstants.getIncValArray(chr.getJob().getJobId());
+        int[][] incVal = GameConstants.getIncValArray(chr.getJob());
         if (incVal != null) {
             chr.addStat(MapleStat.MAXHP, incVal[0][1]);
             stats.put(MapleStat.MAXHP, (long) chr.getMaxHP());
-            if (!JobConstants.isNoManaJob(chr.getJob().getJobId())) {
+            if (!JobConstants.isNoManaJob(chr.getJob())) {
                 chr.addStat(MapleStat.MAXMP, incVal[3][0]);
                 stats.put(MapleStat.MAXMP, (long) chr.getMaxMP());
             }

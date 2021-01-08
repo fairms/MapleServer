@@ -3,7 +3,7 @@ package im.cave.ms.network.packet;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.config.Config;
+import im.cave.ms.configs.Config;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.LoginType;
@@ -34,91 +34,90 @@ import static im.cave.ms.enums.ServerType.LOGIN;
  */
 public class LoginPacket {
 
-    public static OutPacket clientAuth() {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(0x2C);
-        outPacket.write(0);
-        return outPacket;
+    public static OutPacket sendStart() {
+        OutPacket out = new OutPacket(SendOpcode.CLIENT_START);
+        out.write(0);
+        return out;
     }
 
-    public static OutPacket getHello(int sendIv, int recvIv, ServerType type) {
-        OutPacket outPacket = new OutPacket();
+    public static OutPacket getHello(MapleClient c, ServerType type) {
+        OutPacket out = new OutPacket();
         if (type == LOGIN) {
-            outPacket.writeShort(0x1E);
+            out.writeShort(0x1E);
             for (int i = 0; i < 2; i++) {
-                outPacket.writeShort(VERSION);
-                outPacket.writeMapleAsciiString(PATH);
-                outPacket.writeInt(recvIv);
-                outPacket.writeInt(sendIv);
-                outPacket.writeShort(4);
+                out.writeShort(VERSION);
+                out.writeMapleAsciiString(PATH);
+                out.writeInt(c.getRecvIv());
+                out.writeInt(c.getSendIv());
+                out.writeShort(4);
             }
         } else {
-            outPacket.writeShort(0x0E);
-            outPacket.writeShort(VERSION);
-            outPacket.writeMapleAsciiString(PATH);
-            outPacket.writeInt(recvIv);
-            outPacket.writeInt(sendIv);
-            outPacket.write(4);
+            out.writeShort(0x0E);
+            out.writeShort(VERSION);
+            out.writeMapleAsciiString(PATH);
+            out.writeInt(c.getRecvIv());
+            out.writeInt(c.getSendIv());
+            out.write(4);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket getOpenCreateChar() {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.OPEN_CREATE_CHAR.getValue());
-        outPacket.write(4);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.OPEN_CREATE_CHAR.getValue());
+        out.write(4);
+        return out;
     }
 
-    public static OutPacket checkNameResponse(String name, byte state) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CHAR_NAME_RESPONSE.getValue());
-        outPacket.writeMapleAsciiString(name);
-        outPacket.write(state);
-        return outPacket;
+    public static OutPacket checkDuplicatedIDResult(String name, byte state) {
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.CHECK_DUPLICATED_ID_RESULT.getValue());
+        out.writeMapleAsciiString(name);
+        out.write(state);
+        return out;
     }
 
     public static OutPacket loginResult(MapleClient c, LoginType result) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.LOGIN_STATUS.getValue());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.LOGIN_STATUS.getValue());
         if (result == LoginType.Success) {
-            outPacket.write(0);
-            outPacket.writeMapleAsciiString(c.getAccount().getAccount());
-            outPacket.writeLong(0);
-            outPacket.writeInt(c.getAccount().getId());
-            outPacket.writeBool(false);
-            outPacket.writeLong(128);
-            outPacket.writeShort(3);
-            outPacket.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
-            outPacket.writeZeroBytes(11);
-            outPacket.writeShort(8449);
+            out.write(0);
+            out.writeMapleAsciiString(c.getAccount().getAccount());
+            out.writeLong(0);
+            out.writeInt(c.getAccount().getId());
+            out.writeBool(false);
+            out.writeLong(128);
+            out.writeShort(3);
+            out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+            out.writeZeroBytes(11);
+            out.writeShort(8449);
             for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
-                outPacket.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
-                outPacket.writeShort(1);
+                out.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJob()) ? 0 : job.getFlag());
+                out.writeShort(1);
             }
-            outPacket.write(0);
-            outPacket.writeInt(-1);
-            outPacket.writeBool(true);
-            outPacket.writeShort(0);
-            outPacket.writeMapleAsciiString(c.getAccount().getAccount());
-            outPacket.write(1);
-            outPacket.write(1);
-            outPacket.write(1);
-            outPacket.write(0);
+            out.write(0);
+            out.writeInt(-1);
+            out.writeBool(true);
+            out.writeShort(0);
+            out.writeMapleAsciiString(c.getAccount().getAccount());
+            out.write(1);
+            out.write(1);
+            out.write(1);
+            out.write(0);
         } else {
-            outPacket.write(result.getValue());
+            out.write(result.getValue());
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket serverListBg() {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SERVER_LIST_BG.getValue());
-        outPacket.write(0);
-        outPacket.writeMapleAsciiString("default");
-        outPacket.write(1);
-        outPacket.writeLong(0);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SERVER_LIST_BG.getValue());
+        out.write(0);
+        out.writeMapleAsciiString("default");
+        out.write(1);
+        out.writeLong(0);
+        return out;
     }
 
     public static List<OutPacket> serverList() {
@@ -126,127 +125,126 @@ public class LoginPacket {
         List<World> worlds = server.getWorlds();
         List<OutPacket> serverList = new ArrayList<>();
         for (World world : worlds) {
-            OutPacket outPacket = new OutPacket();
-            outPacket.writeShort(SendOpcode.SERVERLIST.getValue());
-            outPacket.writeShort(world.getId());
-            outPacket.writeMapleAsciiString("World-" + world.getId());
-            outPacket.writeZeroBytes(8);
-            outPacket.writeShort(512);
-            outPacket.writeMapleAsciiString(world.getEventMessage());
-            outPacket.write(world.getChannelsSize());
-            outPacket.writeInt(500);
+            OutPacket out = new OutPacket();
+            out.writeShort(SendOpcode.SERVERLIST.getValue());
+            out.writeShort(world.getId());
+            out.writeMapleAsciiString("World-" + world.getId());
+            out.writeZeroBytes(8);
+            out.writeShort(512);
+            out.writeMapleAsciiString(world.getEventMessage());
+            out.write(world.getChannelsSize());
+            out.writeInt(500);
             List<MapleChannel> worldChannels = world.getChannels();
             for (MapleChannel ch : worldChannels) {
-                outPacket.writeMapleAsciiString("World-" + world.getId() + "-" + ch.getChannelId());
-                outPacket.writeInt(ch.getChannelCapacity());
-                outPacket.write(world.getId());
-                outPacket.writeShort(ch.getChannelId());
+                out.writeMapleAsciiString("World-" + world.getId() + "-" + ch.getChannelId());
+                out.writeInt(ch.getChannelCapacity());
+                out.write(world.getId());
+                out.writeShort(ch.getChannelId());
             }
-            outPacket.writeZeroBytes(12);
-            serverList.add(outPacket);
+            out.writeZeroBytes(12);
+            serverList.add(out);
         }
         return serverList;
 
     }
 
     public static OutPacket serverListEnd() {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SERVERLIST.getValue());
-        outPacket.writeShort(-1);
-        outPacket.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
-        outPacket.writeLong(0);
-        outPacket.writeShort(0);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SERVERLIST.getValue());
+        out.writeShort(-1);
+        out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+        out.writeLong(0);
+        out.writeShort(0);
+        return out;
     }
 
     public static OutPacket serverStatus(int worldId) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SERVERSTATUS.getValue());
-        outPacket.write(0);
-        outPacket.writeInt(worldId);
-        outPacket.writeInt(2);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SERVERSTATUS.getValue());
+        out.write(0);
+        out.writeInt(worldId);
+        out.writeInt(2);
+        return out;
     }
 
     public static OutPacket account(Account account) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.ACCOUNT.getValue());
-        outPacket.writeLong(0);
-        outPacket.writeMapleAsciiString(account.getAccount());
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.ACCOUNT.getValue());
+        out.writeLong(0);
+        out.writeMapleAsciiString(account.getAccount());
+        return out;
     }
 
-    public static OutPacket charList(MapleClient c, List<MapleCharacter> characters, int status) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CHARLIST.getValue());
-        outPacket.write(status);
-        outPacket.writeMapleAsciiString("Normal");
-        outPacket.writeMapleAsciiString("Normal");
-        outPacket.writeZeroBytes(6);
-        List<MapleCharacter> deletedChars = characters.stream().filter(MapleCharacter::isDeleted).collect(Collectors.toList());
-        outPacket.writeInt(deletedChars.size());
-        outPacket.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
+    public static OutPacket charactersList(MapleClient c, List<MapleCharacter> characters, int status) {
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.CHARLIST.getValue());
+        out.write(status);
+        out.writeMapleAsciiString("Normal");
+        out.writeMapleAsciiString("Normal");
+        out.writeZeroBytes(6);
+        List<MapleCharacter> deletedChars = characters.stream().filter(chr -> chr.getDeleteTime() != 0).collect(Collectors.toList());
+        out.writeInt(deletedChars.size());
+        out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
         for (MapleCharacter deletedChar : deletedChars) {
-            outPacket.writeInt(deletedChar.getId());
-            outPacket.writeLong(DateUtil.getFileTime(deletedChar.getDeleteTime()));
+            out.writeInt(deletedChar.getId());
+            out.writeLong(deletedChar.getDeleteTime());
         }
-        outPacket.write(0);
-        outPacket.writeInt(characters.size());
+        out.write(0);
+        out.writeInt(characters.size());
         for (MapleCharacter character : characters) {
-            outPacket.writeInt(character.getId());
+            out.writeInt(character.getId());
         }
-        outPacket.writeZeroBytes(9);
-        outPacket.write(characters.size());
-        characters.forEach(chr -> PacketHelper.addCharEntry(outPacket, chr));
-        outPacket.write(0); // bLoginOpt
-        outPacket.write(0); // bQuerySSNOnCreateNewCharacter
-        outPacket.writeInt(c.getAccount().getCharacterSlots());
-        outPacket.writeInt(0); // buying char slots
-        outPacket.writeInt(-1); // nEventNewCharJob
-        outPacket.writeReversedLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
-        outPacket.write(0);
-        outPacket.write(1);
-        outPacket.write(0);
-        outPacket.writeZeroBytes(8);
-        outPacket.writeInt(327680);
-        outPacket.writeInt(553713664);
+        out.writeZeroBytes(9);
+        out.write(characters.size());
+        characters.forEach(chr -> PacketHelper.addCharEntry(out, chr));
+        out.write(0); // bLoginOpt
+        out.write(0); // bQuerySSNOnCreateNewCharacter
+        out.writeInt(c.getAccount().getCharacterSlots());
+        out.writeInt(0); // buying char slots
+        out.writeInt(-1); // nEventNewCharJob
+        out.writeReversedLong(DateUtil.getFileTime(System.currentTimeMillis()));
+        out.write(0);
+        out.write(1);
+        out.write(0);
+        out.writeZeroBytes(8);
+        out.writeInt(327680);
+        out.writeInt(553713664);
         for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
-            outPacket.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
-            outPacket.writeShort(1);
+            out.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJob()) ? 0 : job.getFlag());
+            out.writeShort(1);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket selectCharacterResult(LoginType loginType, byte errorCode, int port, int charId) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SERVER_IP.getValue());
-        outPacket.write(loginType.getValue());
-        outPacket.write(errorCode);
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SELECT_CHARACTER_RESULT.getValue());
+        out.write(loginType.getValue());
+        out.write(errorCode);
         if (loginType.equals(LoginType.Success)) {
-            outPacket.write(ServerConstants.NEXON_IP);
-            outPacket.writeShort(port);
-            outPacket.writeInt(0);
-            outPacket.writeInt(charId);
-            outPacket.writeInt(0);
-            outPacket.writeShort(5120);
-            outPacket.writeShort(1000);
-            outPacket.writeZeroBytes(6);
+            out.write(ServerConstants.NEXON_IP);
+            out.writeShort(port);
+            out.writeInt(0);
+            out.writeInt(charId);
+            out.writeInt(0);
+            out.writeShort(5120);
+            out.writeLong(1000);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket ping(ServerType type) {
-        OutPacket outPacket = new OutPacket();
+        OutPacket out = new OutPacket();
         if (type == LOGIN) {
-            outPacket.writeShort(SendOpcode.PING.getValue());
+            out.writeShort(SendOpcode.PING.getValue());
         } else {
-            outPacket.writeShort(SendOpcode.CPING.getValue());
+            out.writeShort(SendOpcode.CPING.getValue());
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket changePlayer(MapleClient c) {
-        OutPacket outPacket = new OutPacket();
+        OutPacket out = new OutPacket();
         char[] ss = new char[256];
         int i = 0;
         while (i < ss.length) {
@@ -262,65 +260,74 @@ public class LoginPacket {
         }
         String key = new String(ss);
         LoginServer.getInstance().putLoginAuthKey(key, c.getAccount().getAccount(), c.getChannel());
-        outPacket.writeShort(SendOpcode.CHANGE_CHAR_KEY.getValue());
-        outPacket.writeMapleAsciiString(key);
-        return outPacket;
+        out.writeShort(SendOpcode.CHANGE_CHAR_KEY.getValue());
+        out.writeMapleAsciiString(key);
+        return out;
     }
 
     public static OutPacket authSuccess(MapleClient c) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.AUTH_SUCCESS.getValue());
-        outPacket.write(0);
-        outPacket.writeInt(c.getAccount().getId());
-        outPacket.write(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.write(3);
-        outPacket.write(0);
-        outPacket.writeLong(DateUtil.getFileTimestamp(System.currentTimeMillis()));
-        outPacket.writeLong(0);
-        outPacket.write(0);
-        outPacket.writeMapleAsciiString(c.getAccount().getAccount());
-        outPacket.writeShort(0);
-        outPacket.write(1);
-        outPacket.write(33);
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.AUTH_SUCCESS.getValue());
+        out.write(0);
+        out.writeInt(c.getAccount().getId());
+        out.write(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.write(3);
+        out.write(0);
+        out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+        out.writeLong(0);
+        out.write(0);
+        out.writeMapleAsciiString(c.getAccount().getAccount());
+        out.writeShort(0);
+        out.write(1);
+        out.write(33);
         for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
-            outPacket.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJobId()) ? 0 : job.getFlag());
-            outPacket.writeShort(1);
+            out.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJob()) ? 0 : job.getFlag());
+            out.writeShort(1);
         }
-        outPacket.write(0);
-        outPacket.writeInt(-1);
-        outPacket.write(1);
-        return outPacket;
+        out.write(0);
+        out.writeInt(-1);
+        out.write(1);
+        return out;
     }
 
     public static OutPacket deleteTime(int charId) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.DELETE_CHAR_TIME.getValue());
-        outPacket.writeInt(charId);
-        outPacket.write(0);
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.DELETE_CHAR_TIME.getValue());
+        out.writeInt(charId);
+        out.write(0);
         long deleteTime = LocalDateTime.now().plusDays(3).toInstant(ZoneOffset.of("+8")).toEpochMilli();
-        outPacket.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
-        outPacket.writeLong(DateUtil.getFileTime(deleteTime));
-        return outPacket;
+        out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+        out.writeLong(DateUtil.getFileTime(deleteTime));
+        return out;
     }
 
     public static OutPacket cancelDeleteChar(int charId) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CANCEL_DELETE_CHAR.getValue());
-        outPacket.writeInt(charId);
-        outPacket.write(0);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.CANCEL_DELETE_CHAR.getValue());
+        out.writeInt(charId);
+        out.write(0);
+        return out;
     }
 
-    public static OutPacket charSlotsExpandResult(int i1, int point, boolean cash) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeInt(SendOpcode.CHAR_SLOTS_EXPAND_RESULT.getValue());
-        outPacket.writeInt(i1);
-        outPacket.writeInt(60);
-        outPacket.writeInt(point);
-        outPacket.write(1);
-        outPacket.writeShort(cash ? 0 : 1);
-        return outPacket;
+    public static OutPacket characterSlotsExpandResult(int i1, int point, boolean cash) {
+        OutPacket out = new OutPacket();
+        out.writeInt(SendOpcode.CHAR_SLOTS_EXPAND_RESULT.getValue());
+        out.writeInt(i1);
+        out.writeInt(60);
+        out.writeInt(point);
+        out.write(1);
+        out.writeShort(cash ? 0 : 1);
+        return out;
+    }
+
+    public static OutPacket createCharacterResult(LoginType type, MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.CREATE_NEW_CHARACTER_RESULT);
+        out.write(type.getValue());
+        if (type == LoginType.Success) {
+            PacketHelper.addCharEntry(out, chr);
+        }
+        return out;
     }
 }

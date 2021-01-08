@@ -19,5 +19,6 @@ spring:
 logging:
   level:
     root: error
-    im.cave.ms: debug
+    im.cave.ms.MsApplication: error
+    im.cave.ms: info
     org.hibernate: error

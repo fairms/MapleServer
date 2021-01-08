@@ -2,12 +2,14 @@ package im.cave.ms.network.server.login.handler;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.config.Config;
+import im.cave.ms.configs.Config;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
+import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.LoginPacket;
+import im.cave.ms.tools.DateUtil;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +26,12 @@ public class PasswordLoginHandler {
     private static int count = 0;
     private static final Logger log = LoggerFactory.getLogger(PasswordLoginHandler.class);
 
-    public static void handlePacket(MapleClient c, InPacket inPacket) {
+    public static void handlePacket(MapleClient c, InPacket in) {
         InetSocketAddress inSocket = (InetSocketAddress) c.getCh().remoteAddress();
         String clientIP = inSocket.getAddress().getHostAddress();
         byte[] machineId;
         String username;
         String password;
-        System.out.println(clientIP);
         if (clientIP.equals("221.231.130.70")) {
             machineId = new byte[16];
             username = "3378690678";
@@ -40,9 +41,9 @@ public class PasswordLoginHandler {
             username = "admin";
             password = "admin";
         } else {
-            machineId = inPacket.read(16);
-            username = inPacket.readMapleAsciiString();
-            password = inPacket.readMapleAsciiString();
+            machineId = in.read(16);
+            username = in.readMapleAsciiString();
+            password = in.readMapleAsciiString();
         }
         c.setMachineID(machineId);
         LoginType loginResult = c.login(username, password);
@@ -55,8 +56,10 @@ public class PasswordLoginHandler {
             count++;
             c.announce(LoginPacket.serverListEnd());
         } else if (loginResult == LoginType.NotRegistered && Config.serverConfig.AUTOMATIC_REGISTER) {
-            Account account = new Account(username, BCrypt.hashpw(password, BCrypt.gensalt(10)));
-            account.saveToDb();
+            Account account = Account.createAccount(username, BCrypt.hashpw(password, BCrypt.gensalt(10)));
+            account.save();
+            account = (Account) DataBaseManager.getObjFromDB(Account.class, account.getId());
+            account.setLastLogin(DateUtil.getFileTime(System.currentTimeMillis()));
             c.setAccount(account);
             c.setLoginStatus(LoginStatus.LOGGEDIN);
             c.announce(LoginPacket.loginResult(c, LoginType.Success));

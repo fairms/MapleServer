@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -24,8 +22,6 @@ import javax.persistence.Transient;
 @Table(name = "android")
 public class Android extends MapleMapObj {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
     private long itemId;
     @Transient
     private MapleCharacter owner;
@@ -35,21 +31,21 @@ public class Android extends MapleMapObj {
     private String name;
     private int type;
 
-    public void encode(OutPacket outPacket) {
-        outPacket.write(getType());
-        outPacket.writePosition(getPosition());
-        outPacket.write(getMoveAction());
-        outPacket.writeShort(getFh());
-        outPacket.writeInt(0);
-        encodeAndroidInfo(outPacket);
-        outPacket.writeZeroBytes(68);  //装备
+    public void encode(OutPacket out) {
+        out.write(getType());
+        out.writePosition(getPosition());
+        out.write(getMoveAction());
+        out.writeShort(getFh());
+        out.writeInt(0);
+        encodeAndroidInfo(out);
+        out.writeZeroBytes(68);  //装备
     }
 
 
-    public void encodeAndroidInfo(OutPacket outPacket) {
-        outPacket.writeShort(getSkin() >= 2000 ? getSkin() - 2000 : getSkin());
-        outPacket.writeShort(getHair() - 30000);
-        outPacket.writeShort(getFace() - 20000);
-        outPacket.writeMapleAsciiString(getName());
+    public void encodeAndroidInfo(OutPacket out) {
+        out.writeShort(getSkin() >= 2000 ? getSkin() - 2000 : getSkin());
+        out.writeShort(getHair() - 30000);
+        out.writeShort(getFace() - 20000);
+        out.writeMapleAsciiString(getName());
     }
 }

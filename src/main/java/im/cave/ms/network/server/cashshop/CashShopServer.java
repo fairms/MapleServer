@@ -1,7 +1,7 @@
 package im.cave.ms.network.server.cashshop;
 
-import im.cave.ms.client.cashshop.CashShopItem;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.items.CashShopItem;
 import im.cave.ms.enums.ServerType;
 import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.network.netty.ServerAcceptor;
@@ -32,7 +32,7 @@ public class CashShopServer extends AbstractServer {
     private AtomicInteger cashItemCounter;
 
     {
-        loadCashItemCounter();
+        initCashItemCounter();
     }
 
 
@@ -45,18 +45,17 @@ public class CashShopServer extends AbstractServer {
         new Thread(acceptor).start();
     }
 
-    private void loadCashItemCounter() {
+    private void initCashItemCounter() {
         try (Session session = DataBaseManager.getSession()) {
             Transaction transaction = session.beginTransaction();
-            BigInteger count = (BigInteger) session.createSQLQuery("SELECT MAX(sn) FROM maple.items").uniqueResult();
+            BigInteger count = (BigInteger) session.createSQLQuery("SELECT MAX(sn) FROM maple.item").uniqueResult();
             transaction.commit();
             session.close();
             if (count != null) {
-                cashItemCounter = new AtomicInteger(count.intValue());
+                cashItemCounter = new AtomicInteger(count.intValue() + 1);
             } else {
                 cashItemCounter = new AtomicInteger();
             }
-            log.info("Current cash item sn : {}", cashItemCounter.get());
         }
 
     }

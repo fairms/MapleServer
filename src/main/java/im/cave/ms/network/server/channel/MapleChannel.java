@@ -79,9 +79,9 @@ public class MapleChannel extends AbstractServer {
         return maps;
     }
 
-    public void broadcast(OutPacket outPacket) {
+    public void broadcast(OutPacket out) {
         for (MapleMap map : maps) {
-            map.broadcastMessage(outPacket);
+            map.broadcastMessage(out);
         }
     }
 

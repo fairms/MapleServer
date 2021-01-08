@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @date 11/27 20:39
  */
 @Entity
-@Table(name = "quests")
+@Table(name = "quest")
 @Getter
 @Setter
 public class Quest {

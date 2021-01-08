@@ -65,91 +65,91 @@ public class Effect {
     private int arg10;
     private int arg11;
 
-    public void encode(OutPacket outPacket) {
-        outPacket.write(getUserEffectType().getVal());
+    public void encode(OutPacket out) {
+        out.write(getUserEffectType().getVal());
 
         switch (getUserEffectType()) {
             case SkillUse:
             case SkillUseBySummoned:
-                writeSkillUse(outPacket); // too long to put here
+                writeSkillUse(out); // too long to put here
                 break;
             case SkillAffected:
                 int skillID = getArg1();
-                outPacket.writeInt(getArg1()); // skill id
-                outPacket.write(getArg2()); // slv
+                out.writeInt(getArg1()); // skill id
+                out.write(getArg2()); // slv
 //                if (skillID == Demon.RAVEN_STORM || skillID == Shade.DEATH_MARK) {
-//                    outPacket.writeInt(getArg3()); // nDelta
+//                    out.writeInt(getArg3()); // nDelta
 //                }
                 break;
             case SkillAffected_Select:
-                outPacket.writeInt(getArg1());
-                outPacket.writeInt(getArg2());
-                outPacket.writeInt(getArg3());
-                outPacket.write(getArg4());
-                outPacket.write(getArg5());
+                out.writeInt(getArg1());
+                out.writeInt(getArg2());
+                out.writeInt(getArg3());
+                out.write(getArg4());
+                out.write(getArg5());
                 break;
             case SkillSpecial:
-                outPacket.writeInt(getArg1()); // skill id
+                out.writeInt(getArg1()); // skill id
                 if (getArg1() == 36110005 || getArg1() == 65101006 || getArg1() == 13121009 || getArg1() == 11121013 || getArg1() == 12100029) {
-                    outPacket.writeInt(0);
-                    outPacket.writeInt(0);
-                    outPacket.writeInt(0);
+                    out.writeInt(0);
+                    out.writeInt(0);
+                    out.writeInt(0);
 //                } else if (getArg1() == BattleMage.DARK_SHOCK) {
-//                    outPacket.writeInt(getArg2()); // char lvl
-//                    outPacket.write(getArg3()); // slv
-//                    outPacket.writePositionInt(new Position(getArg4(), getArg5())); // Origin Position -  arg4 = x, arg5 = y
-//                    outPacket.writePositionInt(new Position(getArg6(), getArg7())); // Destination Position -  arg6 = x, arg7 = y
+//                    out.writeInt(getArg2()); // char lvl
+//                    out.write(getArg3()); // slv
+//                    out.writePositionInt(new Position(getArg4(), getArg5())); // Origin Position -  arg4 = x, arg5 = y
+//                    out.writePositionInt(new Position(getArg6(), getArg7())); // Destination Position -  arg6 = x, arg7 = y
 //                } else if (getArg1() == 80002206 || getArg1() == 80000257 || getArg1() == 80000260 || getArg1() == 80002599) {
-//                    outPacket.writeInt(0);
-//                    outPacket.writeInt(0);
-//                    outPacket.writeInt(0);
+//                    out.writeInt(0);
+//                    out.writeInt(0);
+//                    out.writeInt(0);
                 }
                 break;
             case SkillSpecialAffected:
-                outPacket.writeInt(getArg1()); // skill id
-                outPacket.write(getArg2());// slv
+                out.writeInt(getArg1()); // skill id
+                out.write(getArg2());// slv
                 break;
             case Quest:
-                outPacket.write(getList().size());
+                out.write(getList().size());
                 for (Tuple<Integer, Integer> item : getList()) {
-                    outPacket.writeInt(item.getLeft()); // Item ID
-                    outPacket.writeInt(item.getRight()); // Quantity
+                    out.writeInt(item.getLeft()); // Item ID
+                    out.writeInt(item.getRight()); // Quantity
                 }
-                outPacket.write(1); //  1=背包 0=消耗
-                if (getList().size() <= 0) outPacket.writeMapleAsciiString("");
+                out.write(1); //  1=背包 0=消耗
+                if (getList().size() <= 0) out.writeMapleAsciiString("");
                 break;
             case TextEffect:
-                outPacket.writeMapleAsciiString(getString());
-                outPacket.writeInt(getArg1()); // letter delay
-                outPacket.writeInt(getArg2()); // box duration
-                outPacket.writeInt(getArg3()); // Positioning on Client  ( 4 = middle )
+                out.writeMapleAsciiString(getString());
+                out.writeInt(getArg1()); // letter delay
+                out.writeInt(getArg2()); // box duration
+                out.writeInt(getArg3()); // Positioning on Client  ( 4 = middle )
 
-                outPacket.writeInt(getArg4()); // xPos
-                outPacket.writeInt(getArg5()); // yPos
+                out.writeInt(getArg4()); // xPos
+                out.writeInt(getArg5()); // yPos
 
-                outPacket.writeInt(getArg6()); // Align
-                outPacket.writeInt(getArg7()); // Line space
-                outPacket.writeInt(getArg8()); // Enter type (0 = fade in)
-                outPacket.writeInt(getArg9()); // Leave type?
-                outPacket.writeInt(getArg10()); // Type
-                outPacket.writeMapleAsciiString("");
+                out.writeInt(getArg6()); // Align
+                out.writeInt(getArg7()); // Line space
+                out.writeInt(getArg8()); // Enter type (0 = fade in)
+                out.writeInt(getArg9()); // Leave type?
+                out.writeInt(getArg10()); // Type
+                out.writeMapleAsciiString("");
                 break;
             case FieldExpItemConsumed:
             case LeftMonsterNumber:
                 //  true/false
             case ItemMaker:
             case IncDecHPEffect_EX:
-                outPacket.writeInt(getArg1()); // Exp Gained
+                out.writeInt(getArg1()); // Exp Gained
                 break;
             case SkillMode:
-                outPacket.writeInt(getArg1()); // Skill ID
-                outPacket.writeInt(getArg2()); // Rotate (?)
-                outPacket.writeInt(getArg3()); // Skip Frame (?)
+                out.writeInt(getArg1()); // Skill ID
+                out.writeInt(getArg2()); // Rotate (?)
+                out.writeInt(getArg3()); // Skip Frame (?)
                 break;
             case RobbinsBomb:
-                outPacket.write(getArg1()); // Reset/Delete
-                outPacket.writeInt(getArg2()); // BombCount
-                outPacket.write(getArg3()); // number (unknown)
+                out.write(getArg1()); // Reset/Delete
+                out.writeInt(getArg2()); // BombCount
+                out.write(getArg3()); // number (unknown)
                 break;
             case PetBuff:
             case ResetOnStateForOnOffSkill:
@@ -163,70 +163,70 @@ public class Effect {
             case LevelUp:
                 break;
             case EffectUOL:
-                outPacket.writeMapleAsciiString(getString());
-                outPacket.write(getArg1());
-                outPacket.writeInt(getArg2());
-                outPacket.writeInt(getArg3());
+                out.writeMapleAsciiString(getString());
+                out.write(getArg1());
+                out.writeInt(getArg2());
+                out.writeInt(getArg3());
                 if (getArg3() == 2) { // item sound
-                    outPacket.writeInt(getArg4()); // nItemID
+                    out.writeInt(getArg4()); // nItemID
                 }
                 break;
             case FadeInOut:
-                outPacket.writeInt(getArg1());// tFadeIn
-                outPacket.writeInt(getArg2());// tDelay
-                outPacket.writeInt(getArg3());// tFadeOut
-                outPacket.write(getArg4()); // nAlpha
+                out.writeInt(getArg1());// tFadeIn
+                out.writeInt(getArg2());// tDelay
+                out.writeInt(getArg3());// tFadeOut
+                out.write(getArg4()); // nAlpha
                 break;
             // Number on Arrow
             case JewelCraft:
-                outPacket.write(getArg1()); // Result  0,2 = Success,     5 = Unk error,      Other = Fail
-                outPacket.writeInt(getArg2()); // Item ID
+                out.write(getArg1()); // Result  0,2 = Success,     5 = Unk error,      Other = Fail
+                out.writeInt(getArg2()); // Item ID
                 break;
             case AswanSiegeAttack:
             case IncDecHPEffect:
             case BlindEffect:
-                outPacket.write(getArg1()); // 0 = Red Colour,     1 = Orange Colour
+                out.write(getArg1()); // 0 = Red Colour,     1 = Orange Colour
                 break;
             // success or failure      0 = Success,  1 = Failure
             // amount being healed     0 = Miss
             case AvatarOriented:
-                outPacket.writeMapleAsciiString(getString());
+                out.writeMapleAsciiString(getString());
                 break;
             case ReservedEffect:
-                outPacket.write(getArg1());
-                outPacket.writeInt(getArg2());
-                outPacket.writeInt(getArg3());
-                outPacket.writeMapleAsciiString(getString());
+                out.write(getArg1());
+                out.writeInt(getArg2());
+                out.writeInt(getArg3());
+                out.writeMapleAsciiString(getString());
                 break;
             case PlayExclSoundWithDownBGM:
-                outPacket.writeMapleAsciiString(getString());
-                outPacket.writeInt(getArg1());
+                out.writeMapleAsciiString(getString());
+                out.writeInt(getArg1());
                 break;
             case ReservedEffectRepeat:
-                outPacket.writeMapleAsciiString(getString());// effect
-                outPacket.write(1);
-                outPacket.write(getArg1());
+                out.writeMapleAsciiString(getString());// effect
+                out.write(1);
+                out.write(getArg1());
                 if (getArg1() == 1) {
-                    outPacket.write(1);
-                    outPacket.writeInt(0);
-                    outPacket.writeInt(0);
+                    out.write(1);
+                    out.writeInt(0);
+                    out.writeInt(0);
                 }
                 break;
             case SpeechBalloon:
-                outPacket.write(getArg1());// bNormal
-                outPacket.writeInt(getArg2());// nRange
-                outPacket.writeInt(getArg3());// nNameHeight
-                outPacket.writeMapleAsciiString(getString());// sSpeech
-                outPacket.writeInt(getArg4());// tTime
-                outPacket.writeInt(getArg5());// pOrigin
-                outPacket.writeInt(getArg6());// x
-                outPacket.writeInt(getArg7());// y
-                outPacket.writeInt(getArg8());// z
-                outPacket.writeInt(getArg9());// nLineSpace
+                out.write(getArg1());// bNormal
+                out.writeInt(getArg2());// nRange
+                out.writeInt(getArg3());// nNameHeight
+                out.writeMapleAsciiString(getString());// sSpeech
+                out.writeInt(getArg4());// tTime
+                out.writeInt(getArg5());// pOrigin
+                out.writeInt(getArg6());// x
+                out.writeInt(getArg7());// y
+                out.writeInt(getArg8());// z
+                out.writeInt(getArg9());// nLineSpace
                 if (getString() != null && !getString().isEmpty()) {
-                    outPacket.writeInt(getArg10());// nTemplateID
+                    out.writeInt(getArg10());// nTemplateID
                 }
-                outPacket.writeInt(getArg11());// nCharID
+                out.writeInt(getArg11());// nCharID
                 break;
         }
     }
@@ -448,75 +448,75 @@ public class Effect {
 //         Arg 8 => mobPosY
 //         Arg 9 => posX
 //         Arg 10 => posY
-    private void writeSkillUse(OutPacket outPacket) {
+    private void writeSkillUse(OutPacket out) {
         int skillID = getArg1();
         if (getUserEffectType() == SkillUseBySummoned) {
-            outPacket.writeInt(getArg4()); // Summon ID
+            out.writeInt(getArg4()); // Summon ID
         }
-        outPacket.writeInt(skillID); // Skill id
-        outPacket.writeInt(getArg2()); // chr level
-        outPacket.write(getArg3()); // slv
+        out.writeInt(skillID); // Skill id
+        out.writeInt(getArg2()); // chr level
+        out.write(getArg3()); // slv
         if (false) { // Dragon Fury  skillID == Evan.DRAGON_FURY
-            outPacket.write(getArg5()); // bCreate
+            out.write(getArg5()); // bCreate
         } else if (false) { // skillID == Warrior.FINAL_PACT
-            outPacket.write(getArg5()); // bLoadReincarnationEffect
+            out.write(getArg5()); // bLoadReincarnationEffect
         } else if (false) { // skillID == Thief.CHAINS_OF_HELL
-            outPacket.write(getArg5()); // bLeft
-            outPacket.writeInt(getArg6()); // dwMobID
+            out.write(getArg5()); // bLeft
+            out.writeInt(getArg6()); // dwMobID
         } else if (skillID == 3211010 || skillID == 3111010 || skillID == 1100012) { // Hooks (Warrior combo fury/archer skills)
-            outPacket.write(getArg5()); // bLeft
-            outPacket.writeInt(getArg6()); // dwMobID
-            outPacket.writeInt(getArg7()); // nMobPosX
-            outPacket.writeInt(getArg8()); // nMobPosY
+            out.write(getArg5()); // bLeft
+            out.writeInt(getArg6()); // dwMobID
+            out.writeInt(getArg7()); // nMobPosX
+            out.writeInt(getArg8()); // nMobPosY
         } else if (skillID == 64001000 || skillID == 64001007 || skillID == 64001008) {
-            outPacket.write(getArg5());
+            out.write(getArg5());
         } else if (skillID == 64001009 || skillID == 64001010 || skillID == 64001011 || skillID == 64001012) {
-            outPacket.write(getArg5()); // bLeft
-            outPacket.writeInt(getArg6()); // dwMobID
-            outPacket.writeInt(getArg7()); // UNK
-            outPacket.writeInt(getArg8()); // UNK
+            out.write(getArg5()); // bLeft
+            out.writeInt(getArg6()); // dwMobID
+            out.writeInt(getArg7()); // UNK
+            out.writeInt(getArg8()); // UNK
 //        } else if (skillID == WildHunter.CALL_OF_THE_HUNTER) {
-//            outPacket.write(getArg5()); // bLeft
-//            outPacket.writeShort(getArg7()); // nPosX
-//            outPacket.writeShort(getArg8()); // nPosY
+//            out.write(getArg5()); // bLeft
+//            out.writeShort(getArg7()); // nPosX
+//            out.writeShort(getArg8()); // nPosY
 //        } else if (skillID == WildHunter.CAPTURE) {
-//            outPacket.write(getArg5()); // nType: 0 = Success, 1 = mob hp too high, 2 = mob cannot be captured
+//            out.write(getArg5()); // nType: 0 = Success, 1 = mob hp too high, 2 = mob cannot be captured
 //        } else if (skillID == Kaiser.VERTICAL_GRAPPLE || skillID == AngelicBuster.GRAPPLING_HEART || skillID == 400001000) {
-//            outPacket.writeInt(getArg5()); // nStartPosY
-//            outPacket.writeInt(getArg7()); // ptRopeConnectDest.x
-//            outPacket.writeInt(getArg8()); // ptRopeConnectDest.y
+//            out.writeInt(getArg5()); // nStartPosY
+//            out.writeInt(getArg7()); // ptRopeConnectDest.x
+//            out.writeInt(getArg8()); // ptRopeConnectDest.y
 //        } else if (skillID == Luminous.FLASH_BLINK || skillID == 15001021 || skillID == Shade.FOX_TROT || skillID == 4211016 || skillID == 5081021 || skillID == 400041026 || skillID == 152001004) { // Flash
-//            outPacket.writeInt(getArg7()); // ptBlinkLightOrigin.x
-//            outPacket.writeInt(getArg8()); // ptBlinkLightOrigin.y
-//            outPacket.writeInt(getArg9()); // ptBlinkLightDest.x
-//            outPacket.writeInt(getArg10()); // ptBlinkLightDest.y
+//            out.writeInt(getArg7()); // ptBlinkLightOrigin.x
+//            out.writeInt(getArg8()); // ptBlinkLightOrigin.y
+//            out.writeInt(getArg9()); // ptBlinkLightDest.x
+//            out.writeInt(getArg10()); // ptBlinkLightDest.y
 //        } else if (SkillConstants.isSuperNovaSkill(skillID)) {
-//            outPacket.writeInt(getArg7()); // ptStartX
-//            outPacket.writeInt(getArg8()); // ptStartY
+//            out.writeInt(getArg7()); // ptStartX
+//            out.writeInt(getArg8()); // ptStartY
         } else if (skillID == 37110004 || skillID == 37111000 || skillID == 37111003 || skillID == 37110001 || skillID == 37101001 || skillID == 37100002 || skillID == 37000010 || skillID == 37000985) {
-            outPacket.writeInt(getArg5());// unk
+            out.writeInt(getArg5());// unk
         } else if (skillID == 400041019) {
-            outPacket.writeInt(getArg7()); // ptStartX
-            outPacket.writeInt(getArg8()); // ptStartY
+            out.writeInt(getArg7()); // ptStartX
+            out.writeInt(getArg8()); // ptStartY
         } else if (skillID == 400041009) {
-            outPacket.writeInt(getArg5());// unk
+            out.writeInt(getArg5());// unk
         } else if (skillID == 400041011 || skillID == 400041012 || skillID == 400041013 || skillID == 400041014 || skillID == 400041015) {
-            outPacket.writeInt(getArg5());// unk
+            out.writeInt(getArg5());// unk
         } else if (skillID == 400041036) {
-            outPacket.writeInt(0);
-            outPacket.writeInt(0);
-            outPacket.writeInt(0);
-            outPacket.writeInt(0);
-            outPacket.writeInt(0);
-            outPacket.writeInt(0);
-            outPacket.writeInt(0);
-            outPacket.writeInt(0);
+            out.writeInt(0);
+            out.writeInt(0);
+            out.writeInt(0);
+            out.writeInt(0);
+            out.writeInt(0);
+            out.writeInt(0);
+            out.writeInt(0);
+            out.writeInt(0);
         } else if (skillID == 80002393 || skillID == 80002394 || skillID == 80002395 || skillID == 80002421) {
-            outPacket.writeInt(getArg5());// unk
+            out.writeInt(getArg5());// unk
         } else if (skillID == 80001132) {
-            outPacket.write(getArg5());// 0 = sucessfuly catch 1 = failed too high hp 2 = cannot be captured
+            out.write(getArg5());// 0 = sucessfuly catch 1 = failed too high hp 2 = cannot be captured
         } else if (false) { //SkillConstants.isUnregisteredSkill(skillID)
-            outPacket.write(getArg5()); // bLeft
+            out.write(getArg5()); // bLeft
         }
     }
 

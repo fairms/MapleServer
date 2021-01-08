@@ -1,9 +1,9 @@
 package im.cave.ms.network.packet;
 
+import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
-import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.enums.ShopResultType;
 import im.cave.ms.network.netty.OutPacket;
@@ -21,133 +21,133 @@ import java.util.List;
 public class NpcPacket {
 
     public static OutPacket npcTalk(NpcMessageType type, NpcScriptInfo nsi) {
-        OutPacket outPacket = new OutPacket();
+        OutPacket out = new OutPacket();
         int overrideTemplate = nsi.getOverrideSpeakerTemplateID();
-        outPacket.writeShort(SendOpcode.NPC_TALK.getValue());
+        out.writeShort(SendOpcode.NPC_TALK.getValue());
 
-        outPacket.write(nsi.getSpeakerType()); //always 4
-        outPacket.writeInt(nsi.getTemplateID());
-        outPacket.write(1); //override ?
-        outPacket.writeInt(0); //override id;
-        outPacket.write(type.getVal());  //type
-        outPacket.writeShort(nsi.getParam()); //mask
-        outPacket.write(nsi.getColor()); // 0 or 1
+        out.write(nsi.getSpeakerType()); //always 4
+        out.writeInt(nsi.getTemplateID());
+        out.write(1); //override ?
+        out.writeInt(0); //override id;
+        out.write(type.getVal());  //type
+        out.writeShort(nsi.getParam()); //mask
+        out.write(nsi.getColor()); // 0 or 1
         switch (type) {
             case Say:
             case SayOk:
             case SayNext:
             case SayPrev:
                 if ((nsi.getParam() & 4) != 0) {
-                    outPacket.writeInt(nsi.getOverrideSpeakerTemplateID());
+                    out.writeInt(nsi.getOverrideSpeakerTemplateID());
                 }
-                outPacket.writeMapleAsciiString(nsi.getText());
-                outPacket.writeBool(type.isPrevPossible());
-                outPacket.writeBool(type.isNextPossible());
-                outPacket.writeInt(type.getDelay());
-                outPacket.write(1);
+                out.writeMapleAsciiString(nsi.getText());
+                out.writeBool(type.isPrevPossible());
+                out.writeBool(type.isNextPossible());
+                out.writeInt(type.getDelay());
+                out.write(1);
                 break;
             case Say_2:
             case SayOk_2:
             case SayNext_2:
             case SayPrev_2:
-                outPacket.writeMapleAsciiString(nsi.getText());
-                outPacket.writeBool(type.isPrevPossible());
-                outPacket.writeBool(type.isNextPossible());
-                outPacket.writeInt(type.getDelay());
+                out.writeMapleAsciiString(nsi.getText());
+                out.writeBool(type.isPrevPossible());
+                out.writeBool(type.isNextPossible());
+                out.writeInt(type.getDelay());
                 break;
             case SayImage:
                 String[] images = nsi.getImages();
-                outPacket.write(images.length);
+                out.write(images.length);
                 for (String image : images) {
-                    outPacket.writeMapleAsciiString(image);
+                    out.writeMapleAsciiString(image);
                 }
                 break;
             case AskMenu:
             case AskAccept:
             case AskYesNo:
                 if ((nsi.getParam() & 4) != 0) {
-                    outPacket.writeInt(nsi.getOverrideSpeakerTemplateID());
+                    out.writeInt(nsi.getOverrideSpeakerTemplateID());
                 }
-                outPacket.writeMapleAsciiString(nsi.getText());
+                out.writeMapleAsciiString(nsi.getText());
                 break;
             case AskText:
             case AskBoxtext:
                 if ((nsi.getParam() & 4) != 0) {
-                    outPacket.writeInt(nsi.getOverrideSpeakerTemplateID());
+                    out.writeInt(nsi.getOverrideSpeakerTemplateID());
                 }
-                outPacket.writeMapleAsciiString(nsi.getText());
-                outPacket.writeMapleAsciiString(nsi.getDefaultText());
-                outPacket.writeShort(nsi.getMin());
-                outPacket.writeShort(nsi.getMax());
+                out.writeMapleAsciiString(nsi.getText());
+                out.writeMapleAsciiString(nsi.getDefaultText());
+                out.writeShort(nsi.getMin());
+                out.writeShort(nsi.getMax());
                 break;
             case AskNumber:
-                outPacket.writeMapleAsciiString(nsi.getText());
-                outPacket.writeInt(nsi.getDefaultNumber());
-                outPacket.writeInt(nsi.getMin());
-                outPacket.writeInt(nsi.getMax());
+                out.writeMapleAsciiString(nsi.getText());
+                out.writeInt(nsi.getDefaultNumber());
+                out.writeInt(nsi.getMin());
+                out.writeInt(nsi.getMax());
                 break;
             case InitialQuiz:
-                outPacket.write(nsi.getType());
+                out.write(nsi.getType());
                 if (nsi.getType() != 1) {
-                    outPacket.writeMapleAsciiString(nsi.getTitle());
-                    outPacket.writeMapleAsciiString(nsi.getProblemText());
-                    outPacket.writeMapleAsciiString(nsi.getHintText());
-                    outPacket.writeInt(nsi.getMin());
-                    outPacket.writeInt(nsi.getMax());
-                    outPacket.writeInt(nsi.getTime()); // in seconds
+                    out.writeMapleAsciiString(nsi.getTitle());
+                    out.writeMapleAsciiString(nsi.getProblemText());
+                    out.writeMapleAsciiString(nsi.getHintText());
+                    out.writeInt(nsi.getMin());
+                    out.writeInt(nsi.getMax());
+                    out.writeInt(nsi.getTime()); // in seconds
                 }
                 break;
             case InitialSpeedQuiz:
-                outPacket.write(nsi.getType());
+                out.write(nsi.getType());
                 if (nsi.getType() != 1) {
-                    outPacket.writeInt(nsi.getQuizType());
-                    outPacket.writeInt(nsi.getAnswer());
-                    outPacket.writeInt(nsi.getCorrectAnswers());
-                    outPacket.writeInt(nsi.getRemaining());
-                    outPacket.writeInt(nsi.getTime()); // in seconds
+                    out.writeInt(nsi.getQuizType());
+                    out.writeInt(nsi.getAnswer());
+                    out.writeInt(nsi.getCorrectAnswers());
+                    out.writeInt(nsi.getRemaining());
+                    out.writeInt(nsi.getTime()); // in seconds
                 }
                 break;
             case ICQuiz:
-                outPacket.write(nsi.getType());
+                out.write(nsi.getType());
                 if (nsi.getType() != 1) {
-                    outPacket.writeMapleAsciiString(nsi.getText());
-                    outPacket.writeMapleAsciiString(nsi.getHintText());
-                    outPacket.writeInt(nsi.getTime()); // in seconds
+                    out.writeMapleAsciiString(nsi.getText());
+                    out.writeMapleAsciiString(nsi.getHintText());
+                    out.writeInt(nsi.getTime()); // in seconds
                 }
                 break;
             case AskAvatar:
                 int[] options = nsi.getOptions();
-                outPacket.writeBool(nsi.isAngelicBuster());
-                outPacket.writeBool(nsi.isZeroBeta());
-                outPacket.writeMapleAsciiString(nsi.getText());
-                outPacket.writeZeroBytes(12);
-                outPacket.write(options.length);
+                out.writeBool(nsi.isAngelicBuster());
+                out.writeBool(nsi.isZeroBeta());
+                out.writeMapleAsciiString(nsi.getText());
+                out.writeZeroBytes(12);
+                out.write(options.length);
                 for (int option : options) {
-                    outPacket.writeInt(option);
+                    out.writeInt(option);
                 }
-                outPacket.write(0);
-                outPacket.writeInt(nsi.getRequireCard());
+                out.write(0);
+                out.writeInt(nsi.getRequireCard());
                 break;
             case AskSlideMenu:
-//                outPacket.writeInt(nsi.getDlgType());
+//                out.writeInt(nsi.getDlgType());
 //                // start CSlideMenuDlg::SetSlideMenuDlg
-//                outPacket.writeInt(0); // last selected
+//                out.writeInt(0); // last selected
 //                StringBuilder sb = new StringBuilder();
 //                for (DimensionalPortalType dpt : DimensionalPortalType.values()) {
 //                    if (dpt.getMapID() != 0) {
 //                        sb.append("#").append(dpt.getVal()).append("#").append(dpt.getDesc());
 //                    }
 //                }
-//                outPacket.writeMapleAsciiString(sb.toString());
-//                outPacket.writeInt(0);
+//                out.writeMapleAsciiString(sb.toString());
+//                out.writeInt(0);
                 break;
             case AskSelectMenu:
-                outPacket.writeInt(nsi.getDlgType());
+                out.writeInt(nsi.getDlgType());
                 if (nsi.getDlgType() <= 0 || nsi.getDlgType() == 1) {
-                    outPacket.writeInt(nsi.getDefaultSelect());
-                    outPacket.writeInt(nsi.getSelectText().length);
+                    out.writeInt(nsi.getDefaultSelect());
+                    out.writeInt(nsi.getSelectText().length);
                     for (String selectText : nsi.getSelectText()) {
-                        outPacket.writeMapleAsciiString(selectText);
+                        out.writeMapleAsciiString(selectText);
                     }
                 }
                 break;
@@ -156,74 +156,74 @@ public class NpcPacket {
             case SayIllustrationNext:
             case SayIllustrationPrev:
                 if ((nsi.getParam() & 4) != 0) {
-                    outPacket.writeInt(nsi.getOverrideSpeakerTemplateID());
+                    out.writeInt(nsi.getOverrideSpeakerTemplateID());
                 }
-                outPacket.writeMapleAsciiString(nsi.getText());
-                outPacket.writeBool(type.isPrevPossible());
-                outPacket.writeBool(type.isNextPossible());
-                outPacket.writeInt((nsi.getParam() & 4) != 0 ? nsi.getOverrideSpeakerTemplateID() : overrideTemplate != 0 ? overrideTemplate : nsi.getTemplateID());
-                outPacket.writeInt(nsi.getFaceIndex());
-                outPacket.writeBool(nsi.isLeft());
+                out.writeMapleAsciiString(nsi.getText());
+                out.writeBool(type.isPrevPossible());
+                out.writeBool(type.isNextPossible());
+                out.writeInt((nsi.getParam() & 4) != 0 ? nsi.getOverrideSpeakerTemplateID() : overrideTemplate != 0 ? overrideTemplate : nsi.getTemplateID());
+                out.writeInt(nsi.getFaceIndex());
+                out.writeBool(nsi.isLeft());
                 break;
         }
         if ((nsi.getParam() & 4) != 0) {
             nsi.setParam((byte) (nsi.getParam() ^ 4));
         }
 
-        return outPacket;
+        return out;
     }
 
     public static OutPacket removeNpc(int objId) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.REMOVE_NPC.getValue());
-        outPacket.writeInt(objId);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.REMOVE_NPC.getValue());
+        out.writeInt(objId);
+        return out;
     }
 
     public static OutPacket spawnNpc(Npc npc) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SPAWN_NPC.getValue());
-        outPacket.writeInt(npc.getObjectId());
-        outPacket.writeInt(npc.getTemplateId());
-        npc.encode(outPacket);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SPAWN_NPC.getValue());
+        out.writeInt(npc.getObjectId());
+        out.writeInt(npc.getTemplateId());
+        npc.encode(out);
+        return out;
     }
 
     public static OutPacket changeNpcController(Npc npc, boolean isController, boolean remove) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SPAWN_NPC_REQUEST_CONTROLLER.getValue());
-        outPacket.writeBool(isController);
-        outPacket.writeInt(npc.getObjectId());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SPAWN_NPC_REQUEST_CONTROLLER.getValue());
+        out.writeBool(isController);
+        out.writeInt(npc.getObjectId());
         if (!remove) {
-            outPacket.writeInt(npc.getTemplateId());
-            npc.encode(outPacket);
+            out.writeInt(npc.getTemplateId());
+            npc.encode(out);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket npcAnimation(int npcId, byte oneTimeAction, byte chatIdx, int duration, MovementInfo movement, byte keyPadState) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.NPC_ANIMATION.getValue());
-        outPacket.writeInt(npcId);
-        outPacket.write(oneTimeAction);
-        outPacket.write(chatIdx);
-        outPacket.writeInt(duration);
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.NPC_ANIMATION.getValue());
+        out.writeInt(npcId);
+        out.write(oneTimeAction);
+        out.write(chatIdx);
+        out.writeInt(duration);
         if (movement != null) {
-            movement.encode(outPacket);
+            movement.encode(out);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket openShop(int npcId, int petTemplateId, NpcShop shop, List<NpcShopItem> repurchaseItems) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.NPC_SHOP_OPEN.getValue());
-        outPacket.writeInt(npcId);
-        outPacket.writeBool(petTemplateId != 0);
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.NPC_SHOP_OPEN.getValue());
+        out.writeInt(npcId);
+        out.writeBool(petTemplateId != 0);
         if (petTemplateId != 0) {
-            outPacket.writeInt(petTemplateId);
+            out.writeInt(petTemplateId);
         }
-        shop.encode(outPacket, repurchaseItems);
-        return outPacket;
+        shop.encode(out, repurchaseItems);
+        return out;
     }
 
     public static OutPacket shopResult(ShopResultType type) {
@@ -240,26 +240,26 @@ public class NpcPacket {
 
 
     public static OutPacket shopResult(ShopResultType type, boolean repurchase, int index, int itemId, NpcShop shop, List<NpcShopItem> repurchaseItems) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.NPC_SHOP_RESULT.getValue());
-        outPacket.write(type.getVal());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.NPC_SHOP_RESULT.getValue());
+        out.write(type.getVal());
         switch (type) {
             case FullInvMsg:
             case Buy: {
-                outPacket.writeBool(repurchase);
+                out.writeBool(repurchase);
                 if (repurchase) {
-                    outPacket.write(index);
+                    out.write(index);
                 } else {
-                    outPacket.writeInt(itemId);
-                    outPacket.writeInt(1000000);
+                    out.writeInt(itemId);
+                    out.writeInt(1000000);
                 }
-                outPacket.writeInt(0);
+                out.writeInt(0);
                 break;
             }
             case SellResult:
-                shop.encode(outPacket, repurchaseItems);
+                shop.encode(out, repurchaseItems);
                 break;
         }
-        return outPacket;
+        return out;
     }
 }

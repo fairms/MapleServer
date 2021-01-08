@@ -2,7 +2,6 @@ package im.cave.ms.scripting.npc;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.items.Equip;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.network.packet.NpcPacket;
 import im.cave.ms.network.packet.WorldPacket;
@@ -15,6 +14,7 @@ import static im.cave.ms.enums.NpcMessageType.AskAvatar;
 import static im.cave.ms.enums.NpcMessageType.AskMenu;
 import static im.cave.ms.enums.NpcMessageType.AskText;
 import static im.cave.ms.enums.NpcMessageType.AskYesNo;
+import static im.cave.ms.enums.NpcMessageType.SayNext;
 import static im.cave.ms.enums.NpcMessageType.SayOk;
 
 /**
@@ -26,19 +26,26 @@ import static im.cave.ms.enums.NpcMessageType.SayOk;
 public class NpcConversationManager extends AbstractPlayerInteraction {
 
     private final int npcId;
+    private String script;
     private final NpcScriptManager nsm;
     private final NpcScriptInfo npcScriptInfo;
 
 
-    public NpcConversationManager(MapleClient c, int npcId, NpcScriptManager nsm) {
+    public NpcConversationManager(MapleClient c, int npcId, NpcScriptManager nsm, String script) {
         super(c);
         this.npcId = npcId;
         this.nsm = nsm;
         this.npcScriptInfo = new NpcScriptInfo(npcId);
+        this.script = script;
     }
 
-    public boolean sendAskYesNo(String text) {
-        return sendGeneralSay(text, AskYesNo) != 0;
+
+    public boolean sendSayNext(String text) {
+        return sendGeneralSay(text, SayNext) != 1;
+    }
+
+    public int sendAskYesNo(String text) {
+        return sendGeneralSay(text, AskYesNo);
     }
 
     public boolean sendAskAccept(String text) {
@@ -206,17 +213,13 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
 
-    public void test() {
-        MapleCharacter player = c.getPlayer();
-        Equip item = ((Equip) player.getEquipInventory().getItem((short) 1));
-        item.setFlame(item.getFlame() + 10);
-        player.dropMessage("当前" + item.getFlame());
-        item.updateToChar(player);
-    }
-
     public void openUI() {
         MapleCharacter player = c.getPlayer();
         c.announce(WorldPacket.openUI(player.getCombo()));
         player.setCombo(player.getCombo() + 1);
+    }
+
+    public String getScript() {
+        return script;
     }
 }

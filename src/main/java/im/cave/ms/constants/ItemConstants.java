@@ -1,20 +1,22 @@
 package im.cave.ms.constants;
 
-import im.cave.ms.client.items.Equip;
-import im.cave.ms.client.items.Item;
-import im.cave.ms.client.items.ItemInfo;
-import im.cave.ms.client.items.ItemOption;
-import im.cave.ms.client.items.ScrollUpgradeInfo;
+import im.cave.ms.client.character.items.Equip;
+import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.items.ItemOption;
+import im.cave.ms.client.character.items.ScrollUpgradeInfo;
+import im.cave.ms.client.field.obj.DropInfo;
 import im.cave.ms.enums.BodyPart;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipPrefix;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ItemGrade;
 import im.cave.ms.enums.ItemOptionType;
+import im.cave.ms.enums.PetSkill;
 import im.cave.ms.enums.RequiredJob;
 import im.cave.ms.enums.ScrollStat;
 import im.cave.ms.enums.SpellTraceScrollType;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,8 @@ import static im.cave.ms.enums.InventoryType.EQUIP;
 
 
 public class ItemConstants {
+    private static final Logger log = LoggerFactory.getLogger(ItemConstants.class);
+
     public static final int[] COMMODITY = {
             3100011,
             3100010,
@@ -47,8 +52,6 @@ public class ItemConstants {
             3100001,
             3100000,
     };
-    private static final Logger log = LoggerFactory.getLogger(ItemConstants.class);
-
 
     public static final int EMPTY_SOCKET_ID = 3;
     public static final short INACTIVE_SOCKET = 0;
@@ -149,6 +152,44 @@ public class ItemConstants {
     public static final int Vicious_Hammer = 5570000;
     public static final int Platinum_Scissors_of_Karma = 5520001;
     public static final int Maple_Any_Door = 5044011;
+
+    public static final Map<Integer, Set<DropInfo>> consumableDropsPerLevel = new HashMap<>();
+//    public static final Map<ItemJob, Map<Integer, Set<DropInfo>>> equipDropsPerLevel = new HashMap<>();
+
+    static {
+        initConsumableDrops();
+//        initEquipDrops();
+    }
+
+    private static void initConsumableDrops() {
+        consumableDropsPerLevel.put(0, Util.makeSet(
+                new DropInfo(2000046, 200), // Red Potion
+                new DropInfo(2000014, 200)  // Blue Potion
+        ));
+        consumableDropsPerLevel.put(20, Util.makeSet(
+                new DropInfo(2000002, 200), // White Potion
+                new DropInfo(2000006, 200)  // Mana Elixir
+        ));
+        consumableDropsPerLevel.put(40, Util.makeSet(
+                new DropInfo(2001527, 200), // Unagi
+                new DropInfo(2022000, 200)  // Pure Water
+        ));
+        consumableDropsPerLevel.put(60, Util.makeSet(
+                new DropInfo(2001527, 200), // Unagi
+                new DropInfo(2022000, 200)  // Pure Water
+        ));
+        consumableDropsPerLevel.put(80, Util.makeSet(
+                new DropInfo(2001001, 200), // Ice Cream Pop
+                new DropInfo(2001002, 200)  // Pure Water
+        ));
+        consumableDropsPerLevel.put(100, Util.makeSet(
+                new DropInfo(2020012, 100), // Melting Cheese
+                new DropInfo(2020013, 100), // Reindeer Milk
+                new DropInfo(2020014, 100), // Sunrise Dew
+                new DropInfo(2020015, 100), // Sunset Dew
+                new DropInfo(2050004, 10)   // All Cure
+        ));
+    }
 
     public static int getGenderFromId(int nItemID) {
         int result;
@@ -771,7 +812,7 @@ public class ItemConstants {
         return itemList;
     }
 
-    public static boolean isRechargable(int itemId) {
+    public static boolean isRechargeable(int itemId) {
         return isThrowingStar(itemId) || isBullet(itemId);
     }
 
@@ -1501,9 +1542,9 @@ public class ItemConstants {
         return id;
     }
 
-//    public static int getRandomSoulOption() {
-//        return Util.getRandomFromCollection(soulPotList);
-//    }
+    public static int getRandomSoulOption() {
+        return Util.getRandomFromCollection(soulPotList);
+    }
 
     public static int getSoulSkillFromSoulID(int soulID) {
         switch (soulID) {
@@ -1711,74 +1752,53 @@ public class ItemConstants {
         return (isSecondary(itemID) || isEmblem(itemID) || Arrays.asList(TUC_IGNORE_ITEMS).contains(itemID));
     }
 
-//    public static PetSkill getPetSkillFromID(int itemID) {
-//        switch (itemID) {
-//            case 5190000:
-//                return PetSkill.ITEM_PICKUP;
-//            case 5190001:
-//                return PetSkill.AUTO_HP;
-//            case 5190002:
-//                return PetSkill.EXPANDED_AUTO_MOVE;
-//            case 5190003:
-//                return PetSkill.AUTO_MOVE;
-//            case 5190004:
-//                return PetSkill.EXPIRED_PICKUP;
-//            case 5190005:
-//                return PetSkill.IGNORE_ITEM;
-//            case 5190006:
-//                return PetSkill.AUTO_MP;
-//            case 5190007:
-//                return PetSkill.RECALL;
-//            case 5190008:
-//                return PetSkill.AUTO_SPEAKING;
-//            case 5190009:
-//                return PetSkill.AUTO_ALL_CURE;
-//            case 5190010:
-//                return PetSkill.AUTO_BUFF;
-//            case 5190011:
-//                return PetSkill.AUTO_FEED;
-//            case 5190012:
-//                return PetSkill.FATTEN_UP;
-//            case 5190013:
-//                return PetSkill.PET_SHOP;
-//            case 5190014:
-//                return PetSkill.FATTEN_UP;
-//            case 5191000:
-//                return PetSkill.ITEM_PICKUP;
-//            case 5191001:
-//                return PetSkill.AUTO_HP;
-//            case 5191002:
-//                return PetSkill.EXPANDED_AUTO_MOVE;
-//            case 5191003:
-//                return PetSkill.ITEM_PICKUP;
-//        }
-//        return null;
-//}
+    public static PetSkill getPetSkillFromID(int itemID) {
+        switch (itemID) {
+            case 5190000:
+                return PetSkill.ITEM_PICKUP;
+            case 5190001:
+                return PetSkill.AUTO_HP;
+            case 5190002:
+                return PetSkill.EXPANDED_AUTO_MOVE;
+            case 5190003:
+                return PetSkill.AUTO_MOVE;
+            case 5190004:
+                return PetSkill.EXPIRED_PICKUP;
+            case 5190005:
+                return PetSkill.IGNORE_ITEM;
+            case 5190006:
+                return PetSkill.AUTO_MP;
+            case 5190007:
+                return PetSkill.RECALL;
+            case 5190008:
+                return PetSkill.AUTO_SPEAKING;
+            case 5190009:
+                return PetSkill.AUTO_ALL_CURE;
+            case 5190010:
+                return PetSkill.AUTO_BUFF;
+            case 5190011:
+                return PetSkill.AUTO_FEED;
+            case 5190012:
+                return PetSkill.FATTEN_UP;
+            case 5190013:
+                return PetSkill.PET_SHOP;
+            case 5190014:
+                return PetSkill.FATTEN_UP;
+            case 5191000:
+                return PetSkill.ITEM_PICKUP;
+            case 5191001:
+                return PetSkill.AUTO_HP;
+            case 5191002:
+                return PetSkill.EXPANDED_AUTO_MOVE;
+            case 5191003:
+                return PetSkill.ITEM_PICKUP;
+        }
+        return null;
+    }
 
-    // Gets the hardcoded starforce capacities Nexon introduced for equips above level 137.
-    // The cap for stars is in GetHyperUpgradeCapacity (E8 ? ? ? ? 0F B6 CB 83 C4 0C, follow `call`),
-    // therefore it needs to be manually implemented on the server side.
-    // Nexon's decision was very poor, but will require client edits to revert.
-//    static int getItemStarLimit(int itemID) {
-//        switch (itemID) {
-//            case 1072870: // Sweetwater Shoes
-//            case 1082556: // Sweetwater Gloves
-//            case 1102623: // Sweetwater Cape
-//            case 1132247: // Sweetwater Belt
-//                if (ServerConstants.VERSION >= 197) {
-//                    return 15;
-//                }
-//            case 1182060: // Ghost Ship Exorcist
-//            case 1182273: // Sengoku Hakase Badge
-//                if (ServerConstants.VERSION >= 199) {
-//                    return 22;
-//                }
-//        }
-//        return ServerConstants.VERSION >= 197 ? 25 : 15;
-//    }
 
-//    public static int getEquippedSummonSkillItem(int itemID, short job) {
-//        switch (itemID) {
+    public static int getEquippedSummonSkillItem(int itemID, short job) {
+        switch (itemID) {
 //            case 1112585:// Angelic Blessing
 //                return (SkillConstants.getNoviceSkillRoot(job) * 10000) + 1085;
 //            case 1112586:// Dark Angelic Blessing
@@ -1787,30 +1807,30 @@ public class ItemConstants {
 //                return (SkillConstants.getNoviceSkillRoot(job) * 10000) + 1090;
 //            case 1112663:// White Angelic Blessing
 //                return (SkillConstants.getNoviceSkillRoot(job) * 10000) + 1179;
-//            case 1112735:// White Angelic Blessing 2
-//                return 80001154;
-//            case 1113020:// Lightning God Ring
-//                return 80001262;
-//            case 1113173:// Lightning God Ring 2
-//                return 80011178;
-//            // Heaven Rings
-//            case 1112932:// Guard Ring
-//                return 80011149;
-//            case 1114232:// Sun Ring
-//                return 80010067;
-//            case 1114233:// Rain Ring
-//                return 80010068;
-//            case 1114234:// Rainbow Ring
-//                return 80010069;
-//            case 1114235:// Snow Ring
-//                return 80010070;
-//            case 1114236:// Lightning Ring
-//                return 80010071;
-//            case 1114237:// Wind Ring
-//                return 80010072;
-//        }
-//        return 0;
-//    }
+            case 1112735:// White Angelic Blessing 2
+                return 80001154;
+            case 1113020:// Lightning God Ring
+                return 80001262;
+            case 1113173:// Lightning God Ring 2
+                return 80011178;
+            // Heaven Rings
+            case 1112932:// Guard Ring
+                return 80011149;
+            case 1114232:// Sun Ring
+                return 80010067;
+            case 1114233:// Rain Ring
+                return 80010068;
+            case 1114234:// Rainbow Ring
+                return 80010069;
+            case 1114235:// Snow Ring
+                return 80010070;
+            case 1114236:// Lightning Ring
+                return 80010071;
+            case 1114237:// Wind Ring
+                return 80010072;
+        }
+        return 0;
+    }
 
     public static boolean isRecipeOpenItem(int itemID) {
         return itemID / 10000 == 251;
@@ -1827,18 +1847,16 @@ public class ItemConstants {
             return ii.getInvType();
         }
     }
-//    public static Set<DropInfo> getConsumableMobDrops(int level) {
-//        level = Math.min(100, (level / 20) * 20); // round it to the nearest 20th level + max of level 100
-//        return consumableDropsPerLevel.getOrDefault(level, new HashSet<>());
-//    }
-//
-//    public static Set<DropInfo> getEquipMobDrops(short job, int level) {
-//        level = Math.min(140, (level / 10) * 10); // round it to the nearest 10th level + max of level 140
-//        ItemJob itemJob = GameConstants.getItemJobByJob(job);
-//        if (itemJob == null) {
-//            itemJob = ItemJob.BEGINNER;
-//        }
-//        return equipDropsPerLevel.getOrDefault(itemJob, new HashMap<>()).getOrDefault(level, new HashSet<>());
-//    }
+
+    public static boolean isChair(int itemId) {
+        int prefix = itemId / 10000;
+        return prefix == 301;
+    }
+
+    public static Set<DropInfo> getConsumableMobDrops(int level) {
+        level = Math.min(100, (level / 20) * 20);
+        return consumableDropsPerLevel.getOrDefault(level, new HashSet<>());
+    }
+
 }
 

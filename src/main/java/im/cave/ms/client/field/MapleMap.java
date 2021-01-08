@@ -1,14 +1,13 @@
 package im.cave.ms.client.field;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobGen;
-import im.cave.ms.client.items.Item;
-import im.cave.ms.client.items.ItemInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.DropEnterType;
@@ -20,7 +19,9 @@ import im.cave.ms.network.packet.UserRemote;
 import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.scripting.map.MapScriptManager;
+import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Util;
@@ -143,11 +144,11 @@ public class MapleMap {
             if (character == chr) {
                 continue;
             }
-            if (!chr.getVisibleChar().contains(character)) {
+            if (!chr.getVisibleChars().contains(character)) {
                 chr.announce(WorldPacket.userEnterMap(character));
                 chr.announce(UserRemote.hiddenEffectEquips(character));
                 chr.announce(UserRemote.setSoulEffect(character));
-                chr.getVisibleChar().add(character);
+                chr.getVisibleChars().add(character);
             }
         }
     }
@@ -242,15 +243,15 @@ public class MapleMap {
     }
 
 
-    public void removePlayer(MapleCharacter player) {
-        characters.removeIf(character -> character.getId().equals(player.getId()));
+    public void removeChar(MapleCharacter chr) {
+        characters.removeIf(character -> character.getId() == chr.getId());
         for (Map.Entry<MapleMapObj, MapleCharacter> entry : getObjControllers().entrySet()) {
-            if (entry.getValue() != null && entry.getValue().equals(player)) {
+            if (entry.getValue() != null && entry.getValue().equals(chr)) {
                 getObjControllers().remove(entry.getKey());
                 setRandomController(entry.getKey());
             }
         }
-        broadcastMessage(WorldPacket.userLeaveMap(player.getId()));
+        broadcastMessage(WorldPacket.userLeaveMap(chr.getId()));
     }
 
 
@@ -340,7 +341,7 @@ public class MapleMap {
             drop.setMoney(dropInfo.getMoney());
         }
         addObj(drop);
-        drop.setExpireTime(System.currentTimeMillis() + GameConstants.DROP_REMOVE_OWNERSHIP_TIME * 1000);
+        drop.setExpireTime(DateUtil.getFileTime(System.currentTimeMillis() + GameConstants.DROP_REMOVE_OWNERSHIP_TIME * 1000));
         addObjScheduledFuture(drop, EventManager.addEvent(() -> removeDrop(drop.getObjectId(), DropLeaveType.Fade, 0, true), DROP_REMAIN_ON_GROUND_TIME, TimeUnit.SECONDS));
         EventManager.addEvent(() -> drop.setOwnerID(0), GameConstants.DROP_REMOVE_OWNERSHIP_TIME, TimeUnit.SECONDS);
         for (MapleCharacter chr : getCharacters()) {

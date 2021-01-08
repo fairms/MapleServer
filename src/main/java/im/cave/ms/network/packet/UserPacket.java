@@ -3,15 +3,15 @@ package im.cave.ms.network.packet;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleStat;
+import im.cave.ms.client.character.items.Equip;
+import im.cave.ms.client.character.items.InventoryOperation;
+import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.items.ScrollUpgradeInfo;
 import im.cave.ms.client.character.potential.CharacterPotential;
+import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
-import im.cave.ms.client.items.Equip;
-import im.cave.ms.client.items.InventoryOperation;
-import im.cave.ms.client.items.Item;
-import im.cave.ms.client.items.ScrollUpgradeInfo;
-import im.cave.ms.client.movement.MovementInfo;
-import im.cave.ms.client.skill.Skill;
+import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryOperationType;
@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static im.cave.ms.constants.ServerConstants.DESKEY;
+import static im.cave.ms.constants.ServerConstants.MAX_TIME;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
-import static im.cave.ms.network.packet.PacketHelper.MAX_TIME;
 
 /**
  * @author fair
@@ -53,17 +53,15 @@ public class UserPacket {
     }
 
     public static OutPacket updatePlayerStats(Map<MapleStat, Long> stats, boolean enableActions, MapleCharacter chr) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.UPDATE_STATS.getValue());
-        outPacket.write(enableActions ? 1 : 0);
-
-        outPacket.write(0); //unk
-
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.UPDATE_STATS.getValue());
+        out.write(enableActions ? 1 : 0);
+        out.write(0); //unk
         long mask = 0;
         for (MapleStat stat : stats.keySet()) {
             mask |= stat.getValue();
         }
-        outPacket.writeLong(mask);
+        out.writeLong(mask);
         Comparator<MapleStat> comparator = Comparator.comparingLong(MapleStat::getValue);
         TreeMap<MapleStat, Long> sortedStats = new TreeMap<>(comparator);
         sortedStats.putAll(stats);
@@ -72,7 +70,7 @@ public class UserPacket {
             long value = entry.getValue();
             switch (stat) {
                 case SKIN:
-                    outPacket.write((byte) value);
+                    out.write((byte) value);
                     break;
                 case FACE:
                 case HAIR:
@@ -90,7 +88,7 @@ public class UserPacket {
                 case LEVEL:
                 case ICE_GAGE:
                 case JOB:
-                    outPacket.writeInt((int) value);
+                    out.writeInt((int) value);
                     break;
                 case STR:
                 case DEX:
@@ -98,32 +96,27 @@ public class UserPacket {
                 case LUK:
                 case AVAILABLEAP:
                 case FATIGUE:
-                    outPacket.writeShort((int) value);
+                    out.writeShort((int) value);
                     break;
                 case AVAILABLESP:
-                    PacketHelper.addCharSP(outPacket, chr);
+                    PacketHelper.addCharSP(out, chr);
                     break;
                 case EXP:
                 case MESO:
-                    outPacket.writeLong(value);
+                    out.writeLong(value);
                     break;
                 case TODAYS_TRAITS:
-                    outPacket.writeZeroBytes(21); //限制
+                    out.writeZeroBytes(21); //限制
                     break;
             }
         }
-        outPacket.write(chr != null ? chr.getHairColorBase() : -1);
-        outPacket.write(chr != null ? chr.getHairColorMixed() : 0);
-        outPacket.write(chr != null ? chr.getHairColorProb() : 0);
+        out.write(chr != null ? chr.getCharLook().getHairColorBase() : -1);
+        out.write(chr != null ? chr.getCharLook().getHairColorMixed() : 0);
+        out.write(chr != null ? chr.getCharLook().getHairColorProb() : 0);
+        out.write(0);
+        out.write(0);
 
-
-        outPacket.write(0);
-        if (mask == 0 || !enableActions) { //unknown
-            outPacket.write(0);
-        }
-        outPacket.write(0);
-
-        return outPacket;
+        return out;
 
     }
 
@@ -141,64 +134,64 @@ public class UserPacket {
     }
 
     public static OutPacket move(MapleCharacter player, MovementInfo movementInfo) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.REMOTE_MOVE.getValue());
-        outPacket.writeInt(player.getId());
-        movementInfo.encode(outPacket);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.REMOTE_MOVE.getValue());
+        out.writeInt(player.getId());
+        movementInfo.encode(out);
+        return out;
     }
 
     public static OutPacket setInGameDirectionMode(boolean enable) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SET_STAND_ALONE_MODE.getValue());
-        outPacket.writeBool(enable);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SET_STAND_ALONE_MODE.getValue());
+        out.writeBool(enable);
+        return out;
     }
 
     public static OutPacket disableUI(boolean disable) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SET_IN_GAME_DIRECTION_MODE.getValue());
-        outPacket.writeBool(disable);
-        outPacket.writeBool(disable);
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SET_IN_GAME_DIRECTION_MODE.getValue());
+        out.writeBool(disable);
+        out.writeBool(disable);
         if (disable) {
-            outPacket.writeBool(false);
-            outPacket.writeBool(false);
+            out.writeBool(false);
+            out.writeBool(false);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket updateVoucher(MapleCharacter chr) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.UPDATE_VOUCHER.getValue());
-        outPacket.writeInt(chr.getId());
-        outPacket.writeInt(chr.getAccount().getVoucher());
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.UPDATE_VOUCHER.getValue());
+        out.writeInt(chr.getId());
+        out.writeInt(chr.getAccount().getVoucher());
+        return out;
     }
 
     public static OutPacket sitResult(int charId, short id) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SIT_RESULT.getValue());
-        outPacket.writeInt(charId);
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SIT_RESULT.getValue());
+        out.writeInt(charId);
         if (id != -1) {
-            outPacket.write(1);
-            outPacket.writeShort(id);
+            out.write(1);
+            out.writeShort(id);
         } else {
-            outPacket.write(0);
+            out.write(0);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket userSit() {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeInt(SendOpcode.USER_SIT.getValue());
-        outPacket.writeInt(0);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeInt(SendOpcode.USER_SIT.getValue());
+        out.writeInt(0);
+        return out;
     }
 
     public static OutPacket sendRebirthConfirm(boolean onDeadRevive, boolean onDeadProtectForBuff, boolean onDeadProtectBuffMaplePoint,
                                                boolean onDeadProtectExpMaplePoint, boolean anniversary, int reviveType, int protectType) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.OPEN_DEAD_UI.getValue());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.OPEN_DEAD_UI.getValue());
         int reviveMask = 0;
         if (onDeadRevive) {
             reviveMask |= 0x1;
@@ -212,13 +205,13 @@ public class UserPacket {
         if (onDeadProtectExpMaplePoint) {
             reviveMask |= 0x8;
         }
-        outPacket.writeInt(reviveMask);
-        outPacket.writeBool(anniversary);
-        outPacket.writeInt(reviveType);
+        out.writeInt(reviveMask);
+        out.writeBool(anniversary);
+        out.writeInt(reviveType);
         if (onDeadProtectForBuff || onDeadProtectExpMaplePoint) {
-            outPacket.writeInt(protectType);
+            out.writeInt(protectType);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket changeSkillRecordResult(Skill skill) {
@@ -229,31 +222,31 @@ public class UserPacket {
 
     public static OutPacket changeSkillRecordResult(List<Skill> skills, boolean exclRequestSent, boolean showResult
             , boolean removeLinkSkill, boolean sn) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CHANGE_SKILL_RESULT.getValue());
-        outPacket.writeBool(exclRequestSent);
-        outPacket.writeBool(showResult);
-        outPacket.writeBool(removeLinkSkill);
-        outPacket.writeShort(skills.size());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.CHANGE_SKILL_RESULT.getValue());
+        out.writeBool(exclRequestSent);
+        out.writeBool(showResult);
+        out.writeBool(removeLinkSkill);
+        out.writeShort(skills.size());
         for (Skill skill : skills) {
-            outPacket.writeInt(skill.getSkillId());
-            outPacket.writeInt(skill.getCurrentLevel());
-            outPacket.writeInt(skill.getMasterLevel());
-            outPacket.writeLong(MAX_TIME);
+            out.writeInt(skill.getSkillId());
+            out.writeInt(skill.getCurrentLevel());
+            out.writeInt(skill.getMasterLevel());
+            out.writeLong(MAX_TIME);
         }
-        outPacket.writeBool(sn);
-        return outPacket;
+        out.writeBool(sn);
+        return out;
     }
 
     public static OutPacket skillCoolTimeSet(Map<Integer, Integer> cooltimes) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SKILL_COOLTIME_SET.getValue());
-        outPacket.writeInt(cooltimes.size());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SKILL_COOLTIME_SET.getValue());
+        out.writeInt(cooltimes.size());
         cooltimes.forEach((id, cooltime) -> {
-            outPacket.writeInt(id);
-            outPacket.writeInt(cooltime);
+            out.writeInt(id);
+            out.writeInt(cooltime);
         });
-        return outPacket;
+        return out;
     }
 
     public static OutPacket skillCoolDown(int skillId) {
@@ -263,140 +256,140 @@ public class UserPacket {
     }
 
     public static OutPacket removeBuff(TemporaryStatManager tsm, boolean demount) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.REMOVE_BUFF.getValue());
-        outPacket.writeInt(0);
-        outPacket.write(1);
-        outPacket.write(1);
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.REMOVE_BUFF.getValue());
+        out.writeInt(0);
+        out.write(1);
+        out.write(1);
         for (int i : tsm.getRemovedMask()) {
-            outPacket.writeInt(i);
+            out.writeInt(i);
         }
-        tsm.getRemovedStats().forEach((characterTemporaryStat, options) -> outPacket.writeInt(0));
+        tsm.getRemovedStats().forEach((characterTemporaryStat, options) -> out.writeInt(0));
         if (demount) {
-            outPacket.writeBool(true);
+            out.writeBool(true);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket giveBuff(TemporaryStatManager tsm) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.GIVE_BUFF.getValue());
-        outPacket.writeZeroBytes(8);
-        tsm.encodeForLocal(outPacket);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.GIVE_BUFF.getValue());
+        out.writeZeroBytes(8);
+        tsm.encodeForLocal(out);
+        return out;
     }
 
     public static OutPacket effect(Effect effect) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.EFFECT.getValue());
-        effect.encode(outPacket);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.EFFECT.getValue());
+        effect.encode(out);
+        return out;
     }
 
     public static OutPacket incMoneyMessage(int amount) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        outPacket.write(MessageType.INC_MONEY_MESSAGE.getVal());
-        outPacket.writeInt(amount);
-        outPacket.writeInt(-1);
-        outPacket.writeInt(amount > 0 ? 0 : -1);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        out.write(MessageType.INC_MONEY_MESSAGE.getVal());
+        out.writeInt(amount);
+        out.writeInt(-1);
+        out.writeInt(amount > 0 ? 0 : -1);
+        return out;
     }
 
     public static OutPacket message(MessageType mt, int i, String string, byte type) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        outPacket.write(mt.getVal());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        out.write(mt.getVal());
         switch (mt) {
             case CASH_ITEM_EXPIRE_MESSAGE:
             case INC_POP_MESSAGE:
             case INC_GP_MESSAGE:
             case GIVE_BUFF_MESSAGE:
-                outPacket.writeInt(i);
+                out.writeInt(i);
                 break;
             case INC_COMMITMENT_MESSAGE:
-                outPacket.writeInt(i);
-                outPacket.write(i < 0 ? 1 : i == 0 ? 2 : 0); // gained = 0, lost = 1, cap = 2
+                out.writeInt(i);
+                out.write(i < 0 ? 1 : i == 0 ? 2 : 0); // gained = 0, lost = 1, cap = 2
                 break;
             case SYSTEM_MESSAGE:
-                outPacket.writeMapleAsciiString(string);
+                out.writeMapleAsciiString(string);
                 break;
             case QUEST_RECORD_EX_MESSAGE:
             case WORLD_SHARE_RECORD_MESSAGE:
             case COLLECTION_RECORD_MESSAGE:
-                outPacket.writeInt(i);
-                outPacket.writeMapleAsciiString(string);
+                out.writeInt(i);
+                out.writeMapleAsciiString(string);
                 break;
             case INC_HARDCORE_EXP_MESSAGE:
-                outPacket.writeInt(i); //You have gained x EXP
-                outPacket.writeInt(i); //Field Bonus Exp
+                out.writeInt(i); //You have gained x EXP
+                out.writeInt(i); //Field Bonus Exp
                 break;
             case BARRIER_EFFECT_IGNORE_MESSAGE:
-                outPacket.write(type); //protection/shield scroll pop-up Message
+                out.write(type); //protection/shield scroll pop-up Message
                 break;
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket stylishKillMessage(long exp, int count) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        outPacket.write(MessageType.STYLISH_KILL_MESSAGE.getVal());
-        outPacket.write(0);
-        outPacket.writeLong(exp);
-        outPacket.writeInt(0); //unk
-        outPacket.writeInt(count);
-        outPacket.writeInt(1); //unk
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        out.write(MessageType.STYLISH_KILL_MESSAGE.getVal());
+        out.write(0);
+        out.writeLong(exp);
+        out.writeInt(0); //unk
+        out.writeInt(count);
+        out.writeInt(1); //unk
+        return out;
     }
 
     public static OutPacket comboKillMessage(int objId, int combo) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        outPacket.write(MessageType.STYLISH_KILL_MESSAGE.getVal());
-        outPacket.write(1);
-        outPacket.writeInt(combo);
-        outPacket.writeInt(objId);
-        outPacket.writeInt(0); //unk
-        outPacket.writeInt(1); //unk
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        out.write(MessageType.STYLISH_KILL_MESSAGE.getVal());
+        out.write(1);
+        out.writeInt(combo);
+        out.writeInt(objId);
+        out.writeInt(0); //unk
+        out.writeInt(1); //unk
+        return out;
     }
 
     public static OutPacket inventoryRefresh(boolean excl) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
-        outPacket.writeBool(excl);
-        outPacket.writeShort(0);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
+        out.writeBool(excl);
+        out.writeShort(0);
+        return out;
     }
 
     public static OutPacket scrollUpgradeDisplay(boolean feverTime, List<ScrollUpgradeInfo> scrolls) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
-        outPacket.write(EquipmentEnchantType.ScrollUpgradeDisplay.getVal());
-        outPacket.writeBool(feverTime);
-        outPacket.write(scrolls.size());
-        scrolls.forEach(scrollUpgradeInfo -> scrollUpgradeInfo.encode(outPacket));
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
+        out.write(EquipmentEnchantType.ScrollUpgradeDisplay.getVal());
+        out.writeBool(feverTime);
+        out.write(scrolls.size());
+        scrolls.forEach(scrollUpgradeInfo -> scrollUpgradeInfo.encode(out));
+        return out;
     }
 
     public static OutPacket showScrollUpgradeResult(boolean feverTime, int result, String desc, Equip prevEquip, Equip equip) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
-        outPacket.write(EquipmentEnchantType.ShowScrollUpgradeResult.getVal());
-        outPacket.writeBool(feverTime);
-        outPacket.writeInt(result);
-        outPacket.writeMapleAsciiString(desc);
-        PacketHelper.addItemInfo(outPacket, prevEquip);
-        PacketHelper.addItemInfo(outPacket, equip);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
+        out.write(EquipmentEnchantType.ShowScrollUpgradeResult.getVal());
+        out.writeBool(feverTime);
+        out.writeInt(result);
+        out.writeMapleAsciiString(desc);
+        PacketHelper.addItemInfo(out, prevEquip);
+        PacketHelper.addItemInfo(out, equip);
+        return out;
     }
 
     public static OutPacket macroSysDataInit(MapleCharacter chr) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MACRO_SYS_DATA_INIT.getValue());
-        outPacket.write(0); //size
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MACRO_SYS_DATA_INIT.getValue());
+        out.write(0); //size
+        return out;
     }
 
     public static OutPacket characterPotentialSet(CharacterPotential cp) {
@@ -405,83 +398,83 @@ public class UserPacket {
 
     public static OutPacket characterPotentialSet(boolean exclRequest, boolean changed, short pos, int skillID,
                                                   short skillLevel, short grade, boolean updatePassive) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CHARACTER_POTENTIAL_SET.getValue());
-        outPacket.writeBool(exclRequest);
-        outPacket.writeBool(changed);
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.CHARACTER_POTENTIAL_SET.getValue());
+        out.writeBool(exclRequest);
+        out.writeBool(changed);
         if (changed) {
-            outPacket.writeShort(pos);
-            outPacket.writeInt(skillID);
-            outPacket.writeShort(skillLevel);
-            outPacket.writeShort(grade);
-            outPacket.writeBool(updatePassive);
+            out.writeShort(pos);
+            out.writeInt(skillID);
+            out.writeShort(skillLevel);
+            out.writeShort(grade);
+            out.writeBool(updatePassive);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket noticeMsg(String msg) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.NOTICE_MSG.getValue());
-        outPacket.writeMapleAsciiString(msg);
-        outPacket.write(1);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.NOTICE_MSG.getValue());
+        out.writeMapleAsciiString(msg);
+        out.write(1);
+        return out;
     }
 
 
     public static OutPacket damageSkinSaveResult(DamageSkinType req, DamageSkinType res, MapleCharacter chr) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.DAMAGE_SKIN_SAVE_RESULT.getValue());
-        outPacket.write(req.getVal());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.DAMAGE_SKIN_SAVE_RESULT.getValue());
+        out.write(req.getVal());
         if (req.getVal() <= 2) {
-            outPacket.write(res.getVal());
+            out.write(res.getVal());
             if (res == DamageSkinType.DamageSkinSave_Success) {
-                chr.encodeDamageSkins(outPacket);
+                chr.encodeDamageSkins(out);
             }
         } else if (req == DamageSkinType.DamageSkinSaveReq_SendInfo) {
-            chr.encodeDamageSkins(outPacket);
+            chr.encodeDamageSkins(out);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket updateHonerPoint(int honerPoint) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CHARACTER_HONOR_POINT.getValue());
-        outPacket.writeInt(honerPoint);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.CHARACTER_HONOR_POINT.getValue());
+        out.writeInt(honerPoint);
+        return out;
     }
 
 
     public static OutPacket keymapInit(MapleCharacter character) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.KEYMAP_INIT.getValue());
-        character.getKeyMap().encode(outPacket);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.KEYMAP_INIT.getValue());
+        character.getKeyMap().encode(out);
+        return out;
     }
 
     public static OutPacket quickslotInit(MapleCharacter player) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.QUICKSLOT_INIT.getValue());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.QUICKSLOT_INIT.getValue());
         boolean edited = player.getQuickslots() != null && player.getQuickslots().size() == 32;
-        outPacket.writeBool(edited);
+        out.writeBool(edited);
         if (player.getQuickslots() != null) {
             for (Integer key : player.getQuickslots()) {
-                outPacket.writeInt(key);
+                out.writeInt(key);
             }
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket openWorldMap() {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.OPEN_WORLDMAP.getValue());
-        outPacket.writeInt(0);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.OPEN_WORLDMAP.getValue());
+        out.writeInt(0);
+        return out;
     }
 
-    public static OutPacket encodeOpcodes(MapleClient client) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.OPCODE_TABLE.getValue());
-        outPacket.writeInt(4); //block size
+    public static OutPacket initOpCodeEncryption(MapleClient client) {
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.INIT_OPCODE_ENCRYPTION.getValue());
+        out.writeInt(4); //block size
         List<Integer> used = new ArrayList<>();
         StringBuilder sOpcodes = new StringBuilder();
         for (int i = RecvOpcode.BEGIN.getValue(); i < RecvOpcode.END.getValue(); i++) {
@@ -506,50 +499,50 @@ public class UserPacket {
             for (int i = encrypt.length; i < buffer.length; i++) {
                 buffer[i] = 0;
             }
-            outPacket.writeInt(buffer.length);
-            outPacket.write(buffer);
+            out.writeInt(buffer.length);
+            out.write(buffer);
         } catch (Exception e) {
             e.printStackTrace();
             client.close();
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket updateEventNameTag() {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CANCEL_TITLE_EFFECT.getValue());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.CANCEL_TITLE_EFFECT.getValue());
         for (int i = 0; i < 5; i++) {
-            outPacket.writeShort(0);
-            outPacket.write(-1);
+            out.writeShort(0);
+            out.write(-1);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket addFameResponse(MapleCharacter other, int mode, int newFame) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.FAME_RESPONSE.getValue());
-        outPacket.write(0);
-        outPacket.writeMapleAsciiString(other.getName());
-        outPacket.write(mode);
-        outPacket.writeInt(newFame);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.FAME_RESPONSE.getValue());
+        out.write(0);
+        out.writeMapleAsciiString(other.getName());
+        out.write(mode);
+        out.writeInt(newFame);
+        return out;
     }
 
     public static OutPacket receiveFame(int mode, String charName) {
 
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.FAME_RESPONSE.getValue());
-        outPacket.write(5);
-        outPacket.writeMapleAsciiString(charName);
-        outPacket.write(mode);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.FAME_RESPONSE.getValue());
+        out.write(5);
+        out.writeMapleAsciiString(charName);
+        out.write(mode);
+        return out;
     }
 
     public static OutPacket inventoryOperation(boolean exclRequestSent, List<InventoryOperation> operations) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
-        outPacket.writeBool(exclRequestSent);
-        outPacket.writeShort(operations.size());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.INVENTORY_OPERATION.getValue());
+        out.writeBool(exclRequestSent);
+        out.writeShort(operations.size());
         byte equipMove = 0;
         boolean addMovementInfo = false;
         for (InventoryOperation operation : operations) {
@@ -563,19 +556,19 @@ public class UserPacket {
                     (invType == EQUIPPED && oldPos < 0)) {
                 invType = InventoryType.EQUIP;
             }
-            outPacket.write(type.getVal());
-            outPacket.write(invType.getVal());
-            outPacket.writeShort(oldPos);
+            out.write(type.getVal());
+            out.write(invType.getVal());
+            out.writeShort(oldPos);
             switch (type) {
                 case ADD:
-                    PacketHelper.addItemInfo(outPacket, item);
+                    item.encode(out);
                     addMovementInfo = true;
                     break;
                 case UPDATE_QUANTITY:
-                    outPacket.writeShort(item.getQuantity());
+                    out.writeShort(item.getQuantity());
                     break;
                 case MOVE:
-                    outPacket.writeShort(newPos);
+                    out.writeShort(newPos);
                     if (invType == InventoryType.EQUIP && (oldPos < 0 || newPos < 0)) {
                         addMovementInfo = true;
                         if (oldPos > 0) {
@@ -591,75 +584,96 @@ public class UserPacket {
                     }
                     break;
                 case ITEM_EXP:
-                    outPacket.writeLong(((Equip) item).getExp());
+                    out.writeLong(((Equip) item).getExp());
                     break;
                 case UPDATE_BAG_POS:
-                    outPacket.writeInt(bagPos);
+                    out.writeInt(bagPos);
                     break;
                 case UPDATE_BAG_QUANTITY:
-                    outPacket.writeShort(newPos);
+                    out.writeShort(newPos);
                     break;
                 case UNK_1:
                 case UNK_3:
                     break;
                 case UNK_2:
-                    outPacket.writeShort(bagPos);
+                    out.writeShort(bagPos);
                     break;
                 case UPDATE_ITEM_INFO:
-                    PacketHelper.addItemInfo(outPacket, item);
+                    item.encode(out);
                     break;
             }
         }
         if (addMovementInfo) {
-            outPacket.write(equipMove);
+            out.write(equipMove);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket gatherItemResult(byte val) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.GATHER_ITEM_RESULT.getValue());
-        outPacket.write(1);
-        outPacket.write(val);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.GATHER_ITEM_RESULT.getValue());
+        out.write(1);
+        out.write(val);
+        return out;
     }
 
     public static OutPacket sortItemResult(byte val) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SORT_ITEM_RESULT.getValue());
-        outPacket.write(1);
-        outPacket.write(val);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SORT_ITEM_RESULT.getValue());
+        out.write(1);
+        out.write(val);
+        return out;
     }
 
 
     public static OutPacket finalAttack(MapleCharacter chr, int weapon, int skillId, int finalSkillId) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.FINAL_ATTACK.getValue());
-        outPacket.writeInt(chr.getTick());
-        outPacket.writeInt(finalSkillId > 0);
-        outPacket.writeInt(skillId);
-        outPacket.writeInt(finalSkillId);
-        outPacket.writeInt(weapon);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.FINAL_ATTACK.getValue());
+        out.writeInt(chr.getTick());
+        out.writeInt(finalSkillId > 0);
+        out.writeInt(skillId);
+        out.writeInt(finalSkillId);
+        out.writeInt(weapon);
+        return out;
     }
 
     public static OutPacket invExpandResult(int i, int point, boolean cash) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SLOT_EXPAND_RESULT.getValue());
-        outPacket.writeInt(i);
-        outPacket.writeInt(0);
-        outPacket.writeInt(point);
-        outPacket.write(2);
-        outPacket.writeShort(cash ? 1 : 0);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SLOT_EXPAND_RESULT.getValue());
+        out.writeInt(i);
+        out.writeInt(0);
+        out.writeInt(point);
+        out.write(2);
+        out.writeShort(cash ? 1 : 0);
+        return out;
     }
 
     public static OutPacket characterModified(MapleCharacter player) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CHARACTER_MODIFIED.getValue());
-        outPacket.write(1);
-//        PacketHelper.addCharInfo(outPacket, player, CharMask.Character);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.CHARACTER_MODIFIED.getValue());
+        out.write(1);
+//        PacketHelper.addCharInfo(out, player, CharMask.Character);
+        return out;
+    }
+
+    public static OutPacket openLimitBreakUI(MapleCharacter player, boolean success, Item item, long incALB, Equip equip) {
+        OutPacket out = new OutPacket(SendOpcode.LIMIT_BREAK_UI);
+        out.writeInt(player.getId());
+        out.writeBool(success);
+        out.writeInt(item.getItemId());
+        out.writeInt(item.getPos());
+        out.writeInt(equip.getPos());
+        out.writeInt(1000);
+        out.writeLong(equip.getLimitBreak());
+        out.writeLong(incALB);
+        PacketHelper.addItemInfo(out, equip);
+        return out;
+    }
+
+    public static OutPacket remainingMapTransferCoupon(MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.REMAINING_MAP_TRANSFER_COUPON);
+        out.writeInt(1000);
+        out.writeInt(1000);
+        return out;
     }
 }

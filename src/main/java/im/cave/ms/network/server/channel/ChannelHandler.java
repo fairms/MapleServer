@@ -1,16 +1,13 @@
 package im.cave.ms.network.server.channel;
 
-import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.ServerType;
-import im.cave.ms.network.crypto.AESCipher;
 import im.cave.ms.network.netty.InPacket;
-import im.cave.ms.network.packet.LoginPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
+import im.cave.ms.network.server.AbstractServerHandler;
 import im.cave.ms.network.server.ErrorPacketHandler;
 import im.cave.ms.network.server.channel.handler.InventoryHandler;
 import im.cave.ms.network.server.channel.handler.MobHandler;
@@ -21,13 +18,9 @@ import im.cave.ms.network.server.channel.handler.UserHandler;
 import im.cave.ms.network.server.channel.handler.WorldHandler;
 import im.cave.ms.network.server.service.EventManager;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
-import static im.cave.ms.client.MapleClient.AES_CIPHER;
 import static im.cave.ms.client.MapleClient.CLIENT_KEY;
 
 /**
@@ -36,7 +29,7 @@ import static im.cave.ms.client.MapleClient.CLIENT_KEY;
  * @Package im.cave.ms.handler
  * @date 11/19 19:40
  */
-public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
+public class ChannelHandler extends AbstractServerHandler {
     private static final Logger log = LoggerFactory.getLogger("Channel");
     private final int channel;
     private final int world;
@@ -46,47 +39,25 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
         this.world = worldId;
     }
 
-
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         log.info(" Join in World-{} Channel-{}", world, channel);
-        int sendIv = (int) (Math.random() * Integer.MAX_VALUE);
-        int recvIv = (int) (Math.random() * Integer.MAX_VALUE);
-        MapleClient client = new MapleClient(ctx.channel(), sendIv, recvIv);
-        client.announce(LoginPacket.getHello(sendIv, recvIv, ServerType.CHANNEL));
-        ctx.channel().attr(CLIENT_KEY).set(client);
-        ctx.channel().attr(AES_CIPHER).set(new AESCipher());
-        EventManager.addFixedRateEvent(client::sendPing, 0, 10000);
+        connected(ctx, ServerType.CHANNEL);
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        MapleClient c = ctx.channel().attr(CLIENT_KEY).get();
-        Account account = c.getAccount();
-        MapleCharacter player = c.getPlayer();
-        if (player != null && !player.isChangingChannel()) {
-            player.logout();
-        } else if (player != null && player.isChangingChannel()) {
-            player.setChangingChannel(false);
-        } else if (account != null) {
-            account.logout();
-        }
-        c.close();
-    }
-
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, InPacket inPacket) {
+    protected void channelRead0(ChannelHandlerContext ctx, InPacket in) {
         MapleClient c = ctx.channel().attr(CLIENT_KEY).get();
         if (c == null || c.getLoginStatus() == LoginStatus.SERVER_TRANSITION) {
             return;
         }
-        int op = inPacket.readShort();
+        int op = in.readShort();
         if (c.mEncryptedOpcode.containsKey(op)) {
             op = c.mEncryptedOpcode.get(op);
         }
         RecvOpcode opcode = RecvOpcode.getOpcode(op);
         if (opcode == null) {
-            handleUnknown(inPacket, (short) op);
+            handleUnknown(in, (short) op);
             return;
         }
         switch (opcode) {
@@ -94,252 +65,261 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 c.announce(WorldPacket.queryCashPointResult(c.getAccount()));
                 break;
             case USER_SLOT_EXPAND_REQUEST:
-                InventoryHandler.handleUserSlotExpandRequest(inPacket, c);
+                InventoryHandler.handleUserSlotExpandRequest(in, c);
                 break;
             case USER_ENTER_SERVER:
-                WorldHandler.handleUserEnterServer(inPacket, c, ServerType.CHANNEL);
+                WorldHandler.handleUserEnterServer(in, c, ServerType.CHANNEL);
                 break;
             case ERROR_PACKET:
-                ErrorPacketHandler.handlePacket(inPacket);
+                ErrorPacketHandler.handlePacket(in);
                 break;
             case GENERAL_CHAT:
-                UserHandler.handleUserGeneralChat(inPacket, c);
+                UserHandler.handleUserGeneralChat(in, c);
                 break;
             case CHAR_EMOTION:
-                UserHandler.handleCharEmotion(inPacket, c);
+                UserHandler.handleCharEmotion(in, c);
                 break;
             case USER_ACTIVATE_NICK_ITEM:
-                UserHandler.handleUserActivateNickItem(inPacket, c);
+                UserHandler.handleUserActivateNickItem(in, c);
                 break;
             case USER_ACTIVATE_DAMAGE_SKIN:
-                UserHandler.handleUserActivateDamageSkin(inPacket, c);
+                UserHandler.handleUserActivateDamageSkin(in, c);
                 break;
             case OPEN_WORLD_MAP:
                 c.announce(UserPacket.openWorldMap());
                 break;
             case PORTAL_SPECIAL:
-                UserHandler.handleUserEnterPortalSpecialRequest(inPacket, c);
+                UserHandler.handleUserEnterPortalSpecialRequest(in, c);
                 break;
             case USER_QUEST_REQUEST:
-                EventManager.addEvent(() -> QuestHandler.handleQuestRequest(inPacket, c), 0);
+                EventManager.addEvent(() -> QuestHandler.handleQuestRequest(in, c), 0);
                 break;
             case USER_MACRO_SYS_DATA_MODIFIED:
-                UserHandler.handleUserMacroSysDataModified(inPacket, c);
+                UserHandler.handleUserMacroSysDataModified(in, c);
                 break;
             case USER_LOTTERY_ITEM_USE_REQUEST:
-                InventoryHandler.handleUserLotteryItemUseRequest(inPacket, c);
+                InventoryHandler.handleUserLotteryItemUseRequest(in, c);
                 break;
             case USER_TRANSFER_FIELD_REQUEST:
-                UserHandler.handleChangeMapRequest(inPacket, c);
+                UserHandler.handleChangeMapRequest(in, c);
                 break;
             case USER_REQUEST_INSTANCE_TABLE:
-                WorldHandler.handleInstanceTableRequest(inPacket, c);
+                WorldHandler.handleInstanceTableRequest(in, c);
                 break;
             case USER_REQUEST_CHARACTER_POTENTIAL_SKILL_RAND_SET_UI:
-                UserHandler.handleUserRequestCharacterPotentialSkillRandSetUi(inPacket, c);
+                UserHandler.handleUserRequestCharacterPotentialSkillRandSetUi(in, c);
                 break;
             case USER_TRANSFER_CHANNEL_REQUEST:
-                WorldHandler.handleChangeChannelRequest(inPacket, c);
+                WorldHandler.handleChangeChannelRequest(in, c);
                 break;
             case MOB_MOVE:
-                MobHandler.handleMobMove(inPacket, c);
+                MobHandler.handleMobMove(in, c);
                 break;
             case NPC_ANIMATION:
-                NpcHandler.handleNpcAnimation(inPacket, c);
+                NpcHandler.handleNpcAnimation(in, c);
                 break;
             case USER_GATHER_ITEM_REQUEST:
-                InventoryHandler.handleUserGatherItemRequest(inPacket, c);
+                InventoryHandler.handleUserGatherItemRequest(in, c);
                 break;
             case USER_SORT_ITEM_REQUEST:
-                InventoryHandler.handleUserSortItemRequest(inPacket, c);
+                InventoryHandler.handleUserSortItemRequest(in, c);
                 break;
             case USER_CHANGE_SLOT_POSITION_REQUEST:
-                InventoryHandler.handleChangeInvPos(c, inPacket);
+                InventoryHandler.handleChangeInvPos(c, in);
                 break;
             case USER_STAT_CHANGE_ITEM_USE_REQUEST:
-                InventoryHandler.handleUseItem(inPacket, c);
+                InventoryHandler.handleUseItem(in, c);
                 break;
             case USER_PET_FOOD_ITEM_USE_REQUEST:
-                PetHandler.handleUserPetFoodItemUseRequest(inPacket, c);
+                PetHandler.handleUserPetFoodItemUseRequest(in, c);
                 break;
             case USER_SCRIPT_ITEM_USE_REQUEST:
-                InventoryHandler.handleUserScriptItemUseRequest(inPacket, c);
+                InventoryHandler.handleUserScriptItemUseRequest(in, c);
                 break;
             case USER_CONSUME_CASH_ITEM_USE_REQUEST:
-                InventoryHandler.handleUserConsumeCashItemUseRequest(inPacket, c);
+                InventoryHandler.handleUserConsumeCashItemUseRequest(in, c);
                 break;
             case EQUIP_ENCHANT_REQUEST:
-                InventoryHandler.handleEquipEnchanting(inPacket, c);
+                InventoryHandler.handleEquipEnchanting(in, c);
                 break;
             case USER_ITEM_RELEASE_REQUEST:
-                InventoryHandler.handleUserItemReleaseRequest(inPacket, c);
+                InventoryHandler.handleUserItemReleaseRequest(in, c);
                 break;
             case USER_PORTAL_SCROLL_USE_REQUEST:
-                InventoryHandler.handleUserPortalScrollUseRequest(inPacket, c);
+                InventoryHandler.handleUserPortalScrollUseRequest(in, c);
                 break;
             case USER_FIELD_TRANSFER_REQUEST:
-                WorldHandler.handleUserFieldTransferRequest(inPacket, c);
+                WorldHandler.handleUserFieldTransferRequest(in, c);
                 break;
             case USER_UPGRADE_ITEM_USE_REQUEST:
-                InventoryHandler.handleUserUpgradeItemUseRequest(inPacket, c);
+                InventoryHandler.handleUserUpgradeItemUseRequest(in, c);
+                break;
+            case USER_UPGRADE_ASSIST_ITEM_USE_REQUEST:
+                InventoryHandler.handleUserUpgradeAssistItemUseRequest(in, c);
+                break;
+            case USER_HYPER_UPGRADE_ITEM_USE_REQUEST:
+                InventoryHandler.handleUserHyperUpgradeItemUseRequest(in, c);
                 break;
             case USER_FLAME_ITEM_USE_REQUEST:
-                InventoryHandler.handleUserFlameItemUseRequest(inPacket, c);
+                InventoryHandler.handleUserFlameItemUseRequest(in, c);
                 break;
             case USER_ITEM_OPTION_UPGRADE_ITEM_USE_REQUEST:
-                InventoryHandler.handleUserItemOptionUpgradeItemUseRequest(inPacket, c);
+                InventoryHandler.handleUserItemOptionUpgradeItemUseRequest(in, c);
                 break;
             case USER_ABILITY_UP_REQUEST:
-                UserHandler.handleAPUpdateRequest(inPacket, c);
+                UserHandler.handleAPUpdateRequest(in, c);
                 break;
             case USER_ABILITY_MASS_UP_REQUEST:
-                UserHandler.handleAPMassUpdateRequest(inPacket, c);
+                UserHandler.handleAPMassUpdateRequest(in, c);
                 break;
             case USER_DAMAGE_SKIN_SAVE_REQUEST:
-                UserHandler.handleUserDamageSkinSaveRequest(inPacket, c);
+                UserHandler.handleUserDamageSkinSaveRequest(in, c);
                 break;
             case USER_SELECT_NPC:
-                NpcHandler.handleUserSelectNPC(inPacket, c);
+                NpcHandler.handleUserSelectNPC(in, c);
                 break;
             case USER_SCRIPT_MESSAGE_ANSWER:
-                NpcHandler.handleUserScriptMessageAnswer(inPacket, c);
+                NpcHandler.handleUserScriptMessageAnswer(in, c);
                 break;
             case USER_SHOP_REQUEST:
-                NpcHandler.handleUserShopRequest(inPacket, c);
+                NpcHandler.handleUserShopRequest(in, c);
                 break;
             case TRUNK_OPERATION:
-                WorldHandler.handleTrunkOperation(inPacket, c);
+                WorldHandler.handleTrunkOperation(in, c);
                 break;
             case CHAR_HIT:
-                UserHandler.handleHit(inPacket, c);
+                UserHandler.handleHit(in, c);
                 break;
             case PLAYER_MOVE:
-                UserHandler.handlePlayerMove(inPacket, c);
+                UserHandler.handlePlayerMove(in, c);
                 break;
             case MIGRATE_TO_CASH_SHOP_REQUEST:
-                WorldHandler.handleMigrateToCashShopRequest(inPacket, c);
+                WorldHandler.handleMigrateToCashShopRequest(in, c);
                 break;
             case CLOSE_RANGE_ATTACK:
             case RANGED_ATTACK:
             case MAGIC_ATTACK:
 //            case SUMMON_ATTACK:
 //            case TOUCH_MONSTER_ATTACK:
-                UserHandler.handleAttack(inPacket, c, opcode);
+                UserHandler.handleAttack(in, c, opcode);
                 break;
             case WORLD_MAP_TRANSFER:
-                UserHandler.handleWorldMapTransfer(inPacket, c);
+                UserHandler.handleWorldMapTransfer(in, c);
                 break;
             case CHANGE_STAT_REQUEST:
-                UserHandler.handleChangeStatRequest(inPacket, c);
+                UserHandler.handleChangeStatRequest(in, c);
                 break;
             case USER_SKILL_UP_REQUEST:
-                UserHandler.handleSkillUp(inPacket, c);
+                UserHandler.handleSkillUp(in, c);
                 break;
             case USER_SKILL_USE_REQUEST:
-                UserHandler.handleUseSkill(inPacket, c);
+                UserHandler.handleUseSkill(in, c);
                 break;
             case USER_SKILL_CANCEL_REQUEST:
-                UserHandler.handleCancelBuff(inPacket, c);
+                UserHandler.handleCancelBuff(in, c);
                 break;
             case USER_ADD_FAME_REQUEST:
-                UserHandler.handleUserAddFameRequest(inPacket, c);
+                UserHandler.handleUserAddFameRequest(in, c);
                 break;
             case CHAR_INFO_REQUEST:
-                UserHandler.handleCharInfoReq(inPacket, c);
+                UserHandler.handleCharInfoReq(in, c);
                 break;
             case USER_ACTIVATE_PET_REQUEST:
-                PetHandler.handleUserActivatePetRequest(inPacket, c);
+                PetHandler.handleUserActivatePetRequest(in, c);
                 break;
             case COMBO_KILL_CHECK:
-                WorldHandler.handleComboKill(inPacket, c);
+                WorldHandler.handleComboKill(in, c);
                 break;
             case USER_SOUL_EFFECT_REQUEST:
-                UserHandler.handleUserSoulEffectRequest(inPacket, c);
+                UserHandler.handleUserSoulEffectRequest(in, c);
+                break;
+            case AVATAR_MODIFY_COUPON:
+                InventoryHandler.handleUserAvatarModifyCouponUseRequest(in, c);
                 break;
             case PET_MOVE:
-                PetHandler.handlePetMove(inPacket, c);
+                PetHandler.handlePetMove(in, c);
                 break;
             case PET_ACTION_SPEAK:
-                PetHandler.handlePetActionSpeak(inPacket, c);
+                PetHandler.handlePetActionSpeak(in, c);
                 break;
             case SUMMON_MOVE:
-                WorldHandler.handleSummonMove(inPacket, c);
+                WorldHandler.handleSummonMove(in, c);
                 break;
             case ANDROID_MOVE:
-                WorldHandler.handleAndroidMove(inPacket, c);
+                WorldHandler.handleAndroidMove(in, c);
                 break;
             case CHANGE_QUICKSLOT:
-                UserHandler.handleChangeQuickSlot(inPacket, c);
+                UserHandler.handleChangeQuickSlot(in, c);
                 break;
             case MINI_ROOM:
-                WorldHandler.handleMiniRoom(inPacket, c);
+                WorldHandler.handleMiniRoom(in, c);
                 break;
             case PARTY_REQUEST:
-                WorldHandler.handlePartyRequest(inPacket, c);
+                WorldHandler.handlePartyRequest(in, c);
                 break;
             case PARTY_INVITE_RESPONSE:
-                WorldHandler.handlePartyInviteResponse(inPacket, c);
+                WorldHandler.handlePartyInviteResponse(in, c);
                 break;
             case FRIEND_REQUEST:
-                WorldHandler.handleFriendRequest(inPacket, c);
+                WorldHandler.handleFriendRequest(in, c);
                 break;
             case CHANGE_KEYMAP:
-                UserHandler.handleChangeKeyMap(inPacket, c);
+                UserHandler.handleChangeKeyMap(in, c);
                 break;
             case USER_HYPER_SKILL_UP_REQUEST:
             case USER_HYPER_STAT_UP_REQUEST:
-                UserHandler.handleUserHyperUpRequest(inPacket, c);
+                UserHandler.handleUserHyperUpRequest(in, c);
                 break;
             case USER_HYPER_SKILL_RESET_REQUEST:
-                UserHandler.handleUserHyperSkillResetRequest(inPacket, c);
+                UserHandler.handleUserHyperSkillResetRequest(in, c);
                 break;
             case USER_HYPER_STAT_RESET_REQUEST:
-                UserHandler.handleUserHyperStatResetRequest(inPacket, c);
+                UserHandler.handleUserHyperStatResetRequest(in, c);
                 break;
             case CHANGE_CHAR_REQUEST:
-                WorldHandler.handleChangeCharRequest(inPacket, c);
+                WorldHandler.handleChangeCharRequest(in, c);
                 break;
             case USER_SELECT_ANDROID:
-                UserHandler.handleUserSelectAndroid(inPacket, c);
+                UserHandler.handleUserSelectAndroid(in, c);
                 break;
             case UPDATE_TICK:
-                c.getPlayer().setTick(inPacket.readInt());
+                c.getPlayer().setTick(in.readInt());
                 break;
             case SIGN_IN:
-                WorldHandler.handleSignIn(inPacket, c);
+                WorldHandler.handleSignIn(in, c);
                 break;
             case UNITY_PORTAL_REQUEST:
-                WorldHandler.handleUnityPortalSelect(inPacket, c);
+                WorldHandler.handleUnityPortalSelect(in, c);
                 break;
             case POTION_POT_USE_REQUEST:
-                InventoryHandler.handlePotionPotUseRequest(inPacket, c);
+                InventoryHandler.handlePotionPotUseRequest(in, c);
                 break;
             case POTION_POT_INC_REQUEST:
-                InventoryHandler.handlePotionPotIncRequest(inPacket, c);
+                InventoryHandler.handlePotionPotIncRequest(in, c);
                 break;
             case USER_OPEN_MYSTERY_EGG:
-                InventoryHandler.handleUserOpenMysteryEgg(inPacket, c);
+                InventoryHandler.handleUserOpenMysteryEgg(in, c);
                 break;
             case SKILL_COMMAND_LOCK:
-                c.getPlayer().changeSkillState(inPacket.readInt());
+                c.getPlayer().changeSkillState(in.readInt());
                 break;
             case USER_SIT_REQUEST:
-                UserHandler.handleUserSitRequest(inPacket, c);
+                UserHandler.handleUserSitRequest(in, c);
                 break;
             case USER_PORTABLE_CHAIR_SIT_REQUEST:
-                UserHandler.handleUserPortableChairSitRequest(inPacket, c);
+                UserHandler.handleUserPortableChairSitRequest(in, c);
                 break;
             case PICK_UP_ITEM:
-                UserHandler.handlePickUp(inPacket, c);
+                UserHandler.handlePickUp(in, c);
                 break;
             case QUICK_MOVE_SELECT:
-                WorldHandler.handleQuickMove(inPacket.readInt(), c);
+                WorldHandler.handleQuickMove(in.readInt(), c);
                 break;
             case BATTLE_ANALYSIS:
-                WorldHandler.handleBattleAnalysis(inPacket, c);
+                WorldHandler.handleBattleAnalysis(in, c);
                 break;
             case EQUIP_EFFECT_OPT:
-                UserHandler.handleEquipEffectOpt(inPacket.readInt(), c);
+                UserHandler.handleEquipEffectOpt(in.readInt(), c);
                 break;
             case CPONG:
                 c.pongReceived();
@@ -348,19 +328,4 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
 
     }
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (cause instanceof IOException) {
-            log.info("Client forcibly closed the game.");
-        } else {
-            cause.printStackTrace();
-        }
-    }
-
-
-    private void handleUnknown(InPacket inPacket, short op) {
-        log.warn("Unhandled opcode {}, packet {}",
-                Integer.toHexString(op & 0xFFFF),
-                inPacket);
-    }
 }

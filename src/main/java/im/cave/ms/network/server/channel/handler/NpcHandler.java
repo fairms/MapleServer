@@ -2,16 +2,15 @@ package im.cave.ms.network.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.items.Equip;
+import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.field.MapleMap;
+import im.cave.ms.client.field.movement.Movement;
+import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
-import im.cave.ms.client.items.Equip;
-import im.cave.ms.client.items.Item;
-import im.cave.ms.client.items.ItemInfo;
-import im.cave.ms.client.movement.Movement;
-import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.InventoryOperationType;
@@ -28,6 +27,7 @@ import im.cave.ms.network.packet.opcode.SendOpcode;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.NpcData;
+import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.scripting.npc.NpcConversationManager;
 import im.cave.ms.scripting.npc.NpcScriptManager;
 import im.cave.ms.scripting.quest.QuestActionManager;
@@ -37,8 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static im.cave.ms.enums.InventoryOperationType.ADD;
 
@@ -52,9 +50,9 @@ import static im.cave.ms.enums.InventoryOperationType.ADD;
 public class NpcHandler {
     private static final Logger log = LoggerFactory.getLogger(NpcHandler.class);
 
-    public static void handleUserSelectNPC(InPacket inPacket, MapleClient c) {
+    public static void handleUserSelectNPC(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        int objId = inPacket.readInt();
+        int objId = in.readInt();
         MapleMap map = player.getMap();
         MapleMapObj obj = map.getObj(objId);
         if (!(obj instanceof Npc)) {
@@ -96,7 +94,7 @@ public class NpcHandler {
         EventManager.addEvent(() -> NpcScriptManager.getInstance().start(chr.getClient(), npcId, finalScript), 0);
     }
 
-    public static void handleUserScriptMessageAnswer(InPacket inPacket, MapleClient c) {
+    public static void handleUserScriptMessageAnswer(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
@@ -109,8 +107,8 @@ public class NpcHandler {
         if (cm == null) {
             cm = qm;
         }
-        byte lastType = inPacket.readByte();
-        byte action = inPacket.readByte();
+        byte lastType = in.readByte();
+        byte action = in.readByte();
         if (action == -1) {
             cm.dispose();
             return;
@@ -119,7 +117,7 @@ public class NpcHandler {
         switch (messageType) {
             case AskText:
                 if (action == 1) {
-                    String response = inPacket.readMapleAsciiString();
+                    String response = in.readMapleAsciiString();
                     cm.getNpcScriptInfo().addResponse(response);
                 } else {
                     cm.dispose();
@@ -133,14 +131,14 @@ public class NpcHandler {
                     cm.getNpcScriptInfo().addResponse(-1);
                     return;
                 }
-                int select = inPacket.readInt();
+                int select = in.readInt();
                 cm.getNpcScriptInfo().addResponse(select);
                 break;
             case AskAvatar:
-                if (inPacket.available() >= 4) {
-                    inPacket.readShort();
-                    byte option = inPacket.readByte();
-                    byte submit = inPacket.readByte();
+                if (in.available() >= 4) {
+                    in.readShort();
+                    byte option = in.readByte();
+                    byte submit = in.readByte();
                     if (submit == 1) {
                         cm.getNpcScriptInfo().addResponse(((int) option));
                     } else {
@@ -155,22 +153,22 @@ public class NpcHandler {
         }
     }
 
-    public static void handleNpcAnimation(InPacket inPacket, MapleClient c) {
+    public static void handleNpcAnimation(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.NPC_ANIMATION.getValue());
-        int objectID = inPacket.readInt();
-        byte oneTimeAction = inPacket.readByte();
-        byte chatIdx = inPacket.readByte();
-        int duration = inPacket.readInt();
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.NPC_ANIMATION.getValue());
+        int objectID = in.readInt();
+        byte oneTimeAction = in.readByte();
+        byte chatIdx = in.readByte();
+        int duration = in.readInt();
         byte keyPadState = 0;
         MovementInfo movement = null;
         MapleMapObj obj = player.getMap().getObj(objectID);
         if (obj instanceof Npc && ((Npc) obj).isMove()) {
             Npc npc = (Npc) obj;
-            if (inPacket.available() > 0) {
+            if (in.available() > 0) {
                 movement = new MovementInfo(npc.getPosition(), npc.getVPosition());
-                movement.decode(inPacket);
+                movement.decode(in);
                 for (Movement m : movement.getMovements()) {
                     Position pos = m.getPosition();
                     Position vPos = m.getVPosition();
@@ -183,17 +181,17 @@ public class NpcHandler {
                     npc.setMoveAction(m.getMoveAction());
                     npc.setFh(m.getFh());
                 }
-                if (inPacket.available() > 0) {
-                    keyPadState = inPacket.readByte();
+                if (in.available() > 0) {
+                    keyPadState = in.readByte();
                 }
             }
         }
         player.getMap().broadcastMessage(NpcPacket.npcAnimation(objectID, oneTimeAction, chatIdx, duration, movement, keyPadState));
     }
 
-    public static void handleUserShopRequest(InPacket inPacket, MapleClient c) {
+    public static void handleUserShopRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        byte type = inPacket.readByte();
+        byte type = in.readByte();
         ShopRequestType shr = ShopRequestType.getByVal(type);
         if (shr == null) {
             return;
@@ -205,9 +203,9 @@ public class NpcHandler {
         }
         switch (shr) {
             case BUY: {
-                short itemIndex = inPacket.readShort();
-                int itemId = inPacket.readInt();
-                short quantity = inPacket.readShort();
+                short itemIndex = in.readShort();
+                int itemId = in.readInt();
+                short quantity = in.readShort();
                 NpcShopItem shopItem = shop.getItemByIndex(itemIndex);
                 int index = -1;
                 boolean repurchase = false;
@@ -249,7 +247,7 @@ public class NpcHandler {
                     player.getInventory(item.getInvType()).addItem(item);
                     player.announce(UserPacket.inventoryOperation(false, ADD, (short) item.getPos(), (short) -1, 0, item));
                     player.getRepurchaseItems().remove(index);
-                    player.setRepurchaseItems(player.getRepurchaseItems().stream().filter(Objects::nonNull).collect(Collectors.toList()));
+//                    player.setRepurchaseItems(player.getRepurchaseItems().stream().filter(Objects::nonNull).collect(Collectors.toList()));
                 } else {
                     int itemQuantity = shopItem.getQuantity() > 0 ? shopItem.getQuantity() : 1;
                     Item itemCopy = ItemData.getItemCopy(itemId, false);
@@ -260,9 +258,9 @@ public class NpcHandler {
                 break;
             }
             case RECHARGE: {
-                short pos = inPacket.readShort();
+                short pos = in.readShort();
                 Item item = player.getConsumeInventory().getItem(pos);
-                if (item == null || !ItemConstants.isRechargable(item.getItemId())) {
+                if (item == null || !ItemConstants.isRechargeable(item.getItemId())) {
                     player.chatMessage(String.format("Was not able to find a chargeable item at position %d.", pos));
                     return;
                 }
@@ -280,9 +278,9 @@ public class NpcHandler {
                 break;
             }
             case SELL: {
-                int slot = inPacket.readShort();
-                int itemId = inPacket.readInt();
-                int quantity = inPacket.readShort();
+                int slot = in.readShort();
+                int itemId = in.readInt();
+                int quantity = in.readShort();
                 InventoryType it = ItemConstants.getInvTypeByItemId(itemId);
                 if (it == null) {
                     return;

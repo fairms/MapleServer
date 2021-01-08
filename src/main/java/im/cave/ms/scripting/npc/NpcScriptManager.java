@@ -38,7 +38,7 @@ public class NpcScriptManager extends AbstractScriptManager {
                 dispose(c);
                 return;
             }
-            NpcConversationManager cm = new NpcConversationManager(c, npcId, this);
+            NpcConversationManager cm = new NpcConversationManager(c, npcId, this, scriptPath);
             cms.put(c, cm);
             engine.put("cm", cm);
             c.getPlayer().setConversation(true);
@@ -53,7 +53,7 @@ public class NpcScriptManager extends AbstractScriptManager {
         NpcConversationManager cm = cms.get(c);
         if (cm != null) {
             cm.getNpcScriptInfo().reset();
-            resetContext("npc/" + cm.getNpcId() + ".js", c);
+            resetContext(cm.getScript(), c);
             cms.remove(c);
         }
         c.getPlayer().setConversation(false);

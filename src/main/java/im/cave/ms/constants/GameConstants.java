@@ -1,13 +1,16 @@
 package im.cave.ms.constants;
 
+import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.field.QuickMoveInfo;
-import im.cave.ms.client.items.Equip;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.QuickMoveType;
 import im.cave.ms.provider.data.ItemData;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static im.cave.ms.constants.ServerConstants.MAX_TIME;
+import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
 
 /**
  * @author fair
@@ -16,9 +19,6 @@ import java.util.List;
  * @date 11/19 21:48
  */
 public class GameConstants {
-
-    public static final long MAX_TIME = 150842304000000000L;
-    public static final long ZERO_TIME = 94354848000000000L;
 
     public static int MAX_VIEW_X = 1366; //1366*768
     public static int MAX_VIEW_Y = 768;
@@ -34,6 +34,8 @@ public class GameConstants {
     public static final int QUICKSLOT_SIZE = 32;
     public static final byte MAX_LOCKER_SIZE = 124;
     public static final int POTION_POT_MAX_LIMIT = 10000000;
+    public static final int MAX_FLAME_BONUS_SAGAS = 6;
+    public static final int FLAME_STAT_MULTIPLE = 1000;
     //  default keymap
     public static final byte[] DEFAULT_KEY = {1, 2, 3, 4, 5, 6, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 31, 34, 35, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 48, 50, 56, 57, 59, 60, 61, 63, 64, 65, 66, 70};
     public static final byte[] DEFAULT_TYPE = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 4};
@@ -53,7 +55,15 @@ public class GameConstants {
     public static final double DEFAULT_FIELD_MOB_RATE_BY_MOBGEN_COUNT = 1.5;
     public static final int BASE_MOB_RESPAWN_RATE = 5000; // In milliseconds
     private static List<QuickMoveInfo> quickMoveInfos;
-
+    //Guild
+    public static final int MAX_DAY_COMMITMENT = 50000;
+    public static final int SP_PER_GUILD_LEVEL = 2;
+    public static final double GGP_PER_CONTRIBUTION = 0.3;
+    public static final double IGP_PER_CONTRIBUTION = 0.7;
+    public static final int GUILD_BBS_RECORDS_PER_PAGE = 10;
+    public static final int GGP_FOR_SKILL_RESET = 50000;
+    public static final int MAX_GUILD_LV = 25;
+    public static final int MAX_GUILD_MEMBERS = 200;
     //drop
     public static final int DROP_HEIGHT = 100; // was 20
     public static final int DROP_REMAIN_ON_GROUND_TIME = 120; // 2 minutes
@@ -73,6 +83,16 @@ public class GameConstants {
 
     //Friend
     public static final String DEFAULT_FRIEND_GROUP = "未指定群组";
+    // Default slots
+    public static final int DEFAULT_BUDDY_CAPACITY = 20;
+    public static final int DEFAULT_DAMAGE_SLOTS = 1;
+    public static final byte DEFAULT_EQUIP_INVENTORY_SLOTS = 32;
+    public static final byte DEFAULT_CONSUME_INVENTORY_SLOTS = 32;
+    public static final byte DEFAULT_INSTALL_INVENTORY_SLOTS = 32;
+    public static final byte DEFAULT_ETC_INVENTORY_SLOTS = 32;
+    public static final byte DEFAULT_CASH_INVENTORY_SLOTS = 64;
+    public static final byte DEFAULT_TRUNK_SLOTS = 4;
+    public static final byte DEFAULT_CHARACTER_SLOTS = 6;
 
     // Inner Ability
     public static final int CHAR_POT_BASE_ID = 70000000;
@@ -122,13 +142,28 @@ public class GameConstants {
 
     private static void initQuickMove() {
         quickMoveInfos = new ArrayList<>();
-        quickMoveInfos.add(new QuickMoveInfo(0, 9072302, QuickMoveType.Boat, 1, "Warping", false,
+        quickMoveInfos.add(new QuickMoveInfo(0, 9010022, QuickMoveType.DimensionalPortal, 10, "使用可以移动到组队任务等各种地图的#c<次元之镜>#。", false,
                 ZERO_TIME, MAX_TIME));
-        quickMoveInfos.add(new QuickMoveInfo(0, 9010022, QuickMoveType.DimensionalPortal, 1, "Dimensional Portal", false,
+        quickMoveInfos.add(new QuickMoveInfo(0, 9071003, QuickMoveType.MonsterPark, 100, "移动到可以和队员们一起消灭强大怪物的组队游戏区域\\n#c<怪物公园>#。\\n#c普通怪物公园：100级以上可以参加\\n网吧怪物竞技场：70级～200级", false,
                 ZERO_TIME, MAX_TIME));
-        quickMoveInfos.add(new QuickMoveInfo(0, 9071003, QuickMoveType.MonsterPark, 1, "Monster Park", false,
+        quickMoveInfos.add(new QuickMoveInfo(0, 9000086, QuickMoveType.Boat, 0, "移动到距离当前位置最近的#c<大陆移动码头>#。", true,
                 ZERO_TIME, MAX_TIME));
-
+        quickMoveInfos.add(new QuickMoveInfo(0, 9000087, QuickMoveType.FreeMarket, 0, "移动到可以和其他玩家交易道具的#c<自由市场>#。", true,
+                ZERO_TIME, MAX_TIME));
+        quickMoveInfos.add(new QuickMoveInfo(0, 9000088, QuickMoveType.Ardentmill, 35, "移动到专业技术村庄#c<匠人街>#。\\n#c35级以上可以移动", true,
+                ZERO_TIME, MAX_TIME));
+        quickMoveInfos.add(new QuickMoveInfo(0, 9000089, QuickMoveType.Taxi, 0, "使用可以让角色移动到附近主要地区的#c<出租车>#。", false,
+                ZERO_TIME, MAX_TIME));
+        quickMoveInfos.add(new QuickMoveInfo(0, 9010041, QuickMoveType.SpinningGlasses, 30, "获得了打工奖励。", false,
+                ZERO_TIME, MAX_TIME));
+        quickMoveInfos.add(new QuickMoveInfo(0, 9000123, QuickMoveType.BigHeadward, 1, "在爱德华那里可以更换漂亮的发型。", false,
+                ZERO_TIME, MAX_TIME));
+        quickMoveInfos.add(new QuickMoveInfo(0, 9000124, QuickMoveType.Nurse, 1, "在塑料罗伊那里可以接受整容。", false,
+                ZERO_TIME, MAX_TIME));
+        quickMoveInfos.add(new QuickMoveInfo(0, 0, QuickMoveType.Hera, 10, "通过赫拉，可以访问婚礼村。", false,
+                ZERO_TIME, MAX_TIME));
+        quickMoveInfos.add(new QuickMoveInfo(0, 0, QuickMoveType.Party, 20, "可以移动到组队特殊地图。", true,
+                ZERO_TIME, MAX_TIME));
     }
 
     private static void initCharExp() {
@@ -417,4 +452,25 @@ public class GameConstants {
     public static boolean isValidEmotion(int emotion) {
         return emotion >= 0 && emotion <= 10;
     }
+
+    private static final int[] cumulativeTraitExp = {
+            0, 20, 46, 80, 124, 181, 255, 351, 476, 639, 851, 1084,
+            1340, 1622, 1932, 2273, 2648, 3061, 3515, 4014, 4563, 5128,
+            5710, 6309, 6926, 7562, 8217, 8892, 9587, 10303, 11040, 11788,
+            12547, 13307, 14089, 14883, 15689, 16507, 17337, 18179, 19034, 19902,
+            20783, 21677, 22584, 23505, 24440, 25399, 26362, 27339, 28331, 29338,
+            30360, 31397, 32450, 33519, 34604, 35705, 36823, 37958, 39110, 40279,
+            41466, 32671, 43894, 45135, 46395, 47674, 48972, 50289, 51626, 52967,
+            54312, 55661, 57014, 58371, 59732, 61097, 62466, 63839, 65216, 66597,
+            67982, 69371, 70764, 72161, 73562, 74967, 76376, 77789, 79206, 80627,
+            82052, 83481, 84914, 86351, 87792, 89237, 90686, 92139, 93596, 96000
+    };
+
+    public static int getTraitExpNeededForLevel(int level) {
+        if (level < 0 || level >= cumulativeTraitExp.length) {
+            return Integer.MAX_VALUE;
+        }
+        return cumulativeTraitExp[level];
+    }
+
 }

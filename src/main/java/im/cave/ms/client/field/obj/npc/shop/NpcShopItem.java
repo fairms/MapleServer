@@ -1,8 +1,7 @@
 package im.cave.ms.client.field.obj.npc.shop;
 
-import im.cave.ms.client.items.Item;
+import im.cave.ms.client.character.items.Item;
 import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.PacketHelper;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,12 +9,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import static im.cave.ms.constants.GameConstants.MAX_TIME;
-import static im.cave.ms.constants.GameConstants.ZERO_TIME;
+import static im.cave.ms.constants.ServerConstants.MAX_TIME;
+import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
 
 
 @Entity
-@Table(name = "shop_items")
+@Table(name = "shop_item")
 public class NpcShopItem {
     @Id
     @GeneratedValue
@@ -57,62 +56,62 @@ public class NpcShopItem {
         maxPerSlot = 1000;
     }
 
-    public void encode(OutPacket outPacket) {
-        outPacket.writeInt(1000000);
-        outPacket.writeInt(getItemId());
-        outPacket.writeInt(0);
-        outPacket.writeInt(1000000);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(getPrice());
-        outPacket.writeInt(getTokenItemId());
-        outPacket.writeInt(getTokenPrice());
-        outPacket.writeInt(getPointQuestID());
-        outPacket.writeInt(getPointPrice());
-        outPacket.writeInt(getStarCoin());
-        outPacket.write(0);
-        outPacket.writeInt(getItemPeriod());
-        outPacket.writeInt(getLevelLimited());
-        outPacket.writeInt(0);
-        outPacket.writeShort(getShowLevMin());
-        outPacket.writeShort(getShowLevMax());
+    public void encode(OutPacket out) {
+        out.writeInt(1000000);
+        out.writeInt(getItemId());
+        out.writeInt(0);
+        out.writeInt(1000000);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(getPrice());
+        out.writeInt(getTokenItemId());
+        out.writeInt(getTokenPrice());
+        out.writeInt(getPointQuestID());  // 7907 组队积分
+        out.writeInt(getPointPrice());
+        out.writeInt(getStarCoin());
+        out.write(0);
+        out.writeInt(getItemPeriod());
+        out.writeInt(getLevelLimited());
+        out.writeInt(0);
+        out.writeShort(getShowLevMin());
+        out.writeShort(getShowLevMax());
         if (getBuyLimitInfo() != null) {
-            getBuyLimitInfo().encode(outPacket);
+            getBuyLimitInfo().encode(out);
         } else {
-            new BuyLimitInfo().encode(outPacket);
+            new BuyLimitInfo().encode(out);
         }
-        outPacket.write(0);
-        outPacket.writeLong(getSellStart());
-        outPacket.writeLong(getSellEnd());
-        outPacket.writeInt(getTabIndex());
-        outPacket.writeShort(1); // show?
-        outPacket.writeBool(isWorldBlock());
-        outPacket.writeInt(getquestExId());
-        outPacket.writeMapleAsciiString(getQuestExKey());
-        outPacket.writeInt(getQuestExValue());
-        outPacket.writeInt(getPotentialGrade());
-        outPacket.write(0);
+        out.write(0);
+        out.writeLong(getSellStart() == 0 ? ZERO_TIME : getSellStart());
+        out.writeLong(getSellEnd() == 0 ? MAX_TIME : getSellEnd());
+        out.writeInt(getTabIndex());
+        out.writeShort(1); // show?
+        out.writeBool(isWorldBlock());
+        out.writeInt(getquestExId());
+        out.writeMapleAsciiString(getQuestExKey());
+        out.writeInt(getQuestExValue());
+        out.writeInt(getPotentialGrade());
+        out.write(0);
         int prefix = getItemId() / 10000;
         if (prefix != 207 && prefix != 233) {
-            outPacket.writeShort(getQuantity());
+            out.writeShort(getQuantity());
         } else {
-            outPacket.writeLong(getUnitPrice());
+            out.writeLong(getUnitPrice());
         }
-        outPacket.writeShort(getMaxPerSlot());
-        outPacket.writeLong(MAX_TIME);
+        out.writeShort(getMaxPerSlot());
+        out.writeLong(MAX_TIME);
 
-        outPacket.writeZeroBytes(8);
-        outPacket.writeMapleAsciiString("1900010100");
-        outPacket.writeMapleAsciiString("2079010100");
-        outPacket.writeZeroBytes(17);
+        out.writeZeroBytes(8);
+        out.writeMapleAsciiString("1900010100");
+        out.writeMapleAsciiString("2079010100");
+        out.writeZeroBytes(17);
         int[] idarr = new int[]{9410165, 9410166, 9410167, 9410168, 9410198};
         for (int i : idarr) {
-            outPacket.writeInt(i);
-            outPacket.writeInt(0);
+            out.writeInt(i);
+            out.writeInt(0);
         }
-        outPacket.writeBool(item != null);
+        out.writeBool(item != null);
         if (item != null) {
-            PacketHelper.addItemInfo(outPacket, item);
+            item.encode(out);
         }
     }
 
@@ -303,11 +302,7 @@ public class NpcShopItem {
         return potentialGrade;
     }
 
-    /**
-     * Sets the potential grade of this item (see {@link ItemGrade}). Will do nothing if this item is not an equip.
-     *
-     * @param potentialGrade The potential grade of this item
-     */
+
     public void setPotentialGrade(int potentialGrade) {
         this.potentialGrade = potentialGrade;
     }

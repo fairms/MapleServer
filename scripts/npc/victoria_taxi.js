@@ -1,15 +1,25 @@
+const maps = Array(100000000, 104000000, 102000000, 101000000, 103000000, 120000000, 105000000);
+
 function start() {
-    var HashMap = Java.type('java.util.HashMap');
-    var options = new HashMap();
-    options.put(null, '请选择你要去的地点:');
-    options.put(0, '#m100010000#');
-    options.put(1, '废弃都市');
-    options.put(2, '魔法密林');
-    options.put(3, '勇士部落');
-    options.put(4, '明珠港');
-    options.put(5, '诺特勒斯');
-    options.put(6, '林中之城');
-    var select = cm.sendAskMenu(options);
-    // cm.dropMessage(select);
-    cm.dispose();
+    if (cm.sendAskNext("你好~!我是#p1012000#。你想快速又安全地移动到其他村庄吗? " +
+        "那么就请使用令客户百分百满意的#b#p1012000##k吧。这次我给你免费优待!我将会送你去想去的地方。")) {
+        const HashMap = Java.type('java.util.HashMap');
+        const options = new HashMap();
+        options.put(null, '请选择目的地。');
+        for (let a = 0; a < maps.length; a++) {
+            if (maps[a] !== cm.getMapId()) {
+                options.put(a, "#m" + maps[a] + "#");
+            }
+        }
+        const select = cm.sendAskMenu(options);
+        if (select >= 0 && select < maps.length) {
+            const res = cm.sendAskYesNo("看样子, 你好像已经没有什么事情需要在这里做了。确定要移动到#b#m" + maps[select] + "##k村庄吗?");
+            if (res === 1) {
+                cm.warp(maps[select]);
+            } else if (res === 0) {
+                cm.sendSayOkay("如果你想移动到其他村庄, 请随时使用我们的出租车~");
+            }
+        }
+        cm.dispose();
+    }
 }

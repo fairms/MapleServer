@@ -1,50 +1,51 @@
 package im.cave.ms.client.character;
 
 import im.cave.ms.client.Account;
-import im.cave.ms.client.Friend;
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.Record;
+import im.cave.ms.client.RecordManager;
+import im.cave.ms.client.character.items.Equip;
+import im.cave.ms.client.character.items.Inventory;
+import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.items.PotionPot;
+import im.cave.ms.client.character.items.WishedItem;
 import im.cave.ms.client.character.job.JobManager;
 import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
+import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
-import im.cave.ms.client.field.Clock;
 import im.cave.ms.client.field.Effect;
-import im.cave.ms.client.field.Familiar;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.Portal;
 import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.client.field.obj.Drop;
+import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
-import im.cave.ms.client.items.Equip;
-import im.cave.ms.client.items.Inventory;
-import im.cave.ms.client.items.Item;
-import im.cave.ms.client.items.ItemInfo;
-import im.cave.ms.client.items.PotionPot;
-import im.cave.ms.client.miniroom.MiniRoom;
-import im.cave.ms.client.party.Party;
-import im.cave.ms.client.party.PartyResult;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
-import im.cave.ms.client.skill.Skill;
-import im.cave.ms.client.skill.SkillInfo;
+import im.cave.ms.client.social.friend.Friend;
+import im.cave.ms.client.social.miniroom.MiniRoom;
+import im.cave.ms.client.social.miniroom.TradeRoom;
+import im.cave.ms.client.social.party.Party;
+import im.cave.ms.client.social.party.PartyResult;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.BodyPart;
+import im.cave.ms.enums.CashShopCurrencyType;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
-import im.cave.ms.enums.MapleTraitType;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.enums.SpecStat;
@@ -59,6 +60,8 @@ import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.network.server.world.World;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.info.ItemInfo;
+import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.scripting.item.ItemScriptManager;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Pair;
@@ -76,8 +79,6 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -90,6 +91,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.transaction.Transactional;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -101,15 +103,27 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static im.cave.ms.constants.GameConstants.DEFAULT_BUDDY_CAPACITY;
+import static im.cave.ms.constants.GameConstants.DEFAULT_CASH_INVENTORY_SLOTS;
+import static im.cave.ms.constants.GameConstants.DEFAULT_CONSUME_INVENTORY_SLOTS;
+import static im.cave.ms.constants.GameConstants.DEFAULT_DAMAGE_SLOTS;
+import static im.cave.ms.constants.GameConstants.DEFAULT_EQUIP_INVENTORY_SLOTS;
+import static im.cave.ms.constants.GameConstants.DEFAULT_ETC_INVENTORY_SLOTS;
+import static im.cave.ms.constants.GameConstants.DEFAULT_INSTALL_INVENTORY_SLOTS;
 import static im.cave.ms.constants.GameConstants.NO_MAP_ID;
 import static im.cave.ms.constants.QuestConstants.QUEST_DAMAGE_SKIN;
+import static im.cave.ms.constants.QuestConstants.QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_MOB_KILL_COUNT;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
 import static im.cave.ms.enums.ChatType.SystemNotice;
 import static im.cave.ms.enums.InventoryOperationType.REMOVE;
 import static im.cave.ms.enums.InventoryOperationType.UPDATE_QUANTITY;
 import static im.cave.ms.enums.InventoryType.CASH;
+import static im.cave.ms.enums.InventoryType.CONSUME;
+import static im.cave.ms.enums.InventoryType.EQUIP;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
+import static im.cave.ms.enums.InventoryType.ETC;
+import static im.cave.ms.enums.InventoryType.INSTALL;
 
 /**
  * @author fair
@@ -120,73 +134,63 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 @Getter
 @Setter
 @Entity
-@Table(name = "`characters`")
+@Table(name = "`character`")
 public class MapleCharacter implements Serializable {
     @Transient
     private static final Logger log = LoggerFactory.getLogger(MapleCharacter.class);
+    ///////////////////////////////////////////////////////
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
     private String name;
     private byte world;
-    @Transient
-    private int channel;
-    @Column(name = "accId")
     private int accId;
-    @Transient
-    private MapleClient client;
-    @Transient
-    private Account account;
+    private byte buddyCapacity = DEFAULT_BUDDY_CAPACITY;
+    private byte spawnPoint = 0;
+    private boolean gm;
+    private long deleteTime;
+    private int damageSkinSlotSize = DEFAULT_DAMAGE_SLOTS;
+    private long lastLogout;
+    private boolean isDeleted;
+    private long extendedPendant;
+    private long createdTime;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charId")
     private Set<Friend> friends;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charstats")
     private CharStats stats;
-    private int face, hair, decorate = 0;
-    private byte gender = 0;
-    private int remainingAp = 0;
-    @Enumerated(EnumType.ORDINAL)
-    private JobConstants.JobEnum job;
-    @Transient
-    private MapleMap map;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "chr", orphanRemoval = true)
+    private Set<CharLook> charLook = new HashSet<>();
     @Column(name = "map")
     private int mapId;
     @Column(name = "party")
     private int partyId;
-    @Transient
-    private Party party;
-    @Convert(converter = InlinedIntArrayConverter.class)
-    private List<Integer> remainingSp;
-    private byte buddyCapacity, skin, hairColorBase = -1, hairColorMixed, hairColorProb, spawnPoint = 0;
-    private boolean gm;
-    private boolean isDeleted;
-    private Long deleteTime = 0L;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "equippedInventory")
-    private Inventory equippedInventory = new Inventory(EQUIPPED, (byte) 32);
+    private Inventory equippedInventory;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "equipInventory")
-    private Inventory equipInventory = new Inventory(InventoryType.EQUIP, (byte) 32);
+    private Inventory equipInventory;
     @JoinColumn(name = "consumeInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Inventory consumeInventory = new Inventory(InventoryType.CONSUME, (byte) 32);
+    private Inventory consumeInventory;
     @JoinColumn(name = "installInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Inventory installInventory = new Inventory(InventoryType.INSTALL, (byte) 32);
+    private Inventory installInventory;
     @JoinColumn(name = "etcInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Inventory etcInventory = new Inventory(InventoryType.ETC, (byte) 32);
+    private Inventory etcInventory;
     @JoinColumn(name = "cashInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Inventory cashInventory = new Inventory(CASH, (byte) 60);
+    private Inventory cashInventory;
     @Convert(converter = InlinedIntArrayConverter.class)
     private List<Integer> quickslots;
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Skill> skills;
     @ElementCollection
-    @CollectionTable(name = "skillcooldown", joinColumns = @JoinColumn(name = "charID"))
+    @CollectionTable(name = "skill_cooldown", joinColumns = @JoinColumn(name = "charId"))
     @MapKeyColumn(name = "skillId")
     @Column(name = "nextUsableTime")
     private Map<Integer, Long> skillCooltimes;
@@ -196,47 +200,64 @@ public class MapleCharacter implements Serializable {
     @JoinColumn(name = "questmanager")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private QuestManager questManager;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charId")
-    private Set<DamageSkinSaveData> damageSkins = new HashSet<>();
-    private int damageSkinSlotSize = 1;
-    @Transient
-    private DamageSkinSaveData damageSkin;
-    @Transient
-    private DamageSkinSaveData premiumDamageSkin = new DamageSkinSaveData();
-    @JoinColumn(name = "charID")
+    private Set<DamageSkinSaveData> damageSkins;
+    @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CharacterPotential> potentials;
-    @Transient
-    private CharacterPotentialMan potentialMan;
-    @Transient
-    private Map<Integer, Map<String, String>> questEx = new HashMap<>();
     @ElementCollection
     @CollectionTable(name = "quest_ex", joinColumns = @JoinColumn(name = "charId"))
     @MapKeyColumn(name = "questId")
     @Column(name = "qrValue")
     private Map<Integer, String> questsExStorage;
     @JoinColumn(name = "charId")
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<Familiar> familiars = new HashSet<>();
-    @JoinColumn(name = "charID")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Macro> macros = new ArrayList<>();
+    private Set<Familiar> familiars;
+    @JoinColumn(name = "charId")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Macro> macros;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "charId")
+    private List<WishedItem> wishedItems;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "charId")
+    private List<Record> records;
+    /////////////////////////////////////////////////////////
+    @Transient
+    private MapleMap map;
+    @Transient
+    private int channel;
+    @Transient
+    private MapleClient client;
+    @Transient
+    private Account account;
+    @Transient
+    private Party party;
+    @Transient
+    private DamageSkinSaveData damageSkin;
+    @Transient
+    private DamageSkinSaveData premiumDamageSkin;
+    @Transient
+    private CharacterPotentialMan potentialMan;
+    @Transient
+    private Map<Integer, Map<String, String>> questEx;
     @Transient
     private Map<Integer, Pair<Long, ScheduledFuture>> cooltimes;
     @Transient
     private MapleJob jobHandler;
     @Transient
     private boolean isChangingChannel = false;
-    private transient List<Integer> visitedMaps = new ArrayList<>();
-    private transient String blessOfFairyOrigin;
-    private transient String blessOfEmpressOrigin;
     @Transient
-    private List<Pet> pets;
+    private List<Integer> visitedMaps;
+    @Transient
+    private String blessOfFairyOrigin;
+    @Transient
+    private String blessOfEmpressOrigin;
+    @Transient
+    private List<Pet> pets = new ArrayList<>();
     @Transient
     private final Map<Integer, String> entered = new HashMap<>();
-    @Transient
-    private boolean isConversation = false;
     @Transient
     private MiniRoom miniRoom;
     @Transient
@@ -244,7 +265,7 @@ public class MapleCharacter implements Serializable {
     @Transient
     private Map<BaseStat, Long> baseStats = new HashMap<>();
     @Transient
-    private Map<Integer, Integer> hyperPsdSkillsCooltimeR = new HashMap<>();
+    private Map<Integer, Integer> hyperPsdSkillsCooltimeR;
     @Transient
     private int tick;
     @Transient
@@ -258,9 +279,9 @@ public class MapleCharacter implements Serializable {
     @Transient
     private int combatOrders; //战斗命令
     @Transient
-    private Set<MapleMapObj> visibleMapObjs = new HashSet<>();
+    private Set<MapleMapObj> visibleMapObjs;
     @Transient
-    private Set<MapleCharacter> visibleChar = new HashSet<>();
+    private Set<MapleCharacter> visibleChars;
     @Transient
     private long lastKill;
     @Transient
@@ -270,32 +291,40 @@ public class MapleCharacter implements Serializable {
     @Transient
     private boolean online;
     @Transient
-    private List<NpcShopItem> repurchaseItems = new ArrayList<>();
+    private List<NpcShopItem> repurchaseItems;
     @Transient
     private Npc npc; //当前对话的NPC对象
     @Transient
-    private List<Integer> cashCart = new ArrayList<>(12);
+    private boolean isConversation = false;
     @Transient
     private Android android;
     @Transient
     private Clock clock;
     @Transient
     private PotionPot potionPot;
+    @Transient
+    private RecordManager recordManager;
 
 
     public MapleCharacter() {
-        skills = new HashSet<>();
         temporaryStatManager = new TemporaryStatManager(this);
-        skillCooltimes = new HashMap<>();
         questManager = new QuestManager(this);
         potentialMan = new CharacterPotentialMan(this);
+        recordManager = new RecordManager(this);
+        premiumDamageSkin = new DamageSkinSaveData();
+        visibleMapObjs = new HashSet<>();
+        visibleChars = new HashSet<>();
+        repurchaseItems = new ArrayList<>();
+        questEx = new HashMap<>();
+        visitedMaps = new ArrayList<>();
+        hyperPsdSkillsCooltimeR = new HashMap<>();
     }
 
     public static MapleCharacter getCharByName(String name) {
         return (MapleCharacter) DataBaseManager.getObjFromDB(MapleCharacter.class, "name", name);
     }
 
-    public static int nameCheck(String name) {
+    public static int nameValidate(String name) {
         MapleCharacter character = MapleCharacter.getCharByName(name);
         if (character != null) {
             return 1;
@@ -303,14 +332,26 @@ public class MapleCharacter implements Serializable {
         return Pattern.compile("[a-zA-Z0-9\\u4e00-\\u9fa5]{2,12}").matcher(name).matches() ? 0 : 2;
     }
 
-    public static MapleCharacter getDefault(JobConstants.JobEnum job) {
+    public static MapleCharacter getDefault(int jobId) {
         MapleCharacter character = new MapleCharacter();
-        character.setJob(job);
-        character.setBuddyCapacity((byte) 20);
-        character.setStats(new CharStats());
-        character.setRemainingSp(new ArrayList<>(6));
+        character.setEquippedInventory(new Inventory(EQUIPPED, Byte.MAX_VALUE));
+        character.setEquipInventory(new Inventory(EQUIP, DEFAULT_EQUIP_INVENTORY_SLOTS));
+        character.setConsumeInventory(new Inventory(CONSUME, DEFAULT_CONSUME_INVENTORY_SLOTS));
+        character.setInstallInventory(new Inventory(INSTALL, DEFAULT_INSTALL_INVENTORY_SLOTS));
+        character.setEtcInventory(new Inventory(ETC, DEFAULT_ETC_INVENTORY_SLOTS));
+        character.setCashInventory(new Inventory(CASH, DEFAULT_CASH_INVENTORY_SLOTS));
+        character.setStats(CharStats.getDefaultStats(jobId));
         character.setKeyMap(new MapleKeyMap());
+        character.addCharLook(new CharLook());
+//        character.setCharLook(Collections.singleton(new CharLook()));
+        if (!character.setJob(jobId)) {
+            return null;
+        }
         return character;
+    }
+
+    private void addCharLook(CharLook cl) {
+        charLook.add(cl);
     }
 
     public Inventory getInventory(InventoryType type) {
@@ -332,10 +373,6 @@ public class MapleCharacter implements Serializable {
         }
     }
 
-    public short getJobId() {
-        return job.getJobId();
-    }
-
     public int getRemainingSpsSize() {
         List<Integer> remainingSp = getRemainingSp();
         int i = 0;
@@ -347,23 +384,104 @@ public class MapleCharacter implements Serializable {
         return i;
     }
 
+    //stats
+    public List<Integer> getRemainingSp() {
+        return stats.getRemainingSp();
+    }
+
+    public int getRemainingAp() {
+        return stats.getRemainingAp();
+    }
+
+    public void setRemainingAp(int value) {
+        stats.setRemainingAp(value);
+    }
+
+    public short getJob() {
+        return stats.getJob();
+    }
+
+    public int getSubJob() {
+        return stats.getSubJob();
+    }
+
+    public void setSubJob(short subJob) {
+        stats.setSubJob(subJob);
+    }
+
+    //char look
+    public int getHair() {
+        return getCharLook().getHair();
+    }
+
+    public void setHair(int hairId) {
+        getCharLook().setHair(hairId);
+    }
+
+    public int getFace() {
+        return getCharLook().getFace();
+    }
+
+    public void setFace(int faceId) {
+        getCharLook().setFace(faceId);
+    }
+
+    public byte getSkin() {
+        return getCharLook().getSkin();
+    }
+
+    public void setSkin(byte skinId) {
+        getCharLook().setSkin(skinId);
+    }
+
+    public byte getGender() {
+        return getCharLook().getGender();
+    }
+
+    public void setGender(byte gender) {
+        getCharLook().setGender(gender);
+    }
+
     public void logout() {
-        this.setOnline(false);
-        getMap().removePlayer(this);
+        log.info("{} 断开连接 世界-{},频道-{}", getName(), getWorld(), getChannel());
+        setLastLogout(DateUtil.getFileTime(System.currentTimeMillis()));
         if (getMap().getForcedReturn() != NO_MAP_ID) {
             this.mapId = getMap().getForcedReturn();
+            this.spawnPoint = 0;
         }
-        getClient().getMapleChannel().removePlayer(this);
-        if (!isChangingChannel) {
+        Portal spawnPortalNearby = map.getSpawnPortalNearby(getPosition());
+        setSpawnPoint(spawnPortalNearby.getId());
+        getMap().removeChar(this);
+        if (getMiniRoom() != null) {
+            MapleCharacter other = ((TradeRoom) getMiniRoom()).getOther();
+            ((TradeRoom) getMiniRoom()).cancelTrade();
+            other.chatMessage("Your trade partner disconnected.");
+        }
+        buildQuestExStorage();
+        setOnline(false);
+        getAccount().setOnlineChar(null);
+        if (!isChangingChannel()) {
             getAccount().logout();
-            getClient().setPlayer(null);
+            getClient().getMapleChannel().removePlayer(this);
         } else {
-            getAccount().saveToDb();
+            getClient().setPlayer(null);
+            getAccount().save();
         }
+    }
+
+    public void save() {
+        buildQuestExStorage();
+        getAccount().save();
     }
 
     public void addItemToInv(Item item) {
         addItemToInv(item, false);
+    }
+
+    public void addItemsToInv(List<Item> items) {
+        for (Item item : items) {
+            addItemToInv(item, false);
+        }
     }
 
     public void addItemToInv(Item item, boolean hasCorrectPos) {
@@ -401,7 +519,7 @@ public class MapleCharacter implements Serializable {
                 }
 
                 if (ItemConstants.isFamiliar(item.getItemId()) && item.getFamiliar() == null) {
-
+                    item.setFamiliar(Familiar.generate(item.getItemId()));
                 }
                 inventory.addItem(item);
                 announce(UserPacket.inventoryOperation(true, InventoryOperationType.ADD, (short) item.getPos(), (short) -1, 0, item));
@@ -469,25 +587,6 @@ public class MapleCharacter implements Serializable {
         return stats.getMp();
     }
 
-    public int getTraitTotalExp(MapleTraitType type) {
-        switch (type) {
-            case will:
-                return stats.getWillExp();
-            case charm:
-                return stats.getCharmExp();
-            case craft:
-                return stats.getCraftExp();
-            case sense:
-                return stats.getSenseExp();
-            case insight:
-                return stats.getInsightExp();
-            case charisma:
-                return stats.getCharismaExp();
-            default:
-                return 0;
-        }
-    }
-
     public int getVisitedMapCount() {
         return visitedMaps.size();
     }
@@ -521,8 +620,8 @@ public class MapleCharacter implements Serializable {
     }
 
 
-    public void announce(OutPacket outPacket) {
-        client.announce(outPacket);
+    public void announce(OutPacket out) {
+        client.announce(out);
     }
 
     public boolean equip(Item item) {
@@ -559,6 +658,10 @@ public class MapleCharacter implements Serializable {
         return (Equip) getEquippedInventory().getItem((short) bodyPart.getVal());
     }
 
+    public Equip getEquippedCashEquip(BodyPart bodyPart) {
+        return (Equip) getEquippedInventory().getItem((short) ((short) bodyPart.getVal() + 100));
+    }
+
     public void unequip(Item item) {
         getEquippedInventory().removeItem(item);
         getEquipInventory().addItem(item);
@@ -577,7 +680,7 @@ public class MapleCharacter implements Serializable {
 
     @Override
     public boolean equals(Object other) {
-        return other instanceof MapleCharacter && ((MapleCharacter) other).getId().equals(getId());
+        return other instanceof MapleCharacter && ((MapleCharacter) other).getId() == (getId());
     }
 
     @Override
@@ -767,7 +870,7 @@ public class MapleCharacter implements Serializable {
             Map<MapleStat, Long> stats = new HashMap<>();
             setMeso(newMeso);
             stats.put(MapleStat.MESO, newMeso);
-            announce(UserPacket.updatePlayerStats(stats, true, this));
+            announce(UserPacket.updatePlayerStats(stats, false, this));
         }
     }
 
@@ -880,7 +983,7 @@ public class MapleCharacter implements Serializable {
     }
 
     public void addSpToJobByCurrentLevel(int amount) {
-        byte jobLevel = (byte) JobConstants.getJobLevelByCharLevel(getJob().getJobId(), getLevel());
+        byte jobLevel = (byte) JobConstants.getJobLevelByCharLevel(getJob(), getLevel());
         addSp(amount, jobLevel);
     }
 
@@ -893,11 +996,13 @@ public class MapleCharacter implements Serializable {
     }
 
 
-    public void setJob(JobConstants.JobEnum job) {
+    public boolean setJob(int jobId) {
+        JobConstants.JobEnum job = JobConstants.JobEnum.getJobById((short) id);
         if (job == null) {
-            job = JobConstants.JobEnum.BEGINNER;
+            return false;
         }
-        this.job = job;
+        getStats().setJob((short) jobId);
+        return true;
     }
 
     /*
@@ -929,9 +1034,9 @@ public class MapleCharacter implements Serializable {
 
     private void changeMap(MapleMap map, byte portal, boolean load) {
         getVisibleMapObjs().clear();
-        getVisibleChar().clear();
+        getVisibleChars().clear();
         if (getMap() != null) {
-            getMap().removePlayer(this);
+            getMap().removeChar(this);
         }
         setMap(map);
         Portal targetPortal = map.getPortal(portal) == null ? map.getDefaultPortal() : map.getPortal(portal);
@@ -978,7 +1083,6 @@ public class MapleCharacter implements Serializable {
         addSkill(skill, false);
     }
 
-
     public void addSkill(Skill skill, boolean addRegardlessOfLevel) {
         if (!addRegardlessOfLevel && skill.getCurrentLevel() == 0) {
             removeSkill(skill.getSkillId());
@@ -1022,7 +1126,6 @@ public class MapleCharacter implements Serializable {
         return hyperPsdSkillsCooltimeR;
     }
 
-
     public void removeFromBaseStatCache(Skill skill) {
         SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
         Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel(), skill.getSkillId());
@@ -1049,12 +1152,12 @@ public class MapleCharacter implements Serializable {
     }
 
     public void enterCashShop() {
-        setChangingChannel(true);
         logout();
+        setChangingChannel(true);
         MapleMap map = getMap();
-        map.removePlayer(this);
+        map.removeChar(this);
         Server.getInstance().addClientInTransfer((byte) channel, getId(), getClient());
-        announce(WorldPacket.getChannelChange(Server.getInstance().getCashShop(getWorld()).getPort()));
+        announce(WorldPacket.getChannelChange(true, Server.getInstance().getCashShop(getWorld()).getPort()));
     }
 
     public void changeChannel(byte channel) {
@@ -1062,21 +1165,18 @@ public class MapleCharacter implements Serializable {
     }
 
     private void changeChannelAndWarp(byte channel, int mapId) {
-        setChangingChannel(true);
         logout();
+        setChangingChannel(true);
         MapleMap map = getMap();
-        if (mapId == getMapId()) {
-            Portal spawnPortalNearby = map.getSpawnPortalNearby(getPosition());
-            setSpawnPoint(spawnPortalNearby.getId());
-        } else {
+        if (mapId != getMapId()) {
             setMapId(mapId);
-            setSpawnPoint((byte) 0); //todo
+            setSpawnPoint((byte) 0);
         }
-        map.removePlayer(this);
+        map.removeChar(this);
         this.map = null;
         Server.getInstance().addClientInTransfer(channel, getId(), getClient());
         int port = Server.getInstance().getChannel(world, channel).getPort();
-        announce(WorldPacket.getChannelChange(port));
+        announce(WorldPacket.getChannelChange(true, port));
     }
 
     public boolean applyMpCon(int skillId, int skillLevel) {
@@ -1103,7 +1203,6 @@ public class MapleCharacter implements Serializable {
     public void dropMessage(String message) {
         announce(WorldPacket.serverNotice(message));
     }
-
 
     public boolean isSkillInCd(int skillId) {
         boolean t = System.currentTimeMillis() > getSkillCooltimes().getOrDefault(skillId, 0L);
@@ -1136,9 +1235,9 @@ public class MapleCharacter implements Serializable {
         if (baseStat.getLevelVar() != null) {
             stat += getTotalStatAsDouble(baseStat.getLevelVar()) * getLevel();
         }
-        // --- Everything below this doesn't get affected by the rate var
-        // Character potential
-        //潜能
+//         --- Everything below this doesn't get affected by the rate var
+//         Character potential
+//        潜能
 //        for (CharacterPotential cp : getPotentials()) {
 //            Skill skill = cp.getSkill();
 //            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
@@ -1152,7 +1251,6 @@ public class MapleCharacter implements Serializable {
     public int getTotalStat(BaseStat stat) {
         return (int) getTotalStatAsDouble(stat);
     }
-
 
     public void initBaseStats() {
         getBaseStats().clear();
@@ -1173,10 +1271,12 @@ public class MapleCharacter implements Serializable {
         if (job == null) {
             return;
         }
-        setJobHandler(JobManager.getJobById(getJobId(), this));
-        setJob(job);
+        if (!setJob(jobId)) {
+            return;
+        }
+        setJobHandler(JobManager.getJobById(getJob(), this));
         HashMap<MapleStat, Long> stats = new HashMap<>();
-        stats.put(MapleStat.JOB, (long) getJobId());
+        stats.put(MapleStat.JOB, (long) getJob());
         announce(UserPacket.updatePlayerStats(stats, this));
     }
 
@@ -1202,11 +1302,9 @@ public class MapleCharacter implements Serializable {
         return questManager;
     }
 
-
     public boolean hasAnyQuestsInProgress(Set<Integer> quests) {
         return true;
     }
-
 
     public void changeSkillState(int skillId) {
         String skill = String.valueOf(skillId);
@@ -1248,7 +1346,6 @@ public class MapleCharacter implements Serializable {
         });
     }
 
-
     public void addQuestEx(int questId, Map<String, String> value) {
         Map<String, String> options = questEx.getOrDefault(questId, null);
         if (options == null) {
@@ -1256,7 +1353,6 @@ public class MapleCharacter implements Serializable {
         } else {
             questEx.get(questId).putAll(value);
         }
-        buildQuestExStorage();
     }
 
     public void addQuestExAndSendPacket(int questId, Map<String, String> value) {
@@ -1272,11 +1368,16 @@ public class MapleCharacter implements Serializable {
         getVisibleMapObjs().remove(object);
     }
 
-
     public Rect getVisibleRect() {
         int x = getPosition().getX();
         int y = getPosition().getY();
         return new Rect(x - GameConstants.MAX_VIEW_X, y - GameConstants.MAX_VIEW_Y, x + GameConstants.MAX_VIEW_X, y + GameConstants.MAX_VIEW_Y);
+    }
+
+    public Rect getRectAround(Rect rect) {
+        int x = getPosition().getX();
+        int y = getPosition().getY();
+        return new Rect(x + rect.getLeft(), y + rect.getTop(), x + rect.getRight(), y + rect.getBottom());
     }
 
     public void addDailyMobKillCount() {
@@ -1302,7 +1403,6 @@ public class MapleCharacter implements Serializable {
         announce(UserPacket.comboKillMessage(objectId, combo));
     }
 
-
     public int getHonerPoint() {
         return stats.getHonerPoint();
     }
@@ -1319,7 +1419,9 @@ public class MapleCharacter implements Serializable {
         return getInventory(EQUIPPED).getItems().stream().mapToInt(i -> ((Equip) i).getChuc()).sum();
     }
 
-
+    /*
+        伤害皮肤
+     */
     public DamageSkinSaveData getDamageSkinByItemID(int itemId) {
         return getDamageSkins().stream().filter(d -> d.getItemID() == itemId).findAny().orElse(null);
     }
@@ -1329,7 +1431,6 @@ public class MapleCharacter implements Serializable {
             getDamageSkins().add(damageSkinSaveData);
         }
     }
-
 
     public DamageSkinSaveData getDamageSkinBySkinId(int damageSkinId) {
         DamageSkinSaveData defaultSkin = new DamageSkinSaveData(0, 0, false, "");
@@ -1363,22 +1464,16 @@ public class MapleCharacter implements Serializable {
         return getDamageSkins().stream().filter(d -> !d.isNotSave()).collect(Collectors.toList());
     }
 
-    public void encodeDamageSkins(OutPacket outPacket) {
-        outPacket.writeBool(true);
-        getDamageSkin().encode(outPacket);
-        getPremiumDamageSkin().encode(outPacket);
-        getPremiumDamageSkin().encode(outPacket);
-        outPacket.writeShort(getDamageSkinSlotSize());
-        outPacket.writeShort(getSavedDamageSkins().size());
+    public void encodeDamageSkins(OutPacket out) {
+        out.writeBool(true);
+        getDamageSkin().encode(out);
+        getPremiumDamageSkin().encode(out);
+        getPremiumDamageSkin().encode(out);
+        out.writeShort(getDamageSkinSlotSize());
+        out.writeShort(getSavedDamageSkins().size());
         for (DamageSkinSaveData damageSkinSaveData : getSavedDamageSkins()) {
-            damageSkinSaveData.encode(outPacket);
+            damageSkinSaveData.encode(out);
         }
-    }
-
-    public Rect getRectAround(Rect rect) {
-        int x = getPosition().getX();
-        int y = getPosition().getY();
-        return new Rect(x + rect.getLeft(), y + rect.getTop(), x + rect.getRight(), y + rect.getBottom());
     }
 
     public boolean canHold(List<Item> items) {
@@ -1429,6 +1524,14 @@ public class MapleCharacter implements Serializable {
         return Server.getInstance().getWorldById(world);
     }
 
+    public MapleChannel getMapleChannel() {
+        return client.getMapleChannel();
+    }
+
+    public void deductMoney(long amount) {
+        addMeso(-amount);
+    }
+
     public int getSpentHyperStatSp() {
         int sp = 0;
         for (int skillId = 80000400; skillId <= 80000418; skillId++) {
@@ -1438,10 +1541,6 @@ public class MapleCharacter implements Serializable {
             }
         }
         return sp;
-    }
-
-    public void deductMoney(long amount) {
-        addMeso(-amount);
     }
 
     public int getSpentHyperPassiveSkillSp() {
@@ -1466,26 +1565,13 @@ public class MapleCharacter implements Serializable {
         return i;
     }
 
-    public MapleChannel getMapleChannel() {
-        return client.getMapleChannel();
-    }
 
+    //回购商品
     public void addRepurchaseItem(NpcShopItem item) {
         getRepurchaseItems().add(item);
     }
 
-    public Npc getNpc() {
-        return npc;
-    }
-
-    public void setNpc(Npc npc) {
-        this.npc = npc;
-    }
-
-    public void enableAction() {
-        announce(UserPacket.enableActions());
-    }
-
+    // 宠物
     public void addPet(Pet pet) {
         pets.add(pet);
     }
@@ -1509,11 +1595,9 @@ public class MapleCharacter implements Serializable {
                 .orElse(null);
     }
 
-
     /*
         好友
      */
-
     public Set<Friend> getAllFriends() {
         Set<Friend> res = new HashSet<>(getFriends());
         res.addAll(getAccount().getFriends());
@@ -1540,10 +1624,89 @@ public class MapleCharacter implements Serializable {
         }
     }
 
+    public List<Item> getMedals() {
+        List<Item> items = getEquippedInventory().getItems();
+        return items.stream().filter(item -> ItemConstants.isMedal(item.getItemId())).collect(Collectors.toList());
+    }
+
     public List<Item> getChairs() {
         List<Item> items = getInstallInventory().getItems();
-        List<Item> charis = items.stream().filter(item -> item.getItemId() <= 3019999).collect(Collectors.toList());
-        //todo Cash椅子
-        return charis;
+        return items.stream().filter(item -> ItemConstants.isChair(item.getItemId())).collect(Collectors.toList());
+    }
+
+    public CharLook getCharLook() {
+        return Util.findWithPred(charLook, avatar -> !avatar.isZero(), CharLook.defaultLook(getJob()));
+    }
+
+    public CharLook getBetaCharLook() {
+        return Util.findWithPred(charLook, CharLook::isZero);
+    }
+
+    public void enableAction() {
+        announce(UserPacket.enableActions());
+    }
+
+
+    public int getPetEquip(int idx, int i) {
+        Equip equip = null;
+        switch (idx) {
+            case 0:
+                if (i == 0) {
+                    equip = getEquippedCashEquip(BodyPart.PetWear1);
+                } else {
+                    equip = getEquippedCashEquip(BodyPart.PetCollar1);
+                }
+                break;
+            case 1:
+                if (i == 0) {
+                    equip = getEquippedCashEquip(BodyPart.PetWear2);
+                } else {
+                    equip = getEquippedCashEquip(BodyPart.PetCollar2);
+                }
+                break;
+            case 2:
+                if (i == 0) {
+                    equip = getEquippedCashEquip(BodyPart.PetWear3);
+                } else {
+                    equip = getEquippedCashEquip(BodyPart.PetCollar3);
+                }
+                break;
+        }
+        return equip != null ? equip.getItemId() : 0;
+    }
+
+    public void addCurrency(CashShopCurrencyType currencyType, int amount) {
+        switch (currencyType) {
+            case Cash:
+                getAccount().addCash(amount);
+                break;
+            case Voucher:
+                getAccount().addVoucher(amount);
+                break;
+            case Point:
+                getAccount().addPoint(amount);
+                break;
+            case Meso:
+                addMeso(amount);
+                break;
+        }
+    }
+
+    public void initMapTransferCoupon() {
+        if (!getQuestEx().containsKey(QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED)) {
+            Map<String, String> options = new HashMap<>();
+            options.put("count", "0");
+            options.put("date", DateUtil.getFormatDate(DateUtil.getNextMonday()));
+            addQuestEx(QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED, options);
+        } else {
+            Map<String, String> options = getQuestEx().get(QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED);
+            String dateString = options.get("date");
+            LocalDate date = DateUtil.getDate(dateString);
+            if (!LocalDate.now().isBefore(date)) {
+                options.put("count", "0");
+                options.put("date", DateUtil.getFormatDate(DateUtil.getNextMonday()));
+                addQuestEx(QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED, options);
+            }
+        }
     }
 }

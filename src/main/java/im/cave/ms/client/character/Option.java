@@ -1,9 +1,9 @@
 package im.cave.ms.client.character;
 
 import im.cave.ms.client.field.obj.Summon;
-import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.Util;
 
 import java.util.ArrayList;

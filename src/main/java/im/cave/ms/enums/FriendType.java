@@ -55,7 +55,7 @@ public enum FriendType {
     FriendRes_DeleteFriend_Unknown(42),
     FriendRes_Notify(43),
     FriendRes_NotifyNewFriend(44),
-    FriendRes_IncMaxCount_Done(45),
+    FriendRes_IncMaxCount_Done(47),
     FriendRes_IncMaxCount_Unknown(46),
 
     FriendRes_SetFriend_Done_ForFarm(47),

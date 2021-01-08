@@ -1,8 +1,8 @@
 package im.cave.ms.network.packet;
 
+import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobSkillAttackInfo;
-import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.enums.RemoveMobType;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
@@ -18,96 +18,96 @@ import im.cave.ms.tools.Position;
 public class MobPacket {
 
     public static OutPacket spawnMob(Mob mob, boolean hasBennInit) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SPAWN_MOB.getValue());
-        outPacket.writeBool(mob.isSealedInsteadDead());
-        outPacket.writeInt(mob.getObjectId());
-        outPacket.write(mob.getCalcDamageIndex());
-        outPacket.writeInt(mob.getTemplateId());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SPAWN_MOB.getValue());
+        out.writeBool(mob.isSealedInsteadDead());
+        out.writeInt(mob.getObjectId());
+        out.write(mob.getCalcDamageIndex());
+        out.writeInt(mob.getTemplateId());
         ////getTemporaryStat
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0x20);
-        outPacket.writeShort(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0x20);
+        out.writeShort(0);
         if (!hasBennInit) {
-            mob.encodeInit(outPacket);
+            mob.encodeInit(out);
         }
-        return outPacket;
+        return out;
     }
 
 
     public static OutPacket mobCtrlAck(int objId, int moveId, boolean useSkill, int currentMp, int skillId, short skillLevel) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MOB_CONTROL_ACK.getValue());
-        outPacket.writeInt(objId);
-        outPacket.writeShort(moveId);
-        outPacket.writeBool(useSkill);
-        outPacket.writeInt(currentMp);
-        outPacket.writeInt(skillId);
-        outPacket.writeShort(skillLevel);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MOB_CONTROL_ACK.getValue());
+        out.writeInt(objId);
+        out.writeShort(moveId);
+        out.writeBool(useSkill);
+        out.writeInt(currentMp);
+        out.writeInt(skillId);
+        out.writeShort(skillLevel);
+        out.writeInt(0);
+        out.writeInt(0);
+        return out;
     }
 
     public static OutPacket hpIndicator(int objectId, byte percentage) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.HP_INDICATOR.getValue());
-        outPacket.writeInt(objectId);
-        outPacket.writeInt(percentage);
-        outPacket.write(0);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.HP_INDICATOR.getValue());
+        out.writeInt(objectId);
+        out.writeInt(percentage);
+        out.write(0);
+        return out;
     }
 
 
     public static OutPacket removeMob(int objectId, RemoveMobType type) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.REMOVE_MOB.getValue());
-        outPacket.writeInt(objectId);
-        outPacket.write(type.getVal());
-        outPacket.writeZeroBytes(8);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.REMOVE_MOB.getValue());
+        out.writeInt(objectId);
+        out.write(type.getVal());
+        out.writeZeroBytes(8);
+        return out;
     }
 
     public static OutPacket changeMobController(Mob mob, boolean hasBeenInit, boolean isController) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MOB_CHANGE_CONTROLLER.getValue());
-        outPacket.writeBool(isController);
-        outPacket.writeInt(mob.getObjectId());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MOB_CHANGE_CONTROLLER.getValue());
+        out.writeBool(isController);
+        out.writeInt(mob.getObjectId());
         if (isController) {
-            outPacket.write(mob.getCalcDamageIndex());
-            outPacket.writeInt(mob.getObjectId());
+            out.write(mob.getCalcDamageIndex());
+            out.writeInt(mob.getObjectId());
             //getTemporaryStat
-            outPacket.writeInt(0);
-            outPacket.writeInt(0);
-            outPacket.writeInt(0);
-            outPacket.writeInt(0);
-            outPacket.writeInt(0x20);
-            outPacket.writeShort(0);
+            out.writeInt(0);
+            out.writeInt(0);
+            out.writeInt(0);
+            out.writeInt(0);
+            out.writeInt(0x20);
+            out.writeShort(0);
             //mob.init
             if (!hasBeenInit) {
-                mob.encodeInit(outPacket);
+                mob.encodeInit(out);
             }
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket moveMobRemote(Mob mob, MobSkillAttackInfo msai, MovementInfo movementInfo) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MOB_MOVE.getValue());
-        outPacket.writeInt(mob.getObjectId());
-        outPacket.write(msai.actionAndDirMask);
-        outPacket.write(msai.action);
-        outPacket.writeLong(msai.targetInfo);
-        outPacket.writeZeroBytes(6);
-        outPacket.write(msai.multiTargetForBalls.size());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MOB_MOVE.getValue());
+        out.writeInt(mob.getObjectId());
+        out.write(msai.actionAndDirMask);
+        out.write(msai.action);
+        out.writeLong(msai.targetInfo);
+        out.writeZeroBytes(6);
+        out.write(msai.multiTargetForBalls.size());
         for (Position pos : msai.multiTargetForBalls) {
-            outPacket.writePosition(pos);
+            out.writePosition(pos);
         }
-        movementInfo.encode(outPacket);
-        outPacket.write(0);
-        return outPacket;
+        movementInfo.encode(out);
+        out.write(0);
+        return out;
     }
 }

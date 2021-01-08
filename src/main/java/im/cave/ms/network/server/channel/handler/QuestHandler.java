@@ -3,7 +3,6 @@ package im.cave.ms.network.server.channel.handler;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.quest.Quest;
-import im.cave.ms.client.quest.QuestInfo;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.constants.QuestConstants;
 import im.cave.ms.enums.ChatType;
@@ -12,6 +11,7 @@ import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.QuestPacket;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.QuestData;
+import im.cave.ms.provider.info.QuestInfo;
 import im.cave.ms.scripting.quest.QuestScriptManager;
 import im.cave.ms.tools.Position;
 import org.slf4j.Logger;
@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
 public class QuestHandler {
     private static final Logger log = LoggerFactory.getLogger(QuestHandler.class);
 
-    public static void handleQuestRequest(InPacket inPacket, MapleClient c) {
+    public static void handleQuestRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
         QuestManager questManager = player.getQuestManager();
-        QuestType type = QuestType.getType(inPacket.readByte());
+        QuestType type = QuestType.getType(in.readByte());
         int questId = 0;
         int npcTemplateId = 0;
         Position position = null;
@@ -43,18 +43,18 @@ public class QuestHandler {
                 case QuestReq_CompleteQuest: // Quest end
                 case QuestReq_OpeningScript: // Scripted quest start
                 case QuestReq_CompleteScript: // Scripted quest end
-                    questId = inPacket.readInt();
-                    npcTemplateId = inPacket.readInt();
-                    if (inPacket.available() > 4) {
-                        position = inPacket.readPos();
+                    questId = in.readInt();
+                    npcTemplateId = in.readInt();
+                    if (in.available() > 4) {
+                        position = in.readPos();
                     }
                     break;
                 case QuestReq_ResignQuest: //Quest forfeit
-                    questId = inPacket.readInt();
+                    questId = in.readInt();
                     player.getQuestManager().removeQuest(questId);
                     break;
                 case QuestReq_LaterStep:
-                    questId = inPacket.readInt();
+                    questId = in.readInt();
                     break;
                 default:
                     log.error(String.format("Unhandled quest request %s!", type));

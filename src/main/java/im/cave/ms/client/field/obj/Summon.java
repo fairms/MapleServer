@@ -2,15 +2,15 @@ package im.cave.ms.client.field.obj;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
-import im.cave.ms.client.skill.Skill;
-import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.enums.AssistType;
 import im.cave.ms.enums.EnterType;
 import im.cave.ms.enums.MoveAbility;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.network.packet.SummonPacket;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

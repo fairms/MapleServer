@@ -3,18 +3,18 @@ package im.cave.ms.client.character.job.adventurer;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.skill.AttackInfo;
+import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Summon;
-import im.cave.ms.client.skill.AttackInfo;
-import im.cave.ms.client.skill.Skill;
-import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.AssistType;
 import im.cave.ms.enums.MoveAbility;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.Util;
 
 import java.util.Arrays;
@@ -90,7 +90,7 @@ public class Warrior extends Beginner {
 
     public Warrior(MapleCharacter chr) {
         super(chr);
-        if (chr != null && JobConstants.isHero(chr.getJobId())) {
+        if (chr != null && JobConstants.isHero(chr.getJob())) {
             if (!chr.hasSkill(HERO_COMBO_ATTACK)) {
                 Skill skill = SkillData.getSkill(HERO_COMBO_ATTACK);
                 Objects.requireNonNull(skill).setCurrentLevel(1);
@@ -100,10 +100,10 @@ public class Warrior extends Beginner {
     }
 
     @Override
-    public void handleSkill(MapleClient c, int skillId, int skillLevel, InPacket inPacket) {
-        super.handleSkill(c, skillId, skillLevel, inPacket);
+    public void handleSkill(MapleClient c, int skillId, int skillLevel, InPacket in) {
+        super.handleSkill(c, skillId, skillLevel, in);
         if (isBuff(skillId)) {
-            handleBuff(c, inPacket, skillId, skillLevel);
+            handleBuff(c, in, skillId, skillLevel);
         }
     }
 
@@ -118,7 +118,7 @@ public class Warrior extends Beginner {
             si = SkillData.getSkillInfo(attackInfo.skillId);
         }
         boolean hasHitMobs = attackInfo.mobCount > 0;
-        if (JobConstants.isHero(player.getJobId())) {
+        if (JobConstants.isHero(player.getJob())) {
             if (hasHitMobs) {
                 int comboProp = getComboProp(chr);
                 if (Util.succeedProp(comboProp)) {
@@ -149,8 +149,8 @@ public class Warrior extends Beginner {
     }
 
     @Override
-    public void handleBuff(MapleClient c, InPacket inPacket, int skillId, int slv) {
-        super.handleBuff(c, inPacket, skillId, slv);
+    public void handleBuff(MapleClient c, InPacket in, int skillId, int slv) {
+        super.handleBuff(c, in, skillId, slv);
         MapleCharacter player = c.getPlayer();
         TemporaryStatManager tsm = player.getTemporaryStatManager();
         SkillInfo skillInfo = SkillData.getSkillInfo(skillId);

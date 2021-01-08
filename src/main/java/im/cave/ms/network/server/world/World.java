@@ -1,9 +1,9 @@
 package im.cave.ms.network.server.world;
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.party.Party;
-import im.cave.ms.config.Config;
-import im.cave.ms.config.WorldConfig;
+import im.cave.ms.client.social.party.Party;
+import im.cave.ms.configs.Config;
+import im.cave.ms.configs.WorldConfig;
 import im.cave.ms.network.server.cashshop.CashShopServer;
 import im.cave.ms.network.server.channel.MapleChannel;
 
@@ -72,6 +72,7 @@ public class World {
         }
     }
 
+    //todo fix
     public boolean init() {
         try {
             WorldConfig.WorldInfo info = Config.worldConfig.getWorldInfo(id);
@@ -81,6 +82,7 @@ public class World {
             }
             cashShopServer = new CashShopServer(id);
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
         return channels.size() > 0;

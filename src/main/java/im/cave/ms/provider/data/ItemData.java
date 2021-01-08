@@ -1,20 +1,22 @@
 package im.cave.ms.provider.data;
 
-import im.cave.ms.client.cashshop.CashItemInfo;
-import im.cave.ms.client.character.FamiliarInfo;
+import im.cave.ms.client.character.items.Equip;
+import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.items.ItemOption;
+import im.cave.ms.client.character.items.ItemSkill;
+import im.cave.ms.client.character.items.PetItem;
 import im.cave.ms.client.field.obj.Android;
-import im.cave.ms.client.field.obj.AndroidInfo;
-import im.cave.ms.client.items.Equip;
-import im.cave.ms.client.items.Item;
-import im.cave.ms.client.items.ItemInfo;
-import im.cave.ms.client.items.ItemOption;
-import im.cave.ms.client.items.ItemSkill;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ItemState;
 import im.cave.ms.enums.SpecStat;
+import im.cave.ms.provider.info.AndroidInfo;
+import im.cave.ms.provider.info.CashItemInfo;
+import im.cave.ms.provider.info.FamiliarInfo;
+import im.cave.ms.provider.info.ItemInfo;
+import im.cave.ms.provider.info.PetInfo;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataDirectoryEntry;
 import im.cave.ms.provider.wz.MapleDataFileEntry;
@@ -34,12 +36,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static im.cave.ms.client.items.Item.Type.ITEM;
-import static im.cave.ms.constants.GameConstants.MAX_TIME;
+import static im.cave.ms.client.character.items.Item.Type.ITEM;
+import static im.cave.ms.constants.ServerConstants.MAX_TIME;
 import static im.cave.ms.enums.ScrollStat.createType;
 import static im.cave.ms.enums.ScrollStat.cursed;
 import static im.cave.ms.enums.ScrollStat.forceUpgrade;
 import static im.cave.ms.enums.ScrollStat.incACC;
+import static im.cave.ms.enums.ScrollStat.incALB;
 import static im.cave.ms.enums.ScrollStat.incDEX;
 import static im.cave.ms.enums.ScrollStat.incEVA;
 import static im.cave.ms.enums.ScrollStat.incINT;
@@ -81,32 +84,28 @@ public class ItemData {
     private static final MapleDataProvider itemData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Item.wz"));
     private static final MapleDataProvider etcData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Etc.wz"));
 
-    public static Map<Integer, Equip> equips = new HashMap<>();
-    public static Map<Integer, ItemInfo> items = new HashMap<>();
-    public static Set<Integer> startItems = new HashSet<>();
-    @lombok.Getter
-    public static Map<Integer, ItemOption> familiarOptions = new HashMap<>();
+    private static final Map<Integer, Equip> equips = new HashMap<>();
+    private static final Map<Integer, ItemInfo> items = new HashMap<>();
+    private static final Set<Integer> startItems = new HashSet<>();
+    private static final Map<Integer, ItemOption> familiarOptions = new HashMap<>();
     private static final Map<Integer, FamiliarInfo> familiars = new HashMap<>();
-    public static Map<Integer, ItemOption> itemOptions = new HashMap<>();
-    public static Map<Integer, CashItemInfo> cashItems = new HashMap<>();
-    public static Map<Integer, CashItemInfo> oldCashItems = new HashMap<>();
-    public static Map<Integer, List<Integer>> itemPackages = new HashMap<>();
-    public static Map<Integer, Integer> snLookUp = new HashMap<>();
-    public static Map<Integer, AndroidInfo> androids = new HashMap<>();
+    private static final Map<Integer, ItemOption> itemOptions = new HashMap<>();
+    private static final Map<Integer, CashItemInfo> cashItems = new HashMap<>();
+    private static final Map<Integer, CashItemInfo> oldCashItems = new HashMap<>();
+    private static final Map<Integer, List<Integer>> itemPackages = new HashMap<>();
+    private static final Map<Integer, Integer> snLookUp = new HashMap<>();
+    private static final Map<Integer, AndroidInfo> androids = new HashMap<>();
+    private static final Map<Integer, PetInfo> pets = new HashMap<>();
 
     public static void init() {
-        log.info("----------------加载道具信息----------------");
         loadStartItems();
         loadItemOptions();
         loadFamiliars();
         loadFamiliarOptions();
-        log.info("开始加载商城道具");
         loadCashShopItems();
-        log.info("商城道具加载完成");
         loadAndroidsInfo();
-        log.info("--------------加载道具信息结束--------------");
+        loadPetsInfo();
     }
-
 
     private static void loadCashShopItems() {
         //在售
@@ -203,7 +202,6 @@ public class ItemData {
         }
     }
 
-
     private static void loadFamiliars() {
         MapleDataDirectoryEntry f = (MapleDataDirectoryEntry) chrData.getRoot().getEntry("Familiar");
         for (MapleDataFileEntry file : f.getFiles()) {
@@ -241,7 +239,6 @@ public class ItemData {
         }
     }
 
-
     public static Equip getEquipById(int equipId) {
         if (!equips.containsKey(equipId)) {
             return getEquipFromWz(equipId);
@@ -256,7 +253,6 @@ public class ItemData {
         return items.get(itemId);
     }
 
-
     public static Map<Integer, Equip> getEquips() {
         return equips;
     }
@@ -264,7 +260,6 @@ public class ItemData {
     public static Map<Integer, ItemInfo> getItems() {
         return items;
     }
-
 
     public static Equip getEquipFromWz(int equipId) {
         MapleData data = getItemData(equipId);
@@ -454,7 +449,7 @@ public class ItemData {
                     }
                     break;
                 case "effectItemID":
-                    equip.setEffectItemID(MapleDataTool.getInt(attr));
+                    equip.setEffectItemId(MapleDataTool.getInt(attr));
                     break;
             }
             for (int i = 0; i < 7 - options.size(); i++) {
@@ -851,6 +846,9 @@ public class ItemData {
                 case "reqRUC":
                     item.putScrollStat(reqRUC, MapleDataTool.getInt(attr));
                     break;
+                case "incALB":
+                    item.putScrollStat(incALB, MapleDataTool.getInt(attr));
+                    break;
                 case "bagType":
                     item.setBagType(MapleDataTool.getInt(attr));
                     break;
@@ -1019,12 +1017,11 @@ public class ItemData {
         return startItems;
     }
 
-
     public static Item getItemCopy(int itemId, boolean randomize) {
         if (ItemConstants.isEquip(itemId)) {
             return getEquipDeepCopyFromID(itemId, randomize);
         } else if (ItemConstants.isPet(itemId)) {
-//            return getPetDeepCopyFromID(id);
+            return getPetDeepCopyFromID(itemId);
         }
 
         return getDeepCopyByItemInfo(getItemInfoById(itemId));
@@ -1077,6 +1074,10 @@ public class ItemData {
 
     public static void loadFamiliarOptions() {
         loadItemOptions("FamiliarOption.img", getFamiliarOptions());
+    }
+
+    public static Map<Integer, ItemOption> getFamiliarOptions() {
+        return familiarOptions;
     }
 
     public static void loadItemOptions() {
@@ -1316,13 +1317,16 @@ public class ItemData {
 
     }
 
-
     public static CashItemInfo getCashItemInfo(int sn) {
         CashItemInfo itemInfo = cashItems.get(sn);
         if (itemInfo == null) {
             itemInfo = oldCashItems.get(sn);
         }
         return itemInfo;
+    }
+
+    public static FamiliarInfo getFamiliarInfo(int itemId) {
+        return familiars.get(itemId);
     }
 
     public static int getFamiliarId(int familiarCardId) {
@@ -1346,7 +1350,6 @@ public class ItemData {
         android.setName(StringData.getEquipName(androidEquip.getItemId()));
         return android;
     }
-
 
     public static void loadAndroidsInfo() {
         MapleDataDirectoryEntry android = (MapleDataDirectoryEntry) etcData.getRoot().getEntry("Android");
@@ -1393,8 +1396,173 @@ public class ItemData {
         }
     }
 
-
     public static AndroidInfo getAndroidInfoByType(int type) {
         return androids.get(type);
+    }
+
+    public static Set<Integer> getStartItems() {
+        return startItems;
+    }
+
+    public static void loadPetsInfo() {
+        MapleDataDirectoryEntry pets = (MapleDataDirectoryEntry) itemData.getRoot().getEntry("Pet");
+        for (MapleDataFileEntry file : pets.getFiles()) {
+            MapleData petData = itemData.getData("/Pet/" + file.getName());
+            int id = Integer.parseInt(petData.getName().substring(0, 7));
+            PetInfo petInfo = new PetInfo();
+            petInfo.setItemID(id);
+            petInfo.setInvType(InventoryType.CONSUME);
+            for (MapleData info : petData.getChildByPath("info").getChildren()) {
+                String name = info.getName();
+                String value = MapleDataTool.getString(info);
+                switch (name) {
+                    case "life":
+                        petInfo.setLife(Integer.parseInt(value));
+                        break;
+                    case "setItemID":
+                        petInfo.setSetItemID(Integer.parseInt(value));
+                        break;
+                    case "evolutionID":
+                        petInfo.setEvolutionID(Integer.parseInt(value));
+                        break;
+                    case "type":
+                        petInfo.setType(Integer.parseInt(value));
+                        break;
+                    case "limitedLife":
+                        petInfo.setLimitedLife(Integer.parseInt(value));
+                        break;
+                    case "evol1":
+                        petInfo.setEvol1(Integer.parseInt(value));
+                        break;
+                    case "evol2":
+                        petInfo.setEvol2(Integer.parseInt(value));
+                        break;
+                    case "evol3":
+                        petInfo.setEvol3(Integer.parseInt(value));
+                        break;
+                    case "evol4":
+                        petInfo.setEvol4(Integer.parseInt(value));
+                        break;
+                    case "evol5":
+                        petInfo.setEvol5(Integer.parseInt(value));
+                        break;
+                    case "evolProb1":
+                        petInfo.setProbEvol1(Integer.parseInt(value));
+                        break;
+                    case "evolProb2":
+                        petInfo.setProbEvol2(Integer.parseInt(value));
+                        break;
+                    case "evolProb3":
+                        petInfo.setProbEvol3(Integer.parseInt(value));
+                        break;
+                    case "evolProb4":
+                        petInfo.setProbEvol4(Integer.parseInt(value));
+                        break;
+                    case "evolProb5":
+                        petInfo.setProbEvol5(Integer.parseInt(value));
+                        break;
+                    case "evolReqItemID":
+                        petInfo.setEvolReqItemID(Integer.parseInt(value));
+                        break;
+                    case "evolReqPetLvl":
+                        petInfo.setEvolReqPetLvl(Integer.parseInt(value));
+                        break;
+                    case "evolNo":
+                        petInfo.setEvolNo(Integer.parseInt(value));
+                        break;
+                    case "permanent":
+                        petInfo.setPermanent(Integer.parseInt(value) != 0);
+                        break;
+                    case "pickupItem":
+                        petInfo.setPickupItem(Integer.parseInt(value) != 0);
+                        break;
+                    case "interactByUserAction":
+                        petInfo.setInteractByUserAction(Integer.parseInt(value) != 0);
+                        break;
+                    case "longRange":
+                        petInfo.setLongRange(Integer.parseInt(value) != 0);
+                        break;
+                    case "giantPet":
+                        petInfo.setGiantPet(Integer.parseInt(value) != 0);
+                        break;
+                    case "noMoveToLocker":
+                        petInfo.setAllowOverlappedSet(Integer.parseInt(value) != 0);
+                        break;
+                    case "allowOverlappedSet":
+                        petInfo.setAllowOverlappedSet(Integer.parseInt(value) != 0);
+                        break;
+                    case "noRevive":
+                        petInfo.setNoRevive(Integer.parseInt(value) != 0);
+                        break;
+                    case "noScroll":
+                        petInfo.setNoScroll(Integer.parseInt(value) != 0);
+                        break;
+                    case "autoBuff":
+                        petInfo.setAutoBuff(Integer.parseInt(value) != 0);
+                        break;
+                    case "multiPet":
+                        petInfo.setAutoBuff(Integer.parseInt(value) != 0);
+                        break;
+                    case "autoReact":
+                        petInfo.setAutoReact(Integer.parseInt(value) != 0);
+                        break;
+                    case "pickupAll":
+                        petInfo.setPickupAll(Integer.parseInt(value) != 0);
+                        break;
+                    case "sweepForDrop":
+                        petInfo.setSweepForDrop(Integer.parseInt(value) != 0);
+                        break;
+                    case "consumeMP":
+                        petInfo.setConsumeMP(Integer.parseInt(value) != 0);
+                        break;
+                    case "evol":
+                        petInfo.setEvol(Integer.parseInt(value) != 0);
+                        break;
+                    case "starPlanetPet":
+                        petInfo.setStarPlanetPet(Integer.parseInt(value) != 0);
+                        break;
+                    case "cash":
+                        petInfo.setCash(Integer.parseInt(value) != 0);
+                        petInfo.setInvType(InventoryType.CASH);
+                        petInfo.setCash(true);
+                        break;
+                    case "runScript":
+                        petInfo.setRunScript(value);
+                        break;
+                    case "icon":
+                    case "iconD":
+                    case "iconRaw":
+                    case "iconRawD":
+                    case "hungry":
+                    case "nameTag":
+                    case "chatBalloon":
+                    case "noHungry":
+                    default:
+                        break;
+                }
+            }
+            addPetInfo(petInfo);
+            ItemInfo ii = new ItemInfo();
+            ii.setItemId(petInfo.getItemID());
+            ii.setInvType(petInfo.getInvType());
+            items.put(ii.getItemId(), ii);
+        }
+    }
+
+    private static void addPetInfo(PetInfo petInfo) {
+        pets.put(petInfo.getItemID(), petInfo);
+    }
+
+
+    public static PetItem getPetDeepCopyFromID(int itemId) {
+        PetInfo pi = getPetInfo(itemId);
+        if (pi == null) {
+            return null;
+        }
+        return pi.createPetItem();
+    }
+
+    private static PetInfo getPetInfo(int itemId) {
+        return pets.getOrDefault(itemId, null);
     }
 }

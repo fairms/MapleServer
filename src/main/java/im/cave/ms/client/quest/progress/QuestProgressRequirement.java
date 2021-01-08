@@ -1,7 +1,6 @@
 package im.cave.ms.client.quest.progress;
 
 import im.cave.ms.client.character.MapleCharacter;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +24,7 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Table(name = "questprogressrequirements")
+@Table(name = "quest_progressrequirement")
 @DiscriminatorColumn(name = "progressType")
 public abstract class QuestProgressRequirement {
     @Id

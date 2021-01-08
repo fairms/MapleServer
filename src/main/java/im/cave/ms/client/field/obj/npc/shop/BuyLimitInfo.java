@@ -12,12 +12,12 @@ public class BuyLimitInfo {
     private int type;
     private Set<Long> dates = new HashSet<>();
 
-    public void encode(OutPacket outPacket) {
-        outPacket.write(getType());
+    public void encode(OutPacket out) {
+        out.write(getType());
         if (getType() == 1 || getType() == 3 || getType() == 4) {
-            outPacket.writeInt(getDates().size());
+            out.writeInt(getDates().size());
             for (Long ft : getDates()) {
-                outPacket.writeLong(ft);
+                out.writeLong(ft);
             }
         }
     }

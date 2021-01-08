@@ -45,9 +45,12 @@ public enum ScrollStat {
     speed,
     forceUpgrade,
     cursed,
+    noCursed,
     maxSuperiorEqp,
     noNegative,
     incRandVol,
+    incALB,
+    reqEquipLevelMin,
     reqEquipLevelMax,
     createType,
     optionType;

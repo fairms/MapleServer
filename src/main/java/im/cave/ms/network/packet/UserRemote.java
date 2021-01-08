@@ -1,12 +1,15 @@
 package im.cave.ms.network.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.items.Equip;
+import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.items.PetItem;
+import im.cave.ms.client.character.skill.AttackInfo;
+import im.cave.ms.client.character.skill.HitInfo;
+import im.cave.ms.client.character.skill.MobAttackInfo;
 import im.cave.ms.client.field.Effect;
-import im.cave.ms.client.items.Equip;
-import im.cave.ms.client.items.Item;
-import im.cave.ms.client.skill.AttackInfo;
-import im.cave.ms.client.skill.HitInfo;
-import im.cave.ms.client.skill.MobAttackInfo;
+import im.cave.ms.client.field.obj.Pet;
+import im.cave.ms.enums.BodyPart;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
 
@@ -24,252 +27,264 @@ import static im.cave.ms.constants.QuestConstants.QUEST_EX_SOUL_EFFECT;
  */
 public class UserRemote {
     public static OutPacket hit(MapleCharacter player, HitInfo hitInfo) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.REMOTE_HIT.getValue());
-        outPacket.writeInt(player.getId());
-        outPacket.write(hitInfo.type);
-        outPacket.writeInt(hitInfo.hpDamage);
-        outPacket.writeBool(hitInfo.isCrit);
-        outPacket.writeBool(hitInfo.hpDamage == 0);
-        outPacket.write(0);
-        outPacket.writeInt(hitInfo.templateID);
-        outPacket.write(hitInfo.action);
-        outPacket.writeInt(hitInfo.mobID);
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.REMOTE_HIT.getValue());
+        out.writeInt(player.getId());
+        out.write(hitInfo.type);
+        out.writeInt(hitInfo.hpDamage);
+        out.writeBool(hitInfo.isCrit);
+        out.writeBool(hitInfo.hpDamage == 0);
+        out.write(0);
+        out.writeInt(hitInfo.templateID);
+        out.write(hitInfo.action);
+        out.writeInt(hitInfo.mobID);
 
-        outPacket.writeInt(0); // ignored
-        outPacket.writeInt(hitInfo.reflectDamage);
-        outPacket.writeBool(hitInfo.hpDamage == 0); // bGuard
+        out.writeInt(0); // ignored
+        out.writeInt(hitInfo.reflectDamage);
+        out.writeBool(hitInfo.hpDamage == 0); // bGuard
 
-        outPacket.write(hitInfo.specialEffectSkill);
+        out.write(hitInfo.specialEffectSkill);
         if ((hitInfo.specialEffectSkill & 1) != 0) {
-            outPacket.writeInt(hitInfo.curStanceSkill);
+            out.writeInt(hitInfo.curStanceSkill);
         }
-        outPacket.writeInt(hitInfo.hpDamage);
-        return outPacket;
+        out.writeInt(hitInfo.hpDamage);
+        return out;
     }
 
     public static OutPacket effect(int id, Effect effect) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.REMOTE_EFFECT.getValue());
-        outPacket.writeInt(id);
-        effect.encode(outPacket);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.REMOTE_EFFECT.getValue());
+        out.writeInt(id);
+        effect.encode(out);
+        return out;
     }
 
     public static OutPacket attack(MapleCharacter player, AttackInfo attackInfo) {
-        OutPacket outPacket = new OutPacket();
+        OutPacket out = new OutPacket();
         switch (attackInfo.attackHeader) {
             case CLOSE_RANGE_ATTACK:
-                outPacket.writeShort(SendOpcode.REMOTE_CLOSE_RANGE_ATTACK.getValue());
+                out.writeShort(SendOpcode.REMOTE_CLOSE_RANGE_ATTACK.getValue());
                 break;
             case RANGED_ATTACK:
-                outPacket.writeShort(SendOpcode.REMOTE_RANGED_ATTACK.getValue());
+                out.writeShort(SendOpcode.REMOTE_RANGED_ATTACK.getValue());
                 break;
             case MAGIC_ATTACK:
-                outPacket.writeShort(SendOpcode.REMOTE_MAGIC_ATTACK.getValue());
+                out.writeShort(SendOpcode.REMOTE_MAGIC_ATTACK.getValue());
                 break;
         }
-        outPacket.writeInt(player.getId());
-        outPacket.write(attackInfo.fieldKey);
-        outPacket.write(attackInfo.mobCount << 4 | attackInfo.hits);
-        outPacket.writeInt(player.getLevel());
-        outPacket.writeInt(attackInfo.skillLevel);
+        out.writeInt(player.getId());
+        out.write(attackInfo.fieldKey);
+        out.write(attackInfo.mobCount << 4 | attackInfo.hits);
+        out.writeInt(player.getLevel());
+        out.writeInt(attackInfo.skillLevel);
         if (attackInfo.skillLevel > 0) {
-            outPacket.writeInt(attackInfo.skillId);
+            out.writeInt(attackInfo.skillId);
         }
-        outPacket.writeZeroBytes(10);
-        outPacket.write(attackInfo.attackAction);
-        outPacket.write(attackInfo.direction);
+        out.writeZeroBytes(10);
+        out.write(attackInfo.attackAction);
+        out.write(attackInfo.direction);
 
-        outPacket.writeShort(1);
-        outPacket.writeInt(0);
-        outPacket.writeShort(1);
-        outPacket.write(0);
-        outPacket.writeInt(0);
+        out.writeShort(1);
+        out.writeInt(0);
+        out.writeShort(1);
+        out.write(0);
+        out.writeInt(0);
 
         for (MobAttackInfo mobAttackInfo : attackInfo.mobAttackInfo) {
-            outPacket.writeInt(mobAttackInfo.objectId);
-            outPacket.writeZeroBytes(13);
+            out.writeInt(mobAttackInfo.objectId);
+            out.writeZeroBytes(13);
             for (long damage : mobAttackInfo.damages) {
-                outPacket.writeLong(damage);
+                out.writeLong(damage);
             }
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket charInfo(MapleCharacter chr) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CHAR_INFO.getValue());
-        outPacket.writeInt(chr.getId());
-        outPacket.writeInt(chr.getLevel());
-        outPacket.writeShort(chr.getJobId());
-        outPacket.writeShort(0);//sub job
-        outPacket.write(0x0A); //pvp grade
-        outPacket.writeInt(chr.getFame());
-        outPacket.writeBool(false); //marriage
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.CHAR_INFO.getValue());
+        out.writeInt(chr.getId());
+        out.writeInt(chr.getLevel());
+        out.writeShort(chr.getJob());
+        out.writeShort(chr.getSubJob());
+        out.write(10);
+        out.writeInt(chr.getFame());
+        out.writeBool(chr.isMarried());
         //todo marriage = true
-        outPacket.write(0); //making skill size
-        outPacket.writeMapleAsciiString("-"); //party name
-        outPacket.writeMapleAsciiString(""); // 联盟
-        outPacket.write(-1); //unk
-        outPacket.write(0);  //unk
-        outPacket.write(0); //pet size
-        //todo pet info
-        outPacket.write(0);
-        outPacket.writeInt(0); //装备的的勋章
-        outPacket.writeShort(0); //收藏数目
-        //todo 收藏任务id+完成时间
-        chr.encodeDamageSkins(outPacket);
-        //倾向
-        outPacket.write(100);
-        outPacket.write(100);
-        outPacket.write(100);
-        outPacket.write(100);
-        outPacket.write(100);
-        outPacket.write(100);
-        //
-        outPacket.write(0);
-        outPacket.writeZeroBytes(8);
-        List<Item> chairs = chr.getChairs();
-        outPacket.writeInt(chairs.size());//椅子数
-        for (Item chair : chairs) {
-            outPacket.writeInt(chair.getItemId());
+        out.write(0); //making skill size
+        out.writeMapleAsciiString("-"); //party name
+        out.writeMapleAsciiString(""); // 联盟
+        out.write(-1); //unk
+        out.write(0);  //unk
+        out.writeBool(chr.getPets().size() > 0); //has pet
+        for (Pet pet : chr.getPets()) {
+            PetItem petItem = pet.getPetItem();
+            out.writeBool(true);
+            out.writeInt(pet.getIdx());
+            out.writeInt(petItem.getItemId());
+            out.writeMapleAsciiString(pet.getName());
+            out.write(petItem.getLevel());
+            out.writeShort(petItem.getTameness());
+            out.write(petItem.getRepleteness());
+            out.write(petItem.getPetSkill());
+            out.writeInt(chr.getPetEquip(pet.getIdx(), 0));
+            out.writeInt(chr.getPetEquip(pet.getIdx(), 1));
         }
-        outPacket.writeInt(0);//勋章数
-
-        return outPacket;
+        out.write(0); // SetPetInfo end
+        Equip medal = chr.getEquippedEquip(BodyPart.Medal);
+        out.writeInt(medal != null ? medal.getItemId() : 0);
+        out.writeShort(0); //收藏数目
+        //todo 收藏任务id+完成时间
+        chr.encodeDamageSkins(out);
+        out.write(chr.getStats().getCharismaLevel());
+        out.write(chr.getStats().getInsightLevel());
+        out.write(chr.getStats().getWillLevel());
+        out.write(chr.getStats().getCraftLevel());
+        out.write(chr.getStats().getSenseLevel());
+        out.write(chr.getStats().getCharmLevel());
+        out.write(0);
+        out.writeLong(0);
+        List<Item> chairs = chr.getChairs();
+        out.writeInt(chairs.size());//椅子数
+        for (Item chair : chairs) {
+            out.writeInt(chair.getItemId());
+        }
+        List<Item> medals = chr.getMedals();
+        out.writeInt(medals.size());
+        for (Item item : medals) {
+            out.writeInt(item.getItemId());
+        }
+        return out;
     }
 
     public static OutPacket showBlackboard(MapleCharacter chr, boolean show, String content) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeInt(chr.getId());
-        outPacket.writeBool(show);
+        OutPacket out = new OutPacket();
+        out.writeInt(chr.getId());
+        out.writeBool(show);
         if (show) {
-            outPacket.writeMapleAsciiString(content);
+            out.writeMapleAsciiString(content);
         }
-        return outPacket;
+        return out;
     }
 
     public static OutPacket getChatText(MapleCharacter player, String content) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.CHATTEXT.getValue());
-        outPacket.writeInt(player.getId());
-        outPacket.writeBool(player.isGm());
-        outPacket.writeMapleAsciiString(content);
-        outPacket.writeMapleAsciiString(player.getName());
-        outPacket.writeMapleAsciiString(content);
-        outPacket.writeLong(0);
-        outPacket.write(player.getWorld());
-        outPacket.writeInt(player.getId());
-        outPacket.write(3);
-        outPacket.write(1);
-        outPacket.write(-1);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.CHATTEXT.getValue());
+        out.writeInt(player.getId());
+        out.writeBool(player.isGm());
+        out.writeMapleAsciiString(content);
+        out.writeMapleAsciiString(player.getName());
+        out.writeMapleAsciiString(content);
+        out.writeLong(0);
+        out.write(player.getWorld());
+        out.writeInt(player.getId());
+        out.write(3);
+        out.write(1);
+        out.write(-1);
+        return out;
     }
 
     public static OutPacket emotion(Integer charId, int emotion, int duration, boolean byItemOption) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.REMOTE_EMOTION.getValue());
-        outPacket.writeInt(charId);
-        outPacket.writeInt(emotion);
-        outPacket.writeInt(duration);
-        outPacket.writeBool(byItemOption);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.REMOTE_EMOTION.getValue());
+        out.writeInt(charId);
+        out.writeInt(emotion);
+        out.writeInt(duration);
+        out.writeBool(byItemOption);
+        return out;
     }
 
     public static OutPacket remoteSetActivePortableChair(int charId, int chairId, int unk1, short unk2, int unk3, byte unk4) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.REMOTE_SET_ACTIVE_PORTABLE_CHAIR.getValue());
-        outPacket.writeInt(charId);
-        outPacket.writeInt(chairId);
-        outPacket.writeInt(0);
-        outPacket.writeInt(unk3);
-        outPacket.write(unk4);
-        outPacket.writeBool(chairId != 0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(unk1);
-        outPacket.writeShort(unk2);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.REMOTE_SET_ACTIVE_PORTABLE_CHAIR.getValue());
+        out.writeInt(charId);
+        out.writeInt(chairId);
+        out.writeInt(0);
+        out.writeInt(unk3);
+        out.write(unk4);
+        out.writeBool(chairId != 0);
+        out.writeInt(0);
+        out.writeInt(unk1);
+        out.writeShort(unk2);
+        return out;
     }
 
     public static OutPacket charLookModified(MapleCharacter chr) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.REMOTE_AVATAR_MODIFIED.getValue());
-        outPacket.writeInt(chr.getId());
-        outPacket.write(1);
-        PacketHelper.addCharLook(outPacket, chr, true, false);
-        outPacket.writeInt(0);
-        outPacket.write(0xFF);
-        outPacket.writeInt(0);
-        outPacket.write(0xFF);
-        outPacket.writeZeroBytes(15);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.REMOTE_AVATAR_MODIFIED.getValue());
+        out.writeInt(chr.getId());
+        out.write(1);
+        chr.getCharLook().encode(out);
+        out.writeInt(0);
+        out.write(0xFF);
+        out.writeInt(0);
+        out.write(0xFF);
+        out.writeZeroBytes(15);
+        return out;
     }
 
     public static OutPacket showItemUpgradeEffect(int charId, boolean success, boolean enchantDlg, int uItemId, int eItemId, boolean boom) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SHOW_ITEM_UPGRADE_EFFECT.getValue());
-        outPacket.writeInt(charId);
-        outPacket.write(boom ? 2 : success ? 1 : 0);
-        outPacket.writeBool(enchantDlg);
-        outPacket.writeInt(uItemId);
-        outPacket.writeInt(eItemId);
-        outPacket.write(0);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SHOW_ITEM_UPGRADE_EFFECT.getValue());
+        out.writeInt(charId);
+        out.write(boom ? 2 : success ? 1 : 0);
+        out.writeBool(enchantDlg);
+        out.writeInt(uItemId);
+        out.writeInt(eItemId);
+        out.write(0); // 0 普通 1 消耗祝福
+        return out;
     }
 
     public static OutPacket hiddenEffectEquips(MapleCharacter player) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.HIDDEN_EFFECT_EQUIP.getValue());
-        outPacket.writeInt(player.getId());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.HIDDEN_EFFECT_EQUIP.getValue());
+        out.writeInt(player.getId());
         List<Item> items = player.getEquippedInventory().getItems();
         List<Item> equips = items.stream().filter(item -> !((Equip) item).isShowEffect()).collect(Collectors.toList());
-        outPacket.writeInt(equips.size());
+        out.writeInt(equips.size());
         for (Item equip : equips) {
-            outPacket.writeInt(equip.getPos());
+            out.writeInt(equip.getPos());
         }
-        outPacket.writeBool(false);
-        return outPacket;
+        out.writeBool(false);
+        return out;
     }
 
     public static OutPacket setDamageSkin(MapleCharacter chr) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SET_DAMAGE_SKIN.getValue());
-        outPacket.writeInt(chr.getId());
-        outPacket.writeInt(chr.getDamageSkin().getDamageSkinID());
-        outPacket.writeInt(0); //unk
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SET_DAMAGE_SKIN.getValue());
+        out.writeInt(chr.getId());
+        out.writeInt(chr.getDamageSkin().getDamageSkinID());
+        out.writeInt(0); //unk
+        return out;
     }
 
     public static OutPacket showItemReleaseEffect(int charId, short ePos, boolean bonus) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SHOW_ITEM_RELEASE_EFFECT.getValue());
-        outPacket.writeInt(charId);
-        outPacket.writeShort(ePos);
-        outPacket.writeBool(bonus);
-
-        return outPacket;
-
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SHOW_ITEM_RELEASE_EFFECT.getValue());
+        out.writeInt(charId);
+        out.writeShort(ePos);
+        out.writeBool(bonus);
+        return out;
     }
 
     public static OutPacket setSoulEffect(Integer charId, boolean set) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SET_SOUL_EFFECT.getValue());
-        outPacket.writeInt(charId);
-        outPacket.writeBool(set);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SET_SOUL_EFFECT.getValue());
+        out.writeInt(charId);
+        out.writeBool(set);
+        return out;
     }
 
     public static OutPacket setSoulEffect(MapleCharacter player) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SET_SOUL_EFFECT.getValue());
-        outPacket.writeInt(player.getId());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SET_SOUL_EFFECT.getValue());
+        out.writeInt(player.getId());
         Map<String, String> options = player.getQuestEx().get(QUEST_EX_SOUL_EFFECT);
         boolean set = false;
         if (options != null && options.containsKey("effect")) {
             set = options.get("effect").equals("1");
         }
-        outPacket.writeBool(set);
-        return outPacket;
+        out.writeBool(set);
+        return out;
     }
 }

@@ -2,7 +2,7 @@ package im.cave.ms.client.character.job;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.skill.AttackInfo;
+import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.network.netty.InPacket;
 
 
@@ -26,13 +26,13 @@ public class GM extends MapleJob {
     }
 
     @Override
-    public void handleSkill(MapleClient c, int skillId, int slv, InPacket inPacket) {
-        super.handleSkill(c, skillId, slv, inPacket);
+    public void handleSkill(MapleClient c, int skillId, int slv, InPacket in) {
+        super.handleSkill(c, skillId, slv, in);
     }
 
     @Override
-    public void handleJobLessBuff(MapleClient c, InPacket inPacket, int skillId, int slv) {
-        super.handleJobLessBuff(c, inPacket, skillId, slv);
+    public void handleJobLessBuff(MapleClient c, InPacket in, int skillId, int slv) {
+        super.handleJobLessBuff(c, in, skillId, slv);
     }
 
     @Override

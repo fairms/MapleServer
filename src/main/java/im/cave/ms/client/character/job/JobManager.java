@@ -8,7 +8,7 @@ import im.cave.ms.client.character.job.adventurer.Magician;
 import im.cave.ms.client.character.job.adventurer.Pirate;
 import im.cave.ms.client.character.job.adventurer.Thief;
 import im.cave.ms.client.character.job.adventurer.Warrior;
-import im.cave.ms.client.skill.AttackInfo;
+import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.network.netty.InPacket;
 
@@ -79,26 +79,26 @@ public class JobManager {
             } catch (InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
             }
-            if (job != null && job.isHandlerOfJob(c.getPlayer().getJobId())) {
+            if (job != null && job.isHandlerOfJob(c.getPlayer().getJob())) {
                 job.handleAttack(c, attackInfo);
             }
         }
     }
 
-    public static void handleSkill(MapleClient c, InPacket inPacket) {
+    public static void handleSkill(MapleClient c, InPacket in) {
         for (Class clazz : jobClasses) {
             MapleJob job = null;
             try {
-                job = (MapleJob) clazz.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+                job = (MapleJob) clazz.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 e.printStackTrace();
             }
-            if (job != null && job.isHandlerOfJob(c.getPlayer().getJobId())) {
-                inPacket.readInt(); // crc
-                inPacket.readInt(); // 00 00 00 00
-                int skillID = inPacket.readInt();
-                int slv = inPacket.readInt();
-                job.handleSkill(c, skillID, slv, inPacket);
+            if (job != null && job.isHandlerOfJob(c.getPlayer().getJob())) {
+                in.readInt(); // crc
+                in.readInt(); // 00 00 00 00
+                int skillID = in.readInt();
+                int slv = in.readInt();
+                job.handleSkill(c, skillID, slv, in);
             }
         }
     }

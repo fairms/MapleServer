@@ -294,7 +294,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     PyramidEffect(247),//
     KillingPoint(248),//
     HollowPointBullet(249),//
-    KeyDownMoving(250),//
+    KeyDownMoving(250),// Checked 按键技能
     IgnoreTargetDEF(251),//
     ReviveOnce(252),//
     Invisible(253),// Checked 隐身（幻影屏障）

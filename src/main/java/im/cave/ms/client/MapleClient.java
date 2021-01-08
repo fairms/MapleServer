@@ -162,8 +162,8 @@ public class MapleClient {
         return Integer.parseInt(ch.localAddress().toString().split(":")[1]);
     }
 
-    public void announce(OutPacket outPacket) {
-        ch.writeAndFlush(outPacket);
+    public void announce(OutPacket out) {
+        ch.writeAndFlush(out);
     }
 
     public void pongReceived() {
@@ -187,16 +187,15 @@ public class MapleClient {
             Server.getInstance().addAccount(account);
             setAccount(account);
             setLoginStatus(LoginStatus.LOGGEDIN);
-            account.saveToDb();
+            account.save();
             return LoginType.Success;
         }
         return LoginType.IncorrectPassword;
     }
 
-    public List<MapleCharacter> loadCharacters(int worldId, boolean channelServer) {
+    public List<MapleCharacter> loadCharacters(int worldId) {
         return this.getAccount().getCharacters().stream().filter(character -> character.getWorld() == worldId).collect(Collectors.toList());
     }
-
 
     public void sendPing() {
         announce(LoginPacket.ping(channel == -1 ? ServerType.LOGIN : ServerType.CHANNEL));

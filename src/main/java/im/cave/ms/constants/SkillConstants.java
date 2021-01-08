@@ -1,7 +1,7 @@
 package im.cave.ms.constants;
 
-import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.info.SkillInfo;
 
 /**
  * @author fair

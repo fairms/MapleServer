@@ -1,8 +1,8 @@
 package im.cave.ms.client.quest.reward;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.field.Effect;
-import im.cave.ms.client.items.Item;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.provider.data.ItemData;
 

@@ -2,17 +2,17 @@ package im.cave.ms.network.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.items.PetItem;
+import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Pet;
-import im.cave.ms.client.items.Item;
-import im.cave.ms.client.items.ItemInfo;
-import im.cave.ms.client.items.PetItem;
-import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.PetPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.provider.info.ItemInfo;
 
 import java.util.Comparator;
 import java.util.List;
@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
  * @date 1/1 22:08
  */
 public class PetHandler {
-    public static void handleUserActivatePetRequest(InPacket inPacket, MapleClient c) {
+    public static void handleUserActivatePetRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        player.setTick(inPacket.readInt());
-        short pos = inPacket.readShort();
+        player.setTick(in.readInt());
+        short pos = in.readShort();
         Item item = player.getCashInventory().getItem(pos);
         if (!(item instanceof PetItem)) {
             item = player.getConsumeInventory().getItem(pos);
@@ -57,20 +57,20 @@ public class PetHandler {
         }
     }
 
-    public static void handlePetActionSpeak(InPacket inPacket, MapleClient c) {
+    public static void handlePetActionSpeak(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        int index = inPacket.readInt();
-        inPacket.readInt();//tick
-        short unk = inPacket.readShort();
-        String msg = inPacket.readMapleAsciiString();
+        int index = in.readInt();
+        in.readInt();//tick
+        short unk = in.readShort();
+        String msg = in.readMapleAsciiString();
         player.getMap().broadcastMessage(player, PetPacket.petActionSpeak(player.getId(), index, unk, msg), true);
     }
 
-    public static void handleUserPetFoodItemUseRequest(InPacket inPacket, MapleClient c) {
+    public static void handleUserPetFoodItemUseRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        inPacket.readInt();
-        short uPos = inPacket.readShort();
-        int itemId = inPacket.readInt();
+        in.readInt();
+        short uPos = in.readShort();
+        int itemId = in.readInt();
         Item item = player.getConsumeInventory().getItem(uPos);
         if (item == null) {
             item = player.getCashInventory().getItem(uPos);
@@ -100,11 +100,11 @@ public class PetHandler {
         }
     }
 
-    public static void handlePetMove(InPacket inPacket, MapleClient c) {
+    public static void handlePetMove(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        int index = inPacket.readInt();
-        inPacket.readByte();
-        MovementInfo movementInfo = new MovementInfo(inPacket);
+        int index = in.readInt();
+        in.readByte();
+        MovementInfo movementInfo = new MovementInfo(in);
         Pet pet = player.getPetByIdx(index);
         if (pet != null) {
             movementInfo.applyTo(pet);

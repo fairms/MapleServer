@@ -24,8 +24,8 @@ public class MaplePacketEncoder extends MessageToByteEncoder<OutPacket> {
     private static final int uSeqBase = (short) ((((0xFFFF - VERSION) >> 8) & 0xFF) | (((0xFFFF - VERSION) << 8) & 0xFF00));
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, OutPacket outPacket, ByteBuf byteBuf) {
-        byte[] data = outPacket.getData();
+    protected void encode(ChannelHandlerContext ctx, OutPacket out, ByteBuf byteBuf) {
+        byte[] data = out.getData();
         MapleClient client = ctx.channel().attr(CLIENT_KEY).get();
         AESCipher ac = ctx.channel().attr(MapleClient.AES_CIPHER).get();
         if (client != null) {

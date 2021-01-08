@@ -11,6 +11,8 @@ import im.cave.ms.provider.wz.MapleDataProviderFactory;
 import im.cave.ms.provider.wz.MapleDataTool;
 import im.cave.ms.tools.StringUtil;
 import im.cave.ms.tools.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Comparator;
@@ -27,6 +29,7 @@ import java.util.Set;
  * @date 11/22 0:07
  */
 public class NpcData {
+    private static final Logger log = LoggerFactory.getLogger("NpcData");
     private static final MapleDataProvider npcData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Npc.wz"));
     private static final Set<Npc> npcs = new HashSet<>();
     private static final Map<Integer, NpcShop> shops = new HashMap<>();
@@ -100,16 +103,24 @@ public class NpcData {
     public static NpcShop getShopById(int npcId) {
         NpcShop shop = shops.get(npcId);
         if (shop == null) {
-            shop = loadNpcShopFromDB(npcId);
+            shop = getNpcShopFromDB(npcId);
         }
         return shop;
     }
 
-    private static NpcShop loadNpcShopFromDB(int id) {
+    private static NpcShop getNpcShopFromDB(int id) {
         NpcShop ns = new NpcShop();
         ns.setNpcTemplateId(id);
         ns.setShopId(id);
         List<NpcShopItem> items = (List<NpcShopItem>) DataBaseManager.getObjListFromDB(NpcShopItem.class, "shopId", id);
+        //check null itemId
+        items.removeIf(item -> {
+            boolean invalid = ItemData.getItemInfoById(item.getItemId()) == null;
+            if (invalid) {
+                log.error("NPC商店:{} 商品{}不存在 錯誤ID:", id, item.getItemId());
+            }
+            return invalid;
+        });
         items.sort(Comparator.comparingInt(NpcShopItem::getItemId));
         ns.setItems(items);
         addShop(id, ns);

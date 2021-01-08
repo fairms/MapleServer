@@ -13,6 +13,8 @@ import im.cave.ms.enums.QuestStatus;
 import im.cave.ms.network.packet.QuestPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.provider.data.QuestData;
+import im.cave.ms.provider.info.QuestInfo;
+import im.cave.ms.tools.DateUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
@@ -37,7 +39,7 @@ import static im.cave.ms.enums.QuestStatus.NotStarted;
 import static im.cave.ms.enums.QuestStatus.Started;
 
 @Entity
-@Table(name = "questmanagers")
+@Table(name = "quest_manager")
 @Getter
 @Setter
 public class QuestManager {
@@ -48,7 +50,7 @@ public class QuestManager {
 
 
     @OneToMany(cascade = CascadeType.ALL)
-    @CollectionTable(name = "questlists")
+    @CollectionTable(name = "quest_list")
     @MapKeyColumn(name = "questId")
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE)
     private Map<Integer, Quest> questList;
@@ -189,7 +191,7 @@ public class QuestManager {
             addQuest(quest);
         }
         quest.setStatus(QuestStatus.Completed);
-        quest.setCompletedTime(System.currentTimeMillis());
+        quest.setCompletedTime(DateUtil.getFileTime(System.currentTimeMillis()));
         chr.chatMessage(ChatType.Tip, "[Info] Completed quest " + quest.getQrKey());
 //        chr.getMap().broadcastMessage(UserPacket.effect(chr.getId(), Effect.questCompleteEffect()));
         chr.announce(UserPacket.effect(Effect.questCompleteEffect()));

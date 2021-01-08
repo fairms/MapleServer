@@ -7,7 +7,7 @@ import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
-import im.cave.ms.config.Config;
+import im.cave.ms.configs.Config;
 import im.cave.ms.enums.RemoveMobType;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.MobPacket;
@@ -447,28 +447,28 @@ public class Mob extends MapleMapObj {
         getMap().drop(getDrops(), getMap().getFoothold(fh), getPosition(), ownerId, totalMesoRate, totalDropRate, false);
     }
 
-    public void encodeInit(OutPacket outPacket) {
-        outPacket.writeShort(getPosition().getX());
-        outPacket.writeShort(getPosition().getY());
-        outPacket.write(getMoveAction());
-        outPacket.writeShort(getFh());
-        outPacket.writeShort(getFh());
-        outPacket.writeShort(getAppearType());
-        outPacket.write(getTeamForMCarnival());
-        outPacket.writeLong(getMaxHp());
-        outPacket.writeInt(getEffectItemID());
-        outPacket.writeInt(getPhase());
-        outPacket.writeInt(getCurZoneDataType());
-        outPacket.writeInt(getRefImgMobID());
-        outPacket.writeInt(0);
+    public void encodeInit(OutPacket out) {
+        out.writeShort(getPosition().getX());
+        out.writeShort(getPosition().getY());
+        out.write(getMoveAction());
+        out.writeShort(getFh());
+        out.writeShort(getFh());
+        out.writeShort(getAppearType());
+        out.write(getTeamForMCarnival());
+        out.writeLong(getMaxHp());
+        out.writeInt(getEffectItemID());
+        out.writeInt(getPhase());
+        out.writeInt(getCurZoneDataType());
+        out.writeInt(getRefImgMobID());
+        out.writeInt(0);
 
-        outPacket.writeInt(-1);
-        outPacket.writeInt(0);
-        outPacket.writeInt(-1);
-        outPacket.writeInt(0);
-        outPacket.write(0);
-        outPacket.writeInt(getScale());
-        outPacket.writeInt(-1); //getEliteGrade
-        outPacket.writeZeroBytes(42);
+        out.writeInt(-1);
+        out.writeInt(0);
+        out.writeInt(-1);
+        out.writeInt(0);
+        out.write(0);
+        out.writeInt(getScale());
+        out.writeInt(-1); //getEliteGrade
+        out.writeZeroBytes(42);
     }
 }

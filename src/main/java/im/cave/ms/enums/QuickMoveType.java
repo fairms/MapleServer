@@ -12,7 +12,7 @@ public enum QuickMoveType {
     Baret(7),
     Cat(8),
     Dojo(9),
-    SpinningGlasses(10),
+    SpinningGlasses(10), //打工
     BlueKnightOfCygnusWoman(11),
     BlueKnightOfCygnusMan(12),
     BigHeadward(13),
@@ -24,7 +24,8 @@ public enum QuickMoveType {
     Girl(19),
     Announcer(20),
     MobileWoman(21),
-
+    Hera(104),
+    Party(105)
 
     ;
     private final int val;

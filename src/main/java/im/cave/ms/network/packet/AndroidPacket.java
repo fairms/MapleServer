@@ -1,7 +1,7 @@
 package im.cave.ms.network.packet;
 
+import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Android;
-import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
 
@@ -14,43 +14,43 @@ import im.cave.ms.network.packet.opcode.SendOpcode;
 public class AndroidPacket {
 
     public static OutPacket created(Android android) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.ANDROID_CREATED.getValue());
-        outPacket.writeInt(android.getOwner().getId());
-        android.encode(outPacket);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.ANDROID_CREATED.getValue());
+        out.writeInt(android.getOwner().getId());
+        android.encode(out);
+        return out;
     }
 
     public static OutPacket remove(int charId) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.ANDROID_REMOVED.getValue());
-        outPacket.writeInt(charId);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.ANDROID_REMOVED.getValue());
+        out.writeInt(charId);
+        return out;
     }
 
     public static OutPacket actionSet(Android android, int action, int emotion) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.ANDROID_ACTION_SET.getValue());
-        outPacket.writeInt(android.getOwner().getId());
-        outPacket.write(action);
-        outPacket.write(emotion);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.ANDROID_ACTION_SET.getValue());
+        out.writeInt(android.getOwner().getId());
+        out.write(action);
+        out.write(emotion);
+        return out;
     }
 
     public static OutPacket modified(Android android) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.ANDROID_MODIFIED.getValue());
-        outPacket.writeInt(android.getOwner().getId());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.ANDROID_MODIFIED.getValue());
+        out.writeInt(android.getOwner().getId());
 
-        return outPacket;
+        return out;
 
     }
 
     public static OutPacket move(Android android, MovementInfo mi) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.ANDROID_MOVE.getValue());
-        outPacket.writeInt(android.getOwner().getId());
-        mi.encode(outPacket);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.ANDROID_MOVE.getValue());
+        out.writeInt(android.getOwner().getId());
+        mi.encode(out);
+        return out;
     }
 }

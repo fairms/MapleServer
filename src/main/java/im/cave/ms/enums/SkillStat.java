@@ -285,6 +285,7 @@ public enum SkillStat {
     casterMove,
     massSpell,
     pushTarget,
+    pvp,
     avaliableInJumpingState;
 
     public static SkillStat getSkillStatByString(String s) {

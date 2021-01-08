@@ -59,4 +59,12 @@ public class ItemScriptAction extends AbstractPlayerInteraction {
             c.getPlayer().announce(UserPacket.inventoryRefresh(true));
         }
     }
+
+    public int getNpcId() {
+        return npcId;
+    }
+
+    public int getItemId() {
+        return itemId;
+    }
 }

@@ -29,37 +29,37 @@ public class MapleKeyMap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
     @JoinColumn(name = "keymapId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KeyBind> keymap = new ArrayList<>();
-
     @Transient
     private static final int MAX_KEYBINDS = 89;
-
 
     public MapleKeyMap() {
     }
 
-    public void encode(OutPacket outPacket) {
+    public MapleKeyMap(boolean costumed) {
+        setDefault(costumed);
+    }
+
+    public void encode(OutPacket out) {
         if (getKeymap().size() == 0) {
-            outPacket.writeBool(true);
+            out.writeBool(true);
         } else {
-            outPacket.writeBool(false);
+            out.writeBool(false);
             for (int i = 0; i < MAX_KEYBINDS; i++) {
                 KeyBind tuple = getMappingAt(i);
                 if (tuple == null) {
-                    outPacket.write(0);
-                    outPacket.writeInt(0);
+                    out.write(0);
+                    out.writeInt(0);
                 } else {
-                    outPacket.write(tuple.getType());
-                    outPacket.writeInt(tuple.getAction());
+                    out.write(tuple.getType());
+                    out.writeInt(tuple.getAction());
                 }
             }
         }
 
     }
-
 
     public KeyBind getMappingAt(int key) {
         for (KeyBind km : getKeymap()) {

@@ -23,28 +23,28 @@ public class FieldEffect {
     private int arg8;
     private int arg9;
 
-    public void encode(OutPacket outPacket) {
-        outPacket.write(getFieldEffectType().getVal());
+    public void encode(OutPacket out) {
+        out.write(getFieldEffectType().getVal());
         switch (getFieldEffectType()) {
             case Summon:
-                outPacket.write(getArg1());// nType
-                outPacket.writeInt(getArg2());// x1
-                outPacket.writeInt(getArg3());// y1
+                out.write(getArg1());// nType
+                out.writeInt(getArg2());// x1
+                out.writeInt(getArg3());// y1
                 break;
             case Tremble:
-                outPacket.write(getArg1());  // 1
-                outPacket.write(getArg2());  // 1
-                outPacket.writeInt(getArg3()); // duration
-                outPacket.writeShort(getArg4()); // level
+                out.write(getArg1());  // 1
+                out.write(getArg2());  // 1
+                out.writeInt(getArg3()); // duration
+                out.writeShort(getArg4()); // level
                 break;
             case ObjectStateByString:
             case TopScreen:
             case Screen:
-                outPacket.writeMapleAsciiString(getString());// sName
+                out.writeMapleAsciiString(getString());// sName
                 break;
             case DisableEffectObject:
-                outPacket.writeMapleAsciiString(getString());// sName
-                outPacket.write(getArg1());    // bCheckPreWord
+                out.writeMapleAsciiString(getString());// sName
+                out.write(getArg1());    // bCheckPreWord
                 break;
             // String
             case PlaySound:
@@ -53,108 +53,108 @@ public class FieldEffect {
                 // Delay in ms
             case TopScreenEffect:                   // Goes over other effects
             case ScreenEffect:
-                outPacket.writeMapleAsciiString(getString());// Sound
-                outPacket.writeInt(getArg1());// Volume
+                out.writeMapleAsciiString(getString());// Sound
+                out.writeInt(getArg1());// Volume
                 break;
             case MobHPTag:
-                outPacket.writeInt(getArg1());     // Mob Template ID
-                outPacket.writeLong(getArg2());     // Mob HP
-                outPacket.writeLong(getArg3());     // Mob max HP
-                outPacket.write(getArg4());    // HP Tag Colour
-                outPacket.write(getArg5());    // HP Tab BG Colour
+                out.writeInt(getArg1());     // Mob Template ID
+                out.writeLong(getArg2());     // Mob HP
+                out.writeLong(getArg3());     // Mob max HP
+                out.write(getArg4());    // HP Tag Colour
+                out.write(getArg5());    // HP Tab BG Colour
                 break;
             case ChangeBGM:
-                outPacket.writeMapleAsciiString(getString());// sound
-                outPacket.writeInt(getArg1());// start time
-                outPacket.writeInt(getArg2());// unk
+                out.writeMapleAsciiString(getString());// sound
+                out.writeInt(getArg1());// start time
+                out.writeInt(getArg2());// unk
                 break;
             case BGMVolumeOnly:
-                outPacket.write(getArg1());// m_bBGMVolumeOnly
+                out.write(getArg1());// m_bBGMVolumeOnly
                 break;
             case SetBGMVolume:
-                outPacket.writeInt(getArg1());// m_uBGMVolume
-                outPacket.writeInt(getArg2());// uFadingDuration
+                out.writeInt(getArg1());// m_uBGMVolume
+                out.writeInt(getArg2());// uFadingDuration
                 break;
             case RewardRoulette:
-                outPacket.writeInt(getArg1());     // Reward Job ID
-                outPacket.writeInt(getArg2());     // Reward Part ID
-                outPacket.writeInt(getArg3());     // Reward Level ID
+                out.writeInt(getArg1());     // Reward Job ID
+                out.writeInt(getArg2());     // Reward Part ID
+                out.writeInt(getArg3());     // Reward Level ID
                 break;
             // Directory to the Effect
             // Path to the Effect
             case ScreenFloatingEffect:
-                outPacket.writeMapleAsciiString(getString());
-                outPacket.write(getArg1());
-                outPacket.write(getArg2());
+                out.writeMapleAsciiString(getString());
+                out.write(getArg1());
+                out.write(getArg2());
                 break;
             case Blind:
-                outPacket.write(getArg1());// bEnable
-                outPacket.writeShort(getArg2());// x
-                outPacket.writeShort(getArg3());
-                outPacket.writeShort(getArg4());
-                outPacket.writeShort(getArg5());
-                outPacket.writeInt(getArg6());
-                outPacket.writeInt(getArg7());
+                out.write(getArg1());// bEnable
+                out.writeShort(getArg2());// x
+                out.writeShort(getArg3());
+                out.writeShort(getArg4());
+                out.writeShort(getArg5());
+                out.writeInt(getArg6());
+                out.writeInt(getArg7());
                 break;
             case SetGrey:
-                outPacket.writeShort(getArg1());   // GreyField Type
-                outPacket.write(getArg2());    // boolean: ON/OFF
+                out.writeShort(getArg1());   // GreyField Type
+                out.write(getArg2());    // boolean: ON/OFF
                 break;
             case OnOffLayer:
-                outPacket.write(getArg1());// type
-                outPacket.writeInt(getArg2());
-                outPacket.writeMapleAsciiString(getString());
+                out.write(getArg1());// type
+                out.writeInt(getArg2());
+                out.writeMapleAsciiString(getString());
                 if (getArg1() == 0) {
-                    outPacket.writeInt(getArg3());
-                    outPacket.writeInt(getArg4());
-                    outPacket.writeInt(getArg5());
-                    outPacket.writeMapleAsciiString(getString2());
-                    outPacket.writeInt(getArg6());
-                    outPacket.write(getArg7());
-                    outPacket.writeInt(getArg8());
-                    outPacket.write(getArg9());
+                    out.writeInt(getArg3());
+                    out.writeInt(getArg4());
+                    out.writeInt(getArg5());
+                    out.writeMapleAsciiString(getString2());
+                    out.writeInt(getArg6());
+                    out.write(getArg7());
+                    out.writeInt(getArg8());
+                    out.write(getArg9());
                 } else if (getArg1() == 1) {
-                    outPacket.writeInt(getArg3());
-                    outPacket.writeInt(getArg4());
+                    out.writeInt(getArg3());
+                    out.writeInt(getArg4());
                 } else if (getArg1() == 2) {
-                    outPacket.write(getArg3());
+                    out.write(getArg3());
                 }
                 break;
             case OverlapScreen:                    // Takes a Snapshot of the Client and slowly fades away
             case StageClearExpOnly:
             case RemoveOverlapScreen:
-                outPacket.writeInt(getArg1());     // Duration of the overlap (ms)
+                out.writeInt(getArg1());     // Duration of the overlap (ms)
                 break;
             case OverlapScreenDetail:
-                outPacket.writeInt(getArg1());     // Fade In
-                outPacket.writeInt(getArg2());     // wait time
-                outPacket.writeInt(getArg3());     // Fade Out
-                outPacket.write(getArg4());    // some boolean
+                out.writeInt(getArg1());     // Fade In
+                out.writeInt(getArg2());     // wait time
+                out.writeInt(getArg3());     // Fade Out
+                out.write(getArg4());    // some boolean
                 break;
             // Fade Out duration
             case ChangeColor:
-                outPacket.writeShort(getArg1());   // GreyField Type (but doesn't contain Reactor
-                outPacket.writeShort(getArg2());   // red      (250 is normal value)
-                outPacket.writeShort(getArg3());   // green    (250 is normal value)
-                outPacket.writeShort(getArg4());   // blue     (250 is normal value)
-                outPacket.writeInt(getArg5());     // time in ms, that it takes to transition from old colours to the new colours
-                outPacket.writeInt(0);          // is in queue
+                out.writeShort(getArg1());   // GreyField Type (but doesn't contain Reactor
+                out.writeShort(getArg2());   // red      (250 is normal value)
+                out.writeShort(getArg3());   // green    (250 is normal value)
+                out.writeShort(getArg4());   // blue     (250 is normal value)
+                out.writeInt(getArg5());     // time in ms, that it takes to transition from old colours to the new colours
+                out.writeInt(0);          // is in queue
                 if (getArg1() == 4) {
-                    outPacket.writeInt(0);
+                    out.writeInt(0);
                 }
                 break;
             // Exp Number given
             case SpineScreen:
-                outPacket.write(getArg1());// bBinary
-                outPacket.write(getArg2());// bLoop
-                outPacket.write(getArg3());// bPostRender
-                outPacket.writeInt(getArg4());// tEndDelay
-                outPacket.writeMapleAsciiString(getString());// sPath
-                outPacket.writeMapleAsciiString(getString2());// Animation Name
+                out.write(getArg1());// bBinary
+                out.write(getArg2());// bLoop
+                out.write(getArg3());// bPostRender
+                out.writeInt(getArg4());// tEndDelay
+                out.writeMapleAsciiString(getString());// sPath
+                out.writeMapleAsciiString(getString2());// Animation Name
 
-                outPacket.writeBool(getString3() != null);
+                out.writeBool(getString3() != null);
                 if (getString3() != null) {
-                    outPacket.writeMapleAsciiString(getString3());// sKeyName
+                    out.writeMapleAsciiString(getString3());// sKeyName
                 }
                 break;
             case OffSpineScreen:
@@ -164,12 +164,12 @@ public class FieldEffect {
                     OffSpineScr_Alpha = 0x1,
                     OffSpineScr_Ani = 0x2,
                 };*/
-                outPacket.writeMapleAsciiString(getString());// pLayer
-                outPacket.writeInt(getArg1());// nType
+                out.writeMapleAsciiString(getString());// pLayer
+                out.writeInt(getArg1());// nType
                 if (getArg1() == 1) {// PROCESS_HITPARTS
-                    outPacket.writeInt(getArg2());// tAlpha
+                    out.writeInt(getArg2());// tAlpha
                 } else if (getArg1() == 2) {// PROCESS_SKELETON
-                    outPacket.writeMapleAsciiString(getString2());// Animation Name
+                    out.writeMapleAsciiString(getString2());// Animation Name
                 }
                 break;
         }

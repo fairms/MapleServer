@@ -2,13 +2,14 @@ package im.cave.ms.network.server;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.items.Equip;
+import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.npc.Npc;
-import im.cave.ms.client.items.Equip;
-import im.cave.ms.client.items.Item;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.packet.WorldPacket;
@@ -39,7 +40,6 @@ public class CommandHandler {
             case "aa": {
                 MapleCharacter player = c.getPlayer();
                 Equip item = ((Equip) player.getEquipInventory().getItem((short) 1));
-                item.setFlame(item.getFlame() + 1);
                 item.updateToChar(player);
                 break;
             }
@@ -98,6 +98,7 @@ public class CommandHandler {
                 c.getPlayer().setConversation(false);
                 QuestScriptManager.getInstance().dispose(c);
                 c.announce(UserPacket.enableActions());
+                c.announce(WorldPacket.serverMsg("[提示] 解卡操作已处理", ServerMsgType.NOTICE_WITH_OUT_PREFIX));
                 break;
             case "item":
                 if (s.length < 2) {
@@ -127,9 +128,9 @@ public class CommandHandler {
                 int i = content.indexOf(" ");
                 String substring = content.substring(i);
                 byte[] byteArrayFromHexString = HexTool.getByteArrayFromHexString(substring);
-                OutPacket outPacket = new OutPacket();
-                outPacket.write(byteArrayFromHexString);
-                c.announce(outPacket);
+                OutPacket out = new OutPacket();
+                out.write(byteArrayFromHexString);
+                c.announce(out);
                 break;
             case "debug":
                 MapleCharacter player = c.getPlayer();
@@ -174,7 +175,14 @@ public class CommandHandler {
                 NpcData.refreshShop();
                 break;
             case "em":
+                c.getAccount().addPoint(100000);
                 c.getMapleChannel().broadcast(WorldPacket.eventMessage("测试测试", 2, 3000));
+                break;
+            case "meso":
+                if (s.length < 2) {
+                    return;
+                }
+                c.getPlayer().addMeso(Long.parseLong(s[1]));
                 break;
         }
     }

@@ -23,6 +23,6 @@ public class QuestStartJobRequirement implements QuestStartRequirement {
 
     @Override
     public boolean hasRequirements(MapleCharacter chr) {
-        return getJobReq().contains(chr.getJobId());
+        return getJobReq().contains(chr.getJob());
     }
 }

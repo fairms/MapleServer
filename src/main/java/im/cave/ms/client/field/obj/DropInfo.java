@@ -2,7 +2,6 @@ package im.cave.ms.client.field.obj;
 
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.tools.Util;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +21,7 @@ import javax.persistence.Transient;
 @Getter
 @Setter
 @Entity
-@Table(name = "mob_drops")
+@Table(name = "mob_drop")
 public class DropInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +43,11 @@ public class DropInfo {
 
     public DropInfo() {
 
+    }
+
+    public DropInfo(int itemID, int chance) {
+        this.itemID = itemID;
+        this.chance = chance;
     }
 
     public DropInfo(int chance, int minMoney, int maxMoney) {
@@ -95,5 +99,5 @@ public class DropInfo {
             return String.format("%d mesos.", getMoney());
         }
     }
-    
+
 }

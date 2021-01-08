@@ -188,97 +188,97 @@ public class InGameDirectionEvent {
         return igdr;
     }
 
-    public void encode(OutPacket outPacket) {
-        outPacket.write(type.getVal());
+    public void encode(OutPacket out) {
+        out.write(type.getVal());
         switch (type) {
             case ForcedAction:
-                outPacket.writeInt(arg1); // nAction
+                out.writeInt(arg1); // nAction
                 if (arg1 <= 1895) {
-                    outPacket.writeInt(arg2); // nDuration
+                    out.writeInt(arg2); // nDuration
                 }
                 break;
             case Delay:
-                outPacket.writeInt(arg1); // nDelay
+                out.writeInt(arg1); // nDelay
                 break;
             case EffectPlay:
-                outPacket.writeMapleAsciiString(str); // sEffectUOL
-                outPacket.writeInt(arg1); // tDuration (0 => take effect's duration)
-                outPacket.writePositionInt(pos);
-                outPacket.writeBool(arg2 >= -1);
+                out.writeMapleAsciiString(str); // sEffectUOL
+                out.writeInt(arg1); // tDuration (0 => take effect's duration)
+                out.writePositionInt(pos);
+                out.writeBool(arg2 >= -1);
                 if (arg2 >= -1) {
-                    outPacket.writeInt(arg2); // z
+                    out.writeInt(arg2); // z
                 }
-                outPacket.writeBool(arg3 >= -1);
+                out.writeBool(arg3 >= -1);
                 if (arg3 >= -1) {
-                    outPacket.writeInt(arg3); // dwNpcID (for CNpcPool::GetNpcForExtend)
-                    outPacket.write(arg4);
-                    outPacket.write(arg5);
-                    outPacket.write(arg6);
+                    out.writeInt(arg3); // dwNpcID (for CNpcPool::GetNpcForExtend)
+                    out.write(arg4);
+                    out.write(arg5);
+                    out.write(arg6);
                 }
                 break;
             case ForcedInput:
-                outPacket.writeInt(arg1); // nForcedInput
+                out.writeInt(arg1); // nForcedInput
                 break;
             case PatternInputRequest:
-                outPacket.writeMapleAsciiString(str); // sPattern
-                outPacket.writeInt(arg1); // nAct
-                outPacket.writeInt(arg2); // nRequestCount
-                outPacket.writeInt(arg3); // nTime
+                out.writeMapleAsciiString(str); // sPattern
+                out.writeInt(arg1); // nAct
+                out.writeInt(arg2); // nRequestCount
+                out.writeInt(arg3); // nTime
                 break;
             case CameraMove:
-                outPacket.write(arg1); // bBack
-                outPacket.writeInt(arg2); // nPixelPerSec
+                out.write(arg1); // bBack
+                out.writeInt(arg2); // nPixelPerSec
                 if (arg1 == 0) {
-                    outPacket.writePositionInt(pos);
+                    out.writePositionInt(pos);
                 } else {
-                    outPacket.write(0);// not sure if really exists but in GMS(v198) there is extra 0 byte
+                    out.write(0);// not sure if really exists but in GMS(v198) there is extra 0 byte
                 }
                 break;
             case CameraOnCharacter:
-                outPacket.writeInt(arg1); // dwNpcID
+                out.writeInt(arg1); // dwNpcID
                 break;
             case CameraZoom:
-                outPacket.writeInt(arg1); // nTime
-                outPacket.writeInt(arg2); // nScale
-                outPacket.writeInt(arg3); // nTimePos
-                outPacket.writePositionInt(pos);
+                out.writeInt(arg1); // nTime
+                out.writeInt(arg2); // nScale
+                out.writeInt(arg3); // nTimePos
+                out.writePositionInt(pos);
                 break;
             case CameraReleaseFromUserPoint:
                 break;
             case VansheeMode:
-                outPacket.write(arg1); // bVanshee
+                out.write(arg1); // bVanshee
                 break;
             case FaceOff:
-                outPacket.writeInt(arg1); // nFaceItemID
+                out.writeInt(arg1); // nFaceItemID
                 break;
             case Monologue:
-                outPacket.writeMapleAsciiString(str); // sStr
-                outPacket.write(arg1); // bIsEnd
+                out.writeMapleAsciiString(str); // sStr
+                out.write(arg1); // bIsEnd
                 break;
             case MonologueScroll:
-                outPacket.writeMapleAsciiString(str); // sStr
-                outPacket.write(arg1); // stayModal
-                outPacket.writeShort(arg2); // nAlign
-                outPacket.writeInt(arg3); // nUpdateSpeedTime
-                outPacket.writeInt(arg4); // nDecTic
+                out.writeMapleAsciiString(str); // sStr
+                out.write(arg1); // stayModal
+                out.writeShort(arg2); // nAlign
+                out.writeInt(arg3); // nUpdateSpeedTime
+                out.writeInt(arg4); // nDecTic
                 break;
             case AvatarLookSet:
-                outPacket.write(arr.length);
+                out.write(arr.length);
                 for (int itemID : arr) {
-                    outPacket.writeInt(itemID);
+                    out.writeInt(itemID);
                 }
                 break;
             case RemoveAdditionalEffect:
                 break;
             case ForcedMove:
-                outPacket.writeInt(arg1); // nDir
-                outPacket.writeInt(arg2); // nSpeed
+                out.writeInt(arg1); // nDir
+                out.writeInt(arg2); // nSpeed
                 break;
             case ForcedFlip:
-                outPacket.writeInt(arg1); // nForcedFlip
+                out.writeInt(arg1); // nForcedFlip
                 break;
             case InputUI:
-                outPacket.write(arg1); // nIdx
+                out.write(arg1); // nIdx
                 break;
         }
     }

@@ -11,7 +11,7 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "damage_skins")
+@Table(name = "damage_skin")
 public class DamageSkinSaveData {
 
     @Id
@@ -40,12 +40,12 @@ public class DamageSkinSaveData {
                 ""); // desc = StringData.getItemStringById(itemID)
     }
 
-    public void encode(OutPacket outPacket) {
-        outPacket.writeInt(getDamageSkinID());
-        outPacket.writeInt(getItemID());
-        outPacket.writeBool(!isNotSave());
-        outPacket.writeMapleAsciiString(getDescription());
-        outPacket.writeInt(0);
+    public void encode(OutPacket out) {
+        out.writeInt(getDamageSkinID());
+        out.writeInt(getItemID());
+        out.writeBool(!isNotSave());
+        out.writeMapleAsciiString(getDescription());
+        out.writeInt(0);
     }
 
     public long getId() {

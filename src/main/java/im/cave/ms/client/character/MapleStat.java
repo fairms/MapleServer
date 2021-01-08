@@ -111,44 +111,45 @@ public enum MapleStat {
     }
 
     public static MapleStat getByString(String type) {
-        if (type.equals("SKIN")) {
-            return SKIN;
-        } else if (type.equals("FACE")) {
-            return FACE;
-        } else if (type.equals("HAIR")) {
-            return HAIR;
-        } else if (type.equals("LEVEL")) {
-            return LEVEL;
-        } else if (type.equals("JOB")) {
-            return JOB;
-        } else if (type.equals("STR")) {
-            return STR;
-        } else if (type.equals("DEX")) {
-            return DEX;
-        } else if (type.equals("INT")) {
-            return INT;
-        } else if (type.equals("LUK")) {
-            return LUK;
-        } else if (type.equals("HP")) {
-            return HP;
-        } else if (type.equals("MAXHP")) {
-            return MAXHP;
-        } else if (type.equals("MP")) {
-            return MP;
-        } else if (type.equals("MAXMP")) {
-            return MAXMP;
-        } else if (type.equals("AVAILABLEAP")) {
-            return AVAILABLEAP;
-        } else if (type.equals("AVAILABLESP")) {
-            return AVAILABLESP;
-        } else if (type.equals("EXP")) {
-            return EXP;
-        } else if (type.equals("FAME")) {
-            return FAME;
-        } else if (type.equals("MESO")) {
-            return MESO;
-        } else if (type.equals("PET")) {
-            return PET;
+        switch (type) {
+            case "SKIN":
+                return SKIN;
+            case "FACE":
+                return FACE;
+            case "HAIR":
+                return HAIR;
+            case "LEVEL":
+                return LEVEL;
+            case "JOB":
+                return JOB;
+            case "STR":
+                return STR;
+            case "DEX":
+                return DEX;
+            case "INT":
+                return INT;
+            case "LUK":
+                return LUK;
+            case "HP":
+                return HP;
+            case "MAXHP":
+                return MAXHP;
+            case "MP":
+                return MP;
+            case "MAXMP":
+                return MAXMP;
+            case "AVAILABLEAP":
+                return AVAILABLEAP;
+            case "AVAILABLESP":
+                return AVAILABLESP;
+            case "EXP":
+                return EXP;
+            case "FAME":
+                return FAME;
+            case "MESO":
+                return MESO;
+            case "PET":
+                return PET;
         }
         return null;
     }

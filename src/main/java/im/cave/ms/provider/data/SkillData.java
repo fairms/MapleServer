@@ -1,10 +1,10 @@
 package im.cave.ms.provider.data;
 
-import im.cave.ms.client.skill.MobSkillInfo;
-import im.cave.ms.client.skill.Skill;
-import im.cave.ms.client.skill.SkillInfo;
+import im.cave.ms.client.character.skill.MobSkillInfo;
+import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.SkillStat;
+import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataProvider;
 import im.cave.ms.provider.wz.MapleDataProviderFactory;
@@ -184,7 +184,7 @@ public class SkillData {
                                 if (skillStat != null) {
                                     skill.addSkillStatInfo(skillStat, MapleDataTool.getString(attr));
                                 } else {
-                                    log.warn("Unknown SkillStat " + attrName);
+//                                    log.warn("Unknown SkillStat " + attrName);
                                 }
                             }
                         }

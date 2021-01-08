@@ -16,7 +16,7 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "macros")
+@Table(name = "macro")
 public class Macro {
 
     @Id
@@ -26,7 +26,7 @@ public class Macro {
     private String name;
     private boolean muted;
     @Convert(converter = InlinedIntArrayConverter.class)
-    private List<Integer> skills = new ArrayList<>(Arrays.asList(0, 0, 0));
+    private final List<Integer> skills = new ArrayList<>(Arrays.asList(0, 0, 0));
 
     public String getName() {
         return name;
@@ -62,11 +62,11 @@ public class Macro {
         }
     }
 
-    public void encode(OutPacket outPacket) {
-        outPacket.writeMapleAsciiString(name);
-        outPacket.writeBool(isMuted());
+    public void encode(OutPacket out) {
+        out.writeMapleAsciiString(name);
+        out.writeBool(isMuted());
         for (int i : getSkills()) {
-            outPacket.writeInt(i);
+            out.writeInt(i);
         }
     }
 }

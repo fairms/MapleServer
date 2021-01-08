@@ -1,7 +1,7 @@
 package im.cave.ms.network.packet;
 
+import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Summon;
-import im.cave.ms.client.movement.MovementInfo;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
 
@@ -13,40 +13,40 @@ import im.cave.ms.network.packet.opcode.SendOpcode;
  */
 public class SummonPacket {
     public static OutPacket spawnSummon(int charId, Summon summon) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SPAWN_SUMMON.getValue());
-        outPacket.writeInt(charId);
-        outPacket.writeInt(summon.getObjectId());
-        outPacket.writeInt(summon.getSkillID());
-        outPacket.writeInt(summon.getCharLevel());
-        outPacket.writeInt(summon.getSlv());
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SPAWN_SUMMON.getValue());
+        out.writeInt(charId);
+        out.writeInt(summon.getObjectId());
+        out.writeInt(summon.getSkillID());
+        out.writeInt(summon.getCharLevel());
+        out.writeInt(summon.getSlv());
         // CSummoned::Init
-        outPacket.writePosition(summon.getPosition());
-        outPacket.write(summon.getMoveAction());
-        outPacket.writeShort(summon.getCurFoothold());
-        outPacket.write(summon.getMoveAbility().getVal()); // 1
-        outPacket.write(summon.getAssistType().getVal());  // 2
-        outPacket.write(summon.getEnterType().getVal());  // 1
-        outPacket.writeInt(summon.getObjectId()); // 00 00 00 00
-        outPacket.writeBool(summon.isFlyMob()); // 0
-        outPacket.writeBool(summon.isBeforeFirstAttack()); //0
-        outPacket.writeInt(summon.getTemplateId()); // 00 00 00 00
-        outPacket.writeInt(summon.getBulletID()); // 00 00 00 00
-        outPacket.writeBool(false);
-        outPacket.writeBool(summon.isJaguarActive());
-        outPacket.writeInt(summon.getSummonTerm());
-        outPacket.writeBool(summon.isAttackActive());
-        outPacket.writeZeroBytes(13);
-        return outPacket;
+        out.writePosition(summon.getPosition());
+        out.write(summon.getMoveAction());
+        out.writeShort(summon.getCurFoothold());
+        out.write(summon.getMoveAbility().getVal()); // 1
+        out.write(summon.getAssistType().getVal());  // 2
+        out.write(summon.getEnterType().getVal());  // 1
+        out.writeInt(summon.getObjectId()); // 00 00 00 00
+        out.writeBool(summon.isFlyMob()); // 0
+        out.writeBool(summon.isBeforeFirstAttack()); //0
+        out.writeInt(summon.getTemplateId()); // 00 00 00 00
+        out.writeInt(summon.getBulletID()); // 00 00 00 00
+        out.writeBool(false);
+        out.writeBool(summon.isJaguarActive());
+        out.writeInt(summon.getSummonTerm());
+        out.writeBool(summon.isAttackActive());
+        out.writeZeroBytes(13);
+        return out;
 
     }
 
     public static OutPacket summonMove(int charId, int objId, MovementInfo movementInfo) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.SUMMON_MOVE.getValue());
-        outPacket.writeInt(charId);
-        outPacket.writeInt(objId);
-        movementInfo.encode(outPacket);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.SUMMON_MOVE.getValue());
+        out.writeInt(charId);
+        out.writeInt(objId);
+        movementInfo.encode(out);
+        return out;
     }
 }

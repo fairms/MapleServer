@@ -28,10 +28,14 @@ public class OutPacket implements AutoCloseable {
         byteBuf = ByteBufAllocator.DEFAULT.directBuffer();
     }
 
+    public OutPacket(SendOpcode opcode) {
+        byteBuf = ByteBufAllocator.DEFAULT.directBuffer();
+        byteBuf.writeShortLE(opcode.getValue());
+    }
+
     public OutPacket(ByteBuf byteBuf) {
         this.byteBuf = byteBuf.copy();
     }
-
 
     public void write(byte b) {
         byteBuf.writeByte(b);

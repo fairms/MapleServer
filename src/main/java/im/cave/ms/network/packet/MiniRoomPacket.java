@@ -1,8 +1,8 @@
 package im.cave.ms.network.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.items.Item;
-import im.cave.ms.client.miniroom.TradeRoom;
+import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.social.miniroom.TradeRoom;
 import im.cave.ms.enums.MiniRoomType;
 import im.cave.ms.enums.RoomLeaveType;
 import im.cave.ms.network.netty.OutPacket;
@@ -16,92 +16,92 @@ import im.cave.ms.network.packet.opcode.SendOpcode;
  */
 public class MiniRoomPacket {
     public static OutPacket tradeInvite(MapleCharacter player) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
-        outPacket.write(MiniRoomType.TradeInviteRequest.getVal());
-        outPacket.write(4);
-        outPacket.writeMapleAsciiString(player.getName());
-        outPacket.writeInt(0);
-        outPacket.writeInt(player.getId());
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MINI_ROOM.getValue());
+        out.write(MiniRoomType.TradeInviteRequest.getVal());
+        out.write(4);
+        out.writeMapleAsciiString(player.getName());
+        out.writeInt(0);
+        out.writeInt(player.getId());
+        return out;
     }
 
     public static OutPacket cancelTrade(int user) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
-        outPacket.write(MiniRoomType.ExitTrade.getVal());
-        outPacket.write(user); // other user cancelled
-        outPacket.write(RoomLeaveType.MRLeave_Closed.getVal());
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MINI_ROOM.getValue());
+        out.write(MiniRoomType.ExitTrade.getVal());
+        out.write(user);
+        out.write(RoomLeaveType.MRLeave_Closed.getVal());
+        return out;
     }
 
     public static OutPacket enterTrade(TradeRoom tradeRoom, int user) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
-        outPacket.write(MiniRoomType.EnterTrade.getVal());
-        outPacket.write(4);
-        outPacket.write(2);
-        outPacket.write(user);
-        tradeRoom.encodeChar(outPacket);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MINI_ROOM.getValue());
+        out.write(MiniRoomType.EnterTrade.getVal());
+        out.write(4);
+        out.write(2);
+        out.write(user);
+        tradeRoom.encodeChar(out);
+        return out;
     }
 
     public static OutPacket acceptTradeInvite(MapleCharacter player) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
-        outPacket.write(MiniRoomType.Accept.getVal());
-        outPacket.write(1);
-        PacketHelper.addCharLook(outPacket, player, true, false);
-        outPacket.writeShort(player.getJobId());
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MINI_ROOM.getValue());
+        out.write(MiniRoomType.Accept.getVal());
+        out.write(1);
+        player.getCharLook().encode(out);
+        out.writeShort(player.getJob());
+        return out;
     }
 
     public static OutPacket chat(int pos, String msg, MapleCharacter chr) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
-        outPacket.write(MiniRoomType.Chat.getVal());
-        outPacket.write(25); //unk
-        outPacket.write(pos);
-        outPacket.writeMapleAsciiString(msg);
-        outPacket.writeInt(chr.getId());
-        outPacket.writeMapleAsciiString(chr.getName());
-        outPacket.writeMapleAsciiString(msg);
-        outPacket.writeZeroBytes(13);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MINI_ROOM.getValue());
+        out.write(MiniRoomType.Chat.getVal());
+        out.write(25);
+        out.write(pos);
+        out.writeMapleAsciiString(msg);
+        out.writeInt(chr.getId());
+        out.writeMapleAsciiString(chr.getName());
+        out.writeMapleAsciiString(msg);
+        out.writeZeroBytes(13);
+        return out;
     }
 
     public static OutPacket putItem(int user, byte tradePos, Item item) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
-        outPacket.write(MiniRoomType.PlaceItem.getVal());
-        outPacket.write(user);
-        outPacket.write(tradePos);
-        PacketHelper.addItemInfo(outPacket, item);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MINI_ROOM.getValue());
+        out.write(MiniRoomType.PlaceItem.getVal());
+        out.write(user);
+        out.write(tradePos);
+        item.encode(out);
+        return out;
     }
 
     public static OutPacket putMeso(int user, long meso) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
-        outPacket.write(MiniRoomType.SetMesos.getVal());
-        outPacket.write(user);
-        outPacket.writeLong(meso);
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MINI_ROOM.getValue());
+        out.write(MiniRoomType.SetMesos.getVal());
+        out.write(user);
+        out.writeLong(meso);
+        return out;
     }
 
     public static OutPacket tradeConfirm() {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
-        outPacket.write(MiniRoomType.Trade.getVal());
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MINI_ROOM.getValue());
+        out.write(MiniRoomType.Trade.getVal());
+        return out;
     }
 
     public static OutPacket tradeComplete(int user) {
-        OutPacket outPacket = new OutPacket();
-        outPacket.writeShort(SendOpcode.MINI_ROOM.getValue());
-        outPacket.write(MiniRoomType.ExitTrade.getVal());
-        outPacket.write(user); // other user cancelled
-        outPacket.write(RoomLeaveType.TRLeave_TradeDone.getVal());
-        return outPacket;
+        OutPacket out = new OutPacket();
+        out.writeShort(SendOpcode.MINI_ROOM.getValue());
+        out.write(MiniRoomType.ExitTrade.getVal());
+        out.write(user); // other user cancelled
+        out.write(RoomLeaveType.TRLeave_TradeDone.getVal());
+        return out;
     }
 }

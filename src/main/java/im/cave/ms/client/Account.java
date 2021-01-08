@@ -1,8 +1,13 @@
 package im.cave.ms.client;
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.constants.GameConstants;
+import im.cave.ms.client.social.friend.Friend;
+import im.cave.ms.client.storage.Locker;
+import im.cave.ms.client.storage.Storage;
+import im.cave.ms.client.storage.Trunk;
+import im.cave.ms.enums.MessageType;
 import im.cave.ms.network.db.DataBaseManager;
+import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.server.Server;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,20 +17,21 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static im.cave.ms.constants.GameConstants.DEFAULT_CHARACTER_SLOTS;
 
 /**
  * @author fair
@@ -36,49 +42,56 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "accounts")
+@Table(name = "account")
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String account, password;
-    private int characterSlots = 6;
-    private int point, voucher;
+    private int characterSlots;
+    private int cash, point, voucher;
     private boolean gm;
     private boolean isBanned;
     private String banReason;
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private long lastLogin;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "accId")
-    private Set<MapleCharacter> characters = new HashSet<>();
-    private Long lastLogin;
-    @JoinColumn(name = "trunkId")
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Trunk trunk;
-    @JoinColumn(name = "cashTrunk")
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Trunk cashTrunk;
+    private Set<MapleCharacter> characters;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "accId")
+    private Set<Storage> storages;
     @ElementCollection
-    @CollectionTable(name = "shared_quest_ex", joinColumns = @JoinColumn(name = "accId"))
+    @CollectionTable(name = "quest_ex_shared", joinColumns = @JoinColumn(name = "accId"))
     @MapKeyColumn(name = "qrKey")
     @Column(name = "qrValue")
     private Map<Integer, String> sharedQuestExStorage;
-    @Transient
-    private Map<Integer, Map<String, String>> sharedQuestEx = new HashMap<>();
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "accId")
     private Set<Friend> friends;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "accId")
+    private List<Record> records;
+    @Transient
+    private Map<Integer, Map<String, String>> sharedQuestEx;
+    @Transient
+    private MapleCharacter onlineChar;
+    @Transient
+    private RecordManager recordManager;
 
-
-    public Account(String account, String password) {
-        this.account = account;
-        this.password = password;
-        lastLogin = System.currentTimeMillis();
-        trunk = new Trunk((byte) 8);
-        cashTrunk = new Trunk(GameConstants.MAX_LOCKER_SIZE);
+    public static Account createAccount(String name, String password) {
+        Account acc = new Account();
+        acc.storages = new HashSet<>();
+        acc.storages.add(new Trunk());
+        acc.storages.add(new Locker());
+        acc.account = name;
+        acc.password = password;
+        return acc;
     }
 
     public Account() {
-
+        characterSlots = DEFAULT_CHARACTER_SLOTS;
+        recordManager = new RecordManager(this);
+        sharedQuestEx = new HashMap<>();
     }
 
     public static Account getFromDB(String username) {
@@ -86,14 +99,14 @@ public class Account {
         return ((Account) account);
     }
 
-    public void saveToDb() {
+    public void save() {
+        buildQuestExStorage();
         DataBaseManager.saveToDB(this);
     }
 
     public void logout() {
         Server.getInstance().removeAccount(this);
-        DataBaseManager.saveToDB(this);
-//        saveToDb();
+        save();
     }
 
     public void addChar(MapleCharacter chr) {
@@ -103,7 +116,6 @@ public class Account {
     public MapleCharacter getCharacter(int charId) {
         return characters.stream().filter(character -> character.getId() == charId).findAny().orElse(null);
     }
-
 
     public void buildSharedQuestEx() {
         getSharedQuestExStorage().forEach((qrKey, qrValue) ->
@@ -118,7 +130,6 @@ public class Account {
         );
     }
 
-
     public void buildQuestExStorage() {
         getSharedQuestEx().forEach((questId, options) -> {
             StringBuilder value = new StringBuilder();
@@ -129,7 +140,6 @@ public class Account {
         });
     }
 
-
     public void addSharedQuestEx(int questId, Map<String, String> value, boolean sendPacket) {
         Map<String, String> options = sharedQuestEx.getOrDefault(questId, null);
         if (options == null) {
@@ -137,9 +147,9 @@ public class Account {
         } else {
             sharedQuestEx.get(questId).putAll(value);
         }
-        buildQuestExStorage();
-        if (sendPacket) {
-            //todo
+        if (sendPacket && getOnlineChar() != null) {
+            getOnlineChar().announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, questId,
+                    getSharedQuestExStorage().get(questId), (byte) 0));
         }
     }
 
@@ -147,22 +157,51 @@ public class Account {
         return getFriends().stream().filter(f -> f.getFriendAccountId() == accId).findAny().orElse(null);
     }
 
-
     public void addFriend(Friend friend) {
         if (getFriendByAccId(friend.getFriendAccountId()) == null) {
             getFriends().add(friend);
         }
     }
 
+    public void removeChar(int charId) {
+        getCharacters().removeIf(character -> character.getId() == charId);
+    }
+
     public void addPoint(int amount) {
         point += amount;
+    }
+
+    public void addVoucher(int amount) {
+        voucher += amount;
+    }
+
+    public void addCash(int amount) {
+        cash += amount;
     }
 
     public void addSlot(int i) {
         characterSlots += i;
     }
 
-    public void removeChar(int charId) {
-        getCharacters().removeIf(character -> character.getId() == charId);
+    public Locker getLocker() {
+        for (Storage storage : storages) {
+            if (storage instanceof Locker) {
+                return ((Locker) storage);
+            }
+        }
+        Locker locker = new Locker();
+        storages.add(locker);
+        return locker;
+    }
+
+    public Trunk getTrunk() {
+        for (Storage storage : storages) {
+            if (storage instanceof Trunk) {
+                return ((Trunk) storage);
+            }
+        }
+        Trunk trunk = new Trunk();
+        storages.add(trunk);
+        return trunk;
     }
 }

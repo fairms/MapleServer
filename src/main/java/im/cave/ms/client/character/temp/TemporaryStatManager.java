@@ -3,7 +3,6 @@ package im.cave.ms.client.character.temp;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.job.MapleJob;
-import im.cave.ms.client.skill.SkillInfo;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.BaseStat;
@@ -13,6 +12,7 @@ import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.Randomizer;
 import im.cave.ms.tools.Tuple;
 import im.cave.ms.tools.Util;
@@ -174,7 +174,7 @@ public class TemporaryStatManager {
                 getIndieSchedules().put(tuple, sf);
             }
         }
-        if (cts != LifeTidal && JobConstants.isDemonAvenger(chr.getJobId())) {
+        if (cts != LifeTidal && JobConstants.isDemonAvenger(chr.getJob())) {
 //            ((Demon) chr.getJobHandler()).sendHpUpdate();
         }
     }
@@ -212,7 +212,7 @@ public class TemporaryStatManager {
         } else {
             getSchedules().remove(cts);
         }
-        if (JobConstants.isDemonAvenger(chr.getJobId())) {
+        if (JobConstants.isDemonAvenger(chr.getJob())) {
 //            ((Demon) chr.getJobHandler()).sendHpUpdate();
         }
     }
@@ -289,10 +289,10 @@ public class TemporaryStatManager {
         return getMaskByCollection(getRemovedStats());
     }
 
-    public void encodeForLocal(OutPacket outPacket) {
+    public void encodeForLocal(OutPacket out) {
         int[] mask = getNewMask();
         for (int i = 0; i < getNewMask().length; i++) {
-            outPacket.writeInt(mask[i]);
+            out.writeInt(mask[i]);
         }
         List<CharacterTemporaryStat> orderedAndFilteredCtsList = new ArrayList<>(getNewStats().keySet()).stream()
                 .filter(cts -> cts.getOrder() != -1)
@@ -302,63 +302,63 @@ public class TemporaryStatManager {
             if (cts.getOrder() != -1) {
                 Option o = getOption(cts);
                 if (cts.isEncodeInt()) {
-                    outPacket.writeInt(o.nOption);
+                    out.writeInt(o.nOption);
                 } else {
-                    outPacket.writeShort(o.nOption);
+                    out.writeShort(o.nOption);
                 }
-                outPacket.writeInt(o.rOption);
-                outPacket.writeInt(o.tOption);
+                out.writeInt(o.rOption);
+                out.writeInt(o.tOption);
             }
         }
 
-        outPacket.writeZeroBytes(13);
+        out.writeZeroBytes(13);
         if (hasNewStat(ComboCounter)) { //todo
-            outPacket.writeInt(getOption(ComboCounter).bOption);
+            out.writeInt(getOption(ComboCounter).bOption);
         }
-        encodeIndieTempStat(outPacket);
+        encodeIndieTempStat(out);
 
-        outPacket.write(1);
-        outPacket.write(1);
-        outPacket.write(1);
-        outPacket.writeInt(0);
-        outPacket.write(0);  //sometimes
+        out.write(1);
+        out.write(1);
+        out.write(1);
+        out.writeInt(0);
+        out.write(0);  //sometimes
 
         getNewStats().clear();
     }
 
-    private void encodeIndieTempStat(OutPacket outPacket) {
+    private void encodeIndieTempStat(OutPacket out) {
         Map<CharacterTemporaryStat, List<Option>> stats = getCurrentStats().entrySet().stream()
                 .filter(stat -> stat.getKey().isIndie() && getNewStats().containsKey(stat.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         TreeMap<CharacterTemporaryStat, List<Option>> sortedStats = new TreeMap<>(stats);
         if (sortedStats.size() == 0) {
-            outPacket.writeInt(0);
+            out.writeInt(0);
         }
         for (Map.Entry<CharacterTemporaryStat, List<Option>> stat : sortedStats.entrySet()) {
             int curTime = (int) System.currentTimeMillis();
             List<Option> options = stat.getValue();
             if (options == null) {
-                outPacket.writeInt(0);
+                out.writeInt(0);
                 continue;
             }
-            outPacket.writeInt(options.size());
+            out.writeInt(options.size());
             for (Option option : options) {
-                outPacket.writeInt(option.nReason);
-                outPacket.writeInt(option.nValue);
-                outPacket.writeInt(curTime);
-                outPacket.writeInt(0);
-                outPacket.writeInt(option.tTerm);
-                outPacket.writeZeroBytes(16);
+                out.writeInt(option.nReason);
+                out.writeInt(option.nValue);
+                out.writeInt(curTime);
+                out.writeInt(0);
+                out.writeInt(option.tTerm);
+                out.writeZeroBytes(16);
             }
         }
     }
 
 
-    public void encodeForRemote(OutPacket outPacket, Map<CharacterTemporaryStat, List<Option>> collection) {
+    public void encodeForRemote(OutPacket out, Map<CharacterTemporaryStat, List<Option>> collection) {
         int[] mask = getMaskByCollection(collection);
         for (int maskElem : mask) {
-            outPacket.writeInt(maskElem);
+            out.writeInt(maskElem);
         }
         List<CharacterTemporaryStat> orderedAndFilteredCtsList = new ArrayList<>(collection.keySet()).stream()
                 .filter(cts -> cts.getOrder() != -1)
@@ -370,121 +370,121 @@ public class TemporaryStatManager {
 //            if (cts.getRemoteOrder() != -1) {
 //                Option o = getOption(cts);
 //                if (cts == CharacterTemporaryStat.Unk82) {
-//                    outPacket.writeShort(o.nOption);
+//                    out.writeShort(o.nOption);
 //                }
 //                if (!cts.isNotEncodeAnything()) {
 //                    if (cts.isRemoteEncode1()) {
-//                        outPacket.writeShort(o.nOption);
+//                        out.writeShort(o.nOption);
 //                    } else if (cts.isRemoteEncode4()) {
-//                        outPacket.writeInt(o.nOption);
+//                        out.writeInt(o.nOption);
 //                    } else {
-//                        outPacket.writeShort(o.nOption);
+//                        out.writeShort(o.nOption);
 //                    }
 //                    if (!cts.isNotEncodeReason()) {
-//                        outPacket.writeInt(o.rOption);
+//                        out.writeInt(o.rOption);
 //                    }
 //                }
 //
-//                outPacket.writeZeroBytes(11);
+//                out.writeZeroBytes(11);
 //            }
         }
 
         final int MAX_INT = 2147483647;
         final int RANDOM_INT = Randomizer.nextInt(MAX_INT);
 
-        outPacket.writeInt(-1); // PyramidEffect
+        out.writeInt(-1); // PyramidEffect
 
-        outPacket.write(0); // KillingPoint
+        out.write(0); // KillingPoint
 
 
-        outPacket.writeInt(0); // 神圣迅捷
-        outPacket.writeInt(0);
-        outPacket.writeInt(0); // 战法灵气
+        out.writeInt(0); // 神圣迅捷
+        out.writeInt(0);
+        out.writeInt(0); // 战法灵气
 
-        outPacket.writeInt(0); // 激素狂飙
+        out.writeInt(0); // 激素狂飙
 
-        outPacket.writeInt(0); // 忍耐之盾
+        out.writeInt(0); // 忍耐之盾
 
-        outPacket.writeInt(0); // SECONDARY_STAT_UNK476
+        out.writeInt(0); // SECONDARY_STAT_UNK476
 
-        outPacket.writeInt(0); // 结合灵气
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
+        out.writeInt(0); // 结合灵气
+        out.writeInt(0);
+        out.writeInt(0);
 
-        outPacket.writeInt(0); // SECONDARY_STAT_BattlePvP_LangE_Protection
-        outPacket.writeInt(0);
+        out.writeInt(0); // SECONDARY_STAT_BattlePvP_LangE_Protection
+        out.writeInt(0);
 
-        outPacket.write(1); //AranSmashSwing 激素狂飙
+        out.write(1); //AranSmashSwing 激素狂飙
 
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
-        outPacket.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
 
-        outPacket.writeInt(0); // 能量
+        out.writeInt(0); // 能量
         //能量获得
-        outPacket.writeLong(0);
-        outPacket.write(1);
-        outPacket.writeInt(MAX_INT);
+        out.writeLong(0);
+        out.write(1);
+        out.writeInt(MAX_INT);
         //疾驰速度
-        outPacket.writeLong(0);
-        outPacket.write(1);
-        outPacket.writeInt(RANDOM_INT);
-        outPacket.writeShort(0);
+        out.writeLong(0);
+        out.write(1);
+        out.writeInt(RANDOM_INT);
+        out.writeShort(0);
         //疾驰跳跃
-        outPacket.writeLong(0);
-        outPacket.write(1);
-        outPacket.writeInt(RANDOM_INT);
-        outPacket.writeShort(0);
+        out.writeLong(0);
+        out.write(1);
+        out.writeInt(RANDOM_INT);
+        out.writeShort(0);
         //骑兽技能
-        outPacket.writeLong(0);
-        outPacket.write(1);
-        outPacket.writeInt(MAX_INT);
+        out.writeLong(0);
+        out.write(1);
+        out.writeInt(MAX_INT);
         //极速领域
-        outPacket.writeLong(0);
-        outPacket.writeInt(1);
-        outPacket.writeLong(0);
+        out.writeLong(0);
+        out.writeInt(1);
+        out.writeLong(0);
         //导航辅助
-        outPacket.writeLong(0);
-        outPacket.write(1);
-        outPacket.writeInt(MAX_INT);
-        outPacket.writeLong(0);
+        out.writeLong(0);
+        out.write(1);
+        out.writeInt(MAX_INT);
+        out.writeLong(0);
         //SECONDARY_STAT_Undead
-        outPacket.writeLong(0);
-        outPacket.write(1);
-        outPacket.writeInt(RANDOM_INT);
-        outPacket.writeShort(0);
+        out.writeLong(0);
+        out.write(1);
+        out.writeInt(RANDOM_INT);
+        out.writeShort(0);
         //SECONDARY_STAT_RideVehicleExpire
-        outPacket.writeLong(0);
-        outPacket.write(1);
-        outPacket.writeInt(RANDOM_INT);
-        outPacket.writeShort(0);
+        out.writeLong(0);
+        out.write(1);
+        out.writeInt(RANDOM_INT);
+        out.writeShort(0);
         //
-        outPacket.writeLong(0);
-        outPacket.write(1);
-        outPacket.writeInt(MAX_INT);
+        out.writeLong(0);
+        out.write(1);
+        out.writeInt(MAX_INT);
         //
-        outPacket.writeLong(0);
-        outPacket.write(1);
-        outPacket.writeInt(MAX_INT);
+        out.writeLong(0);
+        out.write(1);
+        out.writeInt(MAX_INT);
 
 
-        outPacket.writeLong(0);
-        outPacket.writeLong(0);
-        outPacket.writeLong(0);
-        outPacket.write(0);
+        out.writeLong(0);
+        out.writeLong(0);
+        out.writeLong(0);
+        out.write(0);
 
     }
 
-//    public void encodeRemovedIndieTempStat(OutPacket outPacket) {
+//    public void encodeRemovedIndieTempStat(OutPacket out) {
 //        Map<CharacterTemporaryStat, List<Option>> stats = getRemovedStats().entrySet().stream()
 //                .filter(stat -> stat.getKey().isIndie())
 //                .sorted(Comparator.comparingInt(stat -> stat.getKey().getVal()))
@@ -496,17 +496,17 @@ public class TemporaryStatManager {
 //            CharacterTemporaryStat key = stat.getKey();
 //            List<Option> options = getOptions(key);
 //            if (options == null) {
-//                outPacket.encodeInt(0);
+//                out.encodeInt(0);
 //                continue;
 //            }
-//            outPacket.encodeInt(options.size());
+//            out.encodeInt(options.size());
 //            for (Option option : options) {
-//                outPacket.encodeInt(option.nReason);
-//                outPacket.encodeInt(option.nValue);
-//                outPacket.encodeInt(option.nKey); // nKey
-//                outPacket.encodeInt(curTime - option.tStart);
-//                outPacket.encodeInt(option.tTerm); // tTerm
-//                outPacket.encodeInt(0); // size
+//                out.encodeInt(option.nReason);
+//                out.encodeInt(option.nValue);
+//                out.encodeInt(option.nKey); // nKey
+//                out.encodeInt(curTime - option.tStart);
+//                out.encodeInt(option.tTerm); // tTerm
+//                out.encodeInt(0); // size
 //                // pw.writeInt(0); // nMValueKey
 //                // pw.writeInt(0); // nMValue
 //            }

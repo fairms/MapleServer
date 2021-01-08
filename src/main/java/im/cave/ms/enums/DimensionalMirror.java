@@ -5,9 +5,7 @@ import im.cave.ms.tools.Util;
 
 import java.util.Arrays;
 
-/**
- * Created by MechAviv on 3/3/2019.
- */
+
 public enum DimensionalMirror {
     MU_LUNG_DOJO(0, 925020000, "武陵道场", "挑战武陵道场，试一试自己的力量。", 105, 0, 1207, new int[]{1082392, 1082393, 1082394}, false),
     EREVE_CONFERENCE_PAVILION(1, 913050010, "冒险岛联盟会场", "The Maple Alliance has been formed at the Continental Conference. \nBattle the Black Mage in 'Black Heaven' and 'Heroes of Maple'!", 75, 0, 7998, new int[]{1142769, 1142804, 3015030, 3700350, 3017016}, false),
@@ -25,7 +23,7 @@ public enum DimensionalMirror {
     // 鬼魂公园 id 13
     TWISTED_AQUA_ROAD(500, "外星访客", "Do you want to move to Twisted Aqua Road?", 200, 17100, 17132, new int[]{}, false),
     PRINCESS_NO_PARTY_QUEST(501, "主题副本.:凯梅尔兹共和国", "Do you want to challenge Princess No?", 140, 58913, 58971, new int[]{2432755, 2432754, 2432753, 3010864}, false),
-//    ALISHAN(502, 749080900, 1, "枫叶山丘", "Do you want to move to Alishan?", 33, 55234, 55255, new int[]{1202160, 2434004}, false),
+    //    ALISHAN(502, 749080900, 1, "枫叶山丘", "Do you want to move to Alishan?", 33, 55234, 55255, new int[]{1202160, 2434004}, false),
     EVENT_HALL(503, 820000000, 2, "枫叶山丘", "Do you want to move to Event Hall?", 1, 0, 5399, new int[]{}, false),
     ALIEN_VISITOR(504, "海外旅游", "Do you want to move to Alien Visitor?", 200, 0, 17201, new int[]{}, false),
     COMMERCI_REPUBLIC(505, "异逝界", "Do you want to move to Commerci Republic?", 140, 17600, 17699, new int[]{}, false),

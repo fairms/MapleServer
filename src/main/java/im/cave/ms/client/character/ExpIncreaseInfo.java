@@ -398,111 +398,111 @@ public class ExpIncreaseInfo {
         return mask;
     }
 
-    public void encode(OutPacket outPacket) {
-        outPacket.writeBool(isLastHit());
-        outPacket.writeLong(getIncEXP());
-        outPacket.writeBool(isOnQuest());
+    public void encode(OutPacket out) {
+        out.writeBool(isLastHit());
+        out.writeLong(getIncEXP());
+        out.writeBool(isOnQuest());
         long mask = getMask();
-        outPacket.writeLong(mask);
+        out.writeLong(mask);
         if ((mask & SelectedMobBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getSelectedMobBonusExp());
+            out.writeInt(getSelectedMobBonusExp());
         }
         if ((mask & PartyBonusPercentage.getVal()) != 0) {
-            outPacket.write(getPartyBonusPercentage());
+            out.write(getPartyBonusPercentage());
         }
         if (isOnQuest()) {
-            outPacket.write(getQuestBonusRate());
+            out.write(getQuestBonusRate());
         }
         if (getQuestBonusRemainCount() > 0) {
-            outPacket.write(getQuestBonusRemainCount());
+            out.write(getQuestBonusRemainCount());
         }
         if ((mask & WeddingBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getWeddingBonusExp());
+            out.writeInt(getWeddingBonusExp());
         }
         if ((mask & PartyBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getPartyBonusExp());
+            out.writeInt(getPartyBonusExp());
         }
         if ((mask & ItemBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getItemBonusExp());
+            out.writeInt(getItemBonusExp());
         }
         if ((mask & PremiumIPBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getPremiumIPBonusExp());
+            out.writeInt(getPremiumIPBonusExp());
         }
         if ((mask & RainbowWeekEventBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getRainbowWeekEventBonusExp());
+            out.writeInt(getRainbowWeekEventBonusExp());
         }
         if ((mask & BoomUpEventBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getBoomupEventBonusExp());
+            out.writeInt(getBoomupEventBonusExp());
         }
         if ((mask & PlusExpBuffBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getPlusExpBuffBonusExp());
+            out.writeInt(getPlusExpBuffBonusExp());
         }
         if ((mask & PsdBonusExpRate.getVal()) != 0) {
-            outPacket.writeInt(getPsdBonusExpRate());
+            out.writeInt(getPsdBonusExpRate());
         }
         if ((mask & IndieBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getIndieBonusExp());
+            out.writeInt(getIndieBonusExp());
         }
         if ((mask & RelaxBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getRelaxBonusExp());
+            out.writeInt(getRelaxBonusExp());
         }
         if ((mask & InstallItemBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getInstallItemBonusExp());
+            out.writeInt(getInstallItemBonusExp());
         }
         //if ((mask & AswanWinnerBonusExp.getVal()) != 0) {
-        //    outPacket.writeInt(getAswanWinnerBonusExp());
+        //    out.writeInt(getAswanWinnerBonusExp());
         //}
         if ((mask & ExpByIncExpR.getVal()) != 0) {
-            outPacket.writeInt(getExpByIncExpR());
+            out.writeInt(getExpByIncExpR());
         }
         if ((mask & ValuePackBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getValuePackBonusExp());
+            out.writeInt(getValuePackBonusExp());
         }
         if ((mask & ExpByIncPQExpR.getVal()) != 0) {
-            outPacket.writeInt(getExpByIncPQExpR());
+            out.writeInt(getExpByIncPQExpR());
         }
         if ((mask & BaseAddExp.getVal()) != 0) {
-            outPacket.writeInt(getBaseAddExp());
+            out.writeInt(getBaseAddExp());
         }
         if ((mask & BloodAllianceBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getBloodAllianceBonusExp());
+            out.writeInt(getBloodAllianceBonusExp());
         }
         if ((mask & FreezeHotEventBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getFreezeHotEventBonusExp());
+            out.writeInt(getFreezeHotEventBonusExp());
         }
         if ((mask & RestField.getVal()) != 0) {
-            outPacket.writeInt(getRestFieldBonusExp());
-            outPacket.writeInt(getRestFieldExpRate());
+            out.writeInt(getRestFieldBonusExp());
+            out.writeInt(getRestFieldExpRate());
         }
         if ((mask & UserHPRateBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getUserHPRateBonusExp());
+            out.writeInt(getUserHPRateBonusExp());
         }
         if ((mask & FieldValueBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getFieldValueBonusExp());
+            out.writeInt(getFieldValueBonusExp());
         }
         if ((mask & MobKillBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getMobKillBonusExp());
+            out.writeInt(getMobKillBonusExp());
         }
         if ((mask & LiveEventBonusExp.getVal()) != 0) {
-            outPacket.writeInt(getLiveEventBonusExp());
+            out.writeInt(getLiveEventBonusExp());
         }
         if ((mask & Unk8000000.getVal()) != 0) {
-            outPacket.writeInt(0);
+            out.writeInt(0);
         }
         if ((mask & Unk10000000.getVal()) != 0) {
-            outPacket.writeInt(0);
+            out.writeInt(0);
         }
         if ((mask & Unk20000000.getVal()) != 0) {
-            outPacket.writeInt(0);
+            out.writeInt(0);
         }
         if ((mask & Unk40000000.getVal()) != 0) {
-            outPacket.writeInt(0);
+            out.writeInt(0);
         }
         if ((mask & Unk80000000.getVal()) != 0) {
-            outPacket.write(0);
+            out.write(0);
         }
         if ((mask & Unk1000000000.getVal()) != 0) {
-            outPacket.writeInt(0);
+            out.writeInt(0);
         }
     }
 }

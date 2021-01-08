@@ -1,4 +1,4 @@
 function start() {
-    cm.test();
+    cm.dropMessage("sorry");
     cm.dispose();
 }

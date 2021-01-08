@@ -26,12 +26,12 @@ public class QuestScriptManager extends AbstractScriptManager {
         Quest quest = QuestData.createQuestFromId(questId);
         try {
             c.acquireScriptState();
-            QuestActionManager qm = new QuestActionManager(c, questId, npc, true);
             if (qms.containsKey(c)) {
                 return;
             }
-            qms.put(c, qm);
             String scriptPath = String.format("quest/%s.js", questName);
+            QuestActionManager qm = new QuestActionManager(c, questId, npc, true, scriptPath);
+            qms.put(c, qm);
             Invocable iv = getInvocable(scriptPath, c);
             if (iv == null) {
                 c.getPlayer().dropMessage("任务:" + questId + "脚本不存在, NPC:" + npc + ", 地图:" + c.getPlayer().getMapId());

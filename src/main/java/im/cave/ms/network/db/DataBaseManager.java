@@ -3,7 +3,6 @@ package im.cave.ms.network.db;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -48,7 +47,7 @@ public class DataBaseManager {
     }
 
     public static void saveToDB(Object obj) {
-        log.info(String.format("%s: Trying to save obj %s.", LocalDateTime.now(), obj));
+        log.debug(String.format("%s: Trying to save obj %s.", LocalDateTime.now(), obj));
         synchronized (obj) {
             try (Session session = getSession()) {
                 Transaction t = session.beginTransaction();
@@ -60,7 +59,7 @@ public class DataBaseManager {
     }
 
     public static void deleteFromDB(Object obj) {
-        log.info(String.format("%s: Trying to delete obj %s.", LocalDateTime.now(), obj));
+        log.debug(String.format("%s: Trying to delete obj %s.", LocalDateTime.now(), obj));
         synchronized (obj) {
             try (Session session = getSession()) {
                 Transaction t = session.beginTransaction();
@@ -72,7 +71,7 @@ public class DataBaseManager {
     }
 
     public static Object getObjFromDB(Class clazz, int id) {
-        log.info(String.format("%s: Trying to get obj %s with id %d.", LocalDateTime.now(), clazz, id));
+        log.debug(String.format("%s: Trying to get obj %s with id %d.", LocalDateTime.now(), clazz, id));
         Object o;
         try (Session session = getSession()) {
             Transaction t = session.beginTransaction();
@@ -87,14 +86,14 @@ public class DataBaseManager {
     }
 
     public static Object getObjFromDB(Class clazz, String columnName, Object value) {
-        log.info(String.format("%s: Trying to get obj %s with value %s.", LocalDateTime.now(), clazz, value));
+        log.debug(String.format("%s: Trying to get obj %s with value %s.", LocalDateTime.now(), clazz, value));
         Object o = null;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
             // String.format for query, just to fill in the class
             // Can't set the FROM clause with a parameter it seems
             javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE %s = :val", clazz.getName(), columnName));
-            System.out.println(((Query) query).getQueryString());
+//            System.out.println(((Query) query).getQueryString());
             query.setParameter("val", value);
             List l = ((org.hibernate.query.Query) query).list();
             if (l != null && l.size() > 0) {
@@ -121,14 +120,14 @@ public class DataBaseManager {
     }
 
     public static Object getObjListFromDB(Class clazz, String columnName, Object value) {
-        log.info(String.format("%s: Trying to get obj %s with value %s.", LocalDateTime.now(), clazz, value));
+        log.debug(String.format("%s: Trying to get obj %s with value %s.", LocalDateTime.now(), clazz, value));
         List list;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
             // String.format for query, just to fill in the class
             // Can't set the FROM clause with a parameter it seems
             javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE %s = :val", clazz.getName(), columnName));
-            System.out.println(((Query) query).getQueryString());
+//            System.out.println(((Query) query).getQueryString());
             query.setParameter("val", value);
             list = ((org.hibernate.query.Query) query).list();
             transaction.commit();
@@ -138,14 +137,14 @@ public class DataBaseManager {
     }
 
     public static <T> Object getObjListFromDB(Class T, String cloumn1, Object value1, String cloumn2, Object value2) {
-        log.info(String.format("%s: Trying to get obj %s with value %s , %s.", LocalDateTime.now(), T, value1, value2));
+        log.debug(String.format("%s: Trying to get obj %s with value %s , %s.", LocalDateTime.now(), T, value1, value2));
         List<T> list;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
             // String.format for query, just to fill in the class
             // Can't set the FROM clause with a parameter it seems
             javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE %s = :val1 AND %s = :val2", T.getName(), cloumn1, cloumn2));
-            System.out.println(((Query) query).getQueryString());
+//            System.out.println(((Query) query).getQueryString());
             query.setParameter("val1", value1);
             query.setParameter("val2", value2);
             list = ((org.hibernate.query.Query) query).list();
