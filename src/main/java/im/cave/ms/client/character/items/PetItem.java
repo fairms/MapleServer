@@ -8,8 +8,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author fair
@@ -36,7 +40,9 @@ public class PetItem extends Item {
     private int autoBuffSkill;
     private int petHue;
     private short giantRate;
-
+    @OneToMany
+    @JoinColumn(name = "petId", referencedColumnName = "itemId")
+    private List<ExceptionItem> exceptionList;
 
     public PetItem() {
 
@@ -73,11 +79,11 @@ public class PetItem extends Item {
         super.encode(out);
         out.writeAsciiString(getName(), 13);
         out.write(getLevel());
-        out.writeShort(getTameness() + 1);
+        out.writeShort(getTameness());
         out.write(getRepleteness());
         out.writeLong(getDeadDate());
         out.writeShort(getPetAttribute()); // 0
-        out.writeShort(getPetSkill()); // 1
+        out.writeShort(getPetSkill()); //
         out.writeInt(getRemainLife()); // 0
         out.writeShort(getAttribute()); // 2 0
         out.write(getActiveState());
@@ -85,5 +91,18 @@ public class PetItem extends Item {
         out.writeInt(getPetHue());
         out.writeShort(getGiantRate());
         out.writeZeroBytes(14);
+    }
+
+    public void setExceptionList(List<ExceptionItem> items) {
+        if (exceptionList == null) {
+            exceptionList = new ArrayList<>();
+        } else {
+            exceptionList.clear();
+        }
+        exceptionList.addAll(items);
+    }
+
+    public boolean hasPetSkill(PetSkill petSkill) {
+        return (getPetSkill() & petSkill.getVal()) != 0;
     }
 }

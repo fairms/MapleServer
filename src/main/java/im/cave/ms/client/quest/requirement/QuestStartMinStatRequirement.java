@@ -1,15 +1,15 @@
 package im.cave.ms.client.quest.requirement;
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.character.MapleStat;
+import im.cave.ms.client.character.Stat;
 
 
 public class QuestStartMinStatRequirement implements QuestStartRequirement {
 
-    private MapleStat stat;
+    private Stat stat;
     private short reqAmount;
 
-    public QuestStartMinStatRequirement(MapleStat stat, short reqAmount) {
+    public QuestStartMinStatRequirement(Stat stat, short reqAmount) {
         this.reqAmount = reqAmount;
         this.stat = stat;
     }
@@ -26,7 +26,7 @@ public class QuestStartMinStatRequirement implements QuestStartRequirement {
         return reqAmount;
     }
 
-    private MapleStat getStat() {
+    private Stat getStat() {
         return stat;
     }
 

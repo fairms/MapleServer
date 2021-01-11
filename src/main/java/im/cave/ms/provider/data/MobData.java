@@ -1,8 +1,8 @@
 package im.cave.ms.provider.data;
 
 import im.cave.ms.client.field.obj.DropInfo;
+import im.cave.ms.client.field.obj.mob.ForcedMobStat;
 import im.cave.ms.client.field.obj.mob.Mob;
-import im.cave.ms.client.field.obj.mob.MobStat;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.provider.wz.MapleData;
@@ -51,7 +51,7 @@ public class MobData {
         }
         MapleData info = data.getChildByPath("info");
         if (info != null) {
-            MobStat stat = mob.getForcedMobStat();
+            ForcedMobStat stat = mob.getForcedMobStat();
             for (MapleData attr : info.getChildren()) {
                 String name = attr.getName();
                 String value = MapleDataTool.getString(attr);
@@ -616,7 +616,6 @@ public class MobData {
 
             }
         }
-
         mob.setDrops(DropData.getDrops(mobId));
         mob.getDrops().add(new DropInfo(GameConstants.MESO_DROP_CHANCE,
                 GameConstants.MIN_MONEY_MULT * mob.getForcedMobStat().getLevel(),

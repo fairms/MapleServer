@@ -1,6 +1,6 @@
 package im.cave.ms.provider.data;
 
-import im.cave.ms.client.character.MapleStat;
+import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.progress.QuestProgressItemRequirement;
 import im.cave.ms.client.quest.progress.QuestProgressLevelRequirement;
@@ -184,30 +184,30 @@ public class QuestData {
                         quest.addRequirement(new QuestStartMarriageRequirement());
                         break;
                     case "lvmin":
-                        quest.addRequirement(new QuestStartMinStatRequirement(MapleStat.LEVEL, Short.parseShort(value)));
+                        quest.addRequirement(new QuestStartMinStatRequirement(Stat.LEVEL, Short.parseShort(value)));
                         break;
                     case "pop":
                     case "fameGradeReq":
-                        quest.addRequirement(new QuestStartMinStatRequirement(MapleStat.FAME, Short.parseShort(value)));
+                        quest.addRequirement(new QuestStartMinStatRequirement(Stat.FAME, Short.parseShort(value)));
                         break;
                     case "charismaMin":
-                        quest.addRequirement(new QuestStartMinStatRequirement(MapleStat.CHARISMA, Short.parseShort(value)));
+                        quest.addRequirement(new QuestStartMinStatRequirement(Stat.CHARISMA, Short.parseShort(value)));
                         break;
                     case "insightMin":
-                        quest.addRequirement(new QuestStartMinStatRequirement(MapleStat.INSIGHT, Short.parseShort(value)));
+                        quest.addRequirement(new QuestStartMinStatRequirement(Stat.INSIGHT, Short.parseShort(value)));
                         break;
                     case "willMin":
-                        quest.addRequirement(new QuestStartMinStatRequirement(MapleStat.WILL, Short.parseShort(value)));
+                        quest.addRequirement(new QuestStartMinStatRequirement(Stat.WILL, Short.parseShort(value)));
                         break;
                     case "craftMin":
-                        quest.addRequirement(new QuestStartMinStatRequirement(MapleStat.CRAFT, Short.parseShort(value)));
+                        quest.addRequirement(new QuestStartMinStatRequirement(Stat.CRAFT, Short.parseShort(value)));
                         break;
                     case "senseMin":
-                        quest.addRequirement(new QuestStartMinStatRequirement(MapleStat.SENSE, Short.parseShort(value)));
+                        quest.addRequirement(new QuestStartMinStatRequirement(Stat.SENSE, Short.parseShort(value)));
                         break;
                     case "charm":
                     case "charmMin":
-                        quest.addRequirement(new QuestStartMinStatRequirement(MapleStat.CHARM, Short.parseShort(value)));
+                        quest.addRequirement(new QuestStartMinStatRequirement(Stat.CHARM, Short.parseShort(value)));
                         break;
                     case "level":
                         quest.addProgressRequirement(new QuestProgressLevelRequirement(Short.parseShort(value)));

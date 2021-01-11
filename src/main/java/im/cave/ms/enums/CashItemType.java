@@ -217,101 +217,148 @@ public enum CashItemType {
     Res_MovoCashItemToLockerFromAuction_Failed(133),
 
 
-    FailReason_Unknown(0),
-    FailReason_Timeout(1),
-    FailReason_CashDaemonDBError(2),
-    FailReason_NoRemainCash(3),
-    FailReason_GiftUnderAge(4),
-    FailReason_GiftLimitOver(5),
-    FailReason_GiftSameAccount(6),
-    FailReason_GiftUnknownRecipient(7),
-    FailReason_GiftRecipientGenderMismatch(8),
-    FailReason_GiftRecipientLockerFull(9),
-    FailReason_BuyStoredProcFailed(10),
-    FailReason_GiftStoredProcFailed(11),
-    FailReason_GiftNoReceiveCharacter(12),
-    FailReason_GiftNoSenderCharacter(13),
-    FailReason_InvalidCoupon(14),
-    FailReason_ExpiredCoupon(15),
-    FailReason_UsedCoupon(16),
-    FailReason_CouponForCafeOnly(17),
-    FailReason_CouponForCafeOnly_Used(18),
-    FailReason_CouponForCafeOnly_Expired(19),
-    FailReason_NotAvailableCoupon(20),
-    FailReason_GenderMisMatch(21),
-    FailReason_GiftNormalItem(22),
-    FailReason_GiftMaplePoint(23),
-    FailReason_NoEmptyPos(24),
-    FailReason_ForPremiumUserOnly(25),
-    FailReason_BuyCoupleStoredProcFailed(26),
-    FailReason_BuyFriendshipStoredProcFailed(27),
-    FailReason_NotAvailableTime(28),
-    FailReason_NoStock(29),
-    FailReason_PurchaseLimitOver(30),
-    FailReason_NoRemainMeso(31),
-    FailReason_IncorrectSSN2(32),
-    FailReason_IncorrectSPW(33),
-    FailReason_ForNoPurchaseExpUsersOnly(34),
-    FailReason_AlreadyApplied(35),
-    FailReason_WebShopUnknown(36),
-    FailReason_WebShopInventoryCount(37),
-    FailReason_WebShopBuyStoredProcFailed(38),
-    FailReason_WebShopInvalidOrder(39),
-    FailReason_GachaponLimitOver(40),
-    FailReason_NoUser(41),
-    FailReason_WrongCommoditySN(42),
-    FailReason_CouponLimitError(43),
-    FailReason_CouponLimitError_Hour(44),
-    FailReason_CouponLimitError_Day(45),
-    FailReason_CouponLimitError_Week(46),
-    FailReason_BridgeNotConnected(47),
-    FailReason_TooYoungToBuy(48),
-    FailReason_GiftTooYoungToRecv(49),
-    FailReason_LimitOverTheItem(50),
-    FailReason_CashLock(51),
-    FailReason_FindSlotPos(52),
-    FailReason_GetItem(53),
-    FailReason_DestroyCashItem(54),
-    FailReason_NotSaleTerm(55),
-    FailReason_InvalidCashItem(56),
-    FailReason_InvalidRandomCashItem(57),
-    FailReason_ReceiveItem(58),
-    FailReason_UseRandomCashItem(59),
-    FailReason_NotGameSvr(60),
-    FailReason_NotShopSvr(61),
-    FailReason_ItemLockerIsFull(62),
-    FailReason_NoAndroid(63),
-    FailReason_DBQueryFailed(64),
-    FailReason_UserSaveFailed(65),
-    FailReason_CannotBuyMonthlyOnceItem(66),
-    FailReason_OnlyCashItem(67),
-    FailReason_NotEnoughMaplePoint(68),
-    FailReason_TooMuchMaplePointAlready(69),
-    FailReason_GiveMaplePointUnknown(70),
-    FailReason_OnWorld(71),
-    FailReason_NoRemainToken(72),
-    FailReason_GiftToken(73),
-    FailReason_LimitOverCharacter(74),
-    FailReason_CurrentValuePack(75),
-    FailReason_NoRemainCashMileage(76),
-    FailReason_NotEquipItem(77),
+    FailReason_Unknown(0), //未知原因 然后退出商城
+    FailReason_Timeout(1),//操作超时 然后退出商城
+    FailReason_CashDaemonDBError(2), //未知原因 然后退出商城
+    FailReason_NoRemainCash(3), //冒险券不足
+    FailReason_GiftUnderAge(4), //未满14岁不能赠送
+    FailReason_GiftLimitOver(5), //超过赠送限额
+    FailReason_GiftSameAccount(6), //无法向本人账号赠送
+    FailReason_GiftUnknownRecipient(7), //角色名错误
+    FailReason_GiftRecipientGenderMismatch(8), //接收者性别限制
+    FailReason_GiftRecipientLockerFull(9), //接收者保管箱满了
+    FailReason_BuyStoredProcFailed(10),//请确认是否超过可以保有的现金道具数量
+    FailReason_GiftStoredProcFailed(11), //角色名是否出错或者该物品是否有性别限制
+    FailReason_GiftNoReceiveCharacter(12), //未知
+    FailReason_GiftNoSenderCharacter(13), // 未知
+    FailReason_InvalidCoupon(14), //领奖券是否正确
+    FailReason_ExpiredCoupon(15), //当前世界无法使用该券
+    FailReason_UsedCoupon(16), //无法使用该券
+    FailReason_CouponForCafeOnly(17), //该券已过期
+    FailReason_CouponForCafeOnly_Used(18), //已经使用过
+    FailReason_CouponForCafeOnly_Expired(19),//乱码1
+    FailReason_NotAvailableCoupon(20),//乱码2
+    FailReason_GenderMisMatch(21),//乱码3
+    FailReason_GiftNormalItem(22),//这是nexon cash coupon号码
+    FailReason_GiftMaplePoint(23), //性别不适合
+    FailReason_NoEmptyPos(24), //这种领奖卡是专用道具 不能赠送给别人
+    FailReason_ForPremiumUserOnly(25), ////这种领奖卡是专用道具 不能赠送给别人
+    FailReason_BuyCoupleStoredProcFailed(26), //确认背包空间不足
+    FailReason_BuyFriendshipStoredProcFailed(27), //   这种道具只能在优秀网吧买得到
+    FailReason_NotAvailableTime(28), //暂时无法购买网吧道具
+    FailReason_NoStock(29), //成对道具只可以送给同世界的异性角色
+    FailReason_PurchaseLimitOver(30), //请准确输入收礼人角色名
+    FailReason_NoRemainMeso(31), //现在不是销售时间
+    FailReason_IncorrectSSN2(32), //卖完了
+    FailReason_IncorrectSPW(33),//超过点券购买限额
+    FailReason_ForNoPurchaseExpUsersOnly(34),//金币不足
+    FailReason_AlreadyApplied(35),//确认身份证
+    FailReason_WebShopUnknown(36),//确认二次密码
+    FailReason_WebShopInventoryCount(37), //此会员卡只限于新购买现金道具用户使用
+    FailReason_WebShopBuyStoredProcFailed(38), //已经报名
+    FailReason_WebShopInvalidOrder(39), //未知原因不能进入商城
+    FailReason_GachaponLimitOver(40), //未知原因不能进入商城
+    FailReason_NoUser(41), //未知原因不能进入商城
+    FailReason_WrongCommoditySN(42), //未知原因不能进入商城
+    FailReason_CouponLimitError(43), //每日购买上线
+    FailReason_CouponLimitError_Hour(44), //未知原因不能进入商城
+    FailReason_CouponLimitError_Day(45), //未知原因不能进入商城
+    FailReason_CouponLimitError_Week(46),//优惠卷超出最大使用次数
+    FailReason_BridgeNotConnected(47), //优惠卷超出最大使用次数 小时
+    FailReason_TooYoungToBuy(48),//优惠卷超出最大使用次数 一天
+    FailReason_GiftTooYoungToRecv(49), //优惠卷超出最大使用次数 一周
+    FailReason_LimitOverTheItem(50), //未知原因不能进入商城
+    FailReason_CashLock(51),  //0月中无法购买 请到1月购买
+    FailReason_FindSlotPos(52), //设置为不能使用冒险券
+    FailReason_GetItem(53), //未知原因不能进入商城
+    FailReason_DestroyCashItem(54), //未知原因不能进入商城
+    FailReason_NotSaleTerm(55), //未知原因不能进入商城
+    FailReason_InvalidCashItem(56),//目前不在出售
+    FailReason_InvalidRandomCashItem(57), //未知原因不能进入商城
+    FailReason_ReceiveItem(58), //未知原因不能进入商城
+    FailReason_UseRandomCashItem(59), //未知原因不能进入商城
+    FailReason_NotGameSvr(60), //未知原因不能进入商城
+    FailReason_NotShopSvr(61), //未知原因不能进入商城
+    FailReason_ItemLockerIsFull(62), //未知原因不能进入商城
+    FailReason_NoAndroid(63),//持有的现金道具太多 特殊蓝空出一个未知
+    FailReason_DBQueryFailed(64), //未知原因不能进入商城
+    FailReason_UserSaveFailed(65), //未知原因不能进入商城
+    FailReason_CannotBuyMonthlyOnceItem(66), //未知原因不能进入商城
+    //67 直接38
+    FailReason_OnlyCashItem(68), //包含只能使用冒险券的道具
+    FailReason_NotEnoughMaplePoint(69), //未知原因不能进入商城
+    FailReason_TooMuchMaplePointAlready(69),//已经拥有很多抵用券
+    FailReason_GiveMaplePointUnknown(70), //未知原因无法增加抵用券
+    FailReason_OnWorld(71), //在该世界无法出售
+    FailReason_NoRemainToken(72), //冒险岛金元不足
+    FailReason_GiftToken(73), //未知原因不能进入商城
+    FailReason_LimitOverCharacter(74),//超出该道具的购买限度
+    FailReason_CurrentValuePack(75),//还有之前购买的超值礼包，无法购买
+    FailReason_NoRemainCashMileage(76),//积分余额不足
+    FailReason_NotEquipItem(77), //未知原因不能进入商城
     FailReason_DoNotReceiveCashItemInvFull(78),
-    FailReason_DoNotCheckQuest(79),
-    FailReason_SpecialServerUnable(80),
-    FailReason_BuyWSLimit(81),
-    FailReason_Max_Time_Limit(82),
-    FailReason_NoNISMS(82),
-    FailReason_RefundExpired(83),
-    FailReason_NoRefundItem(84),
-    FailReason_NoRefundPackage(85),
-    FailReason_PurchaseItemLimitOver(86),
-    FailReason_OTPStateError(87),
-    FailReason_WrongPassword(88),
-    FailReason_CountOver(89),
-    FailReason_Reissuing(90),
-    FailReason_NotExist(91),
-    FailReason_NotAvailableLockerTransfer(92),
-    FailReason_DormancyAccount(93);
+    FailReason_DoNotCheckQuest(79), //无法发放奖励道具,请清理现金保管箱,然后重新移动现金道具
+    FailReason_SpecialServerUnable(80),//限制购买的道具
+    FailReason_BuyWSLimit(81), //在当前世界无法进行
+    FailReason_Max_Time_Limit(82), //超过购买限度
+    FailReason_RefundExpired(83), //未知
+    FailReason_NoRefundItem(84),//目前布莱之机会已中断,请在下次机会中购买
+    FailReason_NoRefundPackage(85),//该道具无法赠送
+    FailReason_PurchaseItemLimitOver(86),//未知
+    FailReason_OTPStateError(87),//超出当月优惠券使用额度
+    FailReason_WrongPassword(88),//无法移动该道具
+    FailReason_CountOver(89),//未知
+    FailReason_Reissuing(90),//当前无法使用
+    FailReason_NotExist(91),//未知
+    FailReason_NotAvailableLockerTransfer(92),//未知
+    FailReason_DormancyAccount(93);//目前无法取消订单
+    //94 超过七天的道具无法取消购买
+    //95 无法取消订单的道具
+    //96 礼包中的部分道具已经领取, 无法取消订单
+    //97 超过每月购买限度,无法购买
+    //98 OTP状态错误
+    //99 一次性密码 U-OTP 不一致
+    //100 一次性密码输入错误超出上限
+    //101 U-OPT处于发送状态
+    //102 U-OPT
+    //103 该道具无法移动
+    //104 设定了个人信息有效时间制的账号 无法使用冒险券购买
+    //105 为保护玩家的冒险券消费,送礼功能已被限制
+    //106 为保护玩家的冒险券消费,购买功能已被限制
+    //107 当前拥有的冒险券不足0元,无法购买
+    //108 未知
+    //109 无法取消购买
+    //110 收到的礼物道具,无法取消购买
+    //111 未知
+    //112 当前无法使用礼券
+    //113 根据先后顺序,该礼券不可用
+    //114 未知原因,礼券使用失败
+    //115 不是冒险岛礼券
+    //116 请确认礼券有效期
+    //117 超出购买上线,无法使用礼券
+    //118 已超出结算上线
+    //119
+    //120 未知
+    //122 30级以上才能购买
+    //123 70级
+    //124 50级
+    //125 100级
+    //126 100级
+    //127 无法使用抵用券购买
+    //128 同上
+    //129 未知
+    //130 未知
+    //131 无法使用抵用券购买
+    //132 70级以上不能购买
+    //135 今天不能继续删除商城道具了
+    //136 没有优惠券
+    //137 优惠价出错
+    //138 现在无法使用优惠券
+    //139请再确认领奖卡号码是否正确
+    //140 无法领取性别不同
+    //141 你手慢了,该道具已经被其他玩家买走
+    //142 无法刷新魔法马车
+
 
     private int val;
 

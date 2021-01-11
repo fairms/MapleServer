@@ -2,7 +2,7 @@ package im.cave.ms.network.packet;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.character.MapleStat;
+import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.InventoryOperation;
 import im.cave.ms.client.character.items.Item;
@@ -12,6 +12,7 @@ import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.movement.MovementInfo;
+import im.cave.ms.enums.CharMask;
 import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryOperationType;
@@ -42,31 +43,31 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
  * @date 11/29 22:25
  */
 public class UserPacket {
-    public static final Map<MapleStat, Long> EMPTY_STATUS = Collections.emptyMap();
+    public static final Map<Stat, Long> EMPTY_STATUS = Collections.emptyMap();
 
     public static OutPacket enableActions() {
         return updatePlayerStats(EMPTY_STATUS, true, null);
     }
 
-    public static OutPacket updatePlayerStats(Map<MapleStat, Long> stats, MapleCharacter chr) {
+    public static OutPacket updatePlayerStats(Map<Stat, Long> stats, MapleCharacter chr) {
         return updatePlayerStats(stats, false, chr);
     }
 
-    public static OutPacket updatePlayerStats(Map<MapleStat, Long> stats, boolean enableActions, MapleCharacter chr) {
+    public static OutPacket updatePlayerStats(Map<Stat, Long> stats, boolean enableActions, MapleCharacter chr) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.UPDATE_STATS.getValue());
         out.write(enableActions ? 1 : 0);
         out.write(0); //unk
         long mask = 0;
-        for (MapleStat stat : stats.keySet()) {
+        for (Stat stat : stats.keySet()) {
             mask |= stat.getValue();
         }
         out.writeLong(mask);
-        Comparator<MapleStat> comparator = Comparator.comparingLong(MapleStat::getValue);
-        TreeMap<MapleStat, Long> sortedStats = new TreeMap<>(comparator);
+        Comparator<Stat> comparator = Comparator.comparingLong(Stat::getValue);
+        TreeMap<Stat, Long> sortedStats = new TreeMap<>(comparator);
         sortedStats.putAll(stats);
-        for (Map.Entry<MapleStat, Long> entry : sortedStats.entrySet()) {
-            MapleStat stat = entry.getKey();
+        for (Map.Entry<Stat, Long> entry : sortedStats.entrySet()) {
+            Stat stat = entry.getKey();
             long value = entry.getValue();
             switch (stat) {
                 case SKIN:
@@ -99,7 +100,7 @@ public class UserPacket {
                     out.writeShort((int) value);
                     break;
                 case AVAILABLESP:
-                    PacketHelper.addCharSP(out, chr);
+                    chr.encodeRemainingSp(out);
                     break;
                 case EXP:
                 case MESO:
@@ -380,8 +381,8 @@ public class UserPacket {
         out.writeBool(feverTime);
         out.writeInt(result);
         out.writeMapleAsciiString(desc);
-        PacketHelper.addItemInfo(out, prevEquip);
-        PacketHelper.addItemInfo(out, equip);
+        prevEquip.encode(out);
+        equip.encode(out);
         return out;
     }
 
@@ -609,6 +610,14 @@ public class UserPacket {
         return out;
     }
 
+    public static OutPacket inventoryGrow(InventoryType type, byte slots) {
+        OutPacket out = new OutPacket();
+        out.write(type.getVal());
+        out.write(slots);
+        return out;
+    }
+
+
     public static OutPacket gatherItemResult(byte val) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.GATHER_ITEM_RESULT.getValue());
@@ -652,7 +661,9 @@ public class UserPacket {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.CHARACTER_MODIFIED.getValue());
         out.write(1);
-//        PacketHelper.addCharInfo(out, player, CharMask.Character);
+        out.writeLong(1); //mask
+        out.write(0);
+        player.encode(out, CharMask.Character);
         return out;
     }
 
@@ -666,7 +677,7 @@ public class UserPacket {
         out.writeInt(1000);
         out.writeLong(equip.getLimitBreak());
         out.writeLong(incALB);
-        PacketHelper.addItemInfo(out, equip);
+        equip.encode(out);
         return out;
     }
 

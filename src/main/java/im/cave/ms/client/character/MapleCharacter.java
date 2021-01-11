@@ -40,6 +40,7 @@ import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.BodyPart;
 import im.cave.ms.enums.CashShopCurrencyType;
+import im.cave.ms.enums.CharMask;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipSpecialAttribute;
@@ -115,6 +116,8 @@ import static im.cave.ms.constants.QuestConstants.QUEST_DAMAGE_SKIN;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_MOB_KILL_COUNT;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
+import static im.cave.ms.constants.ServerConstants.MAX_TIME;
+import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
 import static im.cave.ms.enums.ChatType.SystemNotice;
 import static im.cave.ms.enums.InventoryOperationType.REMOVE;
 import static im.cave.ms.enums.InventoryOperationType.UPDATE_QUANTITY;
@@ -222,7 +225,7 @@ public class MapleCharacter implements Serializable {
     private List<WishedItem> wishedItems;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charId")
-    private List<Record> records;
+    private Set<Record> records;
     /////////////////////////////////////////////////////////
     @Transient
     private MapleMap map;
@@ -635,7 +638,7 @@ public class MapleCharacter implements Serializable {
             equip.addAttribute(EquipAttribute.Untradable);
         }
         if (!equip.hasAttribute(EquipAttribute.NoNonCombatStatGain) && equip.getCharmEXP() != 0) {
-            addStatAndSendPacket(MapleStat.CHARM, equip.getCharmEXP());
+            addStatAndSendPacket(Stat.CHARM, equip.getCharmEXP());
             equip.addAttribute(EquipAttribute.NoNonCombatStatGain);
         }
         getEquipInventory().removeItem(item);
@@ -697,11 +700,11 @@ public class MapleCharacter implements Serializable {
     }
 
 
-    public void addStat(MapleStat stat, int amount) {
+    public void addStat(Stat stat, int amount) {
         setStat(stat, (int) (getStat(stat) + amount));
     }
 
-    public long getStat(MapleStat stat) {
+    public long getStat(Stat stat) {
         switch (stat) {
             case STR:
                 return stats.getStr();
@@ -751,7 +754,7 @@ public class MapleCharacter implements Serializable {
         return -1;
     }
 
-    public void setStat(MapleStat stat, int value) {
+    public void setStat(Stat stat, int value) {
         switch (stat) {
             case STR:
                 stats.setStr(value);
@@ -867,9 +870,9 @@ public class MapleCharacter implements Serializable {
         long newMeso = meso + amount;
         if (newMeso >= 0) {
             newMeso = Math.min(GameConstants.MAX_MONEY, newMeso);
-            Map<MapleStat, Long> stats = new HashMap<>();
+            Map<Stat, Long> stats = new HashMap<>();
             setMeso(newMeso);
-            stats.put(MapleStat.MESO, newMeso);
+            stats.put(Stat.MESO, newMeso);
             announce(UserPacket.updatePlayerStats(stats, false, this));
         }
     }
@@ -888,11 +891,11 @@ public class MapleCharacter implements Serializable {
             return;
         }
         long newExp = curExp + amount;
-        Map<MapleStat, Long> stats = new HashMap<>();
+        Map<Stat, Long> stats = new HashMap<>();
         while (newExp >= GameConstants.charExp[level]) {
             newExp -= GameConstants.charExp[level];
-            addStat(MapleStat.LEVEL, 1);
-            stats.put(MapleStat.LEVEL, getStat(MapleStat.LEVEL));
+            addStat(Stat.LEVEL, 1);
+            stats.put(Stat.LEVEL, getStat(Stat.LEVEL));
             level++;
             getJobHandler().handleLevelUp();
             getMap().broadcastMessage(UserRemote.effect(getId(), Effect.levelUpEffect()));
@@ -900,7 +903,7 @@ public class MapleCharacter implements Serializable {
             healMP(getMaxMP());
         }
         setExp(newExp);
-        stats.put(MapleStat.EXP, newExp);
+        stats.put(Stat.EXP, newExp);
         if (expIncreaseInfo != null) {
             int expFromR = 0;
             expIncreaseInfo.setIndieBonusExp(expFromR);
@@ -959,15 +962,15 @@ public class MapleCharacter implements Serializable {
         int curHP = getHp();
         int maxHP = getMaxHP();
         int newHP = Math.min(curHP + amount, maxHP);
-        Map<MapleStat, Long> stats = new HashMap<>();
-        setStat(MapleStat.HP, newHP);
-        stats.put(MapleStat.HP, (long) newHP);
+        Map<Stat, Long> stats = new HashMap<>();
+        setStat(Stat.HP, newHP);
+        stats.put(Stat.HP, (long) newHP);
         if (mp) {
             int curMP = getMp();
             int maxMP = getMaxMP();
             int newMP = Math.min(curMP + amount, maxMP);
-            setStat(MapleStat.MP, newMP);
-            stats.put(MapleStat.MP, (long) newMP);
+            setStat(Stat.MP, newMP);
+            stats.put(Stat.MP, (long) newMP);
         }
         announce(UserPacket.updatePlayerStats(stats, this));
     }
@@ -976,9 +979,9 @@ public class MapleCharacter implements Serializable {
         int curMP = getMp();
         int maxMP = getMaxMP();
         int newMP = Math.min(curMP + amount, maxMP);
-        Map<MapleStat, Long> stats = new HashMap<>();
-        setStat(MapleStat.MP, newMP);
-        stats.put(MapleStat.MP, (long) newMP);
+        Map<Stat, Long> stats = new HashMap<>();
+        setStat(Stat.MP, newMP);
+        stats.put(Stat.MP, (long) newMP);
         announce(UserPacket.updatePlayerStats(stats, this));
     }
 
@@ -1187,15 +1190,15 @@ public class MapleCharacter implements Serializable {
         }
         int mpCon = skillInfo.getValue(SkillStat.mpCon, skillLevel);
         if (mp >= mpCon) {
-            addStatAndSendPacket(MapleStat.MP, -mpCon);
+            addStatAndSendPacket(Stat.MP, -mpCon);
             return true;
         }
         return false;
     }
 
-    public void addStatAndSendPacket(MapleStat stat, int amount) {
+    public void addStatAndSendPacket(Stat stat, int amount) {
         addStat(stat, amount);
-        HashMap<MapleStat, Long> stats = new HashMap<>();
+        HashMap<Stat, Long> stats = new HashMap<>();
         stats.put(stat, getStat(stat));
         announce(UserPacket.updatePlayerStats(stats, true, this));
     }
@@ -1275,8 +1278,8 @@ public class MapleCharacter implements Serializable {
             return;
         }
         setJobHandler(JobManager.getJobById(getJob(), this));
-        HashMap<MapleStat, Long> stats = new HashMap<>();
-        stats.put(MapleStat.JOB, (long) getJob());
+        HashMap<Stat, Long> stats = new HashMap<>();
+        stats.put(Stat.JOB, (long) getJob());
         announce(UserPacket.updatePlayerStats(stats, this));
     }
 
@@ -1708,5 +1711,105 @@ public class MapleCharacter implements Serializable {
                 addQuestEx(QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED, options);
             }
         }
+    }
+
+    public void encodeRemainingSp(OutPacket out) {
+        List<Integer> remainingSp = getRemainingSp();
+        if (JobConstants.isExtendSpJob(getJob())) {
+            out.write(getRemainingSpsSize());
+            for (int i = 0; i < remainingSp.size(); i++) {
+                if (remainingSp.get(i) > 0) {
+                    out.write(i + 1);
+                    out.writeInt(remainingSp.get(i));
+                }
+            }
+        } else {
+            out.writeShort(remainingSp.get(0));
+        }
+    }
+
+    public void encode(OutPacket out, CharMask mask) {
+        out.writeLong(mask.get());
+        out.write(getCombatOrders());
+        out.writeInt(-1);
+        out.writeInt(-1);
+        out.writeInt(-1);
+        out.writeZeroBytes(6);
+        if (mask.isInMask(CharMask.Character)) {
+            out.writeInt(getId());
+            out.writeInt(getId());
+            out.writeInt(getWorld());
+            out.writeAsciiString(getName(), 13);
+            CharLook charLook = getCharLook();
+            out.write(charLook.getGender());
+            out.write(charLook.getSkin());
+            out.writeInt(charLook.getFace());
+            out.writeInt(charLook.getHair());
+            out.write(charLook.getHairColorBase());
+            out.write(charLook.getHairColorMixed());
+            out.write(charLook.getHairColorProb());
+            getStats().encode(out);
+            out.writeLong(0); //
+            out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+            out.writeInt(getMapId());
+            out.write(getSpawnPoint());
+            out.writeShort(stats.getSubJob());
+            if (JobConstants.isXenon(getJob()) || JobConstants.isDemon(getJob())) {
+                out.writeInt(charLook.getMark());
+            }
+            out.write(0);
+            out.writeLong(getCreatedTime());
+            out.writeShort(stats.getFatigue());
+            out.writeInt(stats.getFatigueUpdated() == 0 ? DateUtil.getTime() : stats.getFatigueUpdated());
+
+            out.writeInt(stats.getCharismaExp());
+            out.writeInt(stats.getInsightExp());
+            out.writeInt(stats.getWillExp());
+            out.writeInt(stats.getCraftExp());
+            out.writeInt(stats.getSenseExp());
+            out.writeInt(stats.getCharmExp());
+            stats.getNonCombatStatDayLimit().encode(out);
+
+            out.writeInt(0); //pvp exp
+            out.write(10); //pvp grade
+            out.writeInt(0); // pvp point
+            out.write(5); // unk
+            out.write(5); // pvp mode type
+            out.writeInt(0); //event point
+
+            out.writeReversedLong(getLastLogout());
+            out.writeLong(MAX_TIME);
+            out.writeLong(ZERO_TIME);
+            out.writeZeroBytes(14);
+            out.writeInt(-1);
+            out.writeInt(0); //bBurning
+            out.write(getBuddyCapacity()); //friend
+            boolean hasBlessingOfFairy = getBlessOfFairyOrigin() != null;
+            out.writeBool(hasBlessingOfFairy);
+            if (hasBlessingOfFairy) {
+                out.writeMapleAsciiString(getBlessOfFairyOrigin());
+            }
+            boolean hasBlessOfEmpress = getBlessOfEmpressOrigin() != null;
+            out.writeBool(hasBlessOfEmpress);
+            if (hasBlessingOfFairy) {
+                out.writeMapleAsciiString(getBlessOfEmpressOrigin());
+            }
+            out.writeBool(false); //ultimate explorer
+        }
+        out.writeInt(0);
+        out.write(-1);
+        out.writeInt(0);
+        out.write(-1);
+
+        Account account = getAccount();
+        Map<Integer, String> sharedQuestExStorage = account.getSharedQuestExStorage();
+        out.writeShort(sharedQuestExStorage.size());
+        sharedQuestExStorage.forEach((qrKey, qrValue) -> {
+            out.writeInt(qrKey);
+            out.writeMapleAsciiString(qrValue);
+        });
+
+        out.write(0);
+        out.writeInt(0);
     }
 }

@@ -37,7 +37,7 @@ import static im.cave.ms.enums.RemoveMobType.ANIMATION_DEATH;
 public class Mob extends MapleMapObj {
     private boolean sealedInsteadDead, patrolMob;
     private int option, effectItemID, range, detectX, senseX, phase, curZoneDataType;
-    private int refImgMobID, lifeReleaseOwnerAID, afterAttack, currentAction, scale = 100, eliteGrade, eliteType, targetUserIdFromServer;
+    private int refImgMobID, lifeReleaseOwnerAID, afterAttack, currentAction, scale = 100, eliteGrade = -1, eliteType, targetUserIdFromServer;
     private long hp;
     private long mp;
     private byte calcDamageIndex = 1, moveAction = 5, appearType = -2, teamForMCarnival = -1;
@@ -46,8 +46,8 @@ public class Mob extends MapleMapObj {
     private Foothold homeFoothold;
     private String lifeReleaseOwnerName = "", lifeReleaseMobName = "";
     //    private ShootingMoveStat shootingMoveStat;
-    private MobStat forcedMobStat;
-    //    private MobTemporaryStat temporaryStat;
+    private ForcedMobStat forcedMobStat;
+    private MobTemporaryStat temporaryStat;
     private int firstAttack;
     private int summonType;
     private int category;
@@ -146,11 +146,11 @@ public class Mob extends MapleMapObj {
 
     public Mob(int id) {
         super(id);
-        forcedMobStat = new MobStat();
+        forcedMobStat = new ForcedMobStat();
     }
 
     public Mob() {
-        forcedMobStat = new MobStat();
+        forcedMobStat = new ForcedMobStat();
     }
 
 
@@ -468,7 +468,14 @@ public class Mob extends MapleMapObj {
         out.writeInt(0);
         out.write(0);
         out.writeInt(getScale());
-        out.writeInt(-1); //getEliteGrade
+        out.writeInt(getEliteGrade()); //getEliteGrade
+        if (getEliteGrade() >= 0) {
+            // 03 00 00 00  技能数量
+            // 86 00 00 00 00 00 00 00 技能1
+            // 7D 00 00 00 00 00 00 00 技能2
+            // 7A 00 00 00 00 00 00 00 技能3
+            // 01 00 00 00 // 类型normal, 3 elite boss probably
+        }
         out.writeZeroBytes(42);
     }
 }

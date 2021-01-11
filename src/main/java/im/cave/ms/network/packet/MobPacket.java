@@ -1,6 +1,7 @@
 package im.cave.ms.network.packet;
 
 import im.cave.ms.client.field.movement.MovementInfo;
+import im.cave.ms.client.field.obj.mob.ForcedMobStat;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobSkillAttackInfo;
 import im.cave.ms.enums.RemoveMobType;
@@ -24,13 +25,16 @@ public class MobPacket {
         out.writeInt(mob.getObjectId());
         out.write(mob.getCalcDamageIndex());
         out.writeInt(mob.getTemplateId());
-        ////getTemporaryStat
+        ForcedMobStat forcedMobStat = mob.getForcedMobStat();
+        out.writeBool(forcedMobStat != null);
+        if (forcedMobStat != null) {
+            forcedMobStat.encode(out);
+        }
         out.writeInt(0);
         out.writeInt(0);
         out.writeInt(0);
         out.writeInt(0);
-        out.writeInt(0x20);
-        out.writeShort(0);
+        out.writeInt(0);
         if (!hasBennInit) {
             mob.encodeInit(out);
         }
@@ -78,15 +82,17 @@ public class MobPacket {
         out.writeInt(mob.getObjectId());
         if (isController) {
             out.write(mob.getCalcDamageIndex());
-            out.writeInt(mob.getObjectId());
-            //getTemporaryStat
+            out.writeInt(mob.getTemplateId());
+            ForcedMobStat forcedMobStat = mob.getForcedMobStat();
+            out.writeBool(forcedMobStat != null);
+            if (forcedMobStat != null) {
+                forcedMobStat.encode(out);
+            }
             out.writeInt(0);
             out.writeInt(0);
             out.writeInt(0);
             out.writeInt(0);
-            out.writeInt(0x20);
-            out.writeShort(0);
-            //mob.init
+            out.writeInt(0);
             if (!hasBeenInit) {
                 mob.encodeInit(out);
             }

@@ -1,9 +1,13 @@
 package im.cave.ms.network.packet;
 
+import im.cave.ms.client.character.items.ExceptionItem;
 import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Pet;
+import im.cave.ms.enums.PetSkill;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.SendOpcode;
+
+import java.util.List;
 
 /**
  * @author fair
@@ -46,11 +50,42 @@ public class PetPacket {
         return out;
     }
 
-    public static OutPacket petActionCommand(int charId, int index) {
+    public static OutPacket petActionCommand(int charId, int index, int action, int status, int param) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.PET_ACTION_COMMAND.getValue());
         out.writeInt(charId);
         out.writeInt(index);
+        out.write(action);
+        out.write(status);
+        out.writeInt(param);
+        return out;
+    }
+
+    public static OutPacket petSkillChanged(long sn, boolean add, PetSkill skill) {
+        OutPacket out = new OutPacket(SendOpcode.PET_SKILL_CHANGED);
+        out.writeLong(sn);
+        out.writeBool(add);
+        out.write(skill.getVal());
+        return out;
+    }
+
+    public static OutPacket cashPetPickUpOnOffResult(boolean changed, boolean on) {
+        OutPacket out = new OutPacket(SendOpcode.CASHPET_PICK_UP_ON_OFF_RESULT);
+        out.writeBool(changed);
+        out.writeBool(on);
+        return out;
+    }
+
+    public static OutPacket initPetExceptionList(Pet pet) {
+        OutPacket out = new OutPacket(SendOpcode.PET_LOAD_EXCEPTION_LIST);
+        out.writeInt(pet.getOwnerId());
+        out.writeInt(pet.getIdx());
+        out.writeLong(pet.getPetItem().getCashItemSerialNumber());
+        List<ExceptionItem> exceptionList = pet.getPetItem().getExceptionList();
+        out.write(exceptionList.size());
+        for (ExceptionItem exceptionItem : exceptionList) {
+            out.writeInt(exceptionItem.getItemId());
+        }
         return out;
     }
 }

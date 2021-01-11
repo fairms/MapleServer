@@ -40,16 +40,16 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     }
 
 
-    public boolean sendSayNext(String text) {
-        return sendGeneralSay(text, SayNext) != 1;
+    public int sendNext(String text) {
+        return sendGeneralSay(text, SayNext);
     }
 
     public int sendAskYesNo(String text) {
         return sendGeneralSay(text, AskYesNo);
     }
 
-    public boolean sendAskAccept(String text) {
-        return sendGeneralSay(text, AskAccept) != 0;
+    public int sendAskAccept(String text) {
+        return sendGeneralSay(text, AskAccept);
     }
 
     public int sendSayOkay(String text) {

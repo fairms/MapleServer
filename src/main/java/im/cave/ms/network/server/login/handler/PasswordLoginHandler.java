@@ -9,6 +9,7 @@ import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.LoginPacket;
+import im.cave.ms.network.server.Server;
 import im.cave.ms.tools.DateUtil;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.Logger;
@@ -47,6 +48,9 @@ public class PasswordLoginHandler {
         }
         c.setMachineID(machineId);
         LoginType loginResult = c.login(username, password);
+        if (loginResult == LoginType.Success && !Server.getInstance().isOnline()) {
+            loginResult = LoginType.SystemErr;
+        }
         if (loginResult == LoginType.Success) {
             c.announce(LoginPacket.loginResult(c, loginResult));
             c.announce(LoginPacket.serverListBg());

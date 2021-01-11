@@ -1,5 +1,7 @@
 package im.cave.ms.enums;
 
+import im.cave.ms.tools.Util;
+
 /**
  * @author fair
  * @version V1.0
@@ -7,30 +9,14 @@ package im.cave.ms.enums;
  * @date 1/7 17:04
  */
 public enum RecordType {
-    MAP_TRANSFER_COUPON_FREE(1, 60 * 60 * 24 * 7),
-    MAP_TRANSFER_COUPON_CASH(1);
+    MAP_TRANSFER_COUPON_FREE,
+    MAP_TRANSFER_COUPON_CASH,
+    BOSS_LOG,
+    RETURN_MAP,
+    MAP_ENTER,
+    ;
 
-
-    private final int max;
-    private final long interval; //秒
-
-    RecordType(int max, long interval) {
-        this.max = max;
-        this.interval = interval;
+    public static RecordType getByName(String name) {
+        return Util.findWithPred(values(), type -> type.name().equals(name));
     }
-
-    RecordType(int max) {
-        this.max = max;
-        this.interval = 0;
-    }
-
-
-    public int getMax() {
-        return max;
-    }
-
-    public long getInterval() {
-        return interval * 1000; //毫秒
-    }
-
 }

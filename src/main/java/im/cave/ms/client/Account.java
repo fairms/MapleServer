@@ -27,7 +27,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,7 +69,7 @@ public class Account {
     private Set<Friend> friends;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "accId")
-    private List<Record> records;
+    private Set<Record> records;
     @Transient
     private Map<Integer, Map<String, String>> sharedQuestEx;
     @Transient

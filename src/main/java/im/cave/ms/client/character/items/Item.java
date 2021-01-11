@@ -167,7 +167,7 @@ public class Item implements Serializable {
         if (hasSn) {
             out.writeLong(getCashItemSerialNumber());
         }
-        out.writeLong(getExpireTime());
+        out.writeLong(getExpireTime()); //期限时间
         out.writeInt(-1);
         out.write(0);
         if (getType() == Type.ITEM) {

@@ -493,6 +493,15 @@ public class ItemData {
                 case "slotMax":
                     item.setSlotMax(MapleDataTool.getInt(attr));
                     break;
+                case "incCharmExp":
+                    item.setIncCharmExp(MapleDataTool.getInt(attr, 0));
+                    break;
+                case "gender":
+                    item.setGender(MapleDataTool.getInt(attr, 2));
+                    break;
+                case "choice":
+                    item.setChoice(MapleDataTool.getInt(attr, 0) != 0);
+                    break;
                 // info not currently interesting. May be interesting in the future.
                 case "icon":
                 case "iconRaw":
@@ -601,7 +610,6 @@ public class ItemData {
                 case "repeat":
                 case "NoCancel":
                 case "rotateSpeed":
-                case "gender":
                 case "life":
                 case "pickupItem":
                 case "add":
@@ -1336,6 +1344,7 @@ public class ItemData {
     public static int getSn(int itemId) {
         return snLookUp.get(itemId);
     }
+
 
     public static Android createAndroidFromItem(Equip androidEquip) {
         Android android = new Android();

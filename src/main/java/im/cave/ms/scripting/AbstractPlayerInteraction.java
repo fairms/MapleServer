@@ -2,9 +2,12 @@ package im.cave.ms.scripting;
 
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.Record;
+import im.cave.ms.client.RecordManager;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.RecordType;
 import im.cave.ms.network.packet.WorldPacket;
 
 import java.util.Calendar;
@@ -78,4 +81,36 @@ public class AbstractPlayerInteraction {
     public int getMapId() {
         return c.getPlayer().getMapId();
     }
+
+    public void updateRecord(String typeStr, int key, int value) throws ScriptException {
+        RecordType type = RecordType.getByName(typeStr);
+        if (type == null) {
+            throw new ScriptException("记录类型名称错误.");
+        }
+        RecordManager recordManager = c.getPlayer().getRecordManager();
+        Record record = recordManager.getRecord(type, key);
+        if (record == null) {
+            record = Record.builder()
+                    .type(type)
+                    .key(key)
+                    .value(value)
+                    .lastReset(System.currentTimeMillis())
+                    .lastUpdated(System.currentTimeMillis())
+                    .build();
+        } else {
+            record.setValue(value);
+        }
+        recordManager.addRecord(record);
+    }
+
+    public int getRecordValue(String typeStr, int key) throws ScriptException {
+        RecordType type = RecordType.getByName(typeStr);
+        if (type == null) {
+            throw new ScriptException("记录类型名称错误.");
+        }
+        RecordManager recordManager = c.getPlayer().getRecordManager();
+        Record record = recordManager.getRecord(type, key);
+        return record != null ? record.getValue() : 0;
+    }
+
 }

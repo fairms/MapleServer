@@ -6,7 +6,7 @@ import im.cave.ms.client.character.DamageSkinSaveData;
 import im.cave.ms.client.character.Macro;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleKeyMap;
-import im.cave.ms.client.character.MapleStat;
+import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
@@ -48,7 +48,6 @@ import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.packet.UserRemote;
 import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
-import im.cave.ms.network.server.CommandHandler;
 import im.cave.ms.network.server.Server;
 import im.cave.ms.network.server.cashshop.CashShopServer;
 import im.cave.ms.network.server.channel.MapleChannel;
@@ -112,8 +111,8 @@ public class UserHandler {
                 hitInfo.specialEffectSkill = in.readByte();
             }
         }
-        HashMap<MapleStat, Long> stats = new HashMap<>();
-        int curHp = (int) player.getStat(MapleStat.HP);
+        HashMap<Stat, Long> stats = new HashMap<>();
+        int curHp = (int) player.getStat(Stat.HP);
         int newHp = curHp - damage;
         if (newHp <= 0) {
             newHp = 0;
@@ -121,8 +120,8 @@ public class UserHandler {
                     false, false
                     , false, 0, 0));
         }
-        player.setStat(MapleStat.HP, newHp);
-        stats.put(MapleStat.HP, (long) newHp);
+        player.setStat(Stat.HP, newHp);
+        stats.put(Stat.HP, (long) newHp);
         c.announce(UserPacket.updatePlayerStats(stats, player));
         player.getMap().broadcastMessage(player, UserRemote.hit(player, hitInfo), false);
 
@@ -391,7 +390,7 @@ public class UserHandler {
         if (JobConstants.isZero((short) skill.getRootId())) {
             jobLevel = JobConstants.getJobLevelByZeroSkillID(skillId);
         }
-        Map<MapleStat, Long> stats;
+        Map<Stat, Long> stats;
         int rootId = skill.getRootId();
         if ((!JobConstants.isBeginnerJob((short) rootId) && !SkillConstants.isMatching(rootId, player.getJob())) || SkillConstants.isSkillFromItem(skillId)) {
             log.error(String.format("Character %d tried adding an invalid skill (job %d, skill id %d)",
@@ -425,7 +424,7 @@ public class UserHandler {
                 skill.setCurrentLevel(newLevel);
                 player.addSp(-level, jobLevel);
                 stats = new HashMap<>();
-                stats.put(MapleStat.AVAILABLESP, (long) 1);
+                stats.put(Stat.AVAILABLESP, (long) 1);
             } else {
                 log.error(String.format("Character %d tried adding a skill without having the required amount of sp" +
                                 " (required %d, has %d)",
@@ -441,7 +440,7 @@ public class UserHandler {
                 skill.setCurrentLevel(newLevel);
                 player.addSp(-level, 1);
                 stats = new HashMap<>();
-                stats.put(MapleStat.AVAILABLESP, (long) 1);
+                stats.put(Stat.AVAILABLESP, (long) 1);
             } else {
                 log.error(String.format("Character %d tried adding a skill without having the required amount of sp" +
                                 " (required %d, has %d)",
@@ -550,16 +549,16 @@ public class UserHandler {
         }
         player.setTick(in.readInt());
         long mask = in.readLong();
-        List<MapleStat> stats = MapleStat.getStatsByMask(mask);
-        HashMap<MapleStat, Long> updatedStats = new HashMap<>();
-        for (MapleStat stat : stats) {
+        List<Stat> stats = Stat.getStatsByMask(mask);
+        HashMap<Stat, Long> updatedStats = new HashMap<>();
+        for (Stat stat : stats) {
             updatedStats.put(stat, (long) in.readShort());
         }
-        if (updatedStats.containsKey(MapleStat.HP)) {
-            player.heal(Math.toIntExact(updatedStats.get(MapleStat.HP)));
+        if (updatedStats.containsKey(Stat.HP)) {
+            player.heal(Math.toIntExact(updatedStats.get(Stat.HP)));
         }
-        if (updatedStats.containsKey(MapleStat.MP)) {
-            player.healMP(Math.toIntExact(updatedStats.get(MapleStat.MP)));
+        if (updatedStats.containsKey(Stat.MP)) {
+            player.healMP(Math.toIntExact(updatedStats.get(Stat.MP)));
         }
     }
 
@@ -600,19 +599,19 @@ public class UserHandler {
         }
         player.setTick(in.readInt());
         short stat = in.readShort();
-        MapleStat charStat = MapleStat.getByValue(stat);
+        Stat charStat = Stat.getByValue(stat);
         if (charStat == null) {
             return;
         }
         int amount = 1;
-        if (charStat == MapleStat.MAXMP || charStat == MapleStat.MAXHP) {
+        if (charStat == Stat.MAXMP || charStat == Stat.MAXHP) {
             amount = 20;
         }
         player.addStat(charStat, amount);
-        player.addStat(MapleStat.AVAILABLEAP, (short) -1);
-        Map<MapleStat, Long> stats = new HashMap<>();
+        player.addStat(Stat.AVAILABLEAP, (short) -1);
+        Map<Stat, Long> stats = new HashMap<>();
         stats.put(charStat, player.getStat(charStat));
-        stats.put(MapleStat.AVAILABLEAP, player.getStat(MapleStat.AVAILABLEAP));
+        stats.put(Stat.AVAILABLEAP, player.getStat(Stat.AVAILABLEAP));
         c.announce(UserPacket.updatePlayerStats(stats, true, player));
     }
 
@@ -624,14 +623,14 @@ public class UserHandler {
         player.setTick(in.readInt());
         int type = in.readInt();
         int amount;
-        MapleStat charStat = null;
+        Stat charStat = null;
         if (type == 1) {
-            charStat = MapleStat.getByValue(in.readLong());
+            charStat = Stat.getByValue(in.readLong());
         } else if (type == 2) {
             in.readInt();
             in.readInt();
             in.readInt();
-            charStat = MapleStat.getByValue(in.readLong());
+            charStat = Stat.getByValue(in.readLong());
         }
         if (charStat == null) {
             return;
@@ -641,14 +640,14 @@ public class UserHandler {
         if (player.getRemainingAp() < amount) {
             return;
         }
-        if (charStat == MapleStat.MAXMP || charStat == MapleStat.MAXHP) {
+        if (charStat == Stat.MAXMP || charStat == Stat.MAXHP) {
             addStat *= 20;
         }
         player.addStat(charStat, addStat);
-        player.addStat(MapleStat.AVAILABLEAP, -amount);
-        Map<MapleStat, Long> stats = new HashMap<>();
+        player.addStat(Stat.AVAILABLEAP, -amount);
+        Map<Stat, Long> stats = new HashMap<>();
         stats.put(charStat, player.getStat(charStat));
-        stats.put(MapleStat.AVAILABLEAP, player.getStat(MapleStat.AVAILABLEAP));
+        stats.put(Stat.AVAILABLEAP, player.getStat(Stat.AVAILABLEAP));
         c.announce(UserPacket.updatePlayerStats(stats, true, player));
     }
 
@@ -793,27 +792,6 @@ public class UserHandler {
 
     }
 
-    /*
-        角色聊天
-     */
-    public static void handleUserGeneralChat(InPacket in, MapleClient c) {
-        int tick = in.readInt();
-        MapleCharacter player = c.getPlayer();
-        if (player == null) {
-            c.close();
-            return;
-        }
-        player.setTick(tick);
-        String content = in.readMapleAsciiString();
-
-        if (content.startsWith("@")) {
-            CommandHandler.handle(c, content);
-            return;
-        }
-
-        player.getMap().broadcastMessage(player, UserRemote.getChatText(player, content), true);
-    }
-
 
     //给其他角色增加人气
     public static void handleUserAddFameRequest(InPacket in, MapleClient c) {
@@ -826,7 +804,7 @@ public class UserHandler {
         }
         byte mode = in.readByte();
         int fameChange = mode == 0 ? -1 : 1;
-        other.addStatAndSendPacket(MapleStat.FAME, fameChange);
+        other.addStatAndSendPacket(Stat.FAME, fameChange);
         player.announce(UserPacket.addFameResponse(other, mode, other.getFame()));
         other.announce(UserPacket.receiveFame(mode, player.getName()));
     }
@@ -947,6 +925,7 @@ public class UserHandler {
         CashShopServer cashShop = Server.getInstance().getCashShop(player.getWorld());
         if (cit == null) {
             log.error("Unhandled cash shop cash item request " + type);
+            player.enableAction();
             return;
         }
         switch (cit) {
@@ -968,7 +947,6 @@ public class UserHandler {
                 CashShopCurrencyType currencyType = CashShopCurrencyType.getByVal(in.readByte());
                 if (currencyType == null) {
                     player.chatMessage(ChatType.Notice, "暫不支持的貨幣類型");
-                    player.enableAction();
                     return;
                 }
                 in.readShort(); // 00 00
@@ -976,6 +954,7 @@ public class UserHandler {
                 int quantity = in.readInt();
                 CashItemInfo cashItemInfo = ItemData.getCashItemInfo(sn);
                 if (cashItemInfo == null) {
+                    player.enableAction();
                     return;
                 }
                 int currency;
@@ -992,8 +971,7 @@ public class UserHandler {
                 int price = cashItemInfo.getPrice();
                 int cost = price * quantity;
                 if (cost > currency) {
-                    player.chatMessage(ChatType.Notice, "貨幣不足，非法請求");
-                    player.enableAction();
+                    player.announce(CashShopPacket.buyFailed(CashItemType.FailReason_NoRemainCash));
                     return;
                 }
                 player.addCurrency(currencyType, -cost);
@@ -1007,16 +985,22 @@ public class UserHandler {
             case Req_EnableEquipSlotExt: {
                 in.readByte();
                 int sn = in.readInt();
-                int extendDay = 7;
+                CashItemInfo cashItemInfo = ItemData.getCashItemInfo(sn);
+                int extendDay = 0;
+                if (cashItemInfo.getItemId() == 5550001) {
+                    extendDay = 7;
+                } else if (cashItemInfo.getItemId() == 5550000) {
+                    extendDay = 30;
+                }
                 long maxTime = LocalDateTime.now().plusDays(364).toInstant(ZoneOffset.of("+8")).toEpochMilli();
-                if (player.getExtendedPendant() < DateUtil.getFileTime(System.currentTimeMillis())) {
+                if (player.getExtendedPendant() < DateUtil.getFileTime(System.currentTimeMillis())) { //已过期或还未购买过
                     long expiredTime = LocalDateTime.now().plusDays(7).toInstant(ZoneOffset.of("+8")).toEpochMilli();
-                    player.setExtendedPendant(expiredTime);
-                } else if (player.getExtendedPendant() > maxTime) {
+                    player.setExtendedPendant(DateUtil.getFileTime(expiredTime));
+                } else if (player.getExtendedPendant() > DateUtil.getFileTime(maxTime)) {
                     player.announce(CashShopPacket.buyFailed(CashItemType.FailReason_Max_Time_Limit));
                     return;
                 } else {
-                    player.setExtendedPendant(player.getExtendedPendant() + ONE_DAY_TIMES * extendDay);
+                    player.setExtendedPendant(player.getExtendedPendant() + ONE_DAY_TIMES * extendDay * 10000);
                 }
                 player.announce(CashShopPacket.enableEquipSlotExtDone(extendDay));
                 break;
@@ -1058,7 +1042,7 @@ public class UserHandler {
             case Req_Destroy: {
                 long serialNumber = in.readLong();
                 locker.removeItemBySerialNumber(serialNumber);
-                player.announce(CashShopPacket.destroyDone(serialNumber));
+                player.announce(CashShopPacket.rebateDone(serialNumber));
                 break;
             }
             case Req_BuyPackage: {
@@ -1076,8 +1060,23 @@ public class UserHandler {
                 //Res_BuyNormal_Done 4B 01 00 00 00 01 00 06 00 D7 82 3D 00
                 break;
             }
+            case Req_Rebate: {
+                short i = in.readShort();
+                in.readByte();
+                long serialNumber = in.readLong();
+                Item item = locker.getItemBySerialNumber(serialNumber);
+                int sn = ItemData.getSn(item.getItemId());
+                CashItemInfo cashItemInfo = ItemData.getCashItemInfo(sn);
+                int price = cashItemInfo.getPrice();
+                account.addVoucher((int) (price * 0.3));
+                locker.removeItemBySerialNumber(serialNumber);
+                player.announce(CashShopPacket.destroyDone(serialNumber));
+                player.announce(CashShopPacket.queryCashResult(account));
+                break;
+            }
             default:
                 player.announce(CashShopPacket.buyFailed(CashItemType.FailReason_Max_Time_Limit));
+                break;
         }
     }
 
@@ -1090,10 +1089,12 @@ public class UserHandler {
         Android android = player.getAndroid();
         AndroidInfo androidInfo = ItemData.getAndroidInfoByType(type);
         if (androidInfo == null || android == null) {
+            player.enableAction();
             return;
         }
         if (androidInfo.isShopUsable()) {
             player.dropMessage("机器人商店");
+            player.enableAction();
         }
     }
 
@@ -1121,5 +1122,11 @@ public class UserHandler {
         }
         player.getMacros().clear();
         player.getMacros().addAll(macros); // don't set macros directly, as a new row will be made in the DB
+    }
+
+    public static void handleUserActivateEffectItem(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        int i = in.readInt();
+        //todo
     }
 }

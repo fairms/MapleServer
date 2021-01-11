@@ -2,20 +2,30 @@ package im.cave.ms.network.server.channel.handler;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.items.ExceptionItem;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.items.PetItem;
+import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.constants.GameConstants;
+import im.cave.ms.constants.QuestConstants;
 import im.cave.ms.enums.InventoryOperationType;
+import im.cave.ms.enums.PetSkill;
+import im.cave.ms.enums.SkillStat;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.PetPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.ItemInfo;
+import im.cave.ms.provider.info.SkillInfo;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -48,6 +58,9 @@ public class PetHandler {
             player.addPet(pet);
             petItem.updateToChar(player);
             player.getMap().broadcastMessage(PetPacket.petActivateChange(pet, true, (byte) 0));
+            if (petItem.getExceptionList() != null) {
+                player.announce(PetPacket.initPetExceptionList(pet));
+            }
         } else {
             byte index = petItem.getActiveState();
             Pet pet = player.getPetByIdx(index);
@@ -63,7 +76,7 @@ public class PetHandler {
         in.readInt();//tick
         short unk = in.readShort();
         String msg = in.readMapleAsciiString();
-        player.getMap().broadcastMessage(player, PetPacket.petActionSpeak(player.getId(), index, unk, msg), true);
+        player.getMap().broadcastMessage(player, PetPacket.petActionSpeak(player.getId(), index, unk, msg), false);
     }
 
     public static void handleUserPetFoodItemUseRequest(InPacket in, MapleClient c) {
@@ -92,7 +105,7 @@ public class PetHandler {
                 PetItem petItem = pet.getPetItem();
                 petItem.setRepleteness((byte) Math.min(100, petItem.getRepleteness() + incRepleteness));
                 petItem.setTameness((short) Math.max(Short.MAX_VALUE, petItem.getTameness() + incTameness));
-                player.getMap().broadcastMessage(PetPacket.petActionCommand(player.getId(), petItem.getActiveState()));
+                player.getMap().broadcastMessage(PetPacket.petActionCommand(player.getId(), petItem.getActiveState(), 2, 1, itemId));
                 c.announce(UserPacket.inventoryOperation(true,
                         InventoryOperationType.ADD, (short) petItem.getPos(), (short) 0, 0, petItem));
             }
@@ -110,5 +123,84 @@ public class PetHandler {
             movementInfo.applyTo(pet);
             player.getMap().broadcastMessage(player, PetPacket.petMove(player.getId(), index, movementInfo), false);
         }
+    }
+
+    public static void handleUserCashPetSkillSetting(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(in.readInt());
+        short skill = in.readShort();
+        in.readShort();
+        if (skill == PetSkill.AUTO_FEED.getVal()) {
+            boolean enable = in.readByte() != 0;
+            Map<String, String> options = new HashMap<>();
+            if (enable) {
+                options.put("autoEat", "1");
+            } else {
+                options.put("autoEat", "0");
+            }
+            player.addQuestEx(QuestConstants.QUEST_EX_PET_AUTO_EAT_FOOD, options);
+        }
+    }
+
+    public static void handleUserCashPetPickUpOnOffRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(in.readInt());
+        boolean on = in.readByte() != 0;
+        boolean channelChange = in.readByte() != 0;
+        int attribute = 0;
+        if (channelChange) {
+            attribute = in.readInt();
+        }
+        player.announce(PetPacket.cashPetPickUpOnOffResult(true, on));
+    }
+
+    public static void handlePetSetExceptionList(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        int idx = in.readInt();
+        Pet pet = player.getPetByIdx(idx);
+        byte size = in.readByte();
+        List<ExceptionItem> items = new ArrayList<>();
+        for (byte i = 0; i < size; i++) {
+            items.add(new ExceptionItem(in.readInt()));
+        }
+        pet.getPetItem().setExceptionList(items);
+    }
+
+    public static void handleUserRegisterPetAutoBuffRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        int idx = in.readInt();
+        int skillId = in.readInt();
+        SkillInfo si = SkillData.getSkillInfo(skillId);
+        Skill skill = player.getSkill(skillId);
+        Pet pet = player.getPetByIdx(idx);
+        int coolTime = si == null ? 0 : si.getValue(SkillStat.cooltime, 1);
+        if (skillId != 0 && (si == null || pet == null || !pet.getPetItem().hasPetSkill(PetSkill.AUTO_BUFF) ||
+                skill == null || skill.getCurrentLevel() == 0 || coolTime > 0)) {
+            player.chatMessage("Something went wrong when adding the pet skill.");
+            player.enableAction();
+            return;
+        }
+        pet.getPetItem().setAutoBuffSkill(skillId);
+        pet.getPetItem().updateToChar(player);
+    }
+
+    public static void handlePetFoodItemUse(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        int idx = in.readInt();
+        player.setTick(in.readInt());
+        short uPos = in.readShort();
+        int itemId = in.readInt();
+        Item item = player.getConsumeInventory().getItem(uPos);
+        Pet pet = player.getPetByIdx(idx);
+        if (pet == null || item == null || item.getItemId() != itemId || item.getQuantity() < 1) {
+            return;
+        }
+        PetItem petItem = pet.getPetItem();
+        ItemInfo ii = ItemData.getItemInfoById(itemId);
+        int incRepleteness = ii.getIncRepleteness();
+        petItem.setRepleteness((byte) Math.max(100, petItem.getRepleteness() + incRepleteness));
+        petItem.updateToChar(player);
+        player.consumeItem(itemId, 1);
+        player.announce(PetPacket.petActionCommand(player.getId(), idx, 2, 1, itemId));
     }
 }

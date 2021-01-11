@@ -172,6 +172,7 @@ public class CommandHandler {
                 c.getPlayer().dropMessage("可见OBJ数目:" + c.getPlayer().getVisibleMapObjs().size());
                 break;
             case "reload":
+                c.getEngines().clear();
                 NpcData.refreshShop();
                 break;
             case "em":

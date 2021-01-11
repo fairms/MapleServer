@@ -10,6 +10,8 @@ public class QuestConstants {
     public static final String QUEST_START_SCRIPT_END_TAG = "s";
     public static final String QUEST_COMPLETE_SCRIPT_END_TAG = "e";
 
+
+    public static final int QUEST_POCKET = 6500;
     //锁定技能
     public static final int QUEST_EX_SKILL_STATE = 1544;
     //每日等级范围内怪物击杀数目统计
@@ -18,7 +20,7 @@ public class QuestConstants {
     //连续击杀
     public static final int QUEST_EX_COMBO_KILL = 16027;
     // 宠物自动喂养
-    public static final int QUEST_EX_PET_AUTO_EAT_FOOD = 1;
+    public static final int QUEST_EX_PET_AUTO_EAT_FOOD = 12334;
     //伤害皮肤
     public static final int QUEST_DAMAGE_SKIN = 7291;
     //称号

@@ -1,129 +1,148 @@
 package im.cave.ms.client.field.obj.mob;
 
-public class MobStat {
-    private long maxHP, maxMP, exp, pushed;
-    private int pad, mad, pdr, mdr, acc, eva, speed, level, userCount;
+public enum MobStat {
+    PAD(0),
+    PDR(1),
+    MAD(2),
+    MDR(3),
+    ACC(4),
+    EVA(5),
+    Speed(6),
+    Stun(7),
 
-    public long getMaxHP() {
-        return maxHP;
+    Freeze(8),
+    Poison(9),
+    Seal(10),
+    Darkness(11),
+    PowerUp(12),
+    MagicUp(13),
+    PGuardUp(14),
+    MGuardUp(15),
+
+    PImmune(16),
+    MImmune(17),
+    Web(18),
+    HardSkin(19),
+    Ambush(20),
+    Venom(21),
+    Blind(22),
+    SealSkill(23),
+
+    Dazzle(24),
+    PCounter(25), // nOption = % of dmg, mOption = % chance
+    MCounter(26),
+    RiseByToss(27),
+    BodyPressure(28),
+    Weakness(29),
+    Showdown(30),
+    MagicCrash(31),
+
+    DamagedElemAttr(32),
+    Dark(33),
+    Mystery(34),
+    AddDamParty(35),
+    HitCriDamR(36),
+    Fatality(37),
+    Lifting(38),
+    DeadlyCharge(39),
+
+    Smite(40),
+    AddDamSkill(41),
+    Incizing(42),
+    DodgeBodyAttack(43),
+    DebuffHealing(44),
+    AddDamSkill2(45),
+    BodyAttack(46),
+    TempMoveAbility(47),
+
+    FixDamRBuff(48),
+    ElementDarkness(49),
+    AreaInstallByHit(50),
+    BMageDebuff(51),
+    JaguarProvoke(52),
+    JaguarBleeding(53),
+    DarkLightning(54),
+    PinkBeanFlowerPot(55),
+
+    BattlePvPHelenaMark(56),
+    PsychicLock(57),
+    PsychicLockCoolTime(58),
+    PsychicGroundMark(59),
+
+    PowerImmune(56),
+    PsychicForce(61),
+    MultiPMDR(62),
+    ElementResetBySummon(63),
+
+    BahamutLightElemAddDam(64),
+    BossPropPlus(65),
+    MultiDamSkill(66),
+    RWLiftPress(67),
+    RWChoppingHammer(68),
+    TimeBomb(69),
+    Treasure(70),
+    AddEffect(71),
+
+    Unknown1(72),
+    Unknown2(73),
+    Invincible(74),
+    Explosion(75),
+    HangOver(76),
+    BurnedInfo(86),// v202.3
+    InvincibleBalog(78),
+    ExchangeAttack(79),
+
+    ExtraBuffStat(89),// v200.3
+    LinkTeam(81),
+    SoulExplosion(82),
+    SeperateSoulP(83),
+    SeperateSoulC(84),
+    Ember(85),
+    TrueSight(86),
+    Laser(87),
+    ;
+
+    private int val, pos, bitPos;
+
+    MobStat(int val, int pos) {
+        this.val = val;
+        this.pos = pos;
     }
 
-    public void setMaxHP(long maxHP) {
-        this.maxHP = maxHP;
+    MobStat(int bitPos) {
+        this.bitPos = bitPos;
+        this.val = 1 << (31 - bitPos % 32);
+        this.pos = bitPos / 32;
     }
 
-    public long getMaxMP() {
-        return maxMP;
+    public int getPos() {
+        return pos;
     }
 
-    public void setMaxMP(long maxMP) {
-        this.maxMP = maxMP;
+    public int getVal() {
+        if (this == BurnedInfo) {
+            return 0x40000;
+        }
+        return val;
     }
 
-    public long getExp() {
-        return exp;
+    public boolean isMovementAffectingStat() {
+        switch (this) {
+            case Speed:
+            case Stun:
+            case Freeze:
+            case RiseByToss:
+            case Lifting:
+            case Smite:
+            case TempMoveAbility:
+            case RWLiftPress:
+                return true;
+            default:
+                return false;
+        }
     }
 
-    public void setExp(long exp) {
-        this.exp = exp;
-    }
-
-    public int getPad() {
-        return pad;
-    }
-
-    public void setPad(int pad) {
-        this.pad = pad;
-    }
-
-    public int getMad() {
-        return mad;
-    }
-
-    public void setMad(int mad) {
-        this.mad = mad;
-    }
-
-    public int getPdr() {
-        return pdr;
-    }
-
-    public void setPdr(int pdr) {
-        this.pdr = pdr;
-    }
-
-    public int getMdr() {
-        return mdr;
-    }
-
-    public void setMdr(int mdr) {
-        this.mdr = mdr;
-    }
-
-    public int getAcc() {
-        return acc;
-    }
-
-    public void setAcc(int acc) {
-        this.acc = acc;
-    }
-
-    public int getEva() {
-        return eva;
-    }
-
-    public void setEva(int eva) {
-        this.eva = eva;
-    }
-
-    public long getPushed() {
-        return pushed;
-    }
-
-    public void setPushed(long pushed) {
-        this.pushed = pushed;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
-    }
-
-    public int getUserCount() {
-        return userCount;
-    }
-
-    public void setUserCount(int userCount) {
-        this.userCount = userCount;
-    }
-
-
-    public MobStat deepCopy() {
-        MobStat copy = new MobStat();
-        copy.setMaxHP((int) getMaxHP());
-        copy.setMaxMP((int) getMaxMP());
-        copy.setExp((int) getExp());
-        copy.setPad(getPad());
-        copy.setMad(getMad());
-        copy.setPdr(getPdr());
-        copy.setMdr(getMdr());
-        copy.setAcc(getAcc());
-        copy.setEva(getEva());
-        copy.setPushed(getPushed());
-        copy.setSpeed(getSpeed());
-        copy.setLevel(getLevel());
-        copy.setUserCount(getUserCount());
-        return copy;
+    public int getBitPos() {
+        return bitPos;
     }
 }

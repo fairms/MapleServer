@@ -35,6 +35,7 @@ public class Npc extends MapleMapObj {
     private int trunkGet;
     private int trunkPut;
     private boolean shop;
+    private boolean illustration;
     private Rect npcRect = new Rect();
 
     public Npc(int npcId) {

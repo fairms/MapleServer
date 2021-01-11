@@ -1,7 +1,7 @@
 package im.cave.ms.provider.info;
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.character.MapleStat;
+import im.cave.ms.client.character.Stat;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.tools.Rect;
@@ -217,24 +217,24 @@ public class SkillInfo {
                 value *= chr.getLevel();
                 break;
             case str2dex:
-                value *= chr.getStat(MapleStat.STR);
+                value *= chr.getStat(Stat.STR);
                 break;
             case dex2luk:
             case dex2str:
-                value *= chr.getStat(MapleStat.DEX);
+                value *= chr.getStat(Stat.DEX);
                 break;
             case int2luk:
-                value *= chr.getStat(MapleStat.INT);
+                value *= chr.getStat(Stat.INT);
                 break;
             case luk2dex:
             case luk2int:
-                value *= chr.getStat(MapleStat.LUK);
+                value *= chr.getStat(Stat.LUK);
                 break;
             case mhp2damX:
-                value *= chr.getStat(MapleStat.MAXHP);
+                value *= chr.getStat(Stat.MAXHP);
                 break;
             case mmp2damX:
-                value *= chr.getStat(MapleStat.MAXMP);
+                value *= chr.getStat(Stat.MAXMP);
                 break;
         }
         return new Tuple<>(bs, value);

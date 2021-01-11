@@ -58,6 +58,9 @@ public class ItemInfo {
     private int reqLevel;
     private int incTameness;
     private int incRepleteness;
+    private int incCharmExp;
+    private boolean choice;
+    private int gender;
     private List<Integer> limitedPets = new ArrayList<>();
 
     public void putScrollStat(ScrollStat scrollStat, int val) {

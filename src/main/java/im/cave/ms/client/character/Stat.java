@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public enum MapleStat {
+public enum Stat {
 
     SKIN(0x1),
     FACE(0x2),
@@ -66,15 +66,15 @@ public enum MapleStat {
 
     private final long i;
 
-    MapleStat(long i) {
+    Stat(long i) {
         this.i = i;
     }
 
-    public static List<MapleStat> getStatsByMask(long mask) {
-        List<MapleStat> stats = new ArrayList<>();
-        List<MapleStat> allStats = Arrays.asList(values());
+    public static List<Stat> getStatsByMask(long mask) {
+        List<Stat> stats = new ArrayList<>();
+        List<Stat> allStats = Arrays.asList(values());
         Collections.sort(allStats);
-        for (MapleStat stat : allStats) {
+        for (Stat stat : allStats) {
             if ((stat.getValue() & mask) != 0) {
                 stats.add(stat);
             }
@@ -87,8 +87,8 @@ public enum MapleStat {
         return i;
     }
 
-    public static MapleStat getByValue(long value) {
-        for (MapleStat stat : MapleStat.values()) {
+    public static Stat getByValue(long value) {
+        for (Stat stat : Stat.values()) {
             if (stat.getValue() == value) {
                 return stat;
             }
@@ -96,7 +96,7 @@ public enum MapleStat {
         return null;
     }
 
-    public static MapleStat getBy5ByteEncoding(int encoded) {
+    public static Stat getBy5ByteEncoding(int encoded) {
         switch (encoded) {
             case 64:
                 return STR;
@@ -110,7 +110,7 @@ public enum MapleStat {
         return null;
     }
 
-    public static MapleStat getByString(String type) {
+    public static Stat getByString(String type) {
         switch (type) {
             case "SKIN":
                 return SKIN;

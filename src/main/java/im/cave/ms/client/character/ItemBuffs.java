@@ -84,13 +84,13 @@ public class ItemBuffs {
                     chr.heal(value);
                     break;
                 case hpR:
-                    chr.heal((int) ((value / 100D) * chr.getStat(MapleStat.MAXHP)));
+                    chr.heal((int) ((value / 100D) * chr.getStat(Stat.MAXHP)));
                     break;
                 case mp:
                     chr.healMP(value);
                     break;
                 case mpR:
-                    chr.healMP((int) ((value / 100D) * chr.getStat(MapleStat.MAXMP)));
+                    chr.healMP((int) ((value / 100D) * chr.getStat(Stat.MAXMP)));
                     break;
                 case eva:
                     tsm.putCharacterStatValue(EVA, o);

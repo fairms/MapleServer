@@ -12,6 +12,7 @@ import im.cave.ms.network.server.service.EventManager;
 import im.cave.ms.network.server.world.World;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.MobData;
+import im.cave.ms.provider.data.NpcData;
 import im.cave.ms.provider.data.QuestData;
 import im.cave.ms.provider.data.StringData;
 import im.cave.ms.scripting.map.MapScriptManager;
@@ -93,13 +94,13 @@ public class Server {
         }
         //加载WZ
         EventManager.addEvent(this::initDataProvider, 0);
-        online = true;
     }
 
     private void initDataProvider() {
         StringData.init();
         MobData.init();
         ItemData.init();
+        NpcData.loadNpcDataFromWz();
         QuestData.loadQuests();
     }
 
@@ -191,5 +192,9 @@ public class Server {
 
     public void setLoginServer(LoginServer loginServer) {
         this.loginServer = loginServer;
+    }
+
+    public void setOnline(boolean on) {
+        online = on;
     }
 }

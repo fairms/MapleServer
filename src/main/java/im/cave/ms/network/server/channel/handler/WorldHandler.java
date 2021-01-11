@@ -53,8 +53,10 @@ import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -768,7 +770,32 @@ public class WorldHandler {
                 player.announce(WorldPacket.friendResult(FriendType.FriendRes_DeleteFriend_Done, null));
                 break;
             }
+            case FriendReq_IncMaxCount: {
+                if (player.getBuddyCapacity() < 125) {
+                    player.setBuddyCapacity((byte) (player.getBuddyCapacity() + 5));
+                }
+                player.announce(WorldPacket.friendResult(FriendType.FriendRes_IncMaxCount_Done, player, null));
+                break;
+            }
+            case FriendReq_SetOffline: {
+//                player.setOnline(false);
+                //todo
+                break;
+            }
         }
 
+    }
+
+    public static void handleRequestRecommendPlayers(MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        MapleMap map = player.getMap();
+        List<MapleCharacter> players = new ArrayList<>();
+        for (MapleCharacter character : map.getCharacters()) {
+            if (character.getParty() == null && player != character) {
+                players.add(character);
+                players.sort(Comparator.comparingInt(MapleCharacter::getLevel));
+            }
+        }
+        player.announce(WorldPacket.recommendPlayers(players));
     }
 }

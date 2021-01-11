@@ -39,14 +39,15 @@ public class Friend {
     public void encode(OutPacket out) {
         out.writeInt(getFriendId());
         out.writeAsciiString(getName(), 13);
-        out.write(getFlag());
-        out.writeInt(getChannelId());
+        out.write(getFlag()); // 05
+        out.writeInt(getChannelId()); // -1
         out.writeAsciiString(getGroup(), 17);
         out.write(0);
         out.writeInt(getFriendAccountId());
         out.writeAsciiString(getNickname(), 13);
         out.writeAsciiString(getMemo(), 256);
         out.writeInt(isInShop() ? 1 : 0);
+        out.write(0);
     }
 
     public int getFriendId() {

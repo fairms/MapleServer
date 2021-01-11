@@ -2,9 +2,7 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * Created by Asura on 21-7-2018.
- */
+
 public enum MapTransferType {
     DeleteListRecv(0),
     RegisterListRecv(1),
@@ -16,7 +14,8 @@ public enum MapTransferType {
     TargetDied(7),
     NotAllowed(8),
     AlreadyInMap(9),
-    RegisterFail(10);
+    RegisterFail(10),
+    NotAllowedForVariousReason(11);
 
     private byte val;
 

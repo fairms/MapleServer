@@ -53,7 +53,7 @@ public class NpcScriptManager extends AbstractScriptManager {
         NpcConversationManager cm = cms.get(c);
         if (cm != null) {
             cm.getNpcScriptInfo().reset();
-            resetContext(cm.getScript(), c);
+//            resetContext(cm.getScript(), c);
             cms.remove(c);
         }
         c.getPlayer().setConversation(false);

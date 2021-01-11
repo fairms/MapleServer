@@ -13,7 +13,7 @@ public enum UserEffectType {
     SkillAffected_Select(6),// v202.3
     SkillSpecialAffected(7),// v202.3
     Quest(8),// v202.3
-    Pet(9),// v202.3
+    Pet(9),// v202.3  //09 00 00 00 00 00 00宠物升级
     SkillSpecial(10),// v202.3
     Resist(11),// v202.3
     ProtectOnDieItemUse(12),// v202.3
@@ -80,7 +80,7 @@ public enum UserEffectType {
     SetUsed(73),// not sure
     ;
 
-    private byte val;
+    private final byte val;
 
     UserEffectType(int val) {
         this.val = (byte) val;

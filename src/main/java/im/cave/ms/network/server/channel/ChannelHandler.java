@@ -9,6 +9,7 @@ import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
 import im.cave.ms.network.server.AbstractServerHandler;
 import im.cave.ms.network.server.ErrorPacketHandler;
+import im.cave.ms.network.server.channel.handler.ChatHandler;
 import im.cave.ms.network.server.channel.handler.InventoryHandler;
 import im.cave.ms.network.server.channel.handler.MobHandler;
 import im.cave.ms.network.server.channel.handler.NpcHandler;
@@ -74,10 +75,13 @@ public class ChannelHandler extends AbstractServerHandler {
                 ErrorPacketHandler.handlePacket(in);
                 break;
             case GENERAL_CHAT:
-                UserHandler.handleUserGeneralChat(in, c);
+                ChatHandler.handleUserGeneralChat(in, c);
                 break;
             case CHAR_EMOTION:
                 UserHandler.handleCharEmotion(in, c);
+                break;
+            case USER_ACTIVATE_EFFECT_ITEM:
+                UserHandler.handleUserActivateEffectItem(in, c);
                 break;
             case USER_ACTIVATE_NICK_ITEM:
                 UserHandler.handleUserActivateNickItem(in, c);
@@ -109,6 +113,12 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_REQUEST_CHARACTER_POTENTIAL_SKILL_RAND_SET_UI:
                 UserHandler.handleUserRequestCharacterPotentialSkillRandSetUi(in, c);
                 break;
+            case GROUP_MESSAGE:
+                ChatHandler.handleGroupMessage(in, c);
+                break;
+            case WHISPER:
+                ChatHandler.handleWhisper(in, c);
+                break;
             case USER_TRANSFER_CHANNEL_REQUEST:
                 WorldHandler.handleChangeChannelRequest(in, c);
                 break;
@@ -138,6 +148,12 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case USER_CONSUME_CASH_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserConsumeCashItemUseRequest(in, c);
+                break;
+            case USER_CASH_PET_PICK_UP_ON_OFF_REQUEST:
+                PetHandler.handleUserCashPetPickUpOnOffRequest(in, c);
+                break;
+            case USER_CASH_PET_SKILL_SETTING_REQUEST:
+                PetHandler.handleUserCashPetSkillSetting(in, c);
                 break;
             case EQUIP_ENCHANT_REQUEST:
                 InventoryHandler.handleEquipEnchanting(in, c);
@@ -227,13 +243,16 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_ACTIVATE_PET_REQUEST:
                 PetHandler.handleUserActivatePetRequest(in, c);
                 break;
+            case USER_REGISTER_PET_AUTO_BUFF_REQUEST:
+                PetHandler.handleUserRegisterPetAutoBuffRequest(in, c);
+                break;
             case COMBO_KILL_CHECK:
                 WorldHandler.handleComboKill(in, c);
                 break;
             case USER_SOUL_EFFECT_REQUEST:
                 UserHandler.handleUserSoulEffectRequest(in, c);
                 break;
-            case AVATAR_MODIFY_COUPON:
+            case USER_AVATAR_MODIFY_COUPON_USE_REQUEST:
                 InventoryHandler.handleUserAvatarModifyCouponUseRequest(in, c);
                 break;
             case PET_MOVE:
@@ -241,6 +260,12 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case PET_ACTION_SPEAK:
                 PetHandler.handlePetActionSpeak(in, c);
+                break;
+            case PET_SET_EXCEPTION_LIST:
+                PetHandler.handlePetSetExceptionList(in, c);
+                break;
+            case PET_FOOD_ITEM_USE_REQUEST:
+                PetHandler.handlePetFoodItemUse(in, c);
                 break;
             case SUMMON_MOVE:
                 WorldHandler.handleSummonMove(in, c);
@@ -311,6 +336,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case PICK_UP_ITEM:
                 UserHandler.handlePickUp(in, c);
+                break;
+            case REQUEST_RECOMMEND_PLAYERS:
+                WorldHandler.handleRequestRecommendPlayers(c);
                 break;
             case QUICK_MOVE_SELECT:
                 WorldHandler.handleQuickMove(in.readInt(), c);

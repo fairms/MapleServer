@@ -167,22 +167,6 @@ public class UserRemote {
         return out;
     }
 
-    public static OutPacket getChatText(MapleCharacter player, String content) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.CHATTEXT.getValue());
-        out.writeInt(player.getId());
-        out.writeBool(player.isGm());
-        out.writeMapleAsciiString(content);
-        out.writeMapleAsciiString(player.getName());
-        out.writeMapleAsciiString(content);
-        out.writeLong(0);
-        out.write(player.getWorld());
-        out.writeInt(player.getId());
-        out.write(3);
-        out.write(1);
-        out.write(-1);
-        return out;
-    }
 
     public static OutPacket emotion(Integer charId, int emotion, int duration, boolean byItemOption) {
         OutPacket out = new OutPacket();

@@ -1772,8 +1772,6 @@ public class ItemConstants {
                 return PetSkill.RECALL;
             case 5190008:
                 return PetSkill.AUTO_SPEAKING;
-            case 5190009:
-                return PetSkill.AUTO_ALL_CURE;
             case 5190010:
                 return PetSkill.AUTO_BUFF;
             case 5190011:
@@ -1782,16 +1780,6 @@ public class ItemConstants {
                 return PetSkill.FATTEN_UP;
             case 5190013:
                 return PetSkill.PET_SHOP;
-            case 5190014:
-                return PetSkill.FATTEN_UP;
-            case 5191000:
-                return PetSkill.ITEM_PICKUP;
-            case 5191001:
-                return PetSkill.AUTO_HP;
-            case 5191002:
-                return PetSkill.EXPANDED_AUTO_MOVE;
-            case 5191003:
-                return PetSkill.ITEM_PICKUP;
         }
         return null;
     }

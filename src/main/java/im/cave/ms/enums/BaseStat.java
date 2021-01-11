@@ -1,8 +1,8 @@
 package im.cave.ms.enums;
 
 
-import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 
 import java.util.HashMap;
@@ -64,7 +64,7 @@ public enum BaseStat {
     recoveryUp, mpconReduce, reduceCooltime, padLv, madLv, mhpLv, mmpLv; // % increase in heal potion use
 
 
-    public static BaseStat getFromStat(MapleStat s) {
+    public static BaseStat getFromStat(Stat s) {
         switch (s) {
             case STR:
                 return str;
@@ -366,20 +366,20 @@ public enum BaseStat {
         return stats;
     }
 
-    public MapleStat toStat() {
+    public Stat toStat() {
         switch (this) {
             case str:
-                return MapleStat.STR;
+                return Stat.STR;
             case dex:
-                return MapleStat.DEX;
+                return Stat.DEX;
             case inte:
-                return MapleStat.INT;
+                return Stat.INT;
             case luk:
-                return MapleStat.LUK;
+                return Stat.LUK;
             case mhp:
-                return MapleStat.MAXHP;
+                return Stat.MAXHP;
             case mmp:
-                return MapleStat.MAXMP;
+                return Stat.MAXMP;
             default:
                 return null;
         }

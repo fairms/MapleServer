@@ -651,8 +651,23 @@ public class WorldPacket {
         out.writeShort(SendOpcode.FIELD_MESSAGE.getValue());
         out.write(0);
         out.writeInt(itemId);
-        out.writeMapleAsciiString(message);
+        if (itemId != 0) {
+            out.writeMapleAsciiString(message);
+            out.writeInt(duration);
+            out.write(0); // bool
+        }
+        return out;
+    }
+
+    //1530619  illustration2
+    //1530060
+    public static OutPacket illustrationMsg(int npcId, int duration, String msg) {
+        OutPacket out = new OutPacket(SendOpcode.ILLUSTRATION_MSG);
+        out.writeInt(npcId);
         out.writeInt(duration);
+        out.writeMapleAsciiString(msg);
+        out.write(0);
+        out.write(0);
         out.write(0);
         return out;
     }
@@ -664,17 +679,18 @@ public class WorldPacket {
         return out;
     }
 
-    public static OutPacket elfTip(int elf, int duration, String msg) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.ELF_TIP.getValue());
-        out.writeInt(elf);
-        out.writeInt(duration);
-        out.writeMapleAsciiString(msg);
-        out.write(0);
-        out.write(0);
-        out.write(0);
+    public static OutPacket recommendPlayers(List<MapleCharacter> players) {
+        OutPacket out = new OutPacket(SendOpcode.RECOMMEND_PLAYER);
+        out.write(players.size());
+        for (MapleCharacter player : players) {
+            out.writeInt(player.getId());
+            out.writeMapleAsciiString(player.getName());
+            out.writeInt(player.getJob());
+            out.writeInt(player.getLevel());
+        }
         return out;
     }
+
 
     public static OutPacket queryCashPointResult(Account account) {
         OutPacket out = new OutPacket();
@@ -721,7 +737,6 @@ public class WorldPacket {
             case FriendRes_SetFriend_UnknownUser:
                 break;
             case FriendRes_SendSingleFriendInfo:
-                out.writeInt(1);
                 friends.get(0).encode(out);
                 break;
             case FriendRes_SetFriend_Done:
@@ -754,7 +769,23 @@ public class WorldPacket {
             case FriendRes_IncMaxCount_Done: {
                 out.write(chr.getBuddyCapacity());
             }
-
+            case FriendRes_Notify: { //todo
+                out.writeInt(chr.getId());
+                out.writeInt(chr.getAccId());
+                out.write(0);
+                out.writeInt(chr.getChannel());
+                out.write(1);
+                out.write(1);
+                out.writeMapleAsciiString(chr.getName());
+                break;
+            }
+            case FriendRes_NotifyChange_FriendInfo: {
+                Friend friend = friends.get(0);
+                out.writeInt(friend.getFriendId());
+                out.writeInt(friend.getFriendAccountId());
+                friend.encode(out);
+                break;
+            }
         }
         return out;
     }

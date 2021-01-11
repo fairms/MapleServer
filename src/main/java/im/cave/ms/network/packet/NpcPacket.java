@@ -262,4 +262,28 @@ public class NpcPacket {
         }
         return out;
     }
+
+    public static OutPacket avatarChangeSelector(int uPos, int itemId, List<Integer> options) {
+        OutPacket out = new OutPacket(SendOpcode.CHAR_AVATAR_CHANGE_SELECT);
+        out.write(1);
+        out.writeInt(1);
+        out.writeInt(uPos);
+        out.writeInt(itemId);
+        out.writeShort(0);
+        out.write(options.size());
+        options.forEach(out::writeInt);
+        return out;
+    }
+
+    public static OutPacket avatarChangedResult(int itemId, short bodyPart, int before, int after) {
+        OutPacket out = new OutPacket(SendOpcode.CHAR_AVATAR_CHANGE_RESULT);
+        out.writeInt(itemId);
+        out.write(1);
+        out.write(1);
+        out.writeInt(1);
+        out.writeShort(bodyPart);
+        out.writeInt(before);
+        out.writeInt(after);
+        return out;
+    }
 }

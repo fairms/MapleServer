@@ -114,4 +114,15 @@ public class World {
         }
         return character;
     }
+
+    public MapleCharacter getCharById(int id) {
+        MapleCharacter character = null;
+        for (MapleChannel channel : channels) {
+            character = channel.getCharById(id);
+            if (character != null) {
+                break;
+            }
+        }
+        return character;
+    }
 }

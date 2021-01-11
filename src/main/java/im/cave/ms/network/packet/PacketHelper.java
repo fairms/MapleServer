@@ -4,23 +4,17 @@ import im.cave.ms.client.Account;
 import im.cave.ms.client.character.CharLook;
 import im.cave.ms.client.character.CharStats;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
-import im.cave.ms.client.character.items.PetItem;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.skill.Skill;
-import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
-import im.cave.ms.enums.EnchantStat;
-import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.DateUtil;
 
 import java.util.ArrayList;
@@ -126,20 +120,6 @@ public class PacketHelper {
         out.writeInt(0); //bBurning
     }
 
-    public static void addCharSP(OutPacket out, MapleCharacter chr) {
-        List<Integer> remainingSp = chr.getRemainingSp();
-        if (JobConstants.isExtendSpJob(chr.getJob())) {
-            out.write(chr.getRemainingSpsSize());
-            for (int i = 0; i < remainingSp.size(); i++) {
-                if (remainingSp.get(i) > 0) {
-                    out.write(i + 1);
-                    out.writeInt(remainingSp.get(i));
-                }
-            }
-        } else {
-            out.writeShort(remainingSp.get(0));
-        }
-    }
 
     public static void addCharInfo(OutPacket out, MapleCharacter chr) {
         out.writeLong(-1); // 开始生成角色信息 mask  0xFFFFFFFFFFFFFFFFL
@@ -424,44 +404,44 @@ public class PacketHelper {
             }
         }
         for (Item item : normalEquip) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.writeShort(item.getPos());
+            item.encode(out);
         }
         out.writeShort(0);
 
         for (Item item : cashEquip) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.writeShort(item.getPos());
+            item.encode(out);
         }
         out.writeShort(0);
 
         for (Item item : chr.getInventory(InventoryType.EQUIP).getItems()) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.writeShort(item.getPos());
+            item.encode(out);
         }
         out.writeShort(0);
 
         for (Item item : evanEquip) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.writeShort(item.getPos());
+            item.encode(out);
         }
         out.writeShort(0);
 
         for (Item item : petConsumeEquip) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.writeShort(item.getPos());
+            item.encode(out);
         }
         out.writeShort(0);
 
         for (Item item : androidEquip) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.writeShort(item.getPos());
+            item.encode(out);
         }
         out.writeShort(0);
 
         for (Item item : totems) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.writeShort(item.getPos());
+            item.encode(out);
         }
         out.writeShort(0);
 
@@ -493,26 +473,26 @@ public class PacketHelper {
         out.writeShort(0);
 
         for (Item item : chr.getConsumeInventory().getItems()) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.write(item.getPos());
+            item.encode(out);
         }
         out.write(0);
 
         for (Item item : chr.getInstallInventory().getItems()) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.write(item.getPos());
+            item.encode(out);
         }
         out.write(0);
 
         for (Item item : chr.getEtcInventory().getItems()) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.write(item.getPos());
+            item.encode(out);
         }
         out.write(0);
 
         for (Item item : chr.getCashInventory().getItems()) {
-            addItemPos(out, item, false, false);
-            addItemInfo(out, item);
+            out.write(item.getPos());
+            item.encode(out);
         }
         out.write(0);
 
@@ -522,225 +502,5 @@ public class PacketHelper {
         out.write(0);
         out.writeLong(0);
     }
-
-    @Deprecated
-    private static void addItemPos(OutPacket out, Item item, boolean trade, boolean bag) {
-        if (item == null) {
-            out.write(0);
-            return;
-        }
-        short pos = (short) item.getPos();
-        if (item instanceof Equip) {
-            if (pos >= 100 && pos < 1000) {
-                pos -= 100;
-            }
-        }
-        if (bag) {
-            out.writeInt(pos % 100 - 1);
-        } else if (!trade && item.getType() == Item.Type.EQUIP) {
-            out.writeShort(pos);
-        } else {
-            out.write(pos);
-        }
-    }
-
-    @Deprecated
-    public static void addItemInfo(OutPacket out, Item item) {
-        out.write(item.getType().getVal());
-        out.writeInt(item.getItemId());
-        boolean hasSn = item.getCashItemSerialNumber() > 0;
-        out.writeBool(hasSn);
-        if (hasSn) {
-            out.writeLong(item.getCashItemSerialNumber());
-        }
-        out.writeLong(item.getExpireTime());
-        out.writeInt(-1);
-        out.write(0);
-        if (item instanceof Equip) {
-            Equip equip = (Equip) item;
-            out.writeInt(equip.getEquipStatMask(0));
-            if (equip.hasStat(EquipBaseStat.tuc)) {
-                out.write(equip.getTuc());
-            }
-            if (equip.hasStat(EquipBaseStat.cuc)) {
-                out.write(equip.getCuc());
-            }
-            if (equip.hasStat(EquipBaseStat.iStr)) {
-                out.writeShort(equip.getIStr() + equip.getBaseStatFlame(EquipBaseStat.iStr) + equip.getEnchantStat(EnchantStat.STR));
-            }
-            if (equip.hasStat(EquipBaseStat.iDex)) {
-                out.writeShort(equip.getIDex() + equip.getBaseStatFlame(EquipBaseStat.iDex) + equip.getEnchantStat(EnchantStat.DEX));
-            }
-            if (equip.hasStat(EquipBaseStat.iInt)) {
-                out.writeShort(equip.getIInt() + equip.getBaseStatFlame(EquipBaseStat.iInt) + equip.getEnchantStat(EnchantStat.INT));
-            }
-            if (equip.hasStat(EquipBaseStat.iLuk)) {
-                out.writeShort(equip.getILuk() + equip.getBaseStatFlame(EquipBaseStat.iLuk) + equip.getEnchantStat(EnchantStat.LUK));
-            }
-            if (equip.hasStat(EquipBaseStat.iMaxHP)) {
-                out.writeShort(equip.getIMaxHp() + equip.getBaseStatFlame(EquipBaseStat.iMaxHP) + equip.getEnchantStat(EnchantStat.MHP));
-            }
-            if (equip.hasStat(EquipBaseStat.iMaxMP)) {
-                out.writeShort(equip.getIMaxMp() + equip.getBaseStatFlame(EquipBaseStat.iMaxMP) + equip.getEnchantStat(EnchantStat.MMP));
-            }
-            if (equip.hasStat(EquipBaseStat.iPAD)) {
-                out.writeShort(equip.getIPad() + equip.getBaseStatFlame(EquipBaseStat.iPAD) + equip.getEnchantStat(EnchantStat.PAD));
-            }
-            if (equip.hasStat(EquipBaseStat.iMAD)) {
-                out.writeShort(equip.getIMad() + equip.getBaseStatFlame(EquipBaseStat.iMAD) + equip.getEnchantStat(EnchantStat.MAD));
-            }
-            if (equip.hasStat(EquipBaseStat.iPDD)) {
-                out.writeShort(equip.getIPDD() + equip.getBaseStatFlame(EquipBaseStat.iPDD) + equip.getEnchantStat(EnchantStat.PDD));
-            }
-            if (equip.hasStat(EquipBaseStat.iCraft)) {
-                out.writeShort(equip.getICraft());
-            }
-            if (equip.hasStat(EquipBaseStat.iSpeed)) {
-                out.writeShort(equip.getISpeed() + equip.getBaseStatFlame(EquipBaseStat.iSpeed) + equip.getEnchantStat(EnchantStat.SPEED));
-            }
-            if (equip.hasStat(EquipBaseStat.iJump)) {
-                out.writeShort(equip.getIJump() + equip.getBaseStatFlame(EquipBaseStat.iJump) + equip.getEnchantStat(EnchantStat.JUMP));
-            }
-            if (equip.hasStat(EquipBaseStat.attribute)) {
-                out.writeInt(equip.getAttribute());
-            }
-            if (equip.hasStat(EquipBaseStat.levelUpType)) {
-                out.write(equip.getLevelUpType());
-            }
-            if (equip.hasStat(EquipBaseStat.level)) {
-                out.write(equip.getLevel());
-            }
-            if (equip.hasStat(EquipBaseStat.exp)) {
-                out.writeLong(equip.getExp());
-            }
-            if (equip.hasStat(EquipBaseStat.durability)) {
-                out.writeInt(equip.getDurability());
-            }
-            if (equip.hasStat(EquipBaseStat.iuc)) {
-                out.writeInt(equip.getIuc()); // 金锤子
-            }
-            if (equip.hasStat(EquipBaseStat.iReduceReq)) {
-                byte bLevel = (byte) (equip.getIReduceReq() + equip.getBaseStatFlame(EquipBaseStat.iReduceReq));
-                if (equip.getRLevel() + equip.getIIncReq() - bLevel < 0) {
-                    bLevel = (byte) (equip.getRLevel() + equip.getIIncReq());
-                }
-                out.write(bLevel);
-            }
-            if (equip.hasStat(EquipBaseStat.specialAttribute)) {
-                out.writeShort(equip.getSpecialAttribute());
-            }
-            if (equip.hasStat(EquipBaseStat.durabilityMax)) {
-                out.writeInt(equip.getDurabilityMax());
-            }
-            if (equip.hasStat(EquipBaseStat.iIncReq)) {
-                out.write(equip.getIIncReq());
-            }
-            if (equip.hasStat(EquipBaseStat.growthEnchant)) {
-                out.write(equip.getGrowthEnchant()); // ygg
-            }
-            if (equip.hasStat(EquipBaseStat.psEnchant)) {
-                out.write(equip.getPsEnchant()); // final strike
-            }
-            if (equip.hasStat(EquipBaseStat.bdr)) {
-                out.write(equip.getBdr() + equip.getBaseStatFlame(EquipBaseStat.bdr)); // bd
-            }
-            if (equip.hasStat(EquipBaseStat.imdr)) {
-                out.write(equip.getImdr()); // ied
-            }
-            //28 00 00 00  14 00 00 00
-            out.writeInt(equip.getEquipStatMask(1)); // mask 2
-            if (equip.hasStat(EquipBaseStat.damR)) {
-                out.write(equip.getDamR() + equip.getBaseStatFlame(EquipBaseStat.damR));
-            }
-            if (equip.hasStat(EquipBaseStat.statR)) {
-                out.write(equip.getStatR() + equip.getBaseStatFlame(EquipBaseStat.statR));
-            }
-            if (equip.hasStat(EquipBaseStat.cuttable)) {
-                out.write(equip.getCuttable());  //剪刀 FF
-            }
-            if (equip.hasStat(EquipBaseStat.flame)) {
-                out.writeLong(equip.getFlame());
-            }
-            if (equip.hasStat(EquipBaseStat.itemState)) {
-                out.writeInt(equip.getItemState());  // 00 01 00 00
-            }
-
-            out.writeMapleAsciiString(equip.getOwner());
-            out.write(equip.getGrade());
-            out.write(equip.getChuc());
-            for (int i = 0; i < 7; i++) {
-                out.writeShort(equip.getOptions().get(i)); // 7x, last is fusion anvil
-            }
-            // sockets
-            out.writeShort(0); //mask
-            out.writeShort(-1); //socket 1
-            out.writeShort(-1);
-            out.writeShort(-1); //socket 3
-
-            out.writeInt(0);
-            out.writeLong(equip.getId());
-            out.writeLong(ZERO_TIME);
-            out.writeInt(-1);
-            out.writeLong(0); //0
-            out.writeLong(ZERO_TIME);
-            out.writeZeroBytes(16); //grade
-
-            out.writeShort(equip.getSoulOptionId());
-            out.writeShort(equip.getSoulSocketId());
-            out.writeShort(equip.getSoulOption());
-
-            if (equip.getItemId() / 10000 == 171) {
-                out.writeShort(0); //ARC
-                out.writeInt(0); //ARC EXP
-                out.writeShort(0); //ARC LEVEL
-            }
-            out.writeShort(-1);
-            out.writeLong(MAX_TIME);
-            out.writeLong(ZERO_TIME);
-            out.writeLong(MAX_TIME);
-            out.writeLong(equip.getLimitBreak());
-        } else if (item instanceof PetItem) {
-            PetItem pet = (PetItem) item;
-            out.writeAsciiString(pet.getName(), 13);
-            out.write(pet.getLevel());
-            out.writeShort(pet.getTameness() + 1);
-            out.write(pet.getRepleteness());
-            out.writeLong(pet.getDeadDate());
-            out.writeShort(pet.getPetAttribute()); // 0
-            out.writeShort(pet.getPetSkill()); // 1
-            out.writeInt(pet.getRemainLife()); // 0
-            out.writeShort(pet.getAttribute()); // 2 0
-            out.write(pet.getActiveState());
-            out.writeInt(pet.getAutoBuffSkill());
-            out.writeInt(pet.getPetHue());
-            out.writeShort(pet.getGiantRate()); //巨大化
-            out.writeZeroBytes(14); // 不知道
-        } else {
-            out.writeShort(item.getQuantity());
-            out.writeMapleAsciiString(item.getOwner());
-            out.writeInt(item.getFlag());
-            if (ItemConstants.isThrowingStar(item.getItemId()) || ItemConstants.isBullet(item.getItemId()) ||
-                    ItemConstants.isFamiliar(item.getItemId()) || item.getItemId() == 4001886) {
-                out.writeLong(item.getId());
-            }
-            out.writeInt(0);
-            if (ItemConstants.isFamiliar(item.getItemId()) && item.getFamiliar() == null) {
-                int familiarID = ItemData.getFamiliarId(item.getItemId());
-                Familiar familiar = new Familiar(familiarID);
-                item.setFamiliar(familiar);
-            }
-            Familiar familiar = item.getFamiliar();
-            out.writeInt(familiar != null ? familiar.getFamiliarId() : 0);
-            out.writeShort(familiar != null ? familiar.getLevel() : 0);
-            out.writeShort(familiar != null ? familiar.getSkill() : 0);
-            out.writeShort(familiar != null ? familiar.getLevel() : 0);
-            out.writeShort(familiar != null ? familiar.getOption(0) : 0);
-            out.writeShort(familiar != null ? familiar.getOption(1) : 0);
-            out.writeShort(familiar != null ? familiar.getOption(2) : 0);
-            out.write(familiar != null ? familiar.getGrade() : 0);     //品级 0=C 1=B 2=A 3=S 4=SS
-        }
-    }
-
-
 }
 

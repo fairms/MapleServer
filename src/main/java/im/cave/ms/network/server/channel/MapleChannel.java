@@ -88,4 +88,8 @@ public class MapleChannel extends AbstractServer {
     public MapleCharacter getCharByName(String charName) {
         return Util.findWithPred(players, character -> character.getName().equals(charName));
     }
+
+    public MapleCharacter getCharById(int id) {
+        return Util.findWithPred(players, character -> character.getId() == id);
+    }
 }

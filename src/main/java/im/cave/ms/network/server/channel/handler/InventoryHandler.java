@@ -3,6 +3,7 @@ package im.cave.ms.network.server.channel.handler;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.InventoryOperation;
@@ -23,10 +24,13 @@ import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ItemGrade;
 import im.cave.ms.enums.ScrollStat;
+import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.enums.SpecStat;
 import im.cave.ms.network.netty.InPacket;
+import im.cave.ms.network.packet.NpcPacket;
 import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.network.packet.UserRemote;
+import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.StringData;
 import im.cave.ms.provider.info.ItemInfo;
@@ -35,6 +39,7 @@ import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +47,6 @@ import java.util.Map;
 import static im.cave.ms.constants.ItemConstants.Item_Tag;
 import static im.cave.ms.constants.ItemConstants.Maple_Any_Door;
 import static im.cave.ms.constants.ItemConstants.Platinum_Scissors_of_Karma;
-import static im.cave.ms.constants.ItemConstants.Royal_Hair_Coupon;
 import static im.cave.ms.constants.ItemConstants.Vicious_Hammer;
 import static im.cave.ms.enums.ChatType.Mob;
 import static im.cave.ms.enums.ChatType.SystemNotice;
@@ -462,13 +466,50 @@ public class InventoryHandler {
         if (item.getItemId() != itemId) {
             return;
         }
-        switch (itemId) {
-            case Royal_Hair_Coupon: { //0515
-                //0x1E4
-                //58 95 4E 00 01 01 01 00 00 00 04 00 8A A2 00 00 F8 93 00 00 00 FF 00 00 00 00 FF
-                player.getMap().broadcastMessage(UserPacket.characterModified(player));
-                break;
+        if (itemId / 10000 == 515) {
+            ItemInfo ii = ItemData.getItemInfoById(itemId);
+            int gender = ii.getGender();
+            boolean choice = ii.isChoice();
+            int incCharmExp = ii.getIncCharmExp();
+            if (gender != 2 && gender != player.getGender()) {
+                player.announce(WorldPacket.serverMsg("性别不符", ServerMsgType.ALERT));
+                player.enableAction();
+                return;
             }
+            List<Integer> items = Collections.emptyList();
+            int before = 0;
+            int select;
+            short bodyPart = 0;
+            if (choice) {
+                select = in.readInt();
+            } else {
+                select = Util.getRandomFromCollection(items);
+            }
+            switch (itemId / 1000) {
+                case 5150:
+                case 5151:
+                    before = player.getHair();
+                    bodyPart = (short) Stat.HAIR.getValue();
+                    player.setHair(select);
+                    break;
+                case 5152:
+                    before = player.getFace();
+                    bodyPart = (short) Stat.FACE.getValue();
+                    player.setFace(select);
+                    break;
+                case 5153:
+                    before = (int) Stat.SKIN.getValue();
+                    player.setSkin((byte) select);
+                    break;
+                case 5154:
+                case 5155:
+                case 5157:
+                    break;
+            }
+            player.announce(NpcPacket.avatarChangedResult(itemId, bodyPart, before, select));
+            player.announce(UserPacket.characterModified(player));
+        }
+        switch (itemId) {
             case Item_Tag: {
                 short ePos = in.readShort();
                 break;
@@ -487,8 +528,7 @@ public class InventoryHandler {
                 player.changeMap(targetId);
             }
         }
-        player.consumeItem(itemId, 1);
-        player.enableAction();
+        player.consumeItem(itemId, 1, false);
     }
 
     public static void handleUserLotteryItemUseRequest(InPacket in, MapleClient c) {
@@ -694,17 +734,18 @@ public class InventoryHandler {
         Map<ScrollStat, Integer> vals = ItemData.getItemInfoById(scrollId).getScrollStats();
     }
 
+    //todo
     public static void handleUserAvatarModifyCouponUseRequest(InPacket in, MapleClient c) {
-        short uPos = in.readShort();
-        in.readShort();
+        int uPos = in.readInt();
         int itemId = in.readInt();
         MapleCharacter player = c.getPlayer();
-        Item item = player.getCashInventory().getItem(uPos);
+        Item item = player.getCashInventory().getItem((short) uPos);
         if (item.getItemId() != itemId) {
             return;
         }
-        //todo
-        player.chatMessage("使用道具:" + StringData.getCashItemNames() + " ID:" + itemId);
-        player.enableAction();
+        player.dropMessage("使用道具:" + StringData.getItemName(itemId) + " ID:" + itemId);
+        //01 01 00 00 00 02 00 00 00 64 95 4E 00 00 00 00发型相同 0x1e9
+        List<Integer> options = new ArrayList<>();
+        player.announce(NpcPacket.avatarChangeSelector(uPos, itemId, options));
     }
 }

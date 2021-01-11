@@ -102,36 +102,32 @@ public class NpcHandler {
         NpcConversationManager cm = NpcScriptManager.getInstance().getCM(c);
         QuestActionManager qm = QuestScriptManager.getInstance().getQM(c);
         if (cm == null && qm == null) {
-            return;
+            throw new NullPointerException("NPC对话异常");
         }
         if (cm == null) {
             cm = qm;
         }
         byte lastType = in.readByte();
         byte action = in.readByte();
-        if (action == -1) {
-            cm.dispose();
-            return;
-        }
         NpcMessageType messageType = cm.getNpcScriptInfo().getMessageType();
         switch (messageType) {
             case AskText:
+                String response = "";
                 if (action == 1) {
-                    String response = in.readMapleAsciiString();
-                    cm.getNpcScriptInfo().addResponse(response);
-                } else {
-                    cm.dispose();
+                    response = in.readMapleAsciiString();
                 }
+                cm.getNpcScriptInfo().addResponse(response);
                 break;
             case AskYesNo:
-                cm.getNpcScriptInfo().addResponse(action);
+                cm.getNpcScriptInfo().addResponse((int) action);
                 break;
             case AskMenu:
+                int select;
                 if (action == 0) {
-                    cm.getNpcScriptInfo().addResponse(-1);
-                    return;
+                    select = -1;
+                } else {
+                    select = in.readInt();
                 }
-                int select = in.readInt();
                 cm.getNpcScriptInfo().addResponse(select);
                 break;
             case AskAvatar:
@@ -147,9 +143,9 @@ public class NpcHandler {
                 } else {
                     cm.getNpcScriptInfo().addResponse(-1);
                 }
-                break;
             default:
-                cm.dispose();
+                cm.getNpcScriptInfo().addResponse((int) action);
+                break;
         }
     }
 

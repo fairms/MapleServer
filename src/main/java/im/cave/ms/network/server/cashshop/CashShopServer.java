@@ -39,7 +39,7 @@ public class CashShopServer extends AbstractServer {
     public CashShopServer(int worldId) {
         super(worldId, -1);
         type = ServerType.CASHSHOP;
-        port = 8480;
+        port = 8600;
         acceptor = new ServerAcceptor(this);
         acceptor.server = this;
         new Thread(acceptor).start();

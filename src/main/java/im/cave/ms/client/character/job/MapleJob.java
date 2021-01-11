@@ -2,8 +2,8 @@ package im.cave.ms.client.character.job;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.character.MapleStat;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 public abstract class MapleJob {
     protected MapleCharacter chr;
     protected MapleClient c;
+
+    public static final int MULTIPLE_PET = 8;
 
     public static final int MONOLITH = 80011261;
     public static final int ELEMENTAL_SYLPH = 80001518;
@@ -430,9 +432,9 @@ public abstract class MapleJob {
      * Handles the 'middle' part of hit processing, namely the job-specific stuff like Magic Guard,
      * and puts this info in <code>hitInfo</code>.
      *
-     * @param c        The MapleClient
-     * @param in packet to be processed
-     * @param hitInfo  The hit info that should be altered if necessary
+     * @param c       The MapleClient
+     * @param in      packet to be processed
+     * @param hitInfo The hit info that should be altered if necessary
      */
 //    public void handleHit(MapleClient c, InPacket in, HitInfo hitInfo) {
 //        MapleCharacter chr = c.getChr();
@@ -522,19 +524,19 @@ public abstract class MapleJob {
 
     public void handleLevelUp() {
         short level = (short) chr.getLevel();
-        Map<MapleStat, Long> stats = new HashMap<>();
+        Map<Stat, Long> stats = new HashMap<>();
         if (level > 10) {
-            chr.addStat(MapleStat.AVAILABLEAP, 5);
-            stats.put(MapleStat.AVAILABLEAP, (long) chr.getStat(MapleStat.AVAILABLEAP));
+            chr.addStat(Stat.AVAILABLEAP, 5);
+            stats.put(Stat.AVAILABLEAP, (long) chr.getStat(Stat.AVAILABLEAP));
         } else {
             if (level >= 6) {
-                chr.addStat(MapleStat.STR, 4);
-                chr.addStat(MapleStat.DEX, 1);
+                chr.addStat(Stat.STR, 4);
+                chr.addStat(Stat.DEX, 1);
             } else {
-                chr.addStat(MapleStat.STR, 5);
+                chr.addStat(Stat.STR, 5);
             }
-            stats.put(MapleStat.STR, chr.getStat(MapleStat.STR));
-            stats.put(MapleStat.DEX, chr.getStat(MapleStat.DEX));
+            stats.put(Stat.STR, chr.getStat(Stat.STR));
+            stats.put(Stat.DEX, chr.getStat(Stat.DEX));
         }
 
         int sp = SkillConstants.getBaseSpByLevel(level);
@@ -544,7 +546,7 @@ public abstract class MapleJob {
 
         if (level >= 10) {
             chr.addSpToJobByCurrentLevel(sp);
-            stats.put(MapleStat.AVAILABLESP, (long) 1);
+            stats.put(Stat.AVAILABLESP, (long) 1);
         }
 
 //        byte linkSkillLevel = (byte) SkillConstants.getLinkSkillLevelByMapleCharacterLevel(level);
@@ -558,11 +560,11 @@ public abstract class MapleJob {
 
         int[][] incVal = GameConstants.getIncValArray(chr.getJob());
         if (incVal != null) {
-            chr.addStat(MapleStat.MAXHP, incVal[0][1]);
-            stats.put(MapleStat.MAXHP, (long) chr.getMaxHP());
+            chr.addStat(Stat.MAXHP, incVal[0][1]);
+            stats.put(Stat.MAXHP, (long) chr.getMaxHP());
             if (!JobConstants.isNoManaJob(chr.getJob())) {
-                chr.addStat(MapleStat.MAXMP, incVal[3][0]);
-                stats.put(MapleStat.MAXMP, (long) chr.getMaxMP());
+                chr.addStat(Stat.MAXMP, incVal[3][0]);
+                stats.put(Stat.MAXMP, (long) chr.getMaxMP());
             }
         } else {
             chr.chatMessage(ChatType.Notice, "Unhandled HP/MP job " + chr.getJob());
