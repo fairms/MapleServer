@@ -5,7 +5,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.social.friend.Friend;
 import im.cave.ms.enums.WhisperType;
 import im.cave.ms.network.netty.InPacket;
-import im.cave.ms.network.packet.opcode.ChatPacket;
+import im.cave.ms.network.packet.MessagePacket;
 import im.cave.ms.network.server.CommandHandler;
 
 /**
@@ -30,7 +30,7 @@ public class ChatHandler {
             return;
         }
 
-        player.getMap().broadcastMessage(player, ChatPacket.getChatText(player, content), true);
+        player.getMap().broadcastMessage(player, MessagePacket.getChatText(player, content), true);
     }
 
     public static void handleWhisper(InPacket in, MapleClient c) {
@@ -50,16 +50,16 @@ public class ChatHandler {
                 if (dest == null) {
                     return;
                 } else if (dest.getChannel() != player.getChannel()) {
-                    player.announce(ChatPacket.whisper(WhisperType.Res_Find_Friend, destName, 3, dest.getChannel()));
+                    player.announce(MessagePacket.whisper(WhisperType.Res_Find_Friend, destName, 3, dest.getChannel()));
                 }
-                player.announce(ChatPacket.whisper(WhisperType.Res_Find_Friend, destName, 1, dest.getMapId()));
+                player.announce(MessagePacket.whisper(WhisperType.Res_Find_Friend, destName, 1, dest.getMapId()));
                 break;
             case Req_Whisper:
                 String msg = in.readMapleAsciiString();
                 if (dest == null) {
-                    player.announce(ChatPacket.whisper(WhisperType.Res_Whisper, destName, 0, 0));
+                    player.announce(MessagePacket.whisper(WhisperType.Res_Whisper, destName, 0, 0));
                 } else {
-                    player.announce(ChatPacket.whisper(WhisperType.Res_Whisper, destName, 1, 0));
+                    player.announce(MessagePacket.whisper(WhisperType.Res_Whisper, destName, 1, 0));
                 }
                 break;
         }

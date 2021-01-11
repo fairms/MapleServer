@@ -169,7 +169,7 @@ public class LoginPacket {
 
     public static OutPacket account(Account account) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.ACCOUNT.getValue());
+        out.writeShort(SendOpcode.SET_ACCOUNT_INFO.getValue());
         out.writeLong(0);
         out.writeMapleAsciiString(account.getAccount());
         return out;

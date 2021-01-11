@@ -127,6 +127,7 @@ public class CharLook {
         out.writeInt(getWeaponStickerId());
         out.writeInt(getWeaponId());
         out.writeInt(getSubWeaponId());
+
         out.writeZeroBytes(20);
         if (JobConstants.isXenon((short) getJob()) || JobConstants.isDemon((short) getJob())) {
             out.writeInt(getMark());

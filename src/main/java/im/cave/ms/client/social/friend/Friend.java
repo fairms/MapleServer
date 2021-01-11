@@ -23,7 +23,7 @@ public class Friend {
     private int id;
     private int friendId;
     private String name;
-    private byte flag; // 5 through 8 = account friend
+    private byte flag; // 05 账号好友还未通过 // 07账号好友已通过
     @Transient
     private int channelId;
     @Column(name = "groupName")
