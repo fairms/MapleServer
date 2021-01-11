@@ -1,6 +1,7 @@
 package im.cave.ms.network.packet;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.Record;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.items.Equip;
@@ -18,6 +19,7 @@ import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MessageType;
+import im.cave.ms.enums.RecordType;
 import im.cave.ms.network.crypto.TripleDESCipher;
 import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.network.packet.opcode.RecvOpcode;
@@ -683,8 +685,10 @@ public class UserPacket {
 
     public static OutPacket remainingMapTransferCoupon(MapleCharacter chr) {
         OutPacket out = new OutPacket(SendOpcode.REMAINING_MAP_TRANSFER_COUPON);
-        out.writeInt(1000);
-        out.writeInt(1000);
+        Record cash = chr.getRecordManager().getRecord(RecordType.MAP_TRANSFER_COUPON_CASH);
+        Record free = chr.getRecordManager().getRecord(RecordType.MAP_TRANSFER_COUPON_FREE);
+        out.writeInt(free != null ? free.getValue() : 0);
+        out.writeInt(cash != null ? cash.getValue() : 0);
         return out;
     }
 }

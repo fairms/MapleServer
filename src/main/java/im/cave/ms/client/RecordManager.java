@@ -47,4 +47,8 @@ public class RecordManager {
     public Record getRecord(RecordType type, int key) {
         return Util.findWithPred(getRecords(), record -> record.getType() == type && record.getKey() == key);
     }
+
+    public Record getRecord(RecordType type) {
+        return Util.findWithPred(getRecords(), record -> record.getType() == type);
+    }
 }

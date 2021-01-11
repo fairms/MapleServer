@@ -2,6 +2,8 @@ package im.cave.ms.network.server.channel.handler;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.Record;
+import im.cave.ms.client.RecordManager;
 import im.cave.ms.client.character.DamageSkinSaveData;
 import im.cave.ms.client.character.Macro;
 import im.cave.ms.client.character.MapleCharacter;
@@ -41,6 +43,7 @@ import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MapTransferType;
+import im.cave.ms.enums.RecordType;
 import im.cave.ms.enums.ServerMsgType;
 import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.network.packet.CashShopPacket;
@@ -299,7 +302,6 @@ public class UserHandler {
         player.getMap().broadcastMessage(player, UserPacket.move(player, movementInfo), false);
     }
 
-    //todo 优先使用道具 -》 免费 超时空卷 -》 点券 超时空卷
     public static void handleWorldMapTransfer(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
@@ -316,8 +318,28 @@ public class UserHandler {
             player.announce(WorldPacket.mapTransferResult(MapTransferType.AlreadyInMap, (byte) 0, null));
             return;
         }
-        player.announce(UserPacket.remainingMapTransferCoupon(player));
-        player.changeMap(map.getId());
+        RecordManager recordManager = player.getRecordManager();
+        Record cash = recordManager.getRecord(RecordType.MAP_TRANSFER_COUPON_CASH);
+        Record free = recordManager.getRecord(RecordType.MAP_TRANSFER_COUPON_FREE);
+        if (free == null) {
+            free = new Record(RecordType.MAP_TRANSFER_COUPON_FREE, 7);
+            recordManager.addRecord(free);
+        }
+        boolean success = false;
+        if (free.getValue() >= 1) {
+            free.setValue(free.getValue() - 1);
+            success = true;
+        } else if (cash != null && cash.getValue() >= 1) {
+            cash.setValue(cash.getValue() - 1);
+            success = true;
+        }
+        if (success) {
+            player.announce(UserPacket.remainingMapTransferCoupon(player));
+            player.changeMap(map.getId());
+        } else {
+            player.announce(WorldPacket.mapTransferResult(MapTransferType.Unknown, (byte) 0, null));
+            player.enableAction();
+        }
     }
 
     //打开角色的信息面板

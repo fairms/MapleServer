@@ -39,7 +39,17 @@ public class Record {
 
     public Record(RecordType type) {
         this.type = type;
+        this.lastReset = System.currentTimeMillis();
+        this.lastUpdated = System.currentTimeMillis();
     }
+
+    public Record(RecordType type, int value) {
+        this.type = type;
+        this.value = value;
+        this.lastReset = System.currentTimeMillis();
+        this.lastUpdated = System.currentTimeMillis();
+    }
+
 
     @Override
     public boolean equals(Object o) {
