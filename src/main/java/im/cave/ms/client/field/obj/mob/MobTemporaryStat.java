@@ -1,8 +1,8 @@
 package im.cave.ms.client.field.obj.mob;
 
 import im.cave.ms.client.character.Option;
-import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.server.service.EventManager;
+import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.server.service.EventManager;
 import im.cave.ms.tools.Tuple;
 
 import java.util.Comparator;

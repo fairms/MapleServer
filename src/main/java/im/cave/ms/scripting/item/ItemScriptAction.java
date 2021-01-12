@@ -5,10 +5,10 @@ import im.cave.ms.client.character.DamageSkinSaveData;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
+import im.cave.ms.connection.packet.QuestPacket;
+import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.QuestStatus;
-import im.cave.ms.network.packet.QuestPacket;
-import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.scripting.AbstractPlayerInteraction;
 import im.cave.ms.tools.Randomizer;
 

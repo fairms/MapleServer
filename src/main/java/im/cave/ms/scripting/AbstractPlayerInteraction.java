@@ -6,9 +6,9 @@ import im.cave.ms.client.Record;
 import im.cave.ms.client.RecordManager;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
+import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.RecordType;
-import im.cave.ms.network.packet.WorldPacket;
 
 import java.util.Calendar;
 

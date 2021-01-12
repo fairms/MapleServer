@@ -2,9 +2,9 @@ package im.cave.ms.scripting.npc;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.connection.packet.NpcPacket;
+import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.enums.NpcMessageType;
-import im.cave.ms.network.packet.NpcPacket;
-import im.cave.ms.network.packet.WorldPacket;
 import im.cave.ms.scripting.AbstractPlayerInteraction;
 
 import java.util.Map;

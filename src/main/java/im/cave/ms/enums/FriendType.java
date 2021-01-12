@@ -47,7 +47,7 @@ public enum FriendType {
     FriendRes_SetFriend_Master(34),
     FriendRes_SetFriend_UnknownUser(36),
     FriendRes_SetFriend_Unknown(36),
-    FriendRes_SetFriend_RemainCharacterFriend(37),
+    FriendRes_UnknownError(37),
     FriendRes_SetMessengerMode(38),
     FriendRes_SendSingleFriendInfo(41),
     FriendRes_AcceptFriend_Unknown(42),

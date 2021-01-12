@@ -1,7 +1,7 @@
 package im.cave.ms.client.field.obj;
 
 import im.cave.ms.client.character.items.PetItem;
-import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.connection.netty.OutPacket;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,7 +1,7 @@
 package im.cave.ms.client.field;
 
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.enums.InGameDirectionEventType;
-import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.tools.Position;
 
 public class InGameDirectionEvent {

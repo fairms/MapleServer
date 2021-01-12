@@ -1,6 +1,6 @@
 package im.cave.ms.client.field.obj.npc.shop;
 
-import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.tools.DateUtil;
 import lombok.Getter;
 import lombok.Setter;

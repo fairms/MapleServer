@@ -1,14 +1,14 @@
 package im.cave.ms.client;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.connection.crypto.AESCipher;
+import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.packet.LoginPacket;
+import im.cave.ms.connection.server.Server;
+import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.enums.ServerType;
-import im.cave.ms.network.crypto.AESCipher;
-import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.LoginPacket;
-import im.cave.ms.network.server.Server;
-import im.cave.ms.network.server.channel.MapleChannel;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import org.mindrot.jbcrypt.BCrypt;

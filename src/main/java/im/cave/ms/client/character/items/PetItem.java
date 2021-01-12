@@ -2,8 +2,8 @@ package im.cave.ms.client.character.items;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.obj.Pet;
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.enums.PetSkill;
-import im.cave.ms.network.netty.OutPacket;
 import lombok.Getter;
 import lombok.Setter;
 

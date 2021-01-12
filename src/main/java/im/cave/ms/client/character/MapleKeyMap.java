@@ -1,7 +1,7 @@
 package im.cave.ms.client.character;
 
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.constants.GameConstants;
-import im.cave.ms.network.netty.OutPacket;
 import lombok.Data;
 
 import javax.persistence.CascadeType;

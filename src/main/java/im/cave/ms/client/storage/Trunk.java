@@ -2,10 +2,10 @@ package im.cave.ms.client.storage;
 
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.InventoryType;
-import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.provider.data.ItemData;
 
 import javax.persistence.DiscriminatorValue;

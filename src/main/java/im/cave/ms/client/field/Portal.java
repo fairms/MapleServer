@@ -2,10 +2,10 @@ package im.cave.ms.client.field;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.connection.packet.UserPacket;
+import im.cave.ms.connection.server.Server;
+import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.enums.PortalType;
-import im.cave.ms.network.packet.UserPacket;
-import im.cave.ms.network.server.Server;
-import im.cave.ms.network.server.channel.MapleChannel;
 import im.cave.ms.scripting.portal.PortalScriptManager;
 import lombok.Getter;
 import lombok.Setter;

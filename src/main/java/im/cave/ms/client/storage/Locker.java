@@ -1,8 +1,8 @@
 package im.cave.ms.client.storage;
 
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.constants.GameConstants;
-import im.cave.ms.network.db.DataBaseManager;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;

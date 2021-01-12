@@ -26,19 +26,30 @@ import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
+import im.cave.ms.client.multiplayer.MapleMessage;
+import im.cave.ms.client.multiplayer.friend.Friend;
+import im.cave.ms.client.multiplayer.miniroom.MiniRoom;
+import im.cave.ms.client.multiplayer.miniroom.TradeRoom;
+import im.cave.ms.client.multiplayer.party.Party;
+import im.cave.ms.client.multiplayer.party.PartyResult;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
-import im.cave.ms.client.social.friend.Friend;
-import im.cave.ms.client.social.miniroom.MiniRoom;
-import im.cave.ms.client.social.miniroom.TradeRoom;
-import im.cave.ms.client.social.party.Party;
-import im.cave.ms.client.social.party.PartyResult;
+import im.cave.ms.connection.db.DataBaseManager;
+import im.cave.ms.connection.db.InlinedIntArrayConverter;
+import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.packet.UserPacket;
+import im.cave.ms.connection.packet.UserRemote;
+import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.connection.server.Server;
+import im.cave.ms.connection.server.channel.MapleChannel;
+import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.BodyPart;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.CashShopCurrencyType;
 import im.cave.ms.enums.CharMask;
 import im.cave.ms.enums.ChatType;
@@ -47,18 +58,8 @@ import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
-import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.enums.SpecStat;
-import im.cave.ms.network.db.DataBaseManager;
-import im.cave.ms.network.db.InlinedIntArrayConverter;
-import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.UserPacket;
-import im.cave.ms.network.packet.UserRemote;
-import im.cave.ms.network.packet.WorldPacket;
-import im.cave.ms.network.server.Server;
-import im.cave.ms.network.server.channel.MapleChannel;
-import im.cave.ms.network.server.world.World;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.ItemInfo;
@@ -226,6 +227,12 @@ public class MapleCharacter implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charId")
     private Set<Record> records;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "fromId")
+    private List<MapleMessage> Outbox;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "toId")
+    private List<MapleMessage> InBox;
     /////////////////////////////////////////////////////////
     @Transient
     private MapleMap map;
@@ -1360,7 +1367,7 @@ public class MapleCharacter implements Serializable {
 
     public void addQuestExAndSendPacket(int questId, Map<String, String> value) {
         addQuestEx(questId, value);
-        announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, questId, getQuestsExStorage().get(questId), (byte) 0));
+        announce(UserPacket.message(BroadcastMsgType.QUEST_RECORD_EX_MESSAGE, questId, getQuestsExStorage().get(questId), (byte) 0));
     }
 
     public void addVisibleMapObj(MapleMapObj obj) {
@@ -1398,7 +1405,7 @@ public class MapleCharacter implements Serializable {
             options.put("count", "1");
             buildQuestExStorage();
         }
-        announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_MOB_KILL_COUNT, questsExStorage.get(QUEST_EX_MOB_KILL_COUNT), (byte) 0));
+        announce(UserPacket.message(BroadcastMsgType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_MOB_KILL_COUNT, questsExStorage.get(QUEST_EX_MOB_KILL_COUNT), (byte) 0));
     }
 
     public void comboKill(int objectId) {

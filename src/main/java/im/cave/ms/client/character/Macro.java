@@ -1,8 +1,8 @@
 package im.cave.ms.client.character;
 
 
-import im.cave.ms.network.db.InlinedIntArrayConverter;
-import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.connection.db.InlinedIntArrayConverter;
+import im.cave.ms.connection.netty.OutPacket;
 
 import javax.persistence.Convert;
 import javax.persistence.Entity;

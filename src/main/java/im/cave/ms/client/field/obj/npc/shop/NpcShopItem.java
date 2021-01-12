@@ -1,7 +1,7 @@
 package im.cave.ms.client.field.obj.npc.shop;
 
 import im.cave.ms.client.character.items.Item;
-import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.connection.netty.OutPacket;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

@@ -1,6 +1,6 @@
 package im.cave.ms;
 
-import im.cave.ms.network.server.Server;
+import im.cave.ms.connection.server.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

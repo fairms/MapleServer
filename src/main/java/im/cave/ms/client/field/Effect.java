@@ -2,10 +2,10 @@ package im.cave.ms.client.field;
 
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.enums.TextEffectType;
 import im.cave.ms.enums.UserEffectType;
-import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Tuple;
 

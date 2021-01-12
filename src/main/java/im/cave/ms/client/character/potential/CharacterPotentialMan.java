@@ -1,8 +1,8 @@
 package im.cave.ms.client.character.potential;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.constants.GameConstants;
-import im.cave.ms.network.packet.UserPacket;
 import im.cave.ms.tools.Util;
 
 import java.util.Set;

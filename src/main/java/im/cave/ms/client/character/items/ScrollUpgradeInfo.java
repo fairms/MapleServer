@@ -1,10 +1,10 @@
 package im.cave.ms.client.character.items;
 
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.SpellTraceScrollType;
-import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.tools.Util;
 
 import java.util.Map;

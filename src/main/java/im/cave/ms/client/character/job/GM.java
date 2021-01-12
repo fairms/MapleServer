@@ -3,7 +3,7 @@ package im.cave.ms.client.character.job;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.skill.AttackInfo;
-import im.cave.ms.network.netty.InPacket;
+import im.cave.ms.connection.netty.InPacket;
 
 
 /**

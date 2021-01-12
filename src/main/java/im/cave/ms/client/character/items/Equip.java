@@ -1,5 +1,7 @@
 package im.cave.ms.client.character.items;
 
+import im.cave.ms.connection.db.InlinedIntArrayConverter;
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.BaseStat;
@@ -8,8 +10,6 @@ import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.ItemGrade;
-import im.cave.ms.network.db.InlinedIntArrayConverter;
-import im.cave.ms.network.netty.OutPacket;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.Util;
 import lombok.Getter;

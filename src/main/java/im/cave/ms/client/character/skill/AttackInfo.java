@@ -1,6 +1,6 @@
 package im.cave.ms.client.character.skill;
 
-import im.cave.ms.network.packet.opcode.RecvOpcode;
+import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
 

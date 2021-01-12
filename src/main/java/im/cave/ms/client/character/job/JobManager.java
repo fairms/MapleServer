@@ -9,8 +9,8 @@ import im.cave.ms.client.character.job.adventurer.Pirate;
 import im.cave.ms.client.character.job.adventurer.Thief;
 import im.cave.ms.client.character.job.adventurer.Warrior;
 import im.cave.ms.client.character.skill.AttackInfo;
+import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.constants.JobConstants;
-import im.cave.ms.network.netty.InPacket;
 
 import java.lang.reflect.InvocationTargetException;
 

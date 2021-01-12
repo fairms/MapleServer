@@ -1,7 +1,7 @@
 package im.cave.ms.client.character;
 
 
-import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.connection.netty.OutPacket;
 
 import static im.cave.ms.enums.ExpIncreaseInfoFlags.AswanWinnerBonusExp;
 import static im.cave.ms.enums.ExpIncreaseInfoFlags.BaseAddExp;

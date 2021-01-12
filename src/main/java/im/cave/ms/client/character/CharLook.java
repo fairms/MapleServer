@@ -2,9 +2,9 @@ package im.cave.ms.client.character;
 
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.BodyPart;
-import im.cave.ms.network.netty.OutPacket;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -2,8 +2,8 @@ package im.cave.ms.client.field.movement;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.obj.MapleMapObj;
-import im.cave.ms.network.netty.InPacket;
-import im.cave.ms.network.netty.OutPacket;
+import im.cave.ms.connection.netty.InPacket;
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.tools.Position;
 
 

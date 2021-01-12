@@ -1,14 +1,14 @@
 package im.cave.ms.client;
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.social.friend.Friend;
+import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.storage.Locker;
 import im.cave.ms.client.storage.Storage;
 import im.cave.ms.client.storage.Trunk;
-import im.cave.ms.enums.MessageType;
-import im.cave.ms.network.db.DataBaseManager;
-import im.cave.ms.network.packet.UserPacket;
-import im.cave.ms.network.server.Server;
+import im.cave.ms.connection.db.DataBaseManager;
+import im.cave.ms.connection.packet.UserPacket;
+import im.cave.ms.connection.server.Server;
+import im.cave.ms.enums.BroadcastMsgType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -147,7 +147,7 @@ public class Account {
             sharedQuestEx.get(questId).putAll(value);
         }
         if (sendPacket && getOnlineChar() != null) {
-            getOnlineChar().announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, questId,
+            getOnlineChar().announce(UserPacket.message(BroadcastMsgType.WORLD_SHARE_RECORD_MESSAGE, questId,
                     getSharedQuestExStorage().get(questId), (byte) 0));
         }
     }

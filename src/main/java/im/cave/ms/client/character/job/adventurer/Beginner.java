@@ -8,9 +8,9 @@ import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.SkillStat;
-import im.cave.ms.network.netty.InPacket;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.SkillInfo;
 

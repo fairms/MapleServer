@@ -2,7 +2,7 @@ package im.cave.ms.client.quest.reward;
 
 
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.network.packet.UserPacket;
+import im.cave.ms.connection.packet.UserPacket;
 
 
 public class QuestMoneyReward implements QuestReward {

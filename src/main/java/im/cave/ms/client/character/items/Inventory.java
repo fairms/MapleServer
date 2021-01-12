@@ -1,7 +1,7 @@
 package im.cave.ms.client.character.items;
 
+import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.enums.InventoryType;
-import im.cave.ms.network.db.DataBaseManager;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.tools.Util;

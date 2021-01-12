@@ -1,10 +1,10 @@
 package im.cave.ms.client.character;
 
+import im.cave.ms.connection.db.DataBaseManager;
+import im.cave.ms.connection.db.InlinedIntArrayConverter;
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
-import im.cave.ms.network.db.DataBaseManager;
-import im.cave.ms.network.db.InlinedIntArrayConverter;
-import im.cave.ms.network.netty.OutPacket;
 import lombok.Getter;
 import lombok.Setter;
 

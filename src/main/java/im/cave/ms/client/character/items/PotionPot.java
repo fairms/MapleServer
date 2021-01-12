@@ -1,8 +1,8 @@
 package im.cave.ms.client.character.items;
 
+import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.constants.GameConstants;
-import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.opcode.SendOpcode;
 import im.cave.ms.tools.DateUtil;
 import lombok.Getter;
 import lombok.Setter;

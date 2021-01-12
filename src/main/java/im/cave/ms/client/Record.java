@@ -50,6 +50,13 @@ public class Record {
         this.lastUpdated = System.currentTimeMillis();
     }
 
+    public Record(long id, RecordType type, int key, int value, long lastUpdated, long lastReset) {
+        this.type = type;
+        this.key = key;
+        this.value = value;
+        this.lastUpdated = lastUpdated;
+        this.lastReset = lastReset;
+    }
 
     @Override
     public boolean equals(Object o) {

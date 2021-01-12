@@ -1,9 +1,9 @@
 package im.cave.ms.client;
 
 import im.cave.ms.configs.Config;
+import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.constants.QuestConstants;
-import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.opcode.SendOpcode;
 
 import java.util.ArrayList;
 import java.util.List;

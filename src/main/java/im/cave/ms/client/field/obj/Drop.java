@@ -2,8 +2,8 @@ package im.cave.ms.client.field.obj;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.enums.DropEnterType;
-import im.cave.ms.network.packet.WorldPacket;
 import lombok.Getter;
 import lombok.Setter;
 

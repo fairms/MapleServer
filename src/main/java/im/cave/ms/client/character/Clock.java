@@ -1,10 +1,10 @@
 package im.cave.ms.client.character;
 
 import im.cave.ms.client.field.MapleMap;
+import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.packet.opcode.SendOpcode;
+import im.cave.ms.connection.server.service.EventManager;
 import im.cave.ms.enums.ClockType;
-import im.cave.ms.network.netty.OutPacket;
-import im.cave.ms.network.packet.opcode.SendOpcode;
-import im.cave.ms.network.server.service.EventManager;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
