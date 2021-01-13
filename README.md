@@ -7,22 +7,22 @@
 
 ### Todo:
 
-- [x] 基础建设
-  - [x] 任务
-  - [x] 脚本
-  - [x] 商城
+- [ ] 基础建设
+  - [ ] 任务
+  - [ ] 脚本
+  - [ ] 商城
   - [ ] 拍卖 *-以后再弄*
-  - [x] 人物动作
-    - [x] 说话
-    - [x] 移动
-    - [x] 攻击
+  - [ ] 人物动作
+    - [ ] 说话
+    - [ ] 移动
+    - [ ] 攻击
 - [ ] 多人游戏
-  - [x] 好友
-  - [x] 组队
+  - [ ] 好友
+  - [ ] 组队
   - [ ] 家族
   - [ ] 交易
-- [x] 职业&技能
-  - [x] 战士
+- [ ] 职业&技能
+  - [ ] 战士
     - [x] 勇士
     - [ ] 黑骑士
     - [ ] 圣骑士
@@ -30,10 +30,11 @@
 
 `~~以上都没做完~~`
 
+###### **参考项目:**
 
-
-
-
+- [MapleEllinel](https://github.com/mechaviv/MapleEllinel-v203.4)
+- [AzureV316](https://github.com/SoulGirlJP/AzureV316) 
+- [MapleStory143](https://github.com/mimilewis/MapleStory143)
 
 
 
