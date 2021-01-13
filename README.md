@@ -1,7 +1,7 @@
 # ms
 
 **maplestory emulator** 
-**of CMS 176**
+**for CMS 176**
 
 ~~只能进游戏逛街😓~~
 
