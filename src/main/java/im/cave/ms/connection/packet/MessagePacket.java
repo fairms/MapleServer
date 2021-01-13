@@ -58,11 +58,13 @@ public class MessagePacket {
             out.writeMapleAsciiString(line);
         }
         String msg = String.join("", lines);
+        //todo
         out.writeMapleAsciiString(msg);
-        out.writeInt(chr.getChannel()); //0
-        out.writeInt(0);//0
-        out.writeInt(0); // 01 01 00 00
-        out.writeInt(0); // 0
+        out.writeInt(0); //00 00 00 00
+        out.writeInt(0);//00 00 00 00
+        out.write(1);  // 01
+        out.writeInt(0); // 01 00 00 00  unk
+        out.writeInt(0); // 02 00 00 00 channel
         out.writeBool(whisperIcon);
         chr.getCharLook().encode(out);
         return out;

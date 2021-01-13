@@ -1,6 +1,11 @@
 package im.cave.ms.scripting.map;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.field.Effect;
+import im.cave.ms.client.field.FieldEffect;
+import im.cave.ms.connection.packet.UserPacket;
+import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.enums.FieldEffectType;
 import im.cave.ms.scripting.AbstractPlayerInteraction;
 
 /**
@@ -22,5 +27,13 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
 
     public void generateMobs(boolean init) {
         c.getPlayer().getMap().generateMobs(init);
+    }
+
+    public void showEffect(String effectPath, int delay) {
+        FieldEffect effect = new FieldEffect();
+        effect.setFieldEffectType(FieldEffectType.BackScreen);
+        effect.setString(effectPath);
+        effect.setArg1(delay);
+        getChar().announce(WorldPacket.fieldEffect(effect));
     }
 }

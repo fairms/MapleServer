@@ -59,7 +59,8 @@ public class MapScriptManager extends AbstractScriptManager {
                 return false;
             }
             scripts.put(mapScriptPath, iv);
-            iv.invokeFunction("start", new MapScriptMethods(c));
+            engine.put("ms", new MapScriptMethods(c));
+            iv.invokeFunction("start");
             return true;
         } catch (ScriptException | NoSuchMethodException e) {
             e.printStackTrace();

@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.BasicStatUp;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Booster;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ComboCounter;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.CrossOverChain;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieDamR;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePAD;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieUnk1;
@@ -63,6 +64,7 @@ public class Warrior extends Beginner {
     public static final int KNIGHT_HYPER_BODY = 1301007;
     public static final int KNIGHT_EVIL_EYE = 1301013;
     public static final int KNIGHT_EVIL_EYE_OF_DOMINATION = 1311013;
+    public static final int KNIGHT_CROSS_CHAIN = 1311015;
     public static final int KNIGHT_MAPLE_WARRIOR = 1321053;
 
     private final AtomicInteger comboCount = new AtomicInteger(1);
@@ -218,6 +220,12 @@ public class Warrior extends Beginner {
             case KNIGHT_EVIL_EYE:
                 spawnEvilEye(KNIGHT_EVIL_EYE, (byte) slv);
                 sendStat = false;
+                break;
+            case KNIGHT_CROSS_CHAIN:
+                o.nOption = skillInfo.getValue(x, slv);
+                o.rOption = skillId;
+                o.tOption = skillInfo.getValue(time, slv);
+                tsm.putCharacterStatValue(CrossOverChain, o);
                 break;
             default:
                 sendStat = false;

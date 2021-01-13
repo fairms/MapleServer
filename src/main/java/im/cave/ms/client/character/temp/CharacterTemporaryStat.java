@@ -167,7 +167,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     ComboDrain(134),// 
     ComboBarrier(135),// 
     BodyPressure(136),// 
-    RepeatEffect(137),// 
+    RepeatEffect(137),//  // 隐形剑 HideAttack
     ExpBuffRate(138),//  [Used for 2450156]
     StopPortion(139),// 
 
@@ -872,7 +872,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     }
 
     public static Map<CharacterTemporaryStat, List<Option>> getSpawnBuffs() {
-        HashMap<CharacterTemporaryStat, List<Option>> spawnBuffs = new HashMap();
+        Map<CharacterTemporaryStat, List<Option>> spawnBuffs = new HashMap<>();
         spawnBuffs.put(IndieUnk3, null);
         spawnBuffs.put(IndieUnk4, null);
         spawnBuffs.put(IndieUnk6, null);

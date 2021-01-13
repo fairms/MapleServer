@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-;
-
-
 public abstract class MapleJob {
     protected MapleCharacter chr;
     protected MapleClient c;
@@ -203,7 +200,6 @@ public abstract class MapleJob {
         if (sendStat) {
             tsm.sendSetStatPacket();
         }
-
     }
 
 //    public int alterCooldownSkill(int skillId) {
@@ -294,12 +290,7 @@ public abstract class MapleJob {
 //        }
 //}
 
-    /**
-     * Handles the initial part of a hit, the initial packet processing.
-     *
-     * @param c        The MapleClient
-     * @param in The packet to be processed
-     */
+
 //    public void handleHit(MapleClient c, InPacket in) {
 //        int idk1 = in.decodeInt();
 //        in.decodeInt(); // tick
@@ -330,13 +321,7 @@ public abstract class MapleJob {
 //    }
 
 
-    /**
-     * The final part of the hit process. Assumes the correct info (wrt buffs for example) is
-     * already in <code>hitInfo</code>.
-     *
-     * @param c       The MapleClient
-     * @param hitInfo The completed hitInfo
-     */
+
 //    public void handleHit(MapleClient c, HitInfo hitInfo) {
 //        MapleCharacter chr = c.getChr();
 //        hitInfo.hpDamage = Math.max(0, hitInfo.hpDamage); // to prevent -1 (dodges) healing the player.
@@ -428,14 +413,7 @@ public abstract class MapleJob {
 //        }
 //    }
 
-    /**
-     * Handles the 'middle' part of hit processing, namely the job-specific stuff like Magic Guard,
-     * and puts this info in <code>hitInfo</code>.
-     *
-     * @param c       The MapleClient
-     * @param in      packet to be processed
-     * @param hitInfo The hit info that should be altered if necessary
-     */
+
 //    public void handleHit(MapleClient c, InPacket in, HitInfo hitInfo) {
 //        MapleCharacter chr = c.getChr();
 //        TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -527,7 +505,7 @@ public abstract class MapleJob {
         Map<Stat, Long> stats = new HashMap<>();
         if (level > 10) {
             chr.addStat(Stat.AVAILABLEAP, 5);
-            stats.put(Stat.AVAILABLEAP, (long) chr.getStat(Stat.AVAILABLEAP));
+            stats.put(Stat.AVAILABLEAP, chr.getStat(Stat.AVAILABLEAP));
         } else {
             if (level >= 6) {
                 chr.addStat(Stat.STR, 4);

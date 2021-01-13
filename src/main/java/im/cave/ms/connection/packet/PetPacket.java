@@ -70,7 +70,7 @@ public class PetPacket {
     }
 
     public static OutPacket cashPetPickUpOnOffResult(boolean changed, boolean on) {
-        OutPacket out = new OutPacket(SendOpcode.CASHPET_PICK_UP_ON_OFF_RESULT);
+        OutPacket out = new OutPacket(SendOpcode.CASH_PET_PICK_UP_ON_OFF_RESULT);
         out.writeBool(changed);
         out.writeBool(on);
         return out;

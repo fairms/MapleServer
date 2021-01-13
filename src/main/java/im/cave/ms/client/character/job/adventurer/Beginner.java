@@ -16,6 +16,11 @@ import im.cave.ms.provider.info.SkillInfo;
 
 import java.util.Arrays;
 
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Booster;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Regen;
+import static im.cave.ms.enums.SkillStat.time;
+import static im.cave.ms.enums.SkillStat.x;
+
 
 public class Beginner extends MapleJob {
     public static final int THREE_SNAILS = 1000;
@@ -58,16 +63,27 @@ public class Beginner extends MapleJob {
         super.handleSkill(c, skillId, skillLevel, in);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillId);
-        SkillInfo si = null;
+        SkillInfo si;
         if (skill != null) {
             si = SkillData.getSkillInfo(skillId);
+        } else {
+            return;
         }
         if (isBuff(skillId)) {
+            Option o = new Option();
+            if (skillId == RECOVERY) {
+                o.nOption = si.getValue(x, skillLevel);
+                o.rOption = skillId;
+                o.tOption = si.getValue(time, skillLevel);
+                tsm.putCharacterStatValue(Regen, o);
+                tsm.sendSetStatPacket();
+            }
         } else {
             switch (skillId) {
                 case THREE_SNAILS:
-                    break;
+
                 case RETURN_MAPLESTORY:
+
                     break;
             }
         }

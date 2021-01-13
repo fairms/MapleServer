@@ -49,8 +49,9 @@ public class FieldEffect {
             // String
             case PlaySound:
             case BackScreen:
-                // Directory to the Effect
-                // Delay in ms
+                out.writeMapleAsciiString(getString());
+                out.writeInt(getArg1());
+                break;
             case TopScreenEffect:                   // Goes over other effects
             case ScreenEffect:
                 out.writeMapleAsciiString(getString());// Sound

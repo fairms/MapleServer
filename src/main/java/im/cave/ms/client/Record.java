@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * @author fair
@@ -22,13 +24,17 @@ import javax.persistence.Id;
 @Getter
 @Setter
 @Builder
+@Table(name = "record")
 public class Record {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "`type`")
     private RecordType type;
+    @Column(name = "`key`")
     private int key;
+    @Column(name = "`value`")
     private int value;
     private long lastUpdated;
     private long lastReset;

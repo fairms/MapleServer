@@ -81,7 +81,10 @@ public class NpcHandler {
         }
         if (script == null) {
             NpcShop shop = NpcData.getShopById(npcId);
-            if (npc.isShop()) {
+            if (npc.isShop() || shop != null) {
+                if (shop == null) {
+                    shop = new NpcShop();
+                }
                 chr.setShop(shop);
                 chr.announce(NpcPacket.openShop(npcId, 0, shop, chr.getRepurchaseItems()));
                 chr.chatMessage(String.format("Opening shop %s", npc.getTemplateId()));
@@ -213,7 +216,11 @@ public class NpcHandler {
                 }
                 if (shopItem == null || shopItem.getItemId() != itemId) {
                     player.chatMessage("The server's item at that position was different than the client's.");
-                    log.warn(String.format("Possible hack: expected shop itemId %d, got %d (chr %d)", shopItem.getItemId(), itemId, player.getId()));
+                    if (shopItem != null) {
+                        log.warn(String.format("Possible hack: expected shop itemId %d, got %d (chr %d)", shopItem.getItemId(), itemId, player.getId()));
+                    } else {
+                        player.dropMessage("商品不存在");
+                    }
                     return;
                 }
                 if (!player.canHold(itemId)) {
