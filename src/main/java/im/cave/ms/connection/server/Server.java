@@ -5,6 +5,7 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.configs.Config;
 import im.cave.ms.configs.WorldConfig;
+import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
 import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.connection.server.login.LoginServer;
@@ -71,29 +72,8 @@ public class Server {
                 .findAny().orElse(null);
     }
 
-    public void init() {
-        log.info("开始启动服务器.");
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-
-        }));
-        loginServer = LoginServer.getInstance();
-        for (WorldConfig.WorldInfo worldInfo : Config.worldConfig.worlds) {
-            log.info("世界-{} 开始启动", worldInfo.id);
-            World world = new World(worldInfo.id, worldInfo.event_message);
-            if (world.init()) {
-                worlds.add(world);
-                log.info("世界-{} 启动成功", world.getId());
-                for (MapleChannel channel : world.getChannels()) {
-                    log.info("频道-{} 监听端口：{}", channel.getChannelId(), channel.getPort());
-                }
-                log.info("商城服务器启动成功 监听端口：{}", world.getCashShop().getPort());
-            } else {
-                log.info("世界-{} 启动失败", world.getId());
-                return;
-            }
-        }
-        //加载WZ
-        EventManager.addEvent(this::initDataProvider, 0);
+    public static void main(String[] args) {
+        getInstance().init();
     }
 
     private void initDataProvider() {
@@ -196,5 +176,31 @@ public class Server {
 
     public void setOnline(boolean on) {
         online = on;
+    }
+
+    public void init() {
+        log.info("开始启动服务器.");
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+
+        }));
+        DataBaseManager.init();
+        loginServer = LoginServer.getInstance();
+        for (WorldConfig.WorldInfo worldInfo : Config.worldConfig.worlds) {
+            log.info("世界-{} 开始启动", worldInfo.id);
+            World world = new World(worldInfo.id, worldInfo.event_message);
+            if (world.init()) {
+                worlds.add(world);
+                log.info("世界-{} 启动成功", world.getId());
+                for (MapleChannel channel : world.getChannels()) {
+                    log.info("频道-{} 监听端口：{}", channel.getChannelId(), channel.getPort());
+                }
+                log.info("商城服务器启动成功 监听端口：{}", world.getCashShop().getPort());
+            } else {
+                log.info("世界-{} 启动失败", world.getId());
+                return;
+            }
+        }
+        //加载WZ
+        EventManager.addEvent(this::initDataProvider, 0);
     }
 }

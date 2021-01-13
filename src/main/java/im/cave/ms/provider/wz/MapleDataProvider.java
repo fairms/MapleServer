@@ -1,7 +1,8 @@
 package im.cave.ms.provider.wz;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +12,7 @@ import java.util.Objects;
 
 public class MapleDataProvider {
 
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger log = LoggerFactory.getLogger(MapleDataProvider.class);
     private final File root;
     private final MapleDataDirectoryEntry rootForNavigation;
 
