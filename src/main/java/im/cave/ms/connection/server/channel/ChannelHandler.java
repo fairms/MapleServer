@@ -247,7 +247,7 @@ public class ChannelHandler extends AbstractServerHandler {
                 PetHandler.handleUserRegisterPetAutoBuffRequest(in, c);
                 break;
             case COMBO_KILL_CHECK:
-                WorldHandler.handleComboKill(in, c);
+//                WorldHandler.handleComboKill(in, c);
                 break;
             case USER_SOUL_EFFECT_REQUEST:
                 UserHandler.handleUserSoulEffectRequest(in, c);
@@ -313,8 +313,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case CHANGE_CHAR_REQUEST:
                 WorldHandler.handleChangeCharRequest(in, c);
                 break;
-            case USER_SELECT_ANDROID:
-                UserHandler.handleUserSelectAndroid(in, c);
+            case ANDROID_SHOP_REQUEST:
+                UserHandler.handleAndroidShopRequest(in, c);
                 break;
             case UPDATE_TICK:
                 c.getPlayer().setTick(in.readInt());
@@ -331,9 +331,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case POTION_POT_INC_REQUEST:
                 InventoryHandler.handlePotionPotIncRequest(in, c);
                 break;
-            case USER_OPEN_MYSTERY_EGG:
-                InventoryHandler.handleUserOpenMysteryEgg(in, c);
-                break;
+//            case USER_OPEN_MYSTERY_EGG:
+//                InventoryHandler.handleUserOpenMysteryEgg(in, c);
+//                break;
             case SKILL_COMMAND_LOCK:
                 c.getPlayer().changeSkillState(in.readInt());
                 break;

@@ -13,7 +13,9 @@ public enum InventoryType {
     CONSUME(2),
     ETC(4),
     INSTALL(3),
-    CASH(5);
+    CASH(5),
+    CASH_EQUIP(6),
+    ;
 
     //    @EnumValue
     private final byte val;

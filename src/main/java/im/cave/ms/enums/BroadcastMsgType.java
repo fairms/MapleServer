@@ -1,54 +1,50 @@
 package im.cave.ms.enums;
 
+/**
+ * Created by Asura on 16-6-2018.
+ */
 public enum BroadcastMsgType {
-    DROP_PICKUP_MESSAGE(0),
-    QUEST_RECORD_MESSAGE(1),// v200
-    QUEST_RECORD_MESSAGE_ADD_VALID_CHECK(2),// v200
-    CASH_ITEM_EXPIRE_MESSAGE(2),// v200
-    INC_EXP_MESSAGE(3), // 白色字体经验 3
-    INC_SP_MESSAGE(4),// 增加SP   // 04  short:jobId  + amount
-    INC_POP_MESSAGE(5),// v200
-    INC_MONEY_MESSAGE(6),// v
-    INC_GP_MESSAGE(7),
-    INC_COMMITMENT_MESSAGE(8),
-    GIVE_BUFF_MESSAGE(9),
-    GENERAL_ITEM_EXPIRE_MESSAGE(10),  //道具过期 10
-    SYSTEM_MESSAGE(12),
-    // 13
-    QUEST_RECORD_EX_MESSAGE(13), // QUEST_EX
-    WORLD_SHARE_RECORD_MESSAGE(14),
-    ITEM_PROTECT_EXPIRE_MESSAGE(15),
-    ITEM_EXPIRE_REPLACE_MESSAGE(16),
-    ITEM_ABILITY_TIME_LIMITED_EXPIRE_MESSAGE(17),
-    SKILL_EXPIRE_MESSAGE(18),
-    INC_NON_COMBAT_STAT_EXP_MESSAGE(19), //提升倾向 //13  mask: 00 00 20 00 00 00 00 00 amount : 64 00 00 00
-    //21
-    LIMIT_NON_COMBAT_STAT_EXP_MESSAGE(22),
-    // 23
-    ANDROID_MACHINE_HEART_ALSET_MESSAGE(24),
-    INC_FATIGUE_BY_REST_MESSAGE(25),
-    INC_PVP_POINT_MESSAGE(26),
-    PVP_ITEM_USE_MESSAGE(27),
-    WEDDING_PORTAL_ERROR(28),
-    INC_HARDCORE_EXP_MESSAGE(29),
-    NOTICE_AUTO_LINE_CHANGED(30),
-    ENTRY_RECORD_MESSAGE(31),
-    EVOLVING_SYSTEM_MESSAGE(32),
-    EVOLVING_SYSTEM_MESSAGE_WITH_NAME(33),
-    CORE_INVEN_OPERATION_MESSAGE(34),
-    NX_RECORD_MESSAGE(35),
-    BLOCKED_BEHAVIOR_MESSAGE(36),
-    INC_WP_MESSAGE(36),
-    MAX_WP_MESSAGE(37),
-    STYLISH_KILL_MESSAGE(38), //连杀奖励经验 / 黄色
-    BARRIER_EFFECT_IGNORE_MESSAGE(39),
-    EXPIRED_CASH_ITEM_RESULT_MESSAGE(40),
-    COLLECTION_RECORD_MESSAGE(41),
-    RANDOM_CHANCE_MESSAGE(42),
-    EXPIRED_QUEST_RESULT_MESSAGE(43),
-    //45-54
-    ;
-
+    // Types
+    TYPE_ALL(0),
+    TYPE_CLONE(1),
+    TYPE_MAP(2),
+    // Messages
+    NOTICE(0),
+    ALERT(1),
+    SPEAKER_CHANNEL(2),
+    SPEAKER_WORLD(3),
+    SLIDE(4),
+    EVENT(5),
+    NOTICE_WITH_OUT_PREFIX(6),  //38
+    UTIL_DLG_EX(7),
+    ITEM_SPEAKER(8), // Holds item info
+    SPEAKER_BRIDGE(9),
+    ART_SPEAKER_WORLD(10),
+    GACHAPON_MSG(11), //  item shown when clicked,  does hold Item info
+    BLOW_WEATHER(12), // TODO  Contains PackedCharLook
+    ANNOUNCED_QUEST_OPEN(13), // tries to auto start quests with the announcement (?) - probably the  "A quest has arrived! Please clock on the icon at the botfom of your screen."
+    ANNOUNCED_QUEST_CLOSED(14), // tries to auto start quests (?)
+    MIRACLE_TIME(15), // Repeats the string 3x on the same line
+    EVENT_MSG_WITH_CHANNEL(16), // May be for  /find ?
+    LOTTERY_ITEM_SPEAKER(17), // Holds item info
+    LOTTERY_ITEM_SPEAKER_WORLD(18),
+    MONSTER_LIFE_WORLD_MSG(19),
+    NOTICE_WINDOW(20),
+    PICKUP_ITEM_WORLD(22),
+    SPEAKER_WORLD_GUILD_SKILL(23),
+    WEATHER_MSG(24), // TODO   Contains PackedCharLook
+    UNK25(25),
+    UNK26(26),
+    UNK27(27),
+    UNK28(28),
+    UNK29(29),
+    UNK30(30),
+    UNK31(31),
+    UNK32(32),
+    UNK33(33),
+    WITH_ITEM(34),
+    UNK35(35),
+    UNK36(36);
     private final byte val;
 
     BroadcastMsgType(int val) {

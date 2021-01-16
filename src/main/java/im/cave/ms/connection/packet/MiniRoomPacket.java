@@ -2,6 +2,7 @@ package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.multiplayer.miniroom.ChatRoom;
 import im.cave.ms.client.multiplayer.miniroom.TradeRoom;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
@@ -137,4 +138,18 @@ public class MiniRoomPacket {
         return out;
     }
 
+
+    public static OutPacket enterChatRoom(ChatRoom cr, MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.CHAT_ROOM);
+        out.write(ChatRoomType.Join.getVal());
+        out.write(1); //unk
+        out.writeInt(cr.getChatRoomId());
+        chr.getCharLook().encode(out);
+        out.writeMapleAsciiString(chr.getName());
+        out.write(0);
+        out.write(1);
+        out.writeInt(0);
+        // 00 00 00 00 00 00  6个位置?
+        return out;
+    }
 }

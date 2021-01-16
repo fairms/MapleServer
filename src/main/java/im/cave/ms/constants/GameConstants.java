@@ -74,6 +74,12 @@ public class GameConstants {
     public static final int MAX_DROP_CHANCE = 10000;
     public static final int MESO_DROP_CHANCE = MAX_DROP_CHANCE / 2;
 
+
+    // Potential Chance on Drop Equips
+    public static final int RANDOM_EQUIP_UNIQUE_CHANCE = 1; // out of a 100
+    public static final int RANDOM_EQUIP_EPIC_CHANCE = 3; // out of a 100
+    public static final int RANDOM_EQUIP_RARE_CHANCE = 8; // out of a 100
+
     // Hyper stat
     public static final long HYPER_STAT_RESET_COST = 10000000;
     public static final long HYPER_SKILL_RESET_COST = 1000000;
@@ -93,6 +99,7 @@ public class GameConstants {
     public static final byte DEFAULT_CASH_INVENTORY_SLOTS = 64;
     public static final byte DEFAULT_TRUNK_SLOTS = 4;
     public static final byte DEFAULT_CHARACTER_SLOTS = 6;
+    public static final byte INVENTORY_MAX_SLOTS = (byte) 128;
 
     // Inner Ability
     public static final int CHAR_POT_BASE_ID = 70000000;

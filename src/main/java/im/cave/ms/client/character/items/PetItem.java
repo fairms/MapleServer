@@ -45,7 +45,7 @@ public class PetItem extends Item {
     private List<ExceptionItem> exceptionList;
 
     public PetItem() {
-
+        type = Type.PET;
     }
 
     @Override

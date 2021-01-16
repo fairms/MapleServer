@@ -64,7 +64,6 @@ public class PetInfo {
 
     public PetItem createPetItem() {
         PetItem petItem = new PetItem();
-
         petItem.setRepleteness((byte) 100);
         petItem.setItemId(getItemID());
         petItem.setInvType(getInvType());

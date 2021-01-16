@@ -6,6 +6,7 @@ import im.cave.ms.configs.Config;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.LoginPacket;
+import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.tools.DateUtil;
 import io.netty.channel.Channel;
@@ -42,7 +43,7 @@ public class OfficialLoginHandler {
             }
             c.announce(LoginPacket.serverListEnd());
         } else if (loginResult == LoginType.NotRegistered && Config.serverConfig.AUTOMATIC_REGISTER) {
-            Account account = Account.createAccount(username, BCrypt.hashpw(password, BCrypt.gensalt(10)));
+            Account account = Account.createAccount(username, BCrypt.hashpw(password, BCrypt.gensalt(ServerConstants.BCRYPT_ITERATIONS)));
             account.save();
             account.setLastLogin(DateUtil.getFileTime(System.currentTimeMillis()));
             c.announce(LoginPacket.loginResult(c, LoginType.Success));

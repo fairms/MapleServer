@@ -10,9 +10,11 @@ import java.util.Arrays;
  */
 public enum ChatRoomType {
     Join(0),
+    Leave(2),
     ChatInviteRequest(3),
     ChatInviteTip(4),
     ChatInviteRefuseTip(5),
+    Chat(6),
     ;
 
     private final byte val;

@@ -64,8 +64,8 @@ public class LoginPacket {
 
     public static OutPacket getOpenCreateChar() {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.OPEN_CREATE_CHAR.getValue());
-        out.write(4);
+        out.writeShort(SendOpcode.OPEN_CREATE_CHAR_LAYOUT_RESULT.getValue());
+        out.write(4); // 09 do nothing / 07 validate code
         return out;
     }
 
@@ -113,9 +113,9 @@ public class LoginPacket {
     public static OutPacket serverListBg() {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.SERVER_LIST_BG.getValue());
-        out.write(0);
+        out.writeBool(true); //unk
         out.writeMapleAsciiString("default");
-        out.write(1);
+        out.writeBool(true); //unk
         out.writeLong(0);
         return out;
     }
@@ -163,7 +163,7 @@ public class LoginPacket {
         out.writeShort(SendOpcode.SERVERSTATUS.getValue());
         out.write(0);
         out.writeInt(worldId);
-        out.writeInt(2);
+        out.writeInt(worldId);
         return out;
     }
 
@@ -179,8 +179,8 @@ public class LoginPacket {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.CHARLIST.getValue());
         out.write(status);
-        out.writeMapleAsciiString("Normal");
-        out.writeMapleAsciiString("Normal");
+        out.writeMapleAsciiString("normal");
+        out.writeMapleAsciiString("normal");
         out.writeZeroBytes(6);
         List<MapleCharacter> deletedChars = characters.stream().filter(chr -> chr.getDeleteTime() != 0).collect(Collectors.toList());
         out.writeInt(deletedChars.size());
@@ -203,12 +203,12 @@ public class LoginPacket {
         out.writeInt(0); // buying char slots
         out.writeInt(-1); // nEventNewCharJob
         out.writeReversedLong(DateUtil.getFileTime(System.currentTimeMillis()));
-        out.write(0);
+        out.write(0); //
         out.write(1);
         out.write(0);
         out.writeZeroBytes(8);
         out.writeInt(327680);
-        out.writeInt(553713664);
+        out.writeInt(553713664); // 00 00 01 21
         for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
             out.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJob()) ? 0 : job.getFlag());
             out.writeShort(1);
@@ -226,6 +226,8 @@ public class LoginPacket {
             out.writeShort(port);
             out.writeInt(0);
             out.writeInt(charId);
+            out.writeMapleAsciiString("normal");
+            out.writeMapleAsciiString("normal");
             out.writeInt(0);
             out.writeShort(5120);
             out.writeLong(1000);

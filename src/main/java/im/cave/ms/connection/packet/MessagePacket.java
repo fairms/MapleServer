@@ -18,7 +18,7 @@ import java.util.List;
 public class MessagePacket {
     public static OutPacket getChatText(MapleCharacter player, String content) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.CHATTEXT.getValue());
+        out.writeShort(SendOpcode.CHAT.getValue());
         out.writeInt(player.getId());
         out.writeBool(player.isGm());
         out.writeMapleAsciiString(content);

@@ -14,7 +14,7 @@ import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.ChatType;
-import im.cave.ms.enums.ServerMsgType;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.MobData;
 import im.cave.ms.provider.data.NpcData;
@@ -98,7 +98,7 @@ public class CommandHandler {
                 c.getPlayer().setConversation(false);
                 QuestScriptManager.getInstance().dispose(c);
                 c.announce(UserPacket.enableActions());
-                c.announce(WorldPacket.serverMsg("[提示] 解卡操作已处理", ServerMsgType.NOTICE_WITH_OUT_PREFIX));
+                c.announce(WorldPacket.BroadcastMsg("[提示] 解卡操作已处理", BroadcastMsgType.NOTICE_WITH_OUT_PREFIX));
                 break;
             case "item":
                 if (s.length < 2) {

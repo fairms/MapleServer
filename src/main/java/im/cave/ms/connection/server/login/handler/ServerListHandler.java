@@ -21,7 +21,7 @@ public class ServerListHandler {
         c.announce(LoginPacket.serverStatus(worldId));
     }
 
-    public static void serverList(InPacket in, MapleClient c) {
+    public static void serverList(MapleClient c) {
         for (OutPacket server : LoginPacket.serverList()) {
             c.announce(server);
         }

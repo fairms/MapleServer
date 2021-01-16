@@ -29,7 +29,7 @@ import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ItemGrade;
 import im.cave.ms.enums.ScrollStat;
-import im.cave.ms.enums.ServerMsgType;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.SpecStat;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.StringData;
@@ -55,6 +55,7 @@ import static im.cave.ms.enums.EquipBaseStat.tuc;
 import static im.cave.ms.enums.InventoryOperationType.MOVE;
 import static im.cave.ms.enums.InventoryOperationType.REMOVE;
 import static im.cave.ms.enums.InventoryOperationType.UPDATE_QUANTITY;
+import static im.cave.ms.enums.InventoryType.CASH_EQUIP;
 import static im.cave.ms.enums.InventoryType.EQUIP;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
 
@@ -76,8 +77,8 @@ public class InventoryHandler {
         short oldPos = in.readShort();
         short newPos = in.readShort();
         short quantity = in.readShort();
-        InventoryType invTypeFrom = invType == EQUIP ? oldPos < 0 ? EQUIPPED : EQUIP : invType;
-        InventoryType invTypeTo = invType == EQUIP ? newPos < 0 ? EQUIPPED : EQUIP : invType;
+        InventoryType invTypeFrom = invType == EQUIP || invType == CASH_EQUIP ? oldPos < 0 ? EQUIPPED : invType : invType;
+        InventoryType invTypeTo = invType == EQUIP || invType == CASH_EQUIP ? newPos < 0 ? EQUIPPED : invType : invType;
         Item item = player.getInventory(invTypeFrom).getItem(oldPos < 0 ? (short) -oldPos : oldPos);
         if (item == null) {
             return;
@@ -110,7 +111,7 @@ public class InventoryHandler {
             }
         } else {
             Item swapItem = player.getInventory(invTypeTo).getItem(newPos < 0 ? (short) -newPos : newPos);
-            if (invType == EQUIP && invTypeFrom != invTypeTo) {
+            if ((invType == EQUIP || invType == CASH_EQUIP) && invTypeFrom != invTypeTo) {
                 // TODO: verify job (see item.RequiredJob), level, stat, unique equip requirements
                 if (invTypeFrom == EQUIPPED) {
                     player.unequip(item);
@@ -472,7 +473,7 @@ public class InventoryHandler {
             boolean choice = ii.isChoice();
             int incCharmExp = ii.getIncCharmExp();
             if (gender != 2 && gender != player.getGender()) {
-                player.announce(WorldPacket.serverMsg("性别不符", ServerMsgType.ALERT));
+                player.announce(WorldPacket.BroadcastMsg("性别不符", BroadcastMsgType.ALERT));
                 player.enableAction();
                 return;
             }

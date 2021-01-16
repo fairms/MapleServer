@@ -15,7 +15,7 @@ import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
-import im.cave.ms.enums.ServerMsgType;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.DateUtil;
 
@@ -63,7 +63,7 @@ public class CharOperationHandler {
         character.saveToDB();
         c.getAccount().removeChar(charId);
         c.announce(LoginPacket.deleteTime(charId));
-        c.announce(WorldPacket.serverMsg("删除角色成功，请回到首页重新进入。", ServerMsgType.ALERT));
+        c.announce(WorldPacket.BroadcastMsg("删除角色成功，请回到首页重新进入。", BroadcastMsgType.ALERT));
     }
 
     public static void handleCancelDelete(InPacket in, MapleClient c) {
@@ -108,7 +108,7 @@ public class CharOperationHandler {
         int curSelectedRace = in.readInt();
         JobConstants.JobEnum job = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginJob();
         if (job == null) {
-            c.announce(WorldPacket.serverMsg("未开放创建的职业", ServerMsgType.ALERT));
+            c.announce(WorldPacket.BroadcastMsg("未开放创建的职业", BroadcastMsgType.ALERT));
             return;
         }
         subJob = in.readShort();
@@ -121,13 +121,13 @@ public class CharOperationHandler {
         }
         for (int item : items) {
             if (!ItemData.getStartItems().contains(item)) {
-                c.announce(WorldPacket.serverMsg("检测到非法初始道具!", ServerMsgType.ALERT));
+                c.announce(WorldPacket.BroadcastMsg("检测到非法初始道具!", BroadcastMsgType.ALERT));
                 c.close();
             }
         }
         MapleCharacter chr = MapleCharacter.getDefault(job.getJob());
         if (chr == null) {
-            c.announce(WorldPacket.serverMsg("角色创建异常,请联系管理员", ServerMsgType.ALERT));
+            c.announce(WorldPacket.BroadcastMsg("角色创建异常,请联系管理员", BroadcastMsgType.ALERT));
             return;
         }
         {
@@ -139,7 +139,7 @@ public class CharOperationHandler {
             chr.setName(name);
             chr.setGm(c.getAccount().isGm());
             chr.setChannel(c.getChannel());
-            chr.getKeyMap().setDefault(keyMode == 0);
+            chr.getKeyMap().setDefault(keyMode != 0);
             chr.setFace(items[0]);
             chr.setHair(items[1]);
             chr.setCreatedTime(DateUtil.getFileTime(System.currentTimeMillis()));

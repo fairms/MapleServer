@@ -60,7 +60,9 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 public class PacketHelper {
     public static void addCharEntry(OutPacket out, MapleCharacter chr) {
         addCharStats(out, chr);
-        out.writeZeroBytes(12);
+        out.writeInt(0); //0 18
+        out.writeLong(0);
+        out.writeInt(0);
         chr.getCharLook().encode(out);
         out.write(0);
     }
@@ -89,7 +91,7 @@ public class PacketHelper {
             out.writeInt(charLook.getMark());
         }
         out.write(0);
-        out.writeLong(chr.getCreatedTime());
+        out.writeLong(ZERO_TIME);
         out.writeShort(stats.getFatigue());
         out.writeInt(stats.getFatigueUpdated() == 0 ? DateUtil.getTime() : stats.getFatigueUpdated());
         /*
@@ -103,7 +105,7 @@ public class PacketHelper {
         out.writeInt(stats.getCharmExp());
         stats.getNonCombatStatDayLimit().encode(out);
         /*
-         * PVV
+         * PVP
          */
         out.writeInt(0); //pvp exp
         out.write(10); //pvp grade
@@ -171,11 +173,12 @@ public class PacketHelper {
         out.write(chr.getInventory(InventoryType.INSTALL).getSlots());
         out.write(chr.getInventory(InventoryType.ETC).getSlots());
         out.write(chr.getInventory(InventoryType.CASH).getSlots());
+        out.write(chr.getInventory(InventoryType.CASH_EQUIP).getSlots());
 
         if (chr.getExtendedPendant() > 0 && chr.getExtendedPendant() > DateUtil.getFileTime(System.currentTimeMillis())) {
             out.writeLong(chr.getExtendedPendant());
         } else {
-            out.writeLong(ZERO_TIME); //todo
+            out.writeLong(ZERO_TIME);
 
         }
         out.write(0); //END
@@ -253,7 +256,7 @@ public class PacketHelper {
         out.writeInt(0); //五转核心数目
 
         //未知
-        int ffff = 19;
+        int ffff = 20;
         out.writeInt(ffff);
         for (int i = 0; i < ffff; i++) {
             out.writeInt(-1);
@@ -265,8 +268,10 @@ public class PacketHelper {
         out.writeInt(chr.getId());
         out.writeInt(0);
         out.writeLong(ZERO_TIME);
-
+        //todo
         out.writeZeroBytes(82); //幻影窃取的技能
+        //00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00 00 00 00 00 00 00 00 00 00
+
 
         out.writeShort(ItemConstants.COMMODITY.length);
         long time = DateUtil.getFileTime(System.currentTimeMillis());
@@ -275,7 +280,6 @@ public class PacketHelper {
             out.writeInt(0);
             out.writeLong(time);
         }
-
         out.writeZeroBytes(69);
         out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
         out.write(0);
@@ -407,20 +411,14 @@ public class PacketHelper {
             out.writeShort(item.getPos());
             item.encode(out);
         }
-        out.writeShort(0);
-
-        for (Item item : cashEquip) {
-            out.writeShort(item.getPos());
-            item.encode(out);
-        }
-        out.writeShort(0);
+        out.writeShort(0);  //装备
 
         for (Item item : chr.getInventory(InventoryType.EQUIP).getItems()) {
             out.writeShort(item.getPos());
             item.encode(out);
         }
-        out.writeShort(0);
-
+        out.writeShort(0); //装备栏
+/////////////////////////////////////////////
         for (Item item : evanEquip) {
             out.writeShort(item.getPos());
             item.encode(out);
@@ -432,73 +430,108 @@ public class PacketHelper {
             item.encode(out);
         }
         out.writeShort(0);
+///////////////////////////////
+        for (Item item : totems) {
+            out.writeShort(item.getPos());
+            item.encode(out);
+        }
+        out.writeShort(0);
+///////////////////////////////
+        //todo
+        out.writeShort(0); //1
+        //todo
+        out.writeShort(0); //2
+        //todo
+        out.writeShort(0); //3
+        //todo
+        out.writeShort(0); //4
+        //todo
+        out.writeShort(0); //5
+        //todo
+        out.writeShort(0); //6
+        //todo
+        out.writeShort(0); //7
+        ////////////////////
+        //机器人
+        //todo
+        out.writeInt(0); //背包中机器人的数目...
+        //60 C8 8E 26 00 00 00 00 id
+        //0a 00 type
+        // short hair
+        // short face
+        // name
+        // 12个0
+        ///////////////////////////
 
+        //todo
+        out.writeShort(0); //8
+        //todo
+        out.writeShort(0); //9
+
+        out.write(0);
+        for (Item item : cashEquip) {
+            out.writeShort(item.getPos() - 100);
+            item.encode(out);
+        }
+        out.writeShort(0);
+        for (Item item : chr.getCashEquipInventory().getItems()) {
+            out.writeShort(item.getPos());
+            item.encode(out);
+        }
+        out.writeShort(0);
+        //todo
         for (Item item : androidEquip) {
             out.writeShort(item.getPos());
             item.encode(out);
         }
         out.writeShort(0);
 
-        for (Item item : totems) {
-            out.writeShort(item.getPos());
-            item.encode(out);
-        }
-        out.writeShort(0);
-
-        //todo
-        out.writeShort(0);
-        //todo
-        out.writeShort(0);
-        //todo
-        out.writeShort(0);
-        //todo
-        out.writeShort(0);
-        //todo
-        out.writeShort(0);
-        //todo
-        out.writeShort(0);
-        //todo
-        out.writeShort(0);
-        //todo
-        out.writeShort(0);
-        //todo
-        out.writeShort(0);
-        //todo
-        out.writeShort(0);
-        //todo
-        out.writeShort(0);
         //todo
         out.writeShort(0);
         //todo
         out.writeShort(0);
 
         for (Item item : chr.getConsumeInventory().getItems()) {
-            out.write(item.getPos());
+            out.writeShort(item.getPos());
             item.encode(out);
         }
-        out.write(0);
+        out.writeShort(0);
 
         for (Item item : chr.getInstallInventory().getItems()) {
-            out.write(item.getPos());
+            out.writeShort(item.getPos());
             item.encode(out);
         }
-        out.write(0);
+        out.writeShort(0);
 
         for (Item item : chr.getEtcInventory().getItems()) {
-            out.write(item.getPos());
+            out.writeShort(item.getPos());
             item.encode(out);
         }
-        out.write(0);
+        out.writeShort(0);
 
         for (Item item : chr.getCashInventory().getItems()) {
-            out.write(item.getPos());
+            out.writeShort(item.getPos());
             item.encode(out);
         }
-        out.write(0);
+        out.writeShort(0);
 
-        //todo 矿物背包
-        out.writeZeroBytes(12);
+        out.writeLong(0);
+        out.writeInt(0); //bag quantity
 
+        /*
+           bags.for {
+            bag.index int
+            bagItem.id
+            bagItems.encode{
+           bagItemId
+           {
+           item.pos int
+           item.encode
+            }
+    }
+    -1 int
+        }
+         */
         out.write(0);
         out.writeLong(0);
     }

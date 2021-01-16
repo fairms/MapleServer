@@ -286,4 +286,13 @@ public class NpcPacket {
         out.writeInt(after);
         return out;
     }
+
+    public static OutPacket npcDisableInfo(List<Integer> npcs) {
+        OutPacket out = new OutPacket(SendOpcode.LIMITED_NPC_DISABLE_INFO);
+        out.write(npcs.size());
+        for (Integer npcId : npcs) {
+            out.writeInt(npcId);
+        }
+        return out;
+    }
 }

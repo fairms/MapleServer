@@ -4,6 +4,7 @@ import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.Record;
 import im.cave.ms.client.RecordManager;
+import im.cave.ms.client.character.CharLook;
 import im.cave.ms.client.character.DamageSkinSaveData;
 import im.cave.ms.client.character.Macro;
 import im.cave.ms.client.character.MapleCharacter;
@@ -53,7 +54,7 @@ import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MapTransferType;
 import im.cave.ms.enums.RecordType;
-import im.cave.ms.enums.ServerMsgType;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.AndroidInfo;
@@ -99,7 +100,8 @@ public class UserHandler {
         HitInfo hitInfo = new HitInfo();
         in.skip(8);
         player.setTick(in.readInt());
-        short unk = in.readShort(); // FF 00
+        in.readByte(); //ff
+        in.readShort(); //00 00
         int damage = in.readInt();
         hitInfo.hpDamage = damage;
         if (JobConstants.isGmJob(player.getJob())) {
@@ -352,7 +354,7 @@ public class UserHandler {
         int charId = in.readInt();
         MapleCharacter chr = player.getMap().getCharById(charId);
         if (chr == null) {
-            c.announce(WorldPacket.serverMsg("角色不存在", ServerMsgType.ALERT));
+            c.announce(WorldPacket.BroadcastMsg("角色不存在", BroadcastMsgType.ALERT));
             return;
         }
         c.announce(UserRemote.charInfo(chr));
@@ -809,9 +811,7 @@ public class UserHandler {
             c.announce(UserPacket.enableActions());
             return;
         }
-
         portal.enterPortal(c);
-
     }
 
 
@@ -976,7 +976,7 @@ public class UserHandler {
                 int quantity = in.readInt();
                 CashItemInfo cashItemInfo = ItemData.getCashItemInfo(sn);
                 if (cashItemInfo == null) {
-                    player.enableAction();
+                    player.announce(CashShopPacket.buyFailed(CashItemType.FailReason_OnWorld));
                     return;
                 }
                 int currency;
@@ -1097,13 +1097,12 @@ public class UserHandler {
                 break;
             }
             default:
-                player.announce(CashShopPacket.buyFailed(CashItemType.FailReason_Max_Time_Limit));
                 break;
         }
     }
 
     // todo 点击机器人打开商店
-    public static void handleUserSelectAndroid(InPacket in, MapleClient c) {
+    public static void handleAndroidShopRequest(InPacket in, MapleClient c) {
         in.readInt(); //charId
         int type = in.readInt();
         Position position = in.readPosInt();
@@ -1151,4 +1150,5 @@ public class UserHandler {
         int i = in.readInt();
         //todo
     }
+
 }

@@ -6,10 +6,12 @@ import im.cave.ms.client.character.items.ItemOption;
 import im.cave.ms.client.character.items.ItemSkill;
 import im.cave.ms.client.character.items.PetItem;
 import im.cave.ms.client.field.obj.Android;
+import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.ItemGrade;
 import im.cave.ms.enums.ItemState;
 import im.cave.ms.enums.SpecStat;
 import im.cave.ms.provider.info.AndroidInfo;
@@ -456,6 +458,9 @@ public class ItemData {
                 options.add(0);
             }
             equip.setOptions(options);
+        }
+        if (equip.isCash()) {
+            equip.setInvType(InventoryType.CASH_EQUIP);
         }
         equips.put(equip.getItemId(), equip);
         return equip;
@@ -1031,7 +1036,6 @@ public class ItemData {
         } else if (ItemConstants.isPet(itemId)) {
             return getPetDeepCopyFromID(itemId);
         }
-
         return getDeepCopyByItemInfo(getItemInfoById(itemId));
     }
 
@@ -1043,24 +1047,24 @@ public class ItemData {
             ret.setCuttable((short) -1);
             ret.setHyperUpgrade((short) ItemState.AmazingHyperUpgradeChecked.getVal());
             ret.setType(Item.Type.EQUIP);
-            ret.setInvType(InventoryType.EQUIP);
+            ret.setInvType(e.isCash() ? InventoryType.CASH_EQUIP : InventoryType.EQUIP);
             if (randomize) {
-//                if (ItemConstants.canEquipHaveFlame(ret)) {
-//                    ret.randomizeFlameStats(true);
-//                }
-//                if (ItemConstants.canEquipHavePotential(ret)) {
-//                    ItemGrade grade = ItemGrade.None;
-//                    if (Util.succeedProp(GameConstants.RANDOM_EQUIP_UNIQUE_CHANCE)) {
-//                        grade = ItemGrade.HiddenUnique;
-//                    } else if (Util.succeedProp(GameConstants.RANDOM_EQUIP_EPIC_CHANCE)) {
-//                        grade = ItemGrade.HiddenEpic;
-//                    } else if (Util.succeedProp(GameConstants.RANDOM_EQUIP_RARE_CHANCE)) {
-//                        grade = ItemGrade.HiddenRare;
-//                    }
-//                    if (grade != ItemGrade.None) {
-//                        ret.setHiddenOptionBase(grade.getVal(), ItemConstants.THIRD_LINE_CHANCE);
-//                    }
-//                }
+                if (ItemConstants.canEquipHaveFlame(ret)) {
+                    ret.randomizeFlameStats(true);
+                }
+                if (ItemConstants.canEquipHavePotential(ret)) {
+                    ItemGrade grade = ItemGrade.None;
+                    if (Util.succeedProp(GameConstants.RANDOM_EQUIP_UNIQUE_CHANCE)) {
+                        grade = ItemGrade.HiddenUnique;
+                    } else if (Util.succeedProp(GameConstants.RANDOM_EQUIP_EPIC_CHANCE)) {
+                        grade = ItemGrade.HiddenEpic;
+                    } else if (Util.succeedProp(GameConstants.RANDOM_EQUIP_RARE_CHANCE)) {
+                        grade = ItemGrade.HiddenRare;
+                    }
+                    if (grade != ItemGrade.None) {
+                        ret.setHiddenOptionBase(grade.getVal(), ItemConstants.THIRD_LINE_CHANCE);
+                    }
+                }
             }
         }
         return ret;

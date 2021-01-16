@@ -10,6 +10,8 @@ import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,10 +40,11 @@ public class Inventory {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "inventoryId")
     private List<Item> items;
+    @Enumerated(value = EnumType.ORDINAL)
     private InventoryType type;
-    private byte slots;
+    private int slots;
 
-    public Inventory(InventoryType type, byte slots) {
+    public Inventory(InventoryType type, int slots) {
         items = new CopyOnWriteArrayList<>();
         this.type = type;
         this.slots = slots;

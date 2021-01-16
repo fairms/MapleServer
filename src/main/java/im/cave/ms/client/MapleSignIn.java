@@ -31,9 +31,9 @@ public class MapleSignIn {
     }
 
 
-    public static OutPacket getRewardPacket() {
+    public static OutPacket signinInit() {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SIGNIN_REWARDS.getValue());
+        out.writeShort(SendOpcode.SIGNIN_INIT.getValue());
         out.write(0);
         out.write(1);
         out.writeLong(ZERO_TIME);

@@ -1,5 +1,6 @@
 package im.cave.ms.client.character.items;
 
+import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.connection.db.InlinedIntArrayConverter;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.constants.GameConstants;
@@ -966,9 +967,7 @@ public class Equip extends Item {
 
         out.writeInt(0);
         out.writeLong(getId());
-        out.writeLong(ZERO_TIME);
-        out.writeInt(-1);
-        out.writeLong(0); //0
+        out.writeLong(0);
         out.writeLong(ZERO_TIME);
         out.writeZeroBytes(16); //grade
 
@@ -985,7 +984,15 @@ public class Equip extends Item {
         out.writeLong(MAX_TIME);
         out.writeLong(ZERO_TIME);
         out.writeLong(MAX_TIME);
+        if (getAndroid() != null) {
+            Android android = getAndroid();
+            out.writeShort(android.getSkin());
+            out.writeShort(android.getHair() + 10000);
+            out.writeShort(android.getFace());
+            out.writeMapleAsciiString(android.getName());
+            out.writeInt(0);
+            out.writeLong(MAX_TIME);
+        }
         out.writeLong(getLimitBreak());
-
     }
 }

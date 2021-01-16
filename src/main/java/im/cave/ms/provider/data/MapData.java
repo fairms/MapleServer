@@ -32,7 +32,7 @@ import static im.cave.ms.provider.wz.MapleDataType.CANVAS;
 public class MapData {
     private static final List<MapleMap> maps = new ArrayList<>();
     private static final Logger log = LoggerFactory.getLogger(MapData.class);
-    private static final MapleDataProvider mapData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Map002.wz"));
+    private static final MapleDataProvider mapData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Map.wz"));
 
     public static MapleMap loadMapDataFromWz(int mapId, int world, int channel) {
         String wzPath = getMapWzPath(mapId);

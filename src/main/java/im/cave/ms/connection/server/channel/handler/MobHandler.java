@@ -52,7 +52,7 @@ public class MobHandler {
             Position pos = in.readPos(); // list of ball positions
             msai.multiTargetForBalls.add(pos);
         }
-        in.skip(18);
+        in.skip(22);
         MovementInfo movementInfo = new MovementInfo(in);
         movementInfo.applyTo(mob);
         player.announce(MobPacket.mobCtrlAck(objectId, moveId, useSkill, (int) mob.getMp(), 0, (short) 0));

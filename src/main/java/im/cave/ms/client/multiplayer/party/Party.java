@@ -157,7 +157,7 @@ public class Party {
         for (MapleCharacter chr : onlineChar) {
             Set<MapleCharacter> membersInSameField = getPartyMembersInSameField(chr);
             for (MapleCharacter other : membersInSameField) {
-                other.announce(WorldPacket.updatePartyHpInfo(chr));
+                other.announce(WorldPacket.receiveHP(chr));
             }
         }
     }

@@ -2,6 +2,7 @@ package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.Record;
+import im.cave.ms.client.character.Macro;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.items.Equip;
@@ -17,7 +18,7 @@ import im.cave.ms.connection.crypto.TripleDESCipher;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
-import im.cave.ms.enums.BroadcastMsgType;
+import im.cave.ms.enums.StatMessageType;
 import im.cave.ms.enums.CharMask;
 import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.EquipmentEnchantType;
@@ -292,14 +293,14 @@ public class UserPacket {
     public static OutPacket incMoneyMessage(int amount) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        out.write(BroadcastMsgType.INC_MONEY_MESSAGE.getVal());
+        out.write(StatMessageType.INC_MONEY_MESSAGE.getVal());
         out.writeInt(amount);
         out.writeInt(-1);
         out.writeInt(amount > 0 ? 0 : -1);
         return out;
     }
 
-    public static OutPacket message(BroadcastMsgType mt, int i, String string, byte type) {
+    public static OutPacket message(StatMessageType mt, int i, String string, byte type) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
         out.write(mt.getVal());
@@ -337,7 +338,7 @@ public class UserPacket {
     public static OutPacket stylishKillMessage(long exp, int count) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        out.write(BroadcastMsgType.STYLISH_KILL_MESSAGE.getVal());
+        out.write(StatMessageType.STYLISH_KILL_MESSAGE.getVal());
         out.write(0);
         out.writeLong(exp);
         out.writeInt(0); //unk
@@ -349,7 +350,7 @@ public class UserPacket {
     public static OutPacket comboKillMessage(int objId, int combo) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        out.write(BroadcastMsgType.STYLISH_KILL_MESSAGE.getVal());
+        out.write(StatMessageType.STYLISH_KILL_MESSAGE.getVal());
         out.write(1);
         out.writeInt(combo);
         out.writeInt(objId);
@@ -391,7 +392,10 @@ public class UserPacket {
     public static OutPacket macroSysDataInit(MapleCharacter chr) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.MACRO_SYS_DATA_INIT.getValue());
-        out.write(0); //size
+        out.write(chr.getMacros().size());
+        for (Macro macro : chr.getMacros()) {
+            macro.encode(out);
+        }
         return out;
     }
 
@@ -557,7 +561,8 @@ public class UserPacket {
             InventoryType invType = item.getInvType();
             if ((oldPos > 0 && newPos < 0 && invType == EQUIPPED) ||
                     (invType == EQUIPPED && oldPos < 0)) {
-                invType = InventoryType.EQUIP;
+
+                invType = item.isCash() ? InventoryType.CASH_EQUIP : InventoryType.EQUIP;
             }
             out.write(type.getVal());
             out.write(invType.getVal());
@@ -572,7 +577,8 @@ public class UserPacket {
                     break;
                 case MOVE:
                     out.writeShort(newPos);
-                    if (invType == InventoryType.EQUIP && (oldPos < 0 || newPos < 0)) {
+                    if ((invType == InventoryType.EQUIP || invType == InventoryType.CASH_EQUIP)
+                            && (oldPos < 0 || newPos < 0)) {
                         addMovementInfo = true;
                         if (oldPos > 0) {
                             equipMove += 2;
@@ -582,7 +588,8 @@ public class UserPacket {
                     }
                     break;
                 case REMOVE:
-                    if (invType == InventoryType.EQUIP && (oldPos < 0 || newPos < 0)) {
+                    if ((invType == InventoryType.EQUIP || invType == InventoryType.CASH_EQUIP)
+                            && (oldPos < 0 || newPos < 0)) {
                         addMovementInfo = true;
                     }
                     break;
@@ -645,6 +652,7 @@ public class UserPacket {
         out.writeInt(skillId);
         out.writeInt(finalSkillId);
         out.writeInt(weapon);
+        out.writeInt(0);
         return out;
     }
 

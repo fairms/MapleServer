@@ -32,8 +32,6 @@ import java.util.Map;
 public class SkillData {
     private static final Logger log = LoggerFactory.getLogger(SkillData.class);
     private static final MapleDataProvider skillData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Skill.wz"));
-    private static final MapleDataProvider skill001Data = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Skill001.wz"));
-    private static final MapleDataProvider skill002Data = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Skill002.wz"));
 
     private static final Map<Integer, SkillInfo> skills = new HashMap<>();
     private static final Map<Integer, Map<Integer, Integer>> eliteMobSkills = new HashMap<>();
@@ -80,10 +78,7 @@ public class SkillData {
         MapleData data;
         data = skillData.getData(rootPath);
         if (data == null) {
-            data = skill001Data.getData(rootPath);
-            if (data == null) {
-                data = skill002Data.getData(rootPath);
-            }
+            return null;
         }
         MapleData skillData = data.getChildByPath("skill/" + sId);
         if (skillData != null) {

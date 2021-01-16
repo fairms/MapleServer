@@ -56,6 +56,9 @@ public class LoginServerHandler extends AbstractServerHandler {
             case CLIENT_START:
                 c.announce(LoginPacket.sendStart());
                 break;
+            case CLIENT_ERROR:
+                c.close();
+                break;
             case AFTER_CREATE_CHAR:
                 CharOperationHandler.handleAfterCreateChar(in, c);
                 break;
@@ -75,7 +78,7 @@ public class LoginServerHandler extends AbstractServerHandler {
                 CharOperationHandler.handleCheckDuplicatedId(in, c);
                 break;
             case SERVERLIST_REQUEST2:
-                ServerListHandler.serverList(in, c);
+                ServerListHandler.serverList(c);
                 break;
             case CREATE_CHAR_REQUEST:
                 CharOperationHandler.handleCreateCharRequest(in, c);
@@ -96,6 +99,7 @@ public class LoginServerHandler extends AbstractServerHandler {
                 ErrorPacketHandler.handlePacket(in);
                 break;
             case OPEN_CREATE_CHAR_LAYOUT:
+            case USER_TRANSFER_CHANNEL_REQUEST:
                 c.announce(LoginPacket.getOpenCreateChar());
                 break;
             case USER_CASH_POINT_REQUEST:

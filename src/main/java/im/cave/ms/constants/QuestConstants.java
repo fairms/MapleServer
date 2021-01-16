@@ -19,6 +19,7 @@ public class QuestConstants {
     public static final int MOB_KILL_COUNT_MAX = 300;
     //连续击杀
     public static final int QUEST_EX_COMBO_KILL = 16027;
+    //16025
     // 宠物自动喂养
     public static final int QUEST_EX_PET_AUTO_EAT_FOOD = 12334;
     //伤害皮肤
@@ -35,8 +36,10 @@ public class QuestConstants {
     //签到月份
     public static final int SHARE_QUEST_EX_SIGNIN_MONTH = 6; //enter=202101
     //账号签到记录
-    public static final int SHARE_QUEST_EX_SIGNIN_LOG = 7;
+    public static final int SHARE_QUEST_EX_SIGNIN_LOG = 7; //count=0;day=0;date=20210108
     //账号在线时间
     public static final int SHARE_QUEST_EX_ONLINE_TIME = 900100; //date=20210103;OnlineTime=138
-
+    public static final int SHARE_QUEST_EX_LOGIN_IP = 1; //登陆IP=/59.53.44.112;初次登陆=1
+    public static final int SHARE_QUEST_EX_LOGIN_TIP = 88818; //出生提示=1
+    public static final int SHARE_QUEST_EX_USE_AUCTION = 81818; //使用拍卖=1
 }

@@ -24,7 +24,7 @@ import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.FriendType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
-import im.cave.ms.enums.ServerMsgType;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.enums.UIType;
 import im.cave.ms.tools.DateUtil;
@@ -36,8 +36,8 @@ import java.util.Map;
 
 import static im.cave.ms.constants.ServerConstants.NEXON_IP;
 import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
-import static im.cave.ms.enums.BroadcastMsgType.DROP_PICKUP_MESSAGE;
-import static im.cave.ms.enums.BroadcastMsgType.INC_EXP_MESSAGE;
+import static im.cave.ms.enums.StatMessageType.DROP_PICKUP_MESSAGE;
+import static im.cave.ms.enums.StatMessageType.INC_EXP_MESSAGE;
 import static im.cave.ms.enums.DropEnterType.Instant;
 
 /**
@@ -79,6 +79,8 @@ public class WorldPacket {
             out.write(1);
             out.write(0);
             out.writeLong(ZERO_TIME);
+            out.write(0);
+            out.writeLong(ZERO_TIME);
             out.writeZeroBytes(16);
         } else {
             out.write(0); // usingBuffProtector
@@ -103,7 +105,7 @@ public class WorldPacket {
             out.writeLong(4);
         }
         //下面是固定的 unk
-        out.writeZeroBytes(16);
+        out.writeZeroBytes(14);
         out.write(1);
         out.writeInt(-1);
         out.writeLong(0);
@@ -271,17 +273,17 @@ public class WorldPacket {
         return out;
     }
 
-    public static OutPacket serverMsg(String content, ServerMsgType type) {
-        return serverMsg(content, type, null);
+    public static OutPacket BroadcastMsg(String content, BroadcastMsgType type) {
+        return BroadcastMsg(content, 0, type, null);
     }
 
-    public static OutPacket serverMsgWithItem(String content, ServerMsgType type, Item item) {
-        return serverMsg(content, type, item);
+    public static OutPacket serverMsgWithItem(String content, int channel, BroadcastMsgType type, Item item) {
+        return BroadcastMsg(content, channel, type, item);
     }
 
-    public static OutPacket serverMsg(String content, ServerMsgType type, Item item) {
+    public static OutPacket BroadcastMsg(String content, int channel, BroadcastMsgType type, Item item) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SERVER_MSG.getValue());
+        out.writeShort(SendOpcode.BROADCAST_MSG.getValue());
         out.write(type.getVal());
         switch (type) {
             case NOTICE:
@@ -306,9 +308,8 @@ public class WorldPacket {
             case WITH_ITEM:
                 out.writeMapleAsciiString(content);
                 out.writeInt(item.getItemId());
-                out.writeInt(3);
-                out.writeInt(3);
-                out.write(0x2E);
+                out.writeInt(channel);
+                out.writeInt(3); //unk
                 item.encode(out);
                 break;
         }
@@ -381,7 +382,7 @@ public class WorldPacket {
 
     public static OutPacket dropLeaveField(DropLeaveType type, int charId, int dropId) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.PICK_UP_DROP.getValue());
+        out.writeShort(SendOpcode.DROP_LEAVE_FIELD.getValue());
         out.write(type.getVal());
         out.writeInt(dropId);
         out.writeInt(charId);
@@ -791,8 +792,8 @@ public class WorldPacket {
         return out;
     }
 
-    public static OutPacket updatePartyHpInfo(MapleCharacter chr) {
-        OutPacket out = new OutPacket(SendOpcode.UPDATE_PARTY_HP);
+    public static OutPacket receiveHP(MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_RECEIVE_HP);
         out.writeInt(chr.getId());
         out.writeInt(chr.getHp());
         out.writeInt(chr.getMaxHP());

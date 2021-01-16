@@ -175,7 +175,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Fear(141),// 
     HiddenPieceOn(142),// 
     MagicShield(143),// 
-    MagicResistance(144),// 
+    MagicResistance(144),//  矛连击
     SoulStone(145),// 
     Flying(146),// 
     Frozen(147),// 
@@ -545,9 +545,9 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     FixCoolTime(467),// 
     IncMobRateDummy(468),// 
 
-    AdrenalinBoost(469),// 
-    AranSmashSwing(470),//  激素狂飙
-    AranDrain(471),// 
+    AdrenalinBoost(469),//  激素狂飙
+    AranSmashSwing(470),//
+    AranDrain(471),//
     AranBoostEndHunt(472),// 
     HiddenHyperLinkMaximization(473),// 
     RWCylinder(474),// 

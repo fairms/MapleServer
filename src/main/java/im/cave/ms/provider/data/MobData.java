@@ -23,7 +23,6 @@ import java.util.Map;
  */
 public class MobData {
     private static final MapleDataProvider mobData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Mob.wz"));
-    private static final MapleDataProvider mob001Data = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Mob001.wz"));
     private static final MapleDataProvider mob2Data = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Mob2.wz"));
 
     private static final Map<Integer, Mob> mobs = new HashMap<>();
@@ -43,10 +42,7 @@ public class MobData {
         if (data == null) {
             data = mob2Data.getData(imgName);
             if (data == null) {
-                data = mob001Data.getData(imgName);
-                if (data == null) {
-                    return null;
-                }
+                return null;
             }
         }
         MapleData info = data.getChildByPath("info");

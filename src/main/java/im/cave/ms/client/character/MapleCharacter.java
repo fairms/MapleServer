@@ -49,7 +49,7 @@ import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.BodyPart;
-import im.cave.ms.enums.BroadcastMsgType;
+import im.cave.ms.enums.StatMessageType;
 import im.cave.ms.enums.CashShopCurrencyType;
 import im.cave.ms.enums.CharMask;
 import im.cave.ms.enums.ChatType;
@@ -112,6 +112,7 @@ import static im.cave.ms.constants.GameConstants.DEFAULT_DAMAGE_SLOTS;
 import static im.cave.ms.constants.GameConstants.DEFAULT_EQUIP_INVENTORY_SLOTS;
 import static im.cave.ms.constants.GameConstants.DEFAULT_ETC_INVENTORY_SLOTS;
 import static im.cave.ms.constants.GameConstants.DEFAULT_INSTALL_INVENTORY_SLOTS;
+import static im.cave.ms.constants.GameConstants.INVENTORY_MAX_SLOTS;
 import static im.cave.ms.constants.GameConstants.NO_MAP_ID;
 import static im.cave.ms.constants.QuestConstants.QUEST_DAMAGE_SKIN;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED;
@@ -123,6 +124,7 @@ import static im.cave.ms.enums.ChatType.SystemNotice;
 import static im.cave.ms.enums.InventoryOperationType.REMOVE;
 import static im.cave.ms.enums.InventoryOperationType.UPDATE_QUANTITY;
 import static im.cave.ms.enums.InventoryType.CASH;
+import static im.cave.ms.enums.InventoryType.CASH_EQUIP;
 import static im.cave.ms.enums.InventoryType.CONSUME;
 import static im.cave.ms.enums.InventoryType.EQUIP;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
@@ -188,6 +190,9 @@ public class MapleCharacter implements Serializable {
     @JoinColumn(name = "cashInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Inventory cashInventory;
+    @JoinColumn(name = "cashEquipInventory")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Inventory cashEquipInventory;
     @Convert(converter = InlinedIntArrayConverter.class)
     private List<Integer> quickslots;
     @JoinColumn(name = "charId")
@@ -344,12 +349,13 @@ public class MapleCharacter implements Serializable {
 
     public static MapleCharacter getDefault(int jobId) {
         MapleCharacter character = new MapleCharacter();
-        character.setEquippedInventory(new Inventory(EQUIPPED, Byte.MAX_VALUE));
+        character.setEquippedInventory(new Inventory(EQUIPPED, INVENTORY_MAX_SLOTS));
         character.setEquipInventory(new Inventory(EQUIP, DEFAULT_EQUIP_INVENTORY_SLOTS));
         character.setConsumeInventory(new Inventory(CONSUME, DEFAULT_CONSUME_INVENTORY_SLOTS));
         character.setInstallInventory(new Inventory(INSTALL, DEFAULT_INSTALL_INVENTORY_SLOTS));
         character.setEtcInventory(new Inventory(ETC, DEFAULT_ETC_INVENTORY_SLOTS));
         character.setCashInventory(new Inventory(CASH, DEFAULT_CASH_INVENTORY_SLOTS));
+        character.setCashInventory(new Inventory(CASH_EQUIP, INVENTORY_MAX_SLOTS));
         character.setStats(CharStats.getDefaultStats(jobId));
         character.setKeyMap(new MapleKeyMap());
         character.addCharLook(new CharLook());
@@ -378,6 +384,8 @@ public class MapleCharacter implements Serializable {
                 return etcInventory;
             case CASH:
                 return cashInventory;
+            case CASH_EQUIP:
+                return cashEquipInventory;
             default:
                 return null;
         }
@@ -463,9 +471,12 @@ public class MapleCharacter implements Serializable {
         setSpawnPoint(spawnPortalNearby.getId());
         getMap().removeChar(this);
         if (getMiniRoom() != null) {
-            MapleCharacter other = ((TradeRoom) getMiniRoom()).getOther();
-            ((TradeRoom) getMiniRoom()).cancelTrade();
-            other.chatMessage("Your trade partner disconnected.");
+            if (getMiniRoom() instanceof TradeRoom) {
+                MapleCharacter other = ((TradeRoom) getMiniRoom()).getOther();
+                ((TradeRoom) getMiniRoom()).cancelTrade();
+                other.chatMessage("Your trade partner disconnected.");
+            }
+            //todo
         }
         buildQuestExStorage();
         setOnline(false);
@@ -648,7 +659,11 @@ public class MapleCharacter implements Serializable {
             addStatAndSendPacket(Stat.CHARM, equip.getCharmEXP());
             equip.addAttribute(EquipAttribute.NoNonCombatStatGain);
         }
-        getEquipInventory().removeItem(item);
+        if (item.isCash()) {
+            getCashEquipInventory().removeItem(item);
+        } else {
+            getEquipInventory().removeItem(item);
+        }
         getEquippedInventory().addItem(item);
         if (ItemConstants.isAndroid(item.getItemId()) || ItemConstants.isMechanicalHeart(item.getItemId())) {
             if (getEquippedEquip(BodyPart.Android) != null && getEquippedEquip(BodyPart.MechanicalHeart) != null) {
@@ -674,7 +689,11 @@ public class MapleCharacter implements Serializable {
 
     public void unequip(Item item) {
         getEquippedInventory().removeItem(item);
-        getEquipInventory().addItem(item);
+        if (item.isCash()) {
+            getCashEquipInventory().addItem(item);
+        } else {
+            getEquipInventory().addItem(item);
+        }
     }
 
 
@@ -1367,7 +1386,7 @@ public class MapleCharacter implements Serializable {
 
     public void addQuestExAndSendPacket(int questId, Map<String, String> value) {
         addQuestEx(questId, value);
-        announce(UserPacket.message(BroadcastMsgType.QUEST_RECORD_EX_MESSAGE, questId, getQuestsExStorage().get(questId), (byte) 0));
+        announce(UserPacket.message(StatMessageType.QUEST_RECORD_EX_MESSAGE, questId, getQuestsExStorage().get(questId), (byte) 0));
     }
 
     public void addVisibleMapObj(MapleMapObj obj) {
@@ -1405,7 +1424,7 @@ public class MapleCharacter implements Serializable {
             options.put("count", "1");
             buildQuestExStorage();
         }
-        announce(UserPacket.message(BroadcastMsgType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_MOB_KILL_COUNT, questsExStorage.get(QUEST_EX_MOB_KILL_COUNT), (byte) 0));
+        announce(UserPacket.message(StatMessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_MOB_KILL_COUNT, questsExStorage.get(QUEST_EX_MOB_KILL_COUNT), (byte) 0));
     }
 
     public void comboKill(int objectId) {

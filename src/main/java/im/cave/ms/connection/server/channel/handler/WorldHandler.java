@@ -37,7 +37,7 @@ import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.SkillConstants;
-import im.cave.ms.enums.BroadcastMsgType;
+import im.cave.ms.enums.StatMessageType;
 import im.cave.ms.enums.ChatRoomType;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DimensionalMirror;
@@ -284,7 +284,7 @@ public class WorldHandler {
             options.put("day", "0");
             options.put("date", String.valueOf(DateUtil.getDate()));
             account.addSharedQuestEx(SHARE_QUEST_EX_SIGNIN_LOG, options, true);
-            c.announce(UserPacket.message(BroadcastMsgType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_SIGNIN_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
+            c.announce(UserPacket.message(StatMessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_SIGNIN_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
         }
         String count = account.getSharedQuestEx().get(SHARE_QUEST_EX_SIGNIN_LOG).get("count");
         String day = account.getSharedQuestEx().get(SHARE_QUEST_EX_SIGNIN_LOG).get("day");
@@ -305,7 +305,7 @@ public class WorldHandler {
             options.put("day", day);
             options.put("date", date);
             account.addSharedQuestEx(SHARE_QUEST_EX_SIGNIN_LOG, options, true);
-            c.announce(UserPacket.message(BroadcastMsgType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_SIGNIN_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
+            c.announce(UserPacket.message(StatMessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_SIGNIN_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
             Item item = ItemData.getItemCopy(itemId, false);
             item.setQuantity(signRewardInfo.getQuantity());
             player.addItemToInv(item);
@@ -335,7 +335,7 @@ public class WorldHandler {
             return;
         }
         byte channel = in.readByte();
-        in.readInt();
+        in.readInt(); //tick
         if (c.getChannel() == channel) {
             c.close(); //hack
             return;
@@ -405,7 +405,7 @@ public class WorldHandler {
                 c.announce(UserPacket.macroSysDataInit(player));
                 c.announce(UserPacket.updateVoucher(player));
                 c.getAccount().buildSharedQuestEx();
-                c.announce(MapleSignIn.getRewardPacket());
+                c.announce(MapleSignIn.signinInit());
                 c.announce(MessagePacket.mapleMessageResult(MapleMessageType.Res_Inbox, player.getInBox(), 0));
                 c.announce(MessagePacket.mapleMessageResult(MapleMessageType.Res_Outbox, player.getOutbox(), 0));
                 break;
@@ -818,7 +818,7 @@ public class WorldHandler {
         ChatRoom chatRoom = (ChatRoom) player.getMiniRoom();
         switch (type) {
             case Join: {
-                in.readShort(); // 06 00
+                in.readByte(); // 06
                 chatRoom = new ChatRoom(player);
                 player.setMiniRoom(chatRoom);
                 break;

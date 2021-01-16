@@ -2,14 +2,14 @@ package im.cave.ms.enums;
 
 
 public enum LoginType {
-    Success(0), //有用
+    Success(0), //正确
     TempBlocked(1),
     Blocked(2),
     Abandoned(3),
     IncorrectPassword(4),
-    NotRegistered(5), // 有用
+    NotRegistered(5), // 正确
     DBFail(6),
-    AlreadyConnected(7),
+    AlreadyConnected(7), //已登录的账号将被解除登录
     NotConnectableWorld(8),
     Unknown(9),
     Timeout(10),
@@ -24,7 +24,7 @@ public enum LoginType {
     TempBlockedIP(19),
     IncorrectSPW(20),
     DeleteCharacterFailedEngaged(21),
-    SamePasswordAndSPW(22),
+    RequireToS(22),  //确认TOS
     WaitOTP(23),
     WrongOTP(24),
     OverCountErrOTP(25),

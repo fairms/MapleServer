@@ -32,8 +32,8 @@ public class FieldEffect {
                 out.writeInt(getArg3());// y1
                 break;
             case Tremble:
-                out.write(getArg1());  // 1
-                out.write(getArg2());  // 1
+                out.write(getArg1());  // 1 x?
+                out.write(getArg2());  // 1 y?
                 out.writeInt(getArg3()); // duration
                 out.writeShort(getArg4()); // level
                 break;

@@ -5,6 +5,7 @@ import im.cave.ms.client.character.items.Item;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.BodyPart;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +19,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,11 +73,24 @@ public class CharLook {
     public void initEquippedItems() {
         Inventory iv = chr.getEquippedInventory();
         List<Item> equips = iv.getItems();
+        equips.sort(Comparator.comparingInt(Item::getPos));
         for (Item equip : equips) {
             int pos = equip.getPos();
             if (pos > BodyPart.BPBase.getVal() && pos < BodyPart.BPEnd.getVal()) {
+                if (pos == BodyPart.Weapon.getVal()) {
+                    weaponId = equip.getItemId();
+                } else if (pos == BodyPart.Shield.getVal()) {
+                    subWeaponId = equip.getItemId();
+                }
                 hairEquips.put(pos, equip.getItemId());
             } else if (pos > BodyPart.CBPBase.getVal() && pos < BodyPart.CBPEnd.getVal()) {
+                pos -= BodyPart.BPEnd.getVal();
+                if (pos == BodyPart.Weapon.getVal()) {
+                    weaponStickerId = equip.getItemId();
+                    continue;
+                } else if (pos == BodyPart.Shield.getVal()) {
+                    subWeaponId = equip.getItemId();
+                }
                 if (hairEquips.containsKey(pos)) {
                     unseenEquips.put(pos, hairEquips.get(pos));
                     hairEquips.put(pos, equip.getItemId());
@@ -93,6 +108,7 @@ public class CharLook {
         totems = new LinkedHashMap<>();
     }
 
+    //todo
     public static CharLook defaultLook(short job) {
         CharLook charLook = new CharLook();
         charLook.setHair(23333);
@@ -105,7 +121,7 @@ public class CharLook {
         out.write(getSkin());
         out.writeInt(getFace());
         out.writeInt(getJob());
-        out.writeBool(mega);
+        out.writeBool(isMega());
         out.writeInt(getHair());
         getHairEquips().forEach((pos, itemId) -> {
             out.write(pos);
@@ -117,12 +133,12 @@ public class CharLook {
             out.writeInt(itemId);
         });
         out.write(-1);
+        //todo arcane
+        out.write(-1);
         getTotems().forEach((pos, itemId) -> {
-            out.write(pos);
+            out.write(pos - BodyPart.TotemBase.getVal());
             out.writeInt(itemId);
         });
-        out.write(-1);
-        //todo arcane
         out.write(-1);
         out.writeInt(getWeaponStickerId());
         out.writeInt(getWeaponId());

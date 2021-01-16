@@ -8,7 +8,7 @@ import im.cave.ms.client.storage.Trunk;
 import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.server.Server;
-import im.cave.ms.enums.BroadcastMsgType;
+import im.cave.ms.enums.StatMessageType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -147,7 +147,7 @@ public class Account {
             sharedQuestEx.get(questId).putAll(value);
         }
         if (sendPacket && getOnlineChar() != null) {
-            getOnlineChar().announce(UserPacket.message(BroadcastMsgType.WORLD_SHARE_RECORD_MESSAGE, questId,
+            getOnlineChar().announce(UserPacket.message(StatMessageType.WORLD_SHARE_RECORD_MESSAGE, questId,
                     getSharedQuestExStorage().get(questId), (byte) 0));
         }
     }

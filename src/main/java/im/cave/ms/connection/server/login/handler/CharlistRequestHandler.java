@@ -45,6 +45,7 @@ public class CharlistRequestHandler {
             return;
         }
         List<MapleCharacter> characters = c.loadCharacters(worldId);
+        c.announce(LoginPacket.account(c.getAccount()));
         c.announce(LoginPacket.charactersList(c, characters, 0));
         c.announce(LoginPacket.account(c.getAccount()));
     }

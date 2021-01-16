@@ -13,6 +13,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
                 <configuration>
                     <source>11</source>
                     <target>11</target>
@@ -41,7 +42,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.54.Final</version>
+            <version>4.1.58.Final</version>
         </dependency>
 
         <dependency>
