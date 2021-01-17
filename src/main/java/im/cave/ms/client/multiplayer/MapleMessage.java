@@ -1,6 +1,8 @@
 package im.cave.ms.client.multiplayer;
 
 import im.cave.ms.connection.netty.OutPacket;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +23,8 @@ import javax.persistence.Table;
 @Table(name = "message")
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class MapleMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,17 +39,6 @@ public class MapleMessage {
 
     public MapleMessage() {
 
-    }
-
-    public MapleMessage(int id, byte status, int fromId, String fromChr, int toId, String toChr, String msg, long createdTime) {
-        this.id = id;
-        this.status = status;
-        this.fromId = fromId;
-        this.fromChr = fromChr;
-        this.toId = toId;
-        this.toChr = toChr;
-        this.msg = msg;
-        this.createdTime = createdTime;
     }
 
     public void encode(OutPacket out) {

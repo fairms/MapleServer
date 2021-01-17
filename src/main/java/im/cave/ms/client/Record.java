@@ -1,6 +1,8 @@
 package im.cave.ms.client;
 
 import im.cave.ms.enums.RecordType;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +25,8 @@ import javax.persistence.Table;
 @Entity
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Table(name = "record")
 public class Record {
     @Id
@@ -54,14 +57,6 @@ public class Record {
         this.value = value;
         this.lastReset = System.currentTimeMillis();
         this.lastUpdated = System.currentTimeMillis();
-    }
-
-    public Record(long id, RecordType type, int key, int value, long lastUpdated, long lastReset) {
-        this.type = type;
-        this.key = key;
-        this.value = value;
-        this.lastUpdated = lastUpdated;
-        this.lastReset = lastReset;
     }
 
     @Override

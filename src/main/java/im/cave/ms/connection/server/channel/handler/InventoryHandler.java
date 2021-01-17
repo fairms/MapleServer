@@ -623,7 +623,7 @@ public class InventoryHandler {
             player.consumeItem(itemId, 1);
         }
         c.announce(potionPot.updatePotionPot());
-        c.announce(potionPot.showPotionPotMsg((byte) 1, (byte) 3));
+        c.announce(potionPot.showPotionPotMsg(1, 3));
     }
 
     public static void handlePotionPotUseRequest(InPacket in, MapleClient c) {
@@ -639,9 +639,13 @@ public class InventoryHandler {
         PotionPot potionPot = player.getPotionPot();
         int healHp = player.getMaxHP() - player.getHp();
         int healMp = player.getMaxMP() - player.getHp();
+        if (healHp == 0 && healMp == 0) {
+            c.announce(potionPot.showPotionPotMsg(0, 0));
+            return;
+        }
         if (healHp > potionPot.getHp() && healMp > potionPot.getMp()) {
             c.announce(potionPot.updatePotionPot());
-            c.announce(potionPot.showPotionPotMsg((byte) 0, (byte) 6));
+            c.announce(potionPot.showPotionPotMsg(0, 6));
         }
     }
 
@@ -717,5 +721,19 @@ public class InventoryHandler {
         //01 01 00 00 00 02 00 00 00 64 95 4E 00 00 00 00发型相同 0x1e9
         List<Integer> options = new ArrayList<>();
         player.announce(NpcPacket.avatarChangeSelector(uPos, itemId, options));
+    }
+
+    public static void handlePotionPotAddRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(in.readInt());
+        short uPos = in.readShort();
+        int itemId = in.readInt();
+        in.readInt();
+        Item item = player.getCashInventory().getItem(uPos);
+        if (item.getItemId() != itemId) {
+            player.chatMessage("物品不存在");
+            return;
+        }
+        PotionPot potionPot = player.getPotionPot();
     }
 }

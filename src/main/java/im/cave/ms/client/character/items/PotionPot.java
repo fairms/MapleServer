@@ -7,6 +7,12 @@ import im.cave.ms.tools.DateUtil;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+
 import static im.cave.ms.constants.ServerConstants.MAX_TIME;
 
 
@@ -18,10 +24,13 @@ import static im.cave.ms.constants.ServerConstants.MAX_TIME;
  */
 @Setter
 @Getter
-public class PotionPot {
-    private int itemId;
+@PrimaryKeyJoinColumn(name = "itemId")
+@Entity
+@Table(name = "potion_pot")
+public class PotionPot extends Item {
     private int charId;
-    private int maxValue;
+    @Column(name = "`max`")
+    private int max;
     private int hp;
     private int mp;
     private long startTime;
@@ -30,20 +39,23 @@ public class PotionPot {
     public PotionPot(int itemId, int charId) {
         this.itemId = itemId;
         this.charId = charId;
-        this.maxValue = 1000000;
+        this.max = 1000000;
         this.startTime = DateUtil.getFileTime(System.currentTimeMillis());
         this.endTime = MAX_TIME;
     }
 
+    public PotionPot() {
+
+    }
+
     public OutPacket updatePotionPot() {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.POTION_POT_UPDATE.getValue());
+        OutPacket out = new OutPacket(SendOpcode.POTION_POT_UPDATE);
         encode(out);
         return out;
     }
 
 
-    public OutPacket showPotionPotMsg(byte type, byte reason) {
+    public OutPacket showPotionPotMsg(int type, int reason) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.POTION_POT_MESSAGE.getValue());
         out.write(type);
@@ -64,20 +76,25 @@ public class PotionPot {
     }
 
     public boolean addMaxValue() {
-        if (maxValue + 1000000 > GameConstants.POTION_POT_MAX_LIMIT) {
+        if (max + 1000000 > GameConstants.POTION_POT_MAX_LIMIT) {
             return false;
         }
-        maxValue += 1000000;
+        max += 1000000;
         return true;
     }
 
     public void encode(OutPacket out) {
         out.writeInt(getItemId());
         out.writeInt(getCharId());
-        out.writeInt(getMaxValue());
+        out.writeInt(getMax());
         out.writeInt(getHp());
         out.writeInt(getMp());
         out.writeLong(getStartTime());
         out.writeLong(getEndTime());
+    }
+
+    @Override
+    public Type getType() {
+        return Type.ITEM;
     }
 }

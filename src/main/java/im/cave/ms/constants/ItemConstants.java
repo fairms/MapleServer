@@ -38,6 +38,8 @@ import static im.cave.ms.enums.InventoryType.EQUIP;
 public class ItemConstants {
     private static final Logger log = LoggerFactory.getLogger(ItemConstants.class);
 
+    public static final int POTION_POT = 5820000;
+
     public static final int[] COMMODITY = {
             3100011,
             3100010,

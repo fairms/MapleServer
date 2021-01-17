@@ -1851,4 +1851,11 @@ public class MapleCharacter implements Serializable {
         out.write(0);
         out.writeInt(0);
     }
+
+    public void initPotionPot() {
+        Item pt = getCashInventory().getItemByItemID(ItemConstants.POTION_POT);
+        if (pt != null) {
+            setPotionPot((PotionPot) pt);
+        }
+    }
 }

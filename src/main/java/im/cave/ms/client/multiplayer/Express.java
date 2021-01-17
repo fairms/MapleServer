@@ -2,8 +2,11 @@ package im.cave.ms.client.multiplayer;
 
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.connection.netty.OutPacket;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -26,7 +29,8 @@ import javax.persistence.Table;
 @Setter
 @Entity
 @Table(name = "express")
-@Builder
+@Builder(toBuilder = true)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Express {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -417,6 +417,7 @@ public class WorldHandler {
                 c.announce(MessagePacket.mapleMessageResult(MapleMessageType.Res_Inbox, player.getInBox(), 0));
                 c.announce(MessagePacket.mapleMessageResult(MapleMessageType.Res_Outbox, player.getOutbox(), 0));
                 c.announce(MessagePacket.broadcastMsg(Config.worldConfig.getWorldInfo(player.getWorld()).server_message, BroadcastMsgType.SLIDE));
+                player.initPotionPot();
                 break;
             }
             case CASHSHOP:

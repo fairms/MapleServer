@@ -1,6 +1,7 @@
 package im.cave.ms.connection.server.channel;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
@@ -331,12 +332,15 @@ public class ChannelHandler extends AbstractServerHandler {
             case POTION_POT_USE_REQUEST:
                 InventoryHandler.handlePotionPotUseRequest(in, c);
                 break;
+            case POTION_POT_ADD_REQUEST:
+                InventoryHandler.handlePotionPotAddRequest(in, c);
+                break;
             case POTION_POT_INC_REQUEST:
                 InventoryHandler.handlePotionPotIncRequest(in, c);
                 break;
-//            case USER_OPEN_MYSTERY_EGG:
-//                InventoryHandler.handleUserOpenMysteryEgg(in, c);
-//                break;
+            case USER_OPEN_MYSTERY_EGG:
+                InventoryHandler.handleUserOpenMysteryEgg(in, c);
+                break;
             case SKILL_COMMAND_LOCK:
                 c.getPlayer().changeSkillState(in.readInt());
                 break;
