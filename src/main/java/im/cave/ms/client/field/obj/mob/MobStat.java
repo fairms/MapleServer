@@ -1,5 +1,7 @@
 package im.cave.ms.client.field.obj.mob;
 
+import im.cave.ms.client.character.temp.CharacterTemporaryStat;
+
 public enum MobStat {
     PAD(0),
     PDR(1),
@@ -13,7 +15,7 @@ public enum MobStat {
     Freeze(8),
     Poison(9),
     Seal(10),
-    Darkness(11),
+    Darkness(11), //定住 眩晕
     PowerUp(12),
     MagicUp(13),
     PGuardUp(14),
@@ -25,7 +27,7 @@ public enum MobStat {
     HardSkin(19),
     Ambush(20),
     Venom(21),
-    Blind(22),
+    Blind(26),//checked 致盲
     SealSkill(23),
 
     Dazzle(24),
@@ -102,7 +104,9 @@ public enum MobStat {
     Laser(87),
     ;
 
-    private int val, pos, bitPos;
+    private final int val;
+    private final int pos;
+    private int bitPos;
 
     MobStat(int val, int pos) {
         this.val = val;
@@ -144,5 +148,11 @@ public enum MobStat {
 
     public int getBitPos() {
         return bitPos;
+    }
+
+    public static void main(String[] args) {
+        for (MobStat stat : MobStat.values()) {
+            System.out.println(stat.toString() + " " + stat.getBitPos() + " " + Integer.toHexString(stat.getVal()) + " " + stat.getPos());
+        }
     }
 }

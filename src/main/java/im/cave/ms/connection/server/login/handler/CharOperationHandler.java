@@ -107,6 +107,7 @@ public class CharOperationHandler {
         in.skip(4);
         int curSelectedRace = in.readInt();
         JobConstants.JobEnum job = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginJob();
+        int mapId = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginMap();
         if (job == null) {
             c.announce(MessagePacket.broadcastMsg("未开放创建的职业", BroadcastMsgType.ALERT));
             return;
@@ -143,6 +144,7 @@ public class CharOperationHandler {
             chr.setFace(items[0]);
             chr.setHair(items[1]);
             chr.setCreatedTime(DateUtil.getFileTime(System.currentTimeMillis()));
+            chr.setMapId(mapId);
         }
         chr.setClient(c);
         chr.setAccount(c.getAccount());

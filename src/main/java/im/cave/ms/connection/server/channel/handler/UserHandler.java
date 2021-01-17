@@ -726,7 +726,7 @@ public class UserHandler {
     }
 
     public static void handleUserDamageSkinSaveRequest(InPacket in, MapleClient c) {
-        byte b = in.readByte(); //unk
+        boolean delete = in.readByte() != 0; //unk
         MapleCharacter player = c.getPlayer();
         DamageSkinSaveData damageSkin = player.getDamageSkin();
         DamageSkinType error = null;
@@ -736,9 +736,16 @@ public class UserHandler {
         if (error != null) {
             player.announce(UserPacket.damageSkinSaveResult(DamageSkinType.DamageSkinSaveReq_Reg, error, null));
         } else {
-            player.getDamageSkinByItemID(damageSkin.getItemID()).setNotSave(false);
-            player.announce(UserPacket.damageSkinSaveResult(DamageSkinType.DamageSkinSaveReq_Active,
-                    DamageSkinType.DamageSkinSave_Success, player));
+            if (!delete) {
+                player.getDamageSkinByItemID(damageSkin.getItemID()).setNotSave(false);
+                player.announce(UserPacket.damageSkinSaveResult(DamageSkinType.DamageSkinSaveReq_Active,
+                        DamageSkinType.DamageSkinSave_Success, player));
+            } else {
+                int skinId = in.readInt();
+                player.getDamageSkins().removeIf(dk -> dk.getDamageSkinID() == skinId);
+                player.announce(UserPacket.damageSkinSaveResult(DamageSkinType.DamageSkinSaveReq_Remove,
+                        DamageSkinType.DamageSkinSave_Success, player));
+            }
         }
     }
 

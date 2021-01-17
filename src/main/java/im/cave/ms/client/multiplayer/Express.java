@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.CascadeType;
@@ -41,7 +40,7 @@ public class Express {
     private String toChar;
     private long expiredDate;
     private String message;
-    private byte type;
+    private byte status;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "itemId")
     private Item item;
@@ -56,7 +55,7 @@ public class Express {
         this.toChar = toChar;
         this.expiredDate = expiredDate;
         this.message = message;
-        this.type = type;
+        this.status = type;
         this.item = item;
         this.meso = meso;
         this.createdDate = createdDate;
@@ -71,7 +70,7 @@ public class Express {
         out.writeAsciiString(getFromChar(), 13);
         out.writeLong(0); //unk
         out.writeLong(getExpiredDate());
-        out.write(getType());
+        out.write(getStatus());
         out.writeAsciiString(getMessage(), 100);
         out.writeZeroBytes(100);
         out.write(0);

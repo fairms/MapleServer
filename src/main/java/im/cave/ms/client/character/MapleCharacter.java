@@ -9,8 +9,10 @@ import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.items.PotionPot;
 import im.cave.ms.client.character.items.WishedItem;
+import im.cave.ms.client.character.job.GM;
 import im.cave.ms.client.character.job.JobManager;
 import im.cave.ms.client.character.job.MapleJob;
+import im.cave.ms.client.character.job.adventurer.Warrior;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
 import im.cave.ms.client.character.skill.Skill;
@@ -1363,6 +1365,10 @@ public class MapleCharacter implements Serializable {
             value.put(skill, "1");
         }
         addQuestExAndSendPacket(QUEST_EX_SKILL_STATE, value);
+        if (skillId == Warrior.HERO_COMBO_ATTACK) {
+            ((Warrior) getJobHandler()).comboCount.decrementAndGet();
+            ((Warrior) getJobHandler()).incCombo();
+        }
     }
 
     public void buildQuestEx() {

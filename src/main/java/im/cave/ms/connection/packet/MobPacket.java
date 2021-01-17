@@ -4,6 +4,7 @@ import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.mob.ForcedMobStat;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobSkillAttackInfo;
+import im.cave.ms.client.field.obj.mob.MobTemporaryStat;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.enums.RemoveMobType;
@@ -101,8 +102,7 @@ public class MobPacket {
     }
 
     public static OutPacket moveMobRemote(Mob mob, MobSkillAttackInfo msai, MovementInfo movementInfo) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.MOB_MOVE.getValue());
+        OutPacket out = new OutPacket(SendOpcode.MOB_MOVE);
         out.writeInt(mob.getObjectId());
         out.write(msai.actionAndDirMask);
         out.write(msai.action);
@@ -114,6 +114,21 @@ public class MobPacket {
         }
         movementInfo.encode(out);
         out.write(0);
+        return out;
+    }
+
+    public static OutPacket statSet(Mob mob, short delay) {
+        OutPacket out = new OutPacket(SendOpcode.MOB_STAT_SET);
+        MobTemporaryStat mts = mob.getTemporaryStat();
+        boolean hasMovementStat = mts.hasNewMovementAffectingStat();
+        out.writeInt(mob.getObjectId());
+        mts.encode(out);
+        out.writeShort(delay);
+        out.write(1); // nCalcDamageStatIndex
+        if (hasMovementStat) {
+            out.write(0); // ?
+        }
+
         return out;
     }
 }

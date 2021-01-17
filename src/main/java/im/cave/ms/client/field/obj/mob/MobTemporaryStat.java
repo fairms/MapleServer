@@ -110,7 +110,6 @@ public class MobTemporaryStat {
 
     public void encode(OutPacket outPacket) {
         synchronized (currentStatVals) {
-            // DecodeBuffer(12) + MobStat::DecodeTemporary
             int[] mask = getNewMask();
             for (int j : mask) {
                 outPacket.writeInt(j);
@@ -353,8 +352,8 @@ public class MobTemporaryStat {
             res[mobStat.getPos()] |= mobStat.getVal();
         }
         OutPacket outPacket = new OutPacket();
-        for (int i = 0; i < res.length; i++) {
-            outPacket.writeInt(res[i]);
+        for (int re : res) {
+            outPacket.writeInt(re);
         }
         return res;
     }

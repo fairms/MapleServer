@@ -1,5 +1,6 @@
 package im.cave.ms.client.field;
 
+import im.cave.ms.client.character.Clock;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.field.obj.Drop;
@@ -77,8 +78,13 @@ public class MapleMap {
     private String fieldScript = "";
     private int bossMobID;
     private int VrTop, VrBottom, VrLeft, VrRight;
-    private Map<MapleMapObj, ScheduledFuture> objScheduledFutures;
-    private ConcurrentHashMap<MapleMapObj, MapleCharacter> objControllers = new ConcurrentHashMap();
+    private Map<MapleMapObj, ScheduledFuture<MapleMapObj>> objScheduledFutures;
+    private ConcurrentHashMap<MapleMapObj, MapleCharacter> objControllers = new ConcurrentHashMap<>();
+    /*
+           时钟 :  1.地图 √
+                  2.角色
+     */
+    private Clock clock;
 
     public MapleMap(int id, int world, int channel) {
         this.id = id;

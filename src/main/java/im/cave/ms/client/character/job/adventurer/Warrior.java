@@ -67,7 +67,8 @@ public class Warrior extends Beginner {
     public static final int KNIGHT_CROSS_CHAIN = 1311015;
     public static final int KNIGHT_MAPLE_WARRIOR = 1321053;
 
-    private final AtomicInteger comboCount = new AtomicInteger(1);
+    public final AtomicInteger comboCount = new AtomicInteger(1);
+
     private Summon evilEye;
 
     private static final int[] buffs = new int[]{
@@ -124,13 +125,15 @@ public class Warrior extends Beginner {
             if (hasHitMobs) {
                 int comboProp = getComboProp(chr);
                 if (Util.succeedProp(comboProp)) {
-                    incCombo(chr);
+                    incCombo();
                 }
             }
         }
     }
 
-    private void incCombo(MapleCharacter chr) {
+
+    public void incCombo() {
+        MapleCharacter chr = getMapleCharacter();
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (!tsm.hasStat(ComboCounter)) {
             return;
@@ -143,7 +146,8 @@ public class Warrior extends Beginner {
         Option option = new Option();
         option.nOption = combo;
         option.rOption = HERO_COMBO_ATTACK;
-        if (chr.getQuestEx().containsKey(QUEST_EX_SKILL_STATE) && chr.getQuestEx().containsKey(HERO_COMBO_ATTACK)) {
+        if (chr.getQuestEx().containsKey(QUEST_EX_SKILL_STATE) &&
+                chr.getQuestEx().get(QUEST_EX_SKILL_STATE).containsKey(String.valueOf(HERO_COMBO_ATTACK))) {
             option.bOption = Integer.parseInt(chr.getQuestEx().get(QUEST_EX_SKILL_STATE).get(String.valueOf(HERO_COMBO_ATTACK)));
         }
         tsm.putCharacterStatValue(ComboCounter, option);
@@ -182,7 +186,8 @@ public class Warrior extends Beginner {
                 o.nOption = comboCount.get();
                 o.rOption = skillId;
                 o.tOption = 0;
-                if (chr.getQuestEx().containsKey(QUEST_EX_SKILL_STATE) && chr.getQuestEx().containsKey(HERO_COMBO_ATTACK)) {
+                if (chr.getQuestEx().containsKey(QUEST_EX_SKILL_STATE) &&
+                        chr.getQuestEx().get(QUEST_EX_SKILL_STATE).containsKey(String.valueOf(HERO_COMBO_ATTACK))) {
                     o.bOption = Integer.parseInt(chr.getQuestEx().get(QUEST_EX_SKILL_STATE).get(String.valueOf(HERO_COMBO_ATTACK)));
                 }
                 tsm.putCharacterStatValue(ComboCounter, o);
