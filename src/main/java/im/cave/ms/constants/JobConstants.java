@@ -215,11 +215,11 @@ public class JobConstants {
         CRUSADER(111, 0),
         HERO(112, 0),
         PAGE(120, 0),
-        WHITEKNIGHT(121, 0),
+        WHITE_KNIGHT(121, 0),
         PALADIN(122, 0),
         SPEARMAN(130, 0),
-        DRAGONKNIGHT(131, 0),
-        DARKKNIGHT(132, 0),
+        DRAGON_KNIGHT(131, 0),
+        DARK_KNIGHT(132, 0),
         MAGICIAN(200, 0),
         FP_WIZARD(210, 0),
         FP_MAGE(211, 0),
@@ -233,16 +233,20 @@ public class JobConstants {
         BOWMAN(300, 0),
         HUNTER(310, 0),
         RANGER(311, 0),
-        BOWMASTER(312, 0),
-        CROSSBOWMAN(320, 0),
+        BOW_MASTER(312, 0),
+        CROSS_BOWMAN(320, 0),
         SNIPER(321, 0),
         MARKSMAN(322, 0),
+        PATH_FINDER1(301, 0),
+        PATH_FINDER2(330, 0),
+        PATH_FINDER3(331, 0),
+        PATH_FINDER4(332, 0),
         THIEF(400, 0),
         ASSASSIN(410, 0),
         HERMIT(411, 0),
-        NIGHTLORD(412, 0),
+        NIGHT_LORD(412, 0),
         BANDIT(420, 0),
-        CHIEFBANDIT(421, 0),
+        CHIEF_BANDIT(421, 0),
         SHADOWER(422, 0),
         BLADE_RECRUIT(430, 0),
         BLADE_ACOLYTE(431, 0),
@@ -270,7 +274,6 @@ public class JobConstants {
         GUNSLINGER_NEW(590, 0),
         OUTLAW_NEW(591, 0),
         CORSAIR_NEW(592, 0),
-        // 580, 581, 582 - bucc
         MANAGER(800, 0),
         GM(900, 0),
         SUPER_GM(910, 0),
@@ -387,6 +390,7 @@ public class JobConstants {
         ANGELIC_BUSTER2(6510, 6001),
         ANGELIC_BUSTER3(6511, 6001),
         ANGELIC_BUSTER4(6512, 6001),
+        RIDE_SKILLS(8000, 0),
         ADDITIONAL_SKILLS(9000, 0),
         ZERO(10000, 10000),
         ZERO1(10100, 10000),
@@ -406,30 +410,25 @@ public class JobConstants {
         KINESIS_3(14211, 14000),
         KINESIS_4(14212, 14000),
         ILLIUM(15000, 15000),
-        ARK(15001, 15001),
         ILLIUM1(15200, 15000),
         ILLIUM2(15210, 15000),
         ILLIUM3(15211, 15000),
         ILLIUM4(15212, 15000),
+        ARK(15001, 15001),
         ARK1(15500, 15001),
         ARK2(15510, 15001),
         ARK3(15511, 15001),
         ARK4(15512, 15001),
-        FINDER(15002, 15002),
-        FINDER1(15600, 15002),
-        FINDER2(15600, 15002),
-        FINDER3(15600, 15002),
-        FINDER4(15600, 15002),
-        HOYOUNG(15003, 15003),
-        HOYOUNG1(15700, 15003),
-        HOYOUNG2(15700, 15003),
-        HOYOUNG3(15700, 15003),
-        HOYOUNG4(15700, 15003),
-        ADELE(15004, 15004),
-        ADELE1(15004, 15004),
-        ADELE2(15004, 15004),
-        ADELE3(15004, 15004),
-        ADELE4(15004, 15004),
+        HOYOUNG(16000, 16000),
+        HOYOUNG1(16400, 16000),
+        HOYOUNG2(16410, 16000),
+        HOYOUNG3(16411, 16000),
+        HOYOUNG4(16412, 16000),
+        ADELE(15002, 15002),
+        ADELE1(15100, 15002),
+        ADELE2(15110, 15002),
+        ADELE3(15111, 15002),
+        ADELE4(15112, 15002),
         EMPTY_0(30000, 0),
         V_SKILLS(40000, 0),
         EMPTY_2(40001, 0),
@@ -454,19 +453,26 @@ public class JobConstants {
         PINK_BEAN_EMPTY_14(800019, 13000),
         PINK_BEAN_EMPTY_15(800022, 13000);
 
-        //        @EnumValue
         private final short jobId;
-
+        private final int mapId;
         private final short beginnerJobId;
 
         JobEnum(short jobId, short beginnerJobId) {
             this.jobId = jobId;
             this.beginnerJobId = beginnerJobId;
+            this.mapId = 100000000;
+        }
+
+        JobEnum(int jobId, int beginnerJobId, int mapId) {
+            this.jobId = (short) jobId;
+            this.beginnerJobId = (short) beginnerJobId;
+            this.mapId = mapId;
         }
 
         JobEnum(int jobId, int beginnerJobId) {
             this((short) jobId, (short) beginnerJobId);
         }
+
 
         public short getJob() {
             return jobId;
@@ -480,11 +486,14 @@ public class JobConstants {
             return Arrays.stream(JobEnum.values()).filter(j -> j.getJob() == id).findAny().orElse(null);
         }
 
+        public int getMapId() {
+            return mapId;
+        }
     }
 
     public enum LoginJob {
         RESISTANCE(0, JobFlag.DISABLED, JobEnum.CITIZEN),
-        EXPLORER(1, JobFlag.ENABLED, JobEnum.BEGINNER),
+        EXPLORER(1, JobFlag.ENABLED, JobEnum.BEGINNER, 4000010),
         CYGNUS(2, JobFlag.ENABLED, JobEnum.NOBLESSE),
         ARAN(3, JobFlag.DISABLED, JobEnum.LEGEND),
         EVAN(4, JobFlag.DISABLED, JobEnum.EVAN_NOOB),
@@ -509,17 +518,25 @@ public class JobConstants {
         CADENA(23, JobFlag.DISABLED, JobEnum.CADENA),
         ILLIUM(24, JobFlag.DISABLED, JobEnum.ILLIUM),
         ARK(25, JobFlag.DISABLED, JobEnum.ARK),
-        FINDER(26, JobFlag.DISABLED, JobEnum.FINDER),
+        FINDER(26, JobFlag.DISABLED, JobEnum.BEGINNER),
         HOYOUNG(27, JobFlag.DISABLED, JobEnum.HOYOUNG),
         ADELE(28, JobFlag.DISABLED, JobEnum.ADELE);
 
-        private final int jobType, flag;
+        private final int jobType, flag, beginMap;
         private final JobEnum beginJob;
 
         LoginJob(int jobType, JobFlag flag, JobEnum beginJob) {
             this.jobType = jobType;
             this.flag = flag.getFlag();
             this.beginJob = beginJob;
+            this.beginMap = 100000000;
+        }
+
+        LoginJob(int jobType, JobFlag flag, JobEnum beginJob, int beginMap) {
+            this.jobType = jobType;
+            this.flag = flag.getFlag();
+            this.beginJob = beginJob;
+            this.beginMap = beginMap;
         }
 
         public int getJobType() {
@@ -532,6 +549,10 @@ public class JobConstants {
 
         public JobEnum getBeginJob() {
             return beginJob;
+        }
+
+        public int getBeginMap() {
+            return beginMap;
         }
 
         public enum JobFlag {
