@@ -3,6 +3,7 @@ package im.cave.ms.client.character.items;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.constants.GameConstants;
+import im.cave.ms.enums.InventoryType;
 import im.cave.ms.tools.DateUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
+import static im.cave.ms.client.character.items.Item.Type.ITEM;
 import static im.cave.ms.constants.ServerConstants.MAX_TIME;
 
 
@@ -36,16 +38,21 @@ public class PotionPot extends Item {
     private long startTime;
     private long endTime;
 
-    public PotionPot(int itemId, int charId) {
+    public PotionPot() {
+
+    }
+
+
+    //create a new Potion pot
+    public PotionPot(int itemId) {
         this.itemId = itemId;
-        this.charId = charId;
+        this.quantity = 1;
+        this.type = ITEM;
+        this.invType = InventoryType.CASH;
+        this.isCash = true;
         this.max = 1000000;
         this.startTime = DateUtil.getFileTime(System.currentTimeMillis());
         this.endTime = MAX_TIME;
-    }
-
-    public PotionPot() {
-
     }
 
     public OutPacket updatePotionPot() {

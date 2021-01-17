@@ -12,6 +12,7 @@ import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.items.PotionPot;
 import im.cave.ms.client.character.items.WishedItem;
 import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.client.character.potential.CharacterPotential;
@@ -42,6 +43,7 @@ import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
 import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.constants.GameConstants;
+import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.CashItemType;
@@ -1001,6 +1003,10 @@ public class UserHandler {
                 itemCopy.setCashItemSerialNumber(cashShop.getNextSerialNumber());
                 locker.putItem(itemCopy, 1);
                 player.announce(CashShopPacket.buyDone(account, itemCopy));
+                if (itemCopy.getItemId() == ItemConstants.POTION_POT) {
+                    ((PotionPot) itemCopy).setCharId(player.getId());
+                    player.announce(CashShopPacket.createPotionPotDone(((PotionPot) itemCopy)));
+                }
                 player.announce(CashShopPacket.queryCashResult(account));
                 break;
             }

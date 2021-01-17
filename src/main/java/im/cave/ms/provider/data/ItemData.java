@@ -5,6 +5,7 @@ import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.items.ItemOption;
 import im.cave.ms.client.character.items.ItemSkill;
 import im.cave.ms.client.character.items.PetItem;
+import im.cave.ms.client.character.items.PotionPot;
 import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
@@ -1076,6 +1077,10 @@ public class ItemData {
     public static Item getDeepCopyByItemInfo(ItemInfo itemInfo) {
         if (itemInfo == null) {
             return null;
+        }
+        if (itemInfo.getItemId() == ItemConstants.POTION_POT) {
+            //potion pot
+            return new PotionPot(ItemConstants.POTION_POT);
         }
         Item res = new Item();
         res.setItemId(itemInfo.getItemId());
