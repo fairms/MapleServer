@@ -112,6 +112,9 @@ public class UserRemote {
         out.writeBool(chr.isMarried());
         //todo marriage = true
         out.write(0); //making skill size
+        //9200
+        //9201
+        //9202
         out.writeMapleAsciiString("-"); //party name
         out.writeMapleAsciiString(""); // 联盟
         out.write(-1); //unk
@@ -126,9 +129,9 @@ public class UserRemote {
             out.write(petItem.getLevel());
             out.writeShort(petItem.getTameness());
             out.write(petItem.getRepleteness());
-            out.write(petItem.getPetSkill());
+            out.writeShort(petItem.getPetSkill());
             out.writeInt(chr.getPetEquip(pet.getIdx(), 0));
-            out.writeInt(chr.getPetEquip(pet.getIdx(), 1));
+            out.writeInt(petItem.getPetHue());
         }
         out.write(0); // SetPetInfo end
         Equip medal = chr.getEquippedEquip(BodyPart.Medal);

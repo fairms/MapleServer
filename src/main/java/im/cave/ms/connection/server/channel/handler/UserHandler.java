@@ -4,7 +4,6 @@ import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.Record;
 import im.cave.ms.client.RecordManager;
-import im.cave.ms.client.character.CharLook;
 import im.cave.ms.client.character.DamageSkinSaveData;
 import im.cave.ms.client.character.Macro;
 import im.cave.ms.client.character.MapleCharacter;
@@ -34,6 +33,7 @@ import im.cave.ms.client.multiplayer.party.PartyMember;
 import im.cave.ms.client.storage.Locker;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.CashShopPacket;
+import im.cave.ms.connection.packet.MessagePacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.connection.packet.WorldPacket;
@@ -354,7 +354,7 @@ public class UserHandler {
         int charId = in.readInt();
         MapleCharacter chr = player.getMap().getCharById(charId);
         if (chr == null) {
-            c.announce(WorldPacket.BroadcastMsg("角色不存在", BroadcastMsgType.ALERT));
+            c.announce(MessagePacket.broadcastMsg("角色不存在", BroadcastMsgType.ALERT));
             return;
         }
         c.announce(UserRemote.charInfo(chr));

@@ -966,7 +966,9 @@ public class Equip extends Item {
         out.writeShort(-1);
 
         out.writeInt(0);
-        out.writeLong(getId());
+        if (getCashItemSerialNumber() == 0) {
+            out.writeLong(getId());
+        }
         out.writeLong(0);
         out.writeLong(ZERO_TIME);
         out.writeZeroBytes(16); //grade

@@ -1,9 +1,11 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.multiplayer.MapleMessage;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.MapleMessageType;
 import im.cave.ms.enums.WhisperType;
 
@@ -50,6 +52,50 @@ public class MessagePacket {
         return out;
     }
 
+
+    public static OutPacket broadcastMsg(String content, BroadcastMsgType type) {
+        return broadcastMsg(content, 0, type, null);
+    }
+
+    public static OutPacket broadcastMsgWithItem(String content, int channel, BroadcastMsgType type, Item item) {
+        return broadcastMsg(content, channel, type, item);
+    }
+
+    public static OutPacket broadcastMsg(String content, int channel, BroadcastMsgType type, Item item) {
+        OutPacket out = new OutPacket(SendOpcode.BROADCAST_MSG);
+        out.write(type.getVal());
+        switch (type) {
+            case NOTICE:
+                break;
+            case ALERT:
+            case EVENT:
+                out.writeMapleAsciiString(content);
+                break;
+            case SLIDE:
+                out.write(1);
+                out.writeMapleAsciiString(content);
+                break;
+            case NOTICE_WITH_OUT_PREFIX:
+                out.writeMapleAsciiString(content);
+                out.writeInt(0);
+                break;
+            case PICKUP_ITEM_WORLD:
+                out.writeMapleAsciiString(content);
+                out.write(item.getItemId());
+                item.encode(out);
+                break;
+            case WITH_ITEM:
+                out.writeMapleAsciiString(content);
+                out.writeInt(item.getItemId());
+                out.writeInt(channel);
+                out.writeInt(3); //unk
+                item.encode(out);
+                break;
+        }
+        return out;
+    }
+
+
     public static OutPacket setAvatarMegaphone(MapleCharacter chr, int itemId, List<String> lines, boolean whisperIcon) {
         OutPacket out = new OutPacket(SendOpcode.SET_AVATAR_MEGAPHONE);
         out.writeInt(itemId);
@@ -64,12 +110,11 @@ public class MessagePacket {
         out.writeInt(0);//00 00 00 00
         out.write(1);  // 01
         out.writeInt(0); // 01 00 00 00  unk
-        out.writeInt(0); // 02 00 00 00 channel
+        out.writeInt(chr.getChannel()); // 02 00 00 00 channel
         out.writeBool(whisperIcon);
         chr.getCharLook().encode(out);
         return out;
     }
-
 
     public static OutPacket mapleMessageResult(MapleMessageType type, List<MapleMessage> messages, int param) {
         OutPacket out = new OutPacket(SendOpcode.MAPLE_MESSAGE);
@@ -104,4 +149,5 @@ public class MessagePacket {
         }
         return out;
     }
+
 }

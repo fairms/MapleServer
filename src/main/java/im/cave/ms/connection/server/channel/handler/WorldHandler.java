@@ -13,6 +13,7 @@ import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
+import im.cave.ms.client.multiplayer.Express;
 import im.cave.ms.client.multiplayer.MapleMessage;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.miniroom.ChatRoom;
@@ -21,6 +22,8 @@ import im.cave.ms.client.multiplayer.party.Party;
 import im.cave.ms.client.multiplayer.party.PartyMember;
 import im.cave.ms.client.multiplayer.party.PartyResult;
 import im.cave.ms.client.storage.Trunk;
+import im.cave.ms.configs.Config;
+import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.AndroidPacket;
 import im.cave.ms.connection.packet.CashShopPacket;
@@ -31,12 +34,15 @@ import im.cave.ms.connection.packet.QuestPacket;
 import im.cave.ms.connection.packet.SummonPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
 import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.SkillConstants;
+import im.cave.ms.enums.BroadcastMsgType;
+import im.cave.ms.enums.ExpressAction;
 import im.cave.ms.enums.StatMessageType;
 import im.cave.ms.enums.ChatRoomType;
 import im.cave.ms.enums.ChatType;
@@ -59,10 +65,12 @@ import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.image.DataBufferUShort;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -408,6 +416,7 @@ public class WorldHandler {
                 c.announce(MapleSignIn.signinInit());
                 c.announce(MessagePacket.mapleMessageResult(MapleMessageType.Res_Inbox, player.getInBox(), 0));
                 c.announce(MessagePacket.mapleMessageResult(MapleMessageType.Res_Outbox, player.getOutbox(), 0));
+                c.announce(MessagePacket.broadcastMsg(Config.worldConfig.getWorldInfo(player.getWorld()).server_message, BroadcastMsgType.SLIDE));
                 break;
             }
             case CASHSHOP:
@@ -893,5 +902,79 @@ public class WorldHandler {
                 player.announce(MessagePacket.mapleMessageResult(MapleMessageType.Res_Delete_Received_Success, null, msgId));
             }
         }
+    }
+
+    public static void handleMapleExpressRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        ExpressAction action = ExpressAction.getByVal(in.readByte());
+        if (action == null) {
+            player.dropMessage("error");
+            player.enableAction();
+            return;
+        }
+        switch (action) {
+            case Req_Load:
+                in.readShort(); // 01 00
+                in.readByte(); // 20
+                in.readInt(); // 01 00 00 00
+                player.announce(WorldPacket.expressResult(ExpressResult.initLocker(player)));
+                break;
+            case Req_PickUp:
+                int expressId = in.readInt();
+                Express express = Util.findWithPred(player.getExpresses(), e -> e.getId() == expressId);
+                //todo
+                player.getExpresses().removeIf(e -> e.getId() == expressId);
+                player.announce(WorldPacket.expressResult(ExpressResult.remove(expressId, 0)));
+                break;
+            case Req_Drop:
+                expressId = in.readInt();
+                player.getExpresses().removeIf(e -> e.getId() == expressId);
+                player.announce(WorldPacket.expressResult(ExpressResult.remove(expressId, 3)));
+                break;
+            case Req_Send_Normal:
+                InventoryType invType = InventoryType.getTypeById(in.readByte());
+                short pos = in.readShort();
+                Item item = null;
+                if (invType != null) {
+                    item = player.getInventory(invType).getItem(pos);
+                }
+                boolean hasItem = in.readShort() != 0;
+                if (hasItem && item == null) {
+                    player.dropMessage("hack");
+                    return;
+                }
+                int meso = in.readInt();
+                int cost = 5000;
+                if (meso > 0) {
+                    cost += meso * 0.05;
+                }
+                if (player.getMeso() <= cost) {
+                    player.enableAction();
+                    return;
+                }
+                player.deductMoney(cost);
+                String toCharName = in.readMapleAsciiString();
+
+                if (MapleCharacter.nameValidate(toCharName) != 1) {
+                    player.announce(WorldPacket.expressResult(ExpressResult.message(ExpressAction.Res_Please_Check_Name)));
+                    return;
+                }
+                MapleCharacter toChar = MapleCharacter.getCharByName(toCharName);
+                long now = DateUtil.getFileTime(System.currentTimeMillis());
+
+                express = Express.builder()
+                        .toId(toChar.getId()).toChar(toChar.getName())
+                        .fromId(player.getId()).fromChar(player.getName())
+                        .expiredDate(now + 30 * DateUtil.DAY)
+                        .message(null).meso(meso).item(item)
+                        .createdDate(now)
+                        .build();
+                DataBaseManager.saveToDB(express);
+                player.announce(WorldPacket.expressResult(ExpressResult.message(ExpressAction.Res_Send_Success)));
+                player.announce(WorldPacket.expressResult(ExpressResult.message(ExpressAction.Res_Send_Done)));
+                break;
+            case Req_Close_Dialog:
+        }
+
     }
 }

@@ -10,6 +10,7 @@ import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.BaseStat;
+import im.cave.ms.enums.Gender;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ItemGrade;
 import im.cave.ms.enums.ItemState;
@@ -86,6 +87,8 @@ public class ItemData {
     private static final MapleDataProvider itemData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Item.wz"));
     private static final MapleDataProvider etcData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Etc.wz"));
 
+    private static final Map<Gender, Integer> hairs = new HashMap<>();
+    private static final Map<Gender, Integer> faces = new HashMap<>();
     private static final Map<Integer, Equip> equips = new HashMap<>();
     private static final Map<Integer, ItemInfo> items = new HashMap<>();
     private static final Set<Integer> startItems = new HashSet<>();
@@ -1070,7 +1073,6 @@ public class ItemData {
         return ret;
     }
 
-
     public static Item getDeepCopyByItemInfo(ItemInfo itemInfo) {
         if (itemInfo == null) {
             return null;
@@ -1349,7 +1351,6 @@ public class ItemData {
         return snLookUp.get(itemId);
     }
 
-
     public static Android createAndroidFromItem(Equip androidEquip) {
         Android android = new Android();
         ItemInfo itemInfo = getItemInfoById(androidEquip.getItemId());
@@ -1565,7 +1566,6 @@ public class ItemData {
     private static void addPetInfo(PetInfo petInfo) {
         pets.put(petInfo.getItemID(), petInfo);
     }
-
 
     public static PetItem getPetDeepCopyFromID(int itemId) {
         PetInfo pi = getPetInfo(itemId);

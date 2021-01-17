@@ -26,6 +26,7 @@ import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
+import im.cave.ms.client.multiplayer.Express;
 import im.cave.ms.client.multiplayer.MapleMessage;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.miniroom.MiniRoom;
@@ -238,6 +239,9 @@ public class MapleCharacter implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "toId")
     private List<MapleMessage> InBox;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "toId")
+    private List<Express> expresses;
     /////////////////////////////////////////////////////////
     @Transient
     private MapleMap map;
@@ -259,6 +263,8 @@ public class MapleCharacter implements Serializable {
     private Map<Integer, Map<String, String>> questEx;
     @Transient
     private Map<Integer, Pair<Long, ScheduledFuture>> cooltimes;
+    @Transient
+    private Map<Integer, ScheduledFuture> schedules;
     @Transient
     private MapleJob jobHandler;
     @Transient
@@ -339,13 +345,20 @@ public class MapleCharacter implements Serializable {
         return (MapleCharacter) DataBaseManager.getObjFromDB(MapleCharacter.class, "name", name);
     }
 
+    /*
+        ret 0 角色名可用 1 角色已存在 2 角色名不可用
+     */
     public static int nameValidate(String name) {
-        MapleCharacter character = MapleCharacter.getCharByName(name);
-        if (character != null) {
-            return 1;
+        int ret = Pattern.compile("[a-zA-Z0-9\\u4e00-\\u9fa5]{2,12}").matcher(name).matches() ? 0 : 2;
+        if (ret == 0) {
+            MapleCharacter character = MapleCharacter.getCharByName(name);
+            if (character != null) {
+                ret = 1;
+            }
         }
-        return Pattern.compile("[a-zA-Z0-9\\u4e00-\\u9fa5]{2,12}").matcher(name).matches() ? 0 : 2;
+        return ret;
     }
+
 
     public static MapleCharacter getDefault(int jobId) {
         MapleCharacter character = new MapleCharacter();

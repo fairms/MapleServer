@@ -11,6 +11,7 @@ import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.PetPacket;
 import im.cave.ms.connection.packet.UserPacket;
+import im.cave.ms.connection.server.service.EventManager;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.QuestConstants;
 import im.cave.ms.enums.InventoryOperationType;
@@ -66,7 +67,7 @@ public class PetHandler {
             Pet pet = player.getPetByIdx(index);
             petItem.setActiveState((byte) 0);
             petItem.updateToChar(player);
-            player.getMap().broadcastMessage(PetPacket.petActivateChange(pet, false, (byte) 0));
+            player.getMap().broadcastMessage(PetPacket.petActivateChange(pet, false, (byte) 1));
         }
     }
 
@@ -147,9 +148,10 @@ public class PetHandler {
         player.setTick(in.readInt());
         boolean on = in.readByte() != 0;
         boolean channelChange = in.readByte() != 0;
-        int attribute = 0;
-        if (channelChange) {
-            attribute = in.readInt();
+        for (Pet pet : player.getPets()) {
+            PetItem petItem = pet.getPetItem();
+            petItem.setAttribute((short) (on ? 0 : 2));
+            petItem.updateToChar(player);
         }
         player.announce(PetPacket.cashPetPickUpOnOffResult(true, on));
     }

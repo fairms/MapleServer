@@ -22,11 +22,12 @@ public class PetPacket {
         out.writeInt(pet.getOwnerId());
         out.writeInt(pet.getIdx());
         out.writeBool(active);
-        out.write(0); //unk
         if (active) {
+            out.write(1); //unk
             pet.encode(out);
         } else {
             out.write(removedReason);
+            //1 肚子饿
         }
         return out;
     }
@@ -71,8 +72,8 @@ public class PetPacket {
 
     public static OutPacket cashPetPickUpOnOffResult(boolean changed, boolean on) {
         OutPacket out = new OutPacket(SendOpcode.CASH_PET_PICK_UP_ON_OFF_RESULT);
-        out.writeBool(changed);
         out.writeBool(on);
+        out.writeBool(changed);
         return out;
     }
 

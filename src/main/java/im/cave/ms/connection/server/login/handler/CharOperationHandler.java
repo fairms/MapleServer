@@ -8,14 +8,14 @@ import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.configs.Config;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.LoginPacket;
-import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.connection.packet.MessagePacket;
 import im.cave.ms.connection.server.Server;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
-import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.DateUtil;
 
@@ -63,7 +63,7 @@ public class CharOperationHandler {
         character.saveToDB();
         c.getAccount().removeChar(charId);
         c.announce(LoginPacket.deleteTime(charId));
-        c.announce(WorldPacket.BroadcastMsg("删除角色成功，请回到首页重新进入。", BroadcastMsgType.ALERT));
+        c.announce(MessagePacket.broadcastMsg("删除角色成功，请回到首页重新进入。", BroadcastMsgType.ALERT));
     }
 
     public static void handleCancelDelete(InPacket in, MapleClient c) {
@@ -108,7 +108,7 @@ public class CharOperationHandler {
         int curSelectedRace = in.readInt();
         JobConstants.JobEnum job = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginJob();
         if (job == null) {
-            c.announce(WorldPacket.BroadcastMsg("未开放创建的职业", BroadcastMsgType.ALERT));
+            c.announce(MessagePacket.broadcastMsg("未开放创建的职业", BroadcastMsgType.ALERT));
             return;
         }
         subJob = in.readShort();
@@ -121,13 +121,13 @@ public class CharOperationHandler {
         }
         for (int item : items) {
             if (!ItemData.getStartItems().contains(item)) {
-                c.announce(WorldPacket.BroadcastMsg("检测到非法初始道具!", BroadcastMsgType.ALERT));
+                c.announce(MessagePacket.broadcastMsg("检测到非法初始道具!", BroadcastMsgType.ALERT));
                 c.close();
             }
         }
         MapleCharacter chr = MapleCharacter.getDefault(job.getJob());
         if (chr == null) {
-            c.announce(WorldPacket.BroadcastMsg("角色创建异常,请联系管理员", BroadcastMsgType.ALERT));
+            c.announce(MessagePacket.broadcastMsg("角色创建异常,请联系管理员", BroadcastMsgType.ALERT));
             return;
         }
         {
@@ -150,7 +150,7 @@ public class CharOperationHandler {
         chr.getAccount().addChar(chr);
         chr.saveToDB(); //先保存角色
         for (int id : items) {
-            Equip equip = ItemData.getEquipById(id);
+            Equip equip = ItemData.getEquipDeepCopyFromID(id, false);
             if (equip != null && ItemConstants.isEquip(id)) {
                 equip.setPos(ItemConstants.getBodyPartFromItem(id, gender));
                 equip.setQuantity(1);

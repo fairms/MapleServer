@@ -1,9 +1,7 @@
 package im.cave.ms.scripting.map;
 
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.FieldEffect;
-import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.enums.FieldEffectType;
 import im.cave.ms.scripting.AbstractPlayerInteraction;

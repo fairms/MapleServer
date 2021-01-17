@@ -3,7 +3,6 @@ package im.cave.ms.connection.server.channel.handler;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.InventoryOperation;
@@ -15,12 +14,13 @@ import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.connection.netty.InPacket;
+import im.cave.ms.connection.packet.MessagePacket;
 import im.cave.ms.connection.packet.NpcPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.UserRemote;
-import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.EquipSpecialAttribute;
@@ -29,7 +29,6 @@ import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ItemGrade;
 import im.cave.ms.enums.ScrollStat;
-import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.SpecStat;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.StringData;
@@ -39,7 +38,6 @@ import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -472,43 +470,14 @@ public class InventoryHandler {
             int gender = ii.getGender();
             boolean choice = ii.isChoice();
             int incCharmExp = ii.getIncCharmExp();
+            String script = String.format("cash_%d", itemId);
             if (gender != 2 && gender != player.getGender()) {
-                player.announce(WorldPacket.BroadcastMsg("性别不符", BroadcastMsgType.ALERT));
+                player.announce(MessagePacket.broadcastMsg("性别不符", BroadcastMsgType.ALERT));
                 player.enableAction();
                 return;
             }
-            List<Integer> items = Collections.emptyList();
-            int before = 0;
-            int select;
-            short bodyPart = 0;
-            if (choice) {
-                select = in.readInt();
-            } else {
-                select = Util.getRandomFromCollection(items);
-            }
-            switch (itemId / 1000) {
-                case 5150:
-                case 5151:
-                    before = player.getHair();
-                    bodyPart = (short) Stat.HAIR.getValue();
-                    player.setHair(select);
-                    break;
-                case 5152:
-                    before = player.getFace();
-                    bodyPart = (short) Stat.FACE.getValue();
-                    player.setFace(select);
-                    break;
-                case 5153:
-                    before = (int) Stat.SKIN.getValue();
-                    player.setSkin((byte) select);
-                    break;
-                case 5154:
-                case 5155:
-                case 5157:
-                    break;
-            }
-            player.announce(NpcPacket.avatarChangedResult(itemId, bodyPart, before, select));
-            player.announce(UserPacket.characterModified(player));
+            ItemScriptManager.getInstance().startScript(itemId, script, 0, c);
+            return;
         }
         switch (itemId) {
             case Item_Tag: {

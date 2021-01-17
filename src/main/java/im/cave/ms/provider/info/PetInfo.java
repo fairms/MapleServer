@@ -71,6 +71,7 @@ public class PetInfo {
         petItem.setName(StringData.getPetNameById(getItemID()));
         petItem.setLevel((byte) 1);
         petItem.setPetHue(-1);
+        petItem.setGiantRate((short) 100);
         long expireTime = LocalDateTime.now().plusDays(getLife()).toInstant(ZoneOffset.of("+8")).toEpochMilli();
         petItem.setExpireTime(getLife() == 0 ? MAX_TIME : DateUtil.getFileTime(expireTime));
         if (isPickupItem()) {

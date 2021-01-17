@@ -9,5 +9,5 @@ package im.cave.ms.enums;
 public enum Gender {
     Male,
     Female,
-    ;
+    All;
 }

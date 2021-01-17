@@ -11,11 +11,13 @@ import im.cave.ms.client.field.FieldEffect;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.Drop;
+import im.cave.ms.client.multiplayer.Express;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.party.PartyResult;
 import im.cave.ms.client.storage.Trunk;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
+import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DimensionalMirror;
@@ -24,7 +26,6 @@ import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.FriendType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
-import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.enums.UIType;
 import im.cave.ms.tools.DateUtil;
@@ -270,49 +271,6 @@ public class WorldPacket {
         out.writeShort(SendOpcode.CHAT_MSG.getValue());
         out.writeShort(type.getVal());
         out.writeMapleAsciiString(content);
-        return out;
-    }
-
-    public static OutPacket BroadcastMsg(String content, BroadcastMsgType type) {
-        return BroadcastMsg(content, 0, type, null);
-    }
-
-    public static OutPacket serverMsgWithItem(String content, int channel, BroadcastMsgType type, Item item) {
-        return BroadcastMsg(content, channel, type, item);
-    }
-
-    public static OutPacket BroadcastMsg(String content, int channel, BroadcastMsgType type, Item item) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.BROADCAST_MSG.getValue());
-        out.write(type.getVal());
-        switch (type) {
-            case NOTICE:
-                break;
-            case ALERT:
-            case EVENT:
-                out.writeMapleAsciiString(content);
-                break;
-            case SLIDE:
-                out.write(1);
-                out.writeMapleAsciiString(content);
-                break;
-            case NOTICE_WITH_OUT_PREFIX:
-                out.writeMapleAsciiString(content);
-                out.writeInt(0);
-                break;
-            case PICKUP_ITEM_WORLD:
-                out.writeMapleAsciiString(content);
-                out.write(item.getItemId());
-                item.encode(out);
-                break;
-            case WITH_ITEM:
-                out.writeMapleAsciiString(content);
-                out.writeInt(item.getItemId());
-                out.writeInt(channel);
-                out.writeInt(3); //unk
-                item.encode(out);
-                break;
-        }
         return out;
     }
 
@@ -797,6 +755,34 @@ public class WorldPacket {
         out.writeInt(chr.getId());
         out.writeInt(chr.getHp());
         out.writeInt(chr.getMaxHP());
+        return out;
+    }
+
+    public static OutPacket expressResult(ExpressResult result) {
+        OutPacket out = new OutPacket(SendOpcode.EXPRESS);
+        out.write(result.getAction().getVal());
+        switch (result.getAction()) {
+            case Res_New_Msg:
+                out.writeMapleAsciiString(result.getFromName());
+                out.write(result.getArg1());
+                break;
+            case Res_Open_Dialog:
+                out.write(result.getArg1());
+                break;
+            case Res_Init_Locker:
+                MapleCharacter chr = result.getChr();
+                out.write(0);
+                out.write(chr.getExpresses().size());
+                for (Express express : chr.getExpresses()) {
+                    express.encode(out);
+                }
+                out.write(0);
+                break;
+            case Res_Remove_Done:
+                out.writeInt(result.getArg1());
+                out.write(result.getArg2());
+                break;
+        }
         return out;
     }
 }

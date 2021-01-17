@@ -203,6 +203,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case TRUNK_OPERATION:
                 WorldHandler.handleTrunkOperation(in, c);
                 break;
+            case EXPRESS_REQUEST:
+                WorldHandler.handleMapleExpressRequest(in, c);
+                break;
             case CHAR_HIT:
                 UserHandler.handleHit(in, c);
                 break;

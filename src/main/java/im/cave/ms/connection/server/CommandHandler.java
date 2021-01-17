@@ -8,6 +8,7 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.packet.MessagePacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.server.channel.MapleChannel;
@@ -98,7 +99,7 @@ public class CommandHandler {
                 c.getPlayer().setConversation(false);
                 QuestScriptManager.getInstance().dispose(c);
                 c.announce(UserPacket.enableActions());
-                c.announce(WorldPacket.BroadcastMsg("[提示] 解卡操作已处理", BroadcastMsgType.NOTICE_WITH_OUT_PREFIX));
+                c.announce(MessagePacket.broadcastMsg("[提示] 解卡操作已处理", BroadcastMsgType.NOTICE_WITH_OUT_PREFIX));
                 break;
             case "item":
                 if (s.length < 2) {
@@ -106,7 +107,7 @@ public class CommandHandler {
                 }
                 int itemId = Integer.parseInt(s[1]);
                 if (ItemConstants.isEquip(itemId)) {
-                    Equip equip = ItemData.getEquipFromWz(itemId);
+                    Equip equip = ItemData.getEquipDeepCopyFromID(itemId, false);
                     if (equip == null) {
                         return;
                     }
