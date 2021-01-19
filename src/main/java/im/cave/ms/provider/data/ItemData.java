@@ -1034,6 +1034,10 @@ public class ItemData {
         return startItems;
     }
 
+    public static Item getItemCopy(int itemId) {
+        return getItemCopy(itemId, false);
+    }
+
     public static Item getItemCopy(int itemId, boolean randomize) {
         if (ItemConstants.isEquip(itemId)) {
             return getEquipDeepCopyFromID(itemId, randomize);
@@ -1342,6 +1346,11 @@ public class ItemData {
             itemInfo = oldCashItems.get(sn);
         }
         return itemInfo;
+    }
+
+
+    public static Map<Integer, FamiliarInfo> getFamiliars() {
+        return familiars;
     }
 
     public static FamiliarInfo getFamiliarInfo(int itemId) {

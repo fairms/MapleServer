@@ -735,5 +735,6 @@ public class InventoryHandler {
             return;
         }
         PotionPot potionPot = player.getPotionPot();
+        player.announce(potionPot.showPotionPotMsg(2, 0));
     }
 }

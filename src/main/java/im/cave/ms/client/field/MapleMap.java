@@ -516,4 +516,8 @@ public class MapleMap {
     public MapleCharacter getCharById(int charId) {
         return Util.findWithPred(characters, character -> character.getId() == charId);
     }
+
+    public MapleCharacter getCharByName(String name) {
+        return Util.findWithPred(characters, character -> character.getName().equals(name));
+    }
 }

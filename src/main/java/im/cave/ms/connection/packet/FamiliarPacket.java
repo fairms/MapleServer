@@ -1,0 +1,178 @@
+package im.cave.ms.connection.packet;
+
+import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.obj.Familiar;
+import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.packet.opcode.SendOpcode;
+import im.cave.ms.tools.HexTool;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * @author fair
+ * @version V1.0
+ * @Package im.cave.ms.connection.packet
+ * @date 1/18 21:51
+ */
+public class FamiliarPacket {
+    public static OutPacket familiarResult(MapleCharacter chr, byte type, OutPacket action, Familiar familiar) {
+        OutPacket out = new OutPacket(SendOpcode.FAMILIAR);
+        out.writeInt(chr.getId());
+        out.write(type); // 5 7
+        switch (type) {
+            case 5:
+                byte[] data = action.getData();
+                out.writeShort(data.length);
+                out.write(data);
+                break;
+            case 7:
+                out.writeInt(familiar.getObjectId());
+                out.writeInt(-1692623269);
+                out.writeInt(chr.getAccId());
+                out.writeInt(chr.getId());
+                out.write(1);
+                out.writeShort(2);
+                out.writeInt(chr.getAccId());
+                out.writeInt(chr.getId());
+                out.writeShort(3);
+                out.writeInt(1);
+                out.writeShort(4);
+                out.writeLong(7);
+                out.writeInt(2);
+                out.writeInt(familiar.getFamiliarId());
+                out.writeZeroBytes(14);
+
+                break;
+        }
+        return out;
+    }
+
+    public static OutPacket updateFamiliars(MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.FAMILIAR);
+        out.writeInt(chr.getId());
+        out.write(7);
+        out.writeInt(1);
+        out.writeInt(-1723358014);
+        out.writeInt(chr.getAccId());
+        out.writeInt(chr.getId());
+        out.write(1);
+        out.writeShort(5); //all familiar
+        List<Familiar> familiars = chr.getFamiliars();
+        out.writeShort(familiars.size());
+        int i = 1;
+        for (Familiar familiar : familiars) {
+            out.writeShort(i);
+            out.writeLong(i);
+            out.writeInt(2);
+            out.writeInt(familiar.getFamiliarId());
+            out.writeAsciiString(familiar.getName(), 13);
+            out.write(0);
+            out.writeShort(familiar.getLevel());
+            out.writeShort(familiar.getSkill());
+            out.writeShort(131);
+            out.writeInt(familiar.getExp());
+            out.writeShort(familiar.getLevel());
+            out.writeShort(familiar.getOption1());
+            out.writeShort(familiar.getOption2());
+            out.writeShort(familiar.getOption3());
+            out.write(8);
+            out.write(familiar.getGrade());
+            out.writeInt(82009);
+            out.writeShort(0);
+        }
+        out.writeInt(0);
+        out.write(0);
+        return out;
+    }
+
+    public static OutPacket revealFamiliars(List<Familiar> familiars) {
+        OutPacket out = new OutPacket();
+        out.writeInt(1);
+        out.writeShort(11);
+        out.write(6);
+        for (Familiar familiar : familiars) {
+            out.writeInt(familiar.getFamiliarId());
+            out.write(familiar.getGrade());
+            out.writeInt(0);
+        }
+        return out;
+    }
+
+
+    public static void encode(OutPacket out, List<Short> parts, MapleCharacter chr) {
+
+      //12 D5 5A 82
+        for (Short part : parts) {
+            out.writeShort(part);
+            switch (part) {
+                case 0:
+                    out.write(HexTool.getByteArrayFromHexString("C2 A4 47 99"));
+                    out.writeInt(chr.getAccId());
+                    out.writeInt(chr.getId());
+                    out.write(1);
+                    break;
+                case 1:
+                    out.writeZeroBytes(20);
+                    break;
+                case 2:
+                    out.writeInt(chr.getAccId());
+                    out.writeInt(chr.getId());
+                    break;
+                case 3:
+                    out.writeInt(1);
+                    break;
+                case 4:
+                    out.writeInt(0); //当前召唤的怪怪
+                    //
+                case 5:
+                    List<Familiar> familiars = chr.getFamiliars();
+                    out.writeShort(familiars.size());
+                    int i = 1;
+                    for (Familiar familiar : familiars) {
+                        out.writeShort(i);
+                        out.writeLong(i);
+                        out.writeInt(2);
+                        out.writeInt(familiar.getFamiliarId());
+                        out.writeAsciiString(familiar.getName(), 13);
+                        out.write(0);
+                        out.writeShort(familiar.getLevel());
+                        out.writeShort(familiar.getSkill());
+                        out.writeShort(131);
+                        out.writeInt(familiar.getExp());
+                        out.writeShort(familiar.getLevel());
+                        out.writeShort(familiar.getOption1());
+                        out.writeShort(familiar.getOption2());
+                        out.writeShort(familiar.getOption3());
+                        out.write(8);
+                        out.write(familiar.getGrade());
+                        out.writeInt(82009);
+                        out.writeShort(0);
+                    }
+                    out.writeShort(0);
+                    break;
+                case 7:
+                    out.writeShort(0);
+                    break;
+                case 8:
+                    List<Integer> ll = Arrays.asList(1, 2, 3);
+                    out.writeShort(ll.size());
+                    for (Integer integer : ll) {
+                        out.writeInt(integer);
+                    }
+                    out.writeShort(0);
+                    break;
+                case 11:
+                    out.write(HexTool.getByteArrayFromHexString("91 02 A1 D4"));
+                    break;
+                case 12:
+                    out.writeZeroBytes(7);
+                    out.writeInt(2);
+
+            }
+        }
+    }
+
+
+}

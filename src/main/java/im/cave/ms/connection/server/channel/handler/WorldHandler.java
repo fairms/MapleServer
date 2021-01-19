@@ -11,6 +11,7 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Android;
+import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.multiplayer.Express;
@@ -27,6 +28,7 @@ import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.AndroidPacket;
 import im.cave.ms.connection.packet.CashShopPacket;
+import im.cave.ms.connection.packet.FamiliarPacket;
 import im.cave.ms.connection.packet.LoginPacket;
 import im.cave.ms.connection.packet.MessagePacket;
 import im.cave.ms.connection.packet.MiniRoomPacket;
@@ -42,11 +44,10 @@ import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.BroadcastMsgType;
-import im.cave.ms.enums.ExpressAction;
-import im.cave.ms.enums.StatMessageType;
 import im.cave.ms.enums.ChatRoomType;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DimensionalMirror;
+import im.cave.ms.enums.ExpressAction;
 import im.cave.ms.enums.FieldOption;
 import im.cave.ms.enums.FriendFlag;
 import im.cave.ms.enums.FriendType;
@@ -56,6 +57,7 @@ import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MapleMessageType;
 import im.cave.ms.enums.PartyType;
 import im.cave.ms.enums.ServerType;
+import im.cave.ms.enums.StatMessageType;
 import im.cave.ms.enums.TradeRoomType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.provider.data.ItemData;
@@ -65,12 +67,10 @@ import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.image.DataBufferUShort;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -977,5 +977,60 @@ public class WorldHandler {
             case Req_Close_Dialog:
         }
 
+    }
+
+    public static void handleCheckTrickOrTreatRequest(InPacket in, MapleClient c) {
+        String charName = in.readMapleAsciiString();
+        MapleCharacter player = c.getPlayer();
+        MapleCharacter chr = player.getMap().getCharByName(charName);
+        c.announce(WorldPacket.checkTrickOrTreatResult(chr != null));
+    }
+
+    public static void handleFamiliarRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        Familiar familiar = player.getFamiliar();
+        in.readByte(); // 5  未知
+        short size = in.readShort();
+        if (in.available() != size) {
+            return;
+        }
+        int act = in.readInt();
+        switch (act) {
+            case 1: //active
+                short type = in.readShort();
+                switch (type) {
+                    case 1: //召唤
+                        int idx = in.readInt();
+                        in.readInt();
+                        break;
+                    case 2: //收回
+                        break;
+                    case 3: //背包->怪怪图鉴
+                        int pos = in.readInt();
+                        break;
+                }
+                break;
+            case 5:
+                in.readShort();
+                in.readInt();
+                in.readShort();
+                short pos = in.readShort();
+                in.readShort();
+                Item item = player.getConsumeInventory().getItem(pos);
+                familiar = item.getFamiliar();
+                player.consumeItem(item);
+                player.addFamiliar(familiar);
+                player.announce(FamiliarPacket.updateFamiliars(player));
+                break;
+            case 4:
+            case 9: //move
+                short s1 = in.readShort();
+                byte b1 = in.readByte();
+                MovementInfo movementInfo = new MovementInfo(in);
+                movementInfo.applyTo(familiar);
+                byte b2 = in.readByte();
+                player.chatMessage(String.format("s1=%s,b1=%s,b2=%s", s1, b1, b2));
+                break;
+        }
     }
 }

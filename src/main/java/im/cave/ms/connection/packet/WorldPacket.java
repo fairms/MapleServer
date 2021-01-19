@@ -31,6 +31,7 @@ import im.cave.ms.enums.UIType;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Randomizer;
+import im.cave.ms.tools.StringUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -129,7 +130,7 @@ public class WorldPacket {
 
     public static OutPacket initFamiliar(MapleCharacter chr) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.FAMILIAR_OPERATION.getValue());
+        out.writeShort(SendOpcode.FAMILIAR.getValue());
         out.write(7);
         out.writeInt(chr.getId());
         out.writeInt(1);
@@ -575,7 +576,9 @@ public class WorldPacket {
         out.write(0);
         out.write(0);
         out.writeInt(1051291);
-        out.writeZeroBytes(31);
+        out.writeZeroBytes(29);
+        out.writeMapleAsciiString(String.valueOf(chr.getWorld() + "-" + StringUtil.getLeftPaddedStr(String.valueOf(chr.getId()), '0', 6)));
+        out.writeInt(0);
         return out;
     }
 
@@ -783,6 +786,12 @@ public class WorldPacket {
                 out.write(result.getArg2());
                 break;
         }
+        return out;
+    }
+
+    public static OutPacket checkTrickOrTreatResult(boolean b) {
+        OutPacket out = new OutPacket(SendOpcode.CHECK_TRICK_OR_TREAT_RESULT);
+        out.writeBool(b);
         return out;
     }
 }

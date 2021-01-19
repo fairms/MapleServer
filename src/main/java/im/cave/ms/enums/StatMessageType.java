@@ -13,7 +13,7 @@ public enum StatMessageType {
     INC_COMMITMENT_MESSAGE(8),
     GIVE_BUFF_MESSAGE(9),
     GENERAL_ITEM_EXPIRE_MESSAGE(10),  //道具过期 10
-    SYSTEM_MESSAGE(12),
+    SYSTEM_MESSAGE(11),
     // 13
     QUEST_RECORD_EX_MESSAGE(13), // QUEST_EX
     WORLD_SHARE_RECORD_MESSAGE(14),
@@ -47,6 +47,7 @@ public enum StatMessageType {
     RANDOM_CHANCE_MESSAGE(42),
     EXPIRED_QUEST_RESULT_MESSAGE(43),
     MULTI_QUEST_EX(46), //maybe
+    MAKE_ACHIEVEMENT(47), //2F 01 00 00 00 9F 00 00 00
     ;
 
     private final byte val;

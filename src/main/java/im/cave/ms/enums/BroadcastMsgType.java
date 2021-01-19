@@ -44,7 +44,11 @@ public enum BroadcastMsgType {
     UNK33(33),
     WITH_ITEM(34),
     UNK35(35),
-    UNK36(36);
+    UNK36(36),
+    PINK(40),
+    YELLOW_BLACK(50),
+    LOVE(51),
+    ;
     private final byte val;
 
     BroadcastMsgType(int val) {

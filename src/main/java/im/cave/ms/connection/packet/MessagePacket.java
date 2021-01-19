@@ -8,6 +8,7 @@ import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.MapleMessageType;
 import im.cave.ms.enums.WhisperType;
+import im.cave.ms.provider.data.StringData;
 
 import java.util.List;
 
@@ -54,14 +55,14 @@ public class MessagePacket {
 
 
     public static OutPacket broadcastMsg(String content, BroadcastMsgType type) {
-        return broadcastMsg(content, 0, type, null);
+        return broadcastMsg(null, content, type, null);
     }
 
-    public static OutPacket broadcastMsgWithItem(String content, int channel, BroadcastMsgType type, Item item) {
-        return broadcastMsg(content, channel, type, item);
+    public static OutPacket broadcastMsgWithItem(MapleCharacter chr, String content, BroadcastMsgType type, Item item) {
+        return broadcastMsg(chr, content, type, item);
     }
 
-    public static OutPacket broadcastMsg(String content, int channel, BroadcastMsgType type, Item item) {
+    public static OutPacket broadcastMsg(MapleCharacter chr, String content, BroadcastMsgType type, Item item) {
         OutPacket out = new OutPacket(SendOpcode.BROADCAST_MSG);
         out.write(type.getVal());
         switch (type) {
@@ -84,13 +85,42 @@ public class MessagePacket {
                 out.write(item.getItemId());
                 item.encode(out);
                 break;
-            case WITH_ITEM:
+            case ITEM_SPEAKER: //check  5076100 超级喇叭
+                out.writeMapleAsciiString(String.format("%s: %s", chr.getName(), content));
+                out.writeMapleAsciiString(chr.getName());
+                out.writeMapleAsciiString(content);
+                out.writeLong(0); //喇叭itemId
+                out.write(chr.getWorld());
+                out.writeInt(chr.getId()); //unk 8025765
+                out.write(chr.getChannel());
+                out.writeBool(true);
+                out.writeInt(5076100);
+                out.writeBool(item != null);
+                if (item != null) {
+                    item.encode(out);
+                    out.writeMapleAsciiString(StringData.getEquipName(item.getItemId()));
+                }
+                break;
+            case WITH_ITEM:// check
                 out.writeMapleAsciiString(content);
                 out.writeInt(item.getItemId());
-                out.writeInt(channel);
-                out.writeInt(3); //unk
+                out.writeInt(chr.getChannel());
+                out.writeInt(3); //unk color?
+                out.writeBool(true);
                 item.encode(out);
                 break;
+            case PINK:
+            case YELLOW_BLACK:
+            case LOVE:
+                out.writeMapleAsciiString(String.format("%s: %s", chr.getName(), content));
+                out.writeMapleAsciiString(chr.getName());
+                out.writeMapleAsciiString(content);
+                out.writeLong(0);
+                out.write(chr.getWorld());
+                out.writeInt(chr.getId());
+                out.write(chr.getChannel());
+                out.write(1);
+
         }
         return out;
     }
@@ -108,8 +138,8 @@ public class MessagePacket {
         out.writeMapleAsciiString(msg);
         out.writeInt(0); //00 00 00 00
         out.writeInt(0);//00 00 00 00
-        out.write(1);  // 01
-        out.writeInt(0); // 01 00 00 00  unk
+        out.write(chr.getWorld());  // 01
+        out.writeInt(chr.getId()); // 01 00 00 00  unk
         out.writeInt(chr.getChannel()); // 02 00 00 00 channel
         out.writeBool(whisperIcon);
         chr.getCharLook().encode(out);

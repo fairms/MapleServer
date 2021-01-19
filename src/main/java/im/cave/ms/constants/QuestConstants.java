@@ -29,6 +29,8 @@ public class QuestConstants {
     public static final int QUEST_EX_NICK_ITEM = 19019;
     //灵魂武器特效
     public static final int QUEST_EX_SOUL_EFFECT = 26535;
+    //怪物收藏数量
+    public static final int QUEST_EX_COLLECTION_COUNT = 18821; //count=27
     //超时空卷
     public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_MAX = 16700;
     public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED = 999991; //count=0;date=20210112

@@ -9,7 +9,6 @@ import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.items.PotionPot;
 import im.cave.ms.client.character.items.WishedItem;
-import im.cave.ms.client.character.job.GM;
 import im.cave.ms.client.character.job.JobManager;
 import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.client.character.job.adventurer.Warrior;
@@ -52,7 +51,6 @@ import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.BodyPart;
-import im.cave.ms.enums.StatMessageType;
 import im.cave.ms.enums.CashShopCurrencyType;
 import im.cave.ms.enums.CharMask;
 import im.cave.ms.enums.ChatType;
@@ -63,6 +61,7 @@ import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.enums.SpecStat;
+import im.cave.ms.enums.StatMessageType;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.ItemInfo;
@@ -225,7 +224,7 @@ public class MapleCharacter implements Serializable {
     private Map<Integer, String> questsExStorage;
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Familiar> familiars;
+    private List<Familiar> familiars;
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Macro> macros;
@@ -327,7 +326,8 @@ public class MapleCharacter implements Serializable {
     private PotionPot potionPot;
     @Transient
     private RecordManager recordManager;
-
+    @Transient
+    private Familiar familiar;
 
     public MapleCharacter() {
         temporaryStatManager = new TemporaryStatManager(this);
@@ -1488,7 +1488,7 @@ public class MapleCharacter implements Serializable {
     public DamageSkinSaveData getDamageSkin() {
         if (damageSkin == null) {
             Quest quest = questManager.getQuestById(QUEST_DAMAGE_SKIN);
-            DamageSkinSaveData defaultSkin = new DamageSkinSaveData(0, 0, false, "");
+            DamageSkinSaveData defaultSkin = new DamageSkinSaveData(0, 2438159, false, "基本伤害皮肤。\\r\\n\\r\\n\\r\\n\\r\\n\\r\\n");
             if (quest == null) {
                 damageSkin = defaultSkin;
             } else {
@@ -1863,5 +1863,9 @@ public class MapleCharacter implements Serializable {
         if (pt != null) {
             setPotionPot((PotionPot) pt);
         }
+    }
+
+    public void addFamiliar(Familiar familiar) {
+        familiars.add(familiar);
     }
 }

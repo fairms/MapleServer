@@ -1,7 +1,6 @@
 package im.cave.ms.connection.server.channel;
 
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
@@ -17,6 +16,7 @@ import im.cave.ms.connection.server.channel.handler.QuestHandler;
 import im.cave.ms.connection.server.channel.handler.UserHandler;
 import im.cave.ms.connection.server.channel.handler.WorldHandler;
 import im.cave.ms.connection.server.service.EventManager;
+import im.cave.ms.connection.server.world.World;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.ServerType;
 import io.netty.channel.ChannelHandlerContext;
@@ -253,6 +253,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case COMBO_KILL_CHECK:
 //                WorldHandler.handleComboKill(in, c);
                 break;
+            case FAMILIAR:
+                WorldHandler.handleFamiliarRequest(in, c);
+                break;
             case USER_SOUL_EFFECT_REQUEST:
                 UserHandler.handleUserSoulEffectRequest(in, c);
                 break;
@@ -316,6 +319,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case CHANGE_CHAR_REQUEST:
                 WorldHandler.handleChangeCharRequest(in, c);
+                break;
+            case CHECK_TRICK_OR_TREAT_REQUEST:
+                WorldHandler.handleCheckTrickOrTreatRequest(in, c);
                 break;
             case ANDROID_SHOP_REQUEST:
                 UserHandler.handleAndroidShopRequest(in, c);
