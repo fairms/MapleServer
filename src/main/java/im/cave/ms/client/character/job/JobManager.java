@@ -9,13 +9,14 @@ import im.cave.ms.client.character.job.adventurer.Pirate;
 import im.cave.ms.client.character.job.adventurer.Thief;
 import im.cave.ms.client.character.job.adventurer.Warrior;
 import im.cave.ms.client.character.skill.AttackInfo;
+import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.constants.JobConstants;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class JobManager {
-    private static final Class[] jobClasses = new Class[]{
+    private static final Class<?>[] jobClasses = new Class[]{
 //            BeastTamer.class,
             GM.class,
             Beginner.class,
@@ -72,7 +73,7 @@ public class JobManager {
     }
 
     public static void handleAttack(MapleClient c, AttackInfo attackInfo) {
-        for (Class clazz : jobClasses) {
+        for (Class<?> clazz : jobClasses) {
             MapleJob job = null;
             try {
                 job = (MapleJob) clazz.newInstance();
@@ -86,7 +87,7 @@ public class JobManager {
     }
 
     public static void handleSkill(MapleClient c, InPacket in) {
-        for (Class clazz : jobClasses) {
+        for (Class<?> clazz : jobClasses) {
             MapleJob job = null;
             try {
                 job = (MapleJob) clazz.getDeclaredConstructor().newInstance();
@@ -113,11 +114,12 @@ public class JobManager {
 
     public static MapleJob getJobById(short id, MapleCharacter chr) {
         MapleJob job = null;
-        for (Class clazz : jobClasses) {
+        for (var clazz : jobClasses) {
             try {
                 job = (MapleJob) clazz.getConstructor(MapleCharacter.class).newInstance(chr);
-            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
+            } catch (NoSuchMethodException ignored) {
             }
             if (job != null && job.isHandlerOfJob(id)) {
                 return job;

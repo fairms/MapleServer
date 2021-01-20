@@ -159,7 +159,12 @@ public class MapleMapObj {
             Mob mob = (Mob) obj;
             return mob.getTemplateId() == getTemplateId() && mob.getObjectId() == getObjectId() && mob.getMap().equals(getMap());
         }
-        return false;
+        return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("TemplateID: %d, ObjectID: %d, Position:" + getPosition(), getTemplateId(), getObjectId());
     }
 
     public void notifyControllerChange(MapleCharacter chr) {

@@ -20,7 +20,7 @@ import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
 public class Drop extends MapleMapObj {
     private Item item;
     private int money;
-    private int ownerID;
+    private int ownerId;
     private boolean canBePickedUpByPet;
     private long expireTime;
 
@@ -48,8 +48,8 @@ public class Drop extends MapleMapObj {
     }
 
     public boolean canBePickedUpBy(MapleCharacter chr) {
-        int owner = getOwnerID();
-        return owner == chr.getId();
+        int owner = getOwnerId();
+        return owner == chr.getId() || (chr.getParty() != null && chr.getParty().hasPartyMember(owner)) || owner == 0;
     }
 
 

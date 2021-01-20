@@ -1,8 +1,8 @@
 worlds:
   - id: 0
     flag: 0
-    server_message: Welcome to Scania!
-    event_message: Scania!
+    server_message: 欢迎来到冒险岛!
+    event_message: 缝啊缝的!
     channels: 3
     exp_rate: 10
     meso_rate: 10

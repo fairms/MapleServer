@@ -38,7 +38,7 @@ public class MapleSignIn {
         out.write(1);
         out.writeLong(ZERO_TIME);
         out.writeLong(MAX_TIME);
-        out.writeLong(signRewards.size());
+        out.writeLong(31);
         out.writeInt(QuestConstants.QUEST_EX_MOB_KILL_COUNT);
         out.writeInt(QuestConstants.MOB_KILL_COUNT_MAX);
         out.writeInt(signRewards.size());

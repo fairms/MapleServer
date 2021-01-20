@@ -17,7 +17,7 @@ public class Config {
     public static ServerConfig serverConfig = (ServerConfig) loadConfig("server.yml", ServerConfig.class);
     public static WorldConfig worldConfig = (WorldConfig) loadConfig("world.yml", WorldConfig.class);
 
-    public static Object loadConfig(String filename, Class clazz) {
+    public static Object loadConfig(String filename, Class<?> clazz) {
         try {
             File file = new File("configs/" + filename);
             YamlReader reader = new YamlReader(new FileReader(file));

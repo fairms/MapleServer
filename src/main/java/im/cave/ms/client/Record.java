@@ -32,7 +32,7 @@ public class Record {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @Enumerated(value = EnumType.ORDINAL)
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "`type`")
     private RecordType type;
     @Column(name = "`key`")

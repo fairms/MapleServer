@@ -1,6 +1,8 @@
 package im.cave.ms.client.field.obj;
 
 import im.cave.ms.client.character.items.ItemOption;
+import im.cave.ms.connection.db.DataBaseManager;
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.StringData;
 import im.cave.ms.provider.info.ItemInfo;
@@ -11,6 +13,7 @@ import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.PostPersist;
 import javax.persistence.Table;
 import java.util.Map;
 
@@ -100,6 +103,28 @@ public class Familiar extends MapleMapObj {
                 return option3;
         }
         return 0;
+    }
+
+
+    public void encode(OutPacket out) {
+        out.writeInt(getFamiliarId());
+        out.writeInt(0);
+        out.writeInt(2);
+        out.writeInt(getFamiliarId());
+        out.writeAsciiString(getName(), 13);
+        out.write(0);
+        out.writeShort(getLevel());
+        out.writeShort(getSkill());
+        out.writeShort(131);
+        out.writeInt(getExp());
+        out.writeShort(getLevel());
+        out.writeShort(getOption1());
+        out.writeShort(getOption2());
+        out.writeShort(getOption3());
+        out.write(8);
+        out.write(getGrade());
+        out.writeInt(82009);
+        out.writeShort(0);
     }
 }
 

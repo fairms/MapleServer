@@ -175,6 +175,7 @@ public class MapleMap {
                 chr.announce(packet);
             }
         }
+        packet.release();
     }
 
 
@@ -242,7 +243,7 @@ public class MapleMap {
         return getLifesByClass(Drop.class);
     }
 
-    private <T> Set<T> getLifesByClass(Class clazz) {
+    private <T extends MapleMapObj> Set<T> getLifesByClass(Class<? extends MapleMapObj> clazz) {
         return (Set<T>) getObjs().values().stream()
                 .filter(l -> l.getClass().equals(clazz))
                 .collect(Collectors.toSet());
@@ -328,7 +329,7 @@ public class MapleMap {
         Item item;
         Drop drop = new Drop(-1);
         drop.setPosition(posTo);
-        drop.setOwnerID(ownerId);
+        drop.setOwnerId(ownerId);
         Set<Integer> quests = new HashSet<>();
         if (itemID != 0) {
             item = ItemData.getItemCopy(itemID, true);
@@ -349,7 +350,7 @@ public class MapleMap {
         addObj(drop);
         drop.setExpireTime(DateUtil.getFileTime(System.currentTimeMillis() + GameConstants.DROP_REMOVE_OWNERSHIP_TIME * 1000));
         addObjScheduledFuture(drop, EventManager.addEvent(() -> removeDrop(drop.getObjectId(), DropLeaveType.Fade, 0, true), DROP_REMAIN_ON_GROUND_TIME, TimeUnit.SECONDS));
-        EventManager.addEvent(() -> drop.setOwnerID(0), GameConstants.DROP_REMOVE_OWNERSHIP_TIME, TimeUnit.SECONDS);
+        EventManager.addEvent(() -> drop.setOwnerId(0), GameConstants.DROP_REMOVE_OWNERSHIP_TIME, TimeUnit.SECONDS);
         for (MapleCharacter chr : getCharacters()) {
             if (chr.hasAnyQuestsInProgress(quests)) {
                 broadcastMessage(WorldPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo, 190, drop.canBePickedUpBy(chr)));
@@ -384,6 +385,22 @@ public class MapleMap {
         }
     }
 
+
+    public void removeDrop(int dropId, int pickupUserId, boolean fromSchedule, int petId) {
+        MapleMapObj obj = getObj(dropId);
+        if (obj instanceof Drop) {
+            if (petId >= 0) {
+                broadcastMessage(WorldPacket.dropLeaveField(DropLeaveType.PetPickup, pickupUserId, obj.getObjectId(),
+                        (short) 0, petId, 0));
+            } else if (pickupUserId != 0) {
+                broadcastMessage(WorldPacket.dropLeaveField(dropId, pickupUserId));
+            } else {
+                broadcastMessage(WorldPacket.dropLeaveField(DropLeaveType.Fade, pickupUserId, obj.getObjectId(),
+                        (short) 0, 0, 0));
+            }
+            removeObj(dropId, fromSchedule);
+        }
+    }
 
     public void removeDrop(int dropId, DropLeaveType type, int charId, boolean schedule) {
         MapleMapObj obj = getObj(dropId);

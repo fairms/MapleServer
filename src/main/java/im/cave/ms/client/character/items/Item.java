@@ -3,6 +3,7 @@ package im.cave.ms.client.character.items;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.client.field.obj.Familiar;
+import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.constants.ItemConstants;
@@ -11,6 +12,7 @@ import im.cave.ms.provider.data.ItemData;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,6 +22,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.OneToOne;
+import javax.persistence.PostPersist;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.io.Serializable;
@@ -59,17 +64,31 @@ public class Item implements Serializable {
     protected int quantity = 1;
     protected boolean isCash;
     private short flag;
-    //    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE},
-//            orphanRemoval = true)
-//    @PrimaryKeyJoinColumn
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE},
+            orphanRemoval = true)
+    @PrimaryKeyJoinColumn
     @Transient
     private Familiar familiar;
-    //    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE},
-//            orphanRemoval = true)
-//    @PrimaryKeyJoinColumn
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REMOVE},
+            orphanRemoval = true)
+    @PrimaryKeyJoinColumn
     @Transient
     private Android android;
     private String owner = "";
+
+
+    @PostPersist
+    public void initializeRelateId() {
+        if (familiar != null) {
+            familiar.setItemId(getItemId());
+            DataBaseManager.saveToDB(familiar);
+        }
+        if (android != null) {
+            android.setItemId(getItemId());
+            DataBaseManager.saveToDB(android);
+        }
+    }
+
 
     public void drop() {
         setPos(0);

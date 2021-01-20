@@ -179,7 +179,7 @@ public class Equip extends Item {
                 return getATTBonus(flameStats.getFMatt());
             case iPDD:
             case iMDD:
-                return flameStats.getFDff() * flameLevelExtended;
+                return flameStats.getFDef() * flameLevelExtended;
             case iSpeed:
                 return flameStats.getFSpeed();
             case iJump:
@@ -760,7 +760,7 @@ public class Equip extends Item {
     }
 
     public short getATTBonus(short tier) {
-        if (ItemConstants.isWeapon(getItemId())) {
+        if (ItemConstants.isWeapon(getItemId()) && tier > 0) {
             final double[] multipliers = isBossReward() ? ItemConstants.WEAPON_FLAME_MULTIPLIER_BOSS_WEAPON : ItemConstants.WEAPON_FLAME_MULTIPLIER;
             Equip baseEquip = ItemData.getEquipById(getItemId());
             int att = Math.max(baseEquip.getIPad(), baseEquip.getIMad());

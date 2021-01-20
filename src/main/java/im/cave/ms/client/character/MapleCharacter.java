@@ -2,6 +2,7 @@ package im.cave.ms.client.character;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.OnlineReward;
 import im.cave.ms.client.Record;
 import im.cave.ms.client.RecordManager;
 import im.cave.ms.client.character.items.Equip;
@@ -28,7 +29,7 @@ import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
 import im.cave.ms.client.multiplayer.Express;
-import im.cave.ms.client.multiplayer.MapleMessage;
+import im.cave.ms.client.multiplayer.MapleNotes;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.miniroom.MiniRoom;
 import im.cave.ms.client.multiplayer.miniroom.TradeRoom;
@@ -61,7 +62,7 @@ import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.enums.SpecStat;
-import im.cave.ms.enums.StatMessageType;
+import im.cave.ms.enums.MessageType;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.ItemInfo;
@@ -162,18 +163,23 @@ public class MapleCharacter implements Serializable {
     private boolean isDeleted;
     private long extendedPendant;
     private long createdTime;
+    //好友
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charId")
     private Set<Friend> friends;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charstats")
     private CharStats stats;
+    //角色外观 一个或两个(神之子)
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "chr", orphanRemoval = true)
     private Set<CharLook> charLook = new HashSet<>();
     @Column(name = "map")
     private int mapId;
     @Column(name = "party")
     private int partyId;
+    /*
+        背包 0 1 2 3 4 5 6
+     */
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "equippedInventory")
     private Inventory equippedInventory;
@@ -195,54 +201,71 @@ public class MapleCharacter implements Serializable {
     @JoinColumn(name = "cashEquipInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Inventory cashEquipInventory;
+    //快捷键映射
     @Convert(converter = InlinedIntArrayConverter.class)
     private List<Integer> quickslots;
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Skill> skills;
+    //技能冷却时间 Map<技能ID,下次可用时间>
     @ElementCollection
     @CollectionTable(name = "skill_cooldown", joinColumns = @JoinColumn(name = "charId"))
     @MapKeyColumn(name = "skillId")
     @Column(name = "nextUsableTime")
     private Map<Integer, Long> skillCooltimes;
+    //键盘映射
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "keymap")
     private MapleKeyMap keyMap;
+    //任务
     @JoinColumn(name = "questmanager")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private QuestManager questManager;
+    //伤害皮肤
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charId")
     private Set<DamageSkinSaveData> damageSkins;
+    //内在潜能
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CharacterPotential> potentials;
+    //Quest Ex
     @ElementCollection
     @CollectionTable(name = "quest_ex", joinColumns = @JoinColumn(name = "charId"))
     @MapKeyColumn(name = "questId")
     @Column(name = "qrValue")
     private Map<Integer, String> questsExStorage;
+    //怪怪图鉴
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Familiar> familiars;
     @JoinColumn(name = "charId")
+    //技能宏
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Macro> macros;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charId")
+    //商城购物车
     private List<WishedItem> wishedItems;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charId")
+    //游戏记录
     private Set<Record> records;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    //冒险岛信息
     @JoinColumn(name = "fromId")
-    private List<MapleMessage> Outbox;
+    private List<MapleNotes> Outbox;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "toId")
-    private List<MapleMessage> InBox;
+    private List<MapleNotes> InBox;
+    //冒险岛快递
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "toId")
     private List<Express> expresses;
+    //未领取的在线奖励
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "charId")
+    private List<OnlineReward> onlineRewards;
     /////////////////////////////////////////////////////////
     @Transient
     private MapleMap map;
@@ -262,8 +285,10 @@ public class MapleCharacter implements Serializable {
     private CharacterPotentialMan potentialMan;
     @Transient
     private Map<Integer, Map<String, String>> questEx;
+    //冷却时间计时器
     @Transient
     private Map<Integer, Pair<Long, ScheduledFuture>> cooltimes;
+    //其他计时器
     @Transient
     private Map<Integer, ScheduledFuture> schedules;
     @Transient
@@ -271,15 +296,15 @@ public class MapleCharacter implements Serializable {
     @Transient
     private boolean isChangingChannel = false;
     @Transient
-    private List<Integer> visitedMaps;
+    private List<Integer> visitedMaps; //访问过的地图
     @Transient
     private String blessOfFairyOrigin;
     @Transient
     private String blessOfEmpressOrigin;
     @Transient
-    private List<Pet> pets = new ArrayList<>();
+    private List<Pet> pets = new ArrayList<>(GameConstants.MAX_PET_AMOUNT); //召唤的宠物
     @Transient
-    private final Map<Integer, String> entered = new HashMap<>();
+    private final Map<Integer, String> entered = new HashMap<>(); //触发过的地图脚本
     @Transient
     private MiniRoom miniRoom;
     @Transient
@@ -301,9 +326,9 @@ public class MapleCharacter implements Serializable {
     @Transient
     private int combatOrders; //战斗命令
     @Transient
-    private Set<MapleMapObj> visibleMapObjs;
+    private Set<MapleMapObj> visibleMapObjs; //已经显示的地图对象
     @Transient
-    private Set<MapleCharacter> visibleChars;
+    private Set<MapleCharacter> visibleChars; //已经显示的角色
     @Transient
     private long lastKill;
     @Transient
@@ -313,21 +338,21 @@ public class MapleCharacter implements Serializable {
     @Transient
     private boolean online;
     @Transient
-    private List<NpcShopItem> repurchaseItems;
+    private List<NpcShopItem> repurchaseItems; //回购商品
     @Transient
     private Npc npc; //当前对话的NPC对象
     @Transient
-    private boolean isConversation = false;
+    private boolean isConversation = false; //是否处于对话状态
     @Transient
-    private Android android;
+    private Android android;  //当前召唤的机器人
     @Transient
-    private Clock clock;
+    private Clock clock;  //当前角色的定时器
     @Transient
-    private PotionPot potionPot;
+    private PotionPot potionPot; //药剂罐
     @Transient
     private RecordManager recordManager;
     @Transient
-    private Familiar familiar;
+    private Familiar familiar; //当前召唤的怪怪
 
     public MapleCharacter() {
         temporaryStatManager = new TemporaryStatManager(this);
@@ -863,12 +888,13 @@ public class MapleCharacter implements Serializable {
         }
     }
 
-    public void addDrop(Drop drop) {
+    public boolean addDrop(Drop drop) {
         if (drop.isMoney()) {
             addMeso(drop.getMoney());
             getQuestManager().handleMoneyGain(drop.getMoney());
             announce(WorldPacket.dropPickupMessage(drop.getMoney(), (short) 0, (short) 0));
             announce(UserPacket.inventoryRefresh(true));
+            return true;
         } else {
             Item item = drop.getItem();
             int itemId = item.getItemId();
@@ -881,6 +907,7 @@ public class MapleCharacter implements Serializable {
             }
             if (isConsume) {
                 announce(UserPacket.enableActions());
+                return true;
             } else if (isRunOnPickUp) {
                 String script = String.valueOf(itemId);
                 int npcID = 0;
@@ -891,6 +918,7 @@ public class MapleCharacter implements Serializable {
                 }
                 ItemScriptManager.getInstance().startScript(itemId, script, npcID, client);
                 announce(WorldPacket.dropPickupMessage(item, false, (short) item.getQuantity()));
+                return true;
             } else if (getInventory(item.getInvType()).canPickUp(item)) {
                 if (item instanceof Equip) {
                     Equip equip = (Equip) item;
@@ -901,6 +929,10 @@ public class MapleCharacter implements Serializable {
                 }
                 addItemToInv(item, false);
                 announce(WorldPacket.dropPickupMessage(item, true, (short) item.getQuantity()));
+                return true;
+            } else {
+                enableAction();
+                return false;
             }
         }
     }
@@ -1041,7 +1073,7 @@ public class MapleCharacter implements Serializable {
 
 
     public boolean setJob(int jobId) {
-        JobConstants.JobEnum job = JobConstants.JobEnum.getJobById((short) id);
+        JobConstants.JobEnum job = JobConstants.JobEnum.getJobById((short) jobId);
         if (job == null) {
             return false;
         }
@@ -1405,7 +1437,7 @@ public class MapleCharacter implements Serializable {
 
     public void addQuestExAndSendPacket(int questId, Map<String, String> value) {
         addQuestEx(questId, value);
-        announce(UserPacket.message(StatMessageType.QUEST_RECORD_EX_MESSAGE, questId, getQuestsExStorage().get(questId), (byte) 0));
+        announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, questId, getQuestsExStorage().get(questId), (byte) 0));
     }
 
     public void addVisibleMapObj(MapleMapObj obj) {
@@ -1443,7 +1475,7 @@ public class MapleCharacter implements Serializable {
             options.put("count", "1");
             buildQuestExStorage();
         }
-        announce(UserPacket.message(StatMessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_MOB_KILL_COUNT, questsExStorage.get(QUEST_EX_MOB_KILL_COUNT), (byte) 0));
+        announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, QUEST_EX_MOB_KILL_COUNT, questsExStorage.get(QUEST_EX_MOB_KILL_COUNT), (byte) 0));
     }
 
     public void comboKill(int objectId) {
@@ -1867,5 +1899,17 @@ public class MapleCharacter implements Serializable {
 
     public void addFamiliar(Familiar familiar) {
         familiars.add(familiar);
+    }
+
+    public void removePet(Pet pet) {
+        getPets().remove(pet);
+    }
+
+    public Familiar getFamiliar() {
+        return familiar;
+    }
+
+    public Familiar getFamiliar(int id) {
+        return Util.findWithPred(getFamiliars(), fam -> fam.getItemId() == id);
     }
 }

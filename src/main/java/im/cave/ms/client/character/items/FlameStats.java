@@ -67,7 +67,7 @@ public class FlameStats {
     private byte fIntLuk;
     private byte fAtt;
     private byte fMatt;
-    private byte fDff;
+    private byte fDef;
     private byte fHp;
     private byte fMp;
     private byte fSpeed;
@@ -90,7 +90,7 @@ public class FlameStats {
         fIntLuk = 0;
         fAtt = 0;
         fMatt = 0;
-        fDff = 0;
+        fDef = 0;
         fHp = 0;
         fMp = 0;
         fSpeed = 0;
@@ -121,7 +121,7 @@ public class FlameStats {
             }
 
             byte flameTier = (byte) Util.getRandom(minTier, maxTier);
-            switch (FlameStat.getByVal(stat)) {
+            switch (FlameStat.getByOrdinal(stat)) {
                 case STR:
                     setFStr(flameTier);
                     break;
@@ -159,7 +159,7 @@ public class FlameStats {
                     setFMatt(flameTier);
                     break;
                 case Defense:
-                    setFDff(flameTier);
+                    setFDef(flameTier);
                     break;
                 case MaxHP:
                     setFHp(flameTier);
@@ -205,7 +205,7 @@ public class FlameStats {
         flameStats.setFIntLuk(fIntLuk);
         flameStats.setFAtt(fAtt);
         flameStats.setFMatt(fMatt);
-        flameStats.setFDff(fDff);
+        flameStats.setFDef(fDef);
         flameStats.setFHp(fHp);
         flameStats.setFMp(fMp);
         flameStats.setFSpeed(fSpeed);
@@ -221,7 +221,7 @@ public class FlameStats {
         long flag = 0;
         HashMap<FlameStat, Byte> flameStats = new HashMap<>();
         extract(flameStats, fStr, STR, fDex, DEX, fInt, INT, fLuk, LUK, fStrDex, STR_DEX, fStrInt, STR_INT, fStrLuk, STR_LUK, fDexInt, DEX_INT, fDexLuk, DEX_LUK, fIntLuk, INT_LUK);
-        extract(flameStats, fAtt, Attack, fMatt, MagicAttack, fDff, Defense, fHp, MaxHP, fMp, MaxMP, fSpeed, Speed, fJump, Jump, fBoss, BossDamage, fDamage, Damage, fAllStat, AllStats);
+        extract(flameStats, fAtt, Attack, fMatt, MagicAttack, fDef, Defense, fHp, MaxHP, fMp, MaxMP, fSpeed, Speed, fJump, Jump, fBoss, BossDamage, fDamage, Damage, fAllStat, AllStats);
         if (fLevel > 0) {
             flameStats.put(LevelReduction, fLevel);
         }
@@ -286,7 +286,7 @@ public class FlameStats {
                 ", fIntLuk=" + fIntLuk +
                 ", fAtt=" + fAtt +
                 ", fMatt=" + fMatt +
-                ", fDff=" + fDff +
+                ", fDff=" + fDef +
                 ", fHp=" + fHp +
                 ", fMp=" + fMp +
                 ", fSpeed=" + fSpeed +

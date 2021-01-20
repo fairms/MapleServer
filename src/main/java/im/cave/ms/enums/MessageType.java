@@ -1,6 +1,6 @@
 package im.cave.ms.enums;
 
-public enum StatMessageType {
+public enum MessageType {
     DROP_PICKUP_MESSAGE(0),
     QUEST_RECORD_MESSAGE(1),// v200
     QUEST_RECORD_MESSAGE_ADD_VALID_CHECK(2),// v200
@@ -52,7 +52,7 @@ public enum StatMessageType {
 
     private final byte val;
 
-    StatMessageType(int val) {
+    MessageType(int val) {
         this.val = (byte) val;
     }
 

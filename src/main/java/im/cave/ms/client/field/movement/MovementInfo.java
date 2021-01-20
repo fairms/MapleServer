@@ -48,8 +48,8 @@ public class MovementInfo {
 
     public void decode(InPacket in) {
         encodedGatherDuration = in.readLong();
-        oldPos = in.readPos();
-        oldVPos = in.readPos();
+        oldPos = in.readPosition();
+        oldVPos = in.readPosition();
         movements = parseMovement(in);
     }
 
