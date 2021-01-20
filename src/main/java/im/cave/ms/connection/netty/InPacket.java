@@ -19,7 +19,7 @@ public class InPacket {
     private ByteBuf byteBuf;
 
     public InPacket(ByteBuf byteBuf) {
-        this.byteBuf = byteBuf;
+        this.byteBuf = byteBuf.copy();
     }
 
     public InPacket(byte[] data) {
@@ -85,11 +85,11 @@ public class InPacket {
         return arr;
     }
 
-    public Position readPos() {
+    public Position readPosition() {
         return new Position(readShort(), readShort());
     }
 
-    public Position readPosInt() {
+    public Position readIntPosition() {
         return new Position(readInt(), readInt());
     }
 
@@ -97,13 +97,12 @@ public class InPacket {
         return byteBuf.readableBytes();
     }
 
-    // 我服了
     public void skip(int len) {
         byteBuf.readBytes(len).release();
     }
 
     public Rect readShortRect() {
-        return new Rect(readPos(), readPos());
+        return new Rect(readPosition(), readPosition());
     }
 
     public byte[] getData() {

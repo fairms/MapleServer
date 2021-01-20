@@ -5,6 +5,7 @@ import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Util;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,18 +19,18 @@ import java.util.Arrays;
  * @Package im.cave.ms.tools
  * @date 12/13 14:33
  */
-public class OutPacket implements AutoCloseable {
+public class OutPacket {
     private static final Logger log = LoggerFactory.getLogger(OutPacket.class);
     private static final Charset ASCII = Charset.forName("GBK");
 
     private final ByteBuf byteBuf;
 
     public OutPacket() {
-        byteBuf = ByteBufAllocator.DEFAULT.directBuffer();
+        byteBuf = ByteBufAllocator.DEFAULT.buffer();
     }
 
     public OutPacket(SendOpcode opcode) {
-        byteBuf = ByteBufAllocator.DEFAULT.directBuffer();
+        byteBuf = ByteBufAllocator.DEFAULT.buffer();
         byteBuf.writeShortLE(opcode.getValue());
     }
 
@@ -138,8 +139,7 @@ public class OutPacket implements AutoCloseable {
             return byteBuf.array();
         } else {
             byte[] arr = new byte[byteBuf.writerIndex()];
-            ByteBuffer byteBuffer = byteBuf.nioBuffer();
-            byteBuffer.get(arr, 0, byteBuf.writerIndex());
+            byteBuf.nioBuffer().get(arr, 0, byteBuf.writerIndex());
             return arr;
         }
     }
@@ -154,12 +154,6 @@ public class OutPacket implements AutoCloseable {
         return String.format("%s, %s/0x%s\t| %s", SendOpcode.getByValue(op), op, Integer.toHexString(op).toUpperCase()
                 , Util.readableByteArray(Arrays.copyOfRange(getData(), 2, getData().length)));
     }
-
-    @Override
-    public void close() {
-        byteBuf.release();
-    }
-
 
     public void release() {
         byteBuf.release();

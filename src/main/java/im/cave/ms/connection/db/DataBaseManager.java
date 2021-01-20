@@ -1,6 +1,7 @@
 package im.cave.ms.connection.db;
 
 import im.cave.ms.client.Account;
+import im.cave.ms.client.OnlineReward;
 import im.cave.ms.client.Record;
 import im.cave.ms.client.character.CharLook;
 import im.cave.ms.client.character.CharStats;
@@ -24,7 +25,8 @@ import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.client.field.obj.DropInfo;
 import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
-import im.cave.ms.client.multiplayer.MapleMessage;
+import im.cave.ms.client.multiplayer.Express;
+import im.cave.ms.client.multiplayer.MapleNotes;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.client.multiplayer.guilds.GuildMember;
@@ -106,11 +108,13 @@ public class DataBaseManager {
                 Locker.class,
                 Trunk.class,
                 Storage.class,
-                MapleMessage.class,
+                MapleNotes.class,
                 WishedItem.class,
                 ExceptionItem.class,
+                OnlineReward.class,
+                Express.class
         };
-        for (Class clazz : dbClasses) {
+        for (var clazz : dbClasses) {
             configuration.addAnnotatedClass(clazz);
         }
         sessionFactory = configuration.buildSessionFactory();
