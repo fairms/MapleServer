@@ -5,7 +5,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.MessagePacket;
-import im.cave.ms.connection.server.CommandHandler;
+import im.cave.ms.connection.server.channel.CommandExecutor;
 import im.cave.ms.enums.WhisperType;
 
 /**
@@ -25,11 +25,10 @@ public class ChatHandler {
         player.setTick(tick);
         String content = in.readMapleAsciiString();
 
-        if (content.startsWith("@")) {
-            CommandHandler.handle(c, content);
+        if (content.startsWith("@") || content.startsWith("!")) {
+            CommandExecutor.handle(player, content);
             return;
         }
-
         player.getMap().broadcastMessage(player, MessagePacket.getChatText(player, content), true);
     }
 
@@ -60,6 +59,7 @@ public class ChatHandler {
                     player.announce(MessagePacket.whisper(WhisperType.Res_Whisper, destName, 0, 0));
                 } else {
                     player.announce(MessagePacket.whisper(WhisperType.Res_Whisper, destName, 1, 0));
+                    //todo
                 }
                 break;
         }

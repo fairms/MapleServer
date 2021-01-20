@@ -18,7 +18,7 @@ import im.cave.ms.connection.crypto.TripleDESCipher;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
-import im.cave.ms.enums.StatMessageType;
+import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.CharMask;
 import im.cave.ms.enums.DamageSkinType;
 import im.cave.ms.enums.EquipmentEnchantType;
@@ -292,17 +292,17 @@ public class UserPacket {
 
     public static OutPacket incMoneyMessage(int amount) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        out.write(StatMessageType.INC_MONEY_MESSAGE.getVal());
+        out.writeShort(SendOpcode.MESSAGE.getValue());
+        out.write(MessageType.INC_MONEY_MESSAGE.getVal());
         out.writeInt(amount);
         out.writeInt(-1);
         out.writeInt(amount > 0 ? 0 : -1);
         return out;
     }
 
-    public static OutPacket message(StatMessageType mt, int i, String string, byte type) {
+    public static OutPacket message(MessageType mt, int i, String string, byte type) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        out.writeShort(SendOpcode.MESSAGE.getValue());
         out.write(mt.getVal());
         switch (mt) {
             case CASH_ITEM_EXPIRE_MESSAGE:
@@ -337,8 +337,8 @@ public class UserPacket {
 
     public static OutPacket stylishKillMessage(long exp, int count) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        out.write(StatMessageType.STYLISH_KILL_MESSAGE.getVal());
+        out.writeShort(SendOpcode.MESSAGE.getValue());
+        out.write(MessageType.STYLISH_KILL_MESSAGE.getVal());
         out.write(0);
         out.writeLong(exp);
         out.writeInt(0); //unk
@@ -349,8 +349,8 @@ public class UserPacket {
 
     public static OutPacket comboKillMessage(int objId, int combo) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        out.write(StatMessageType.STYLISH_KILL_MESSAGE.getVal());
+        out.writeShort(SendOpcode.MESSAGE.getValue());
+        out.write(MessageType.STYLISH_KILL_MESSAGE.getVal());
         out.write(1);
         out.writeInt(combo);
         out.writeInt(objId);

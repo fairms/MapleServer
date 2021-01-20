@@ -57,7 +57,6 @@ public class CashShopServer extends AbstractServer {
                 cashItemCounter = new AtomicInteger();
             }
         }
-
     }
 
     public void addChar(MapleCharacter character) {

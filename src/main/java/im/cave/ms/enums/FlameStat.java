@@ -39,6 +39,10 @@ public enum FlameStat {
         return Util.findWithPred(Arrays.asList(values()), stat -> stat.getVal() == val);
     }
 
+    public static FlameStat getByOrdinal(int ordinal) {
+        return Util.findWithPred(values(), flameStat -> flameStat.ordinal() == ordinal);
+    }
+
     public int getVal() {
         return val;
     }

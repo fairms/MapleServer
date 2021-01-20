@@ -46,7 +46,7 @@ public class QuestHandler {
                     questId = in.readInt();
                     npcTemplateId = in.readInt();
                     if (in.available() > 4) {
-                        position = in.readPos();
+                        position = in.readPosition();
                     }
                     break;
                 case QuestReq_ResignQuest: //Quest forfeit

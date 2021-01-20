@@ -1,6 +1,7 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.Account;
+import im.cave.ms.client.OnlineReward;
 import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
@@ -18,6 +19,7 @@ import im.cave.ms.client.storage.Trunk;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.packet.result.ExpressResult;
+import im.cave.ms.connection.packet.result.OnlineRewardResult;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DimensionalMirror;
@@ -38,8 +40,8 @@ import java.util.Map;
 
 import static im.cave.ms.constants.ServerConstants.NEXON_IP;
 import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
-import static im.cave.ms.enums.StatMessageType.DROP_PICKUP_MESSAGE;
-import static im.cave.ms.enums.StatMessageType.INC_EXP_MESSAGE;
+import static im.cave.ms.enums.MessageType.DROP_PICKUP_MESSAGE;
+import static im.cave.ms.enums.MessageType.INC_EXP_MESSAGE;
 import static im.cave.ms.enums.DropEnterType.Instant;
 
 /**
@@ -268,8 +270,7 @@ public class WorldPacket {
     }
 
     public static OutPacket chatMessage(String content, ChatType type) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.CHAT_MSG.getValue());
+        OutPacket out = new OutPacket(SendOpcode.CHAT_MSG);
         out.writeShort(type.getVal());
         out.writeMapleAsciiString(content);
         return out;
@@ -321,7 +322,7 @@ public class WorldPacket {
         out.writeInt(0); //dropSpeed
         out.writeInt(0);  //rand?
         out.writeInt(!drop.isMoney() ? drop.getItem().getItemId() : drop.getMoney());
-        out.writeInt(drop.getOwnerID());
+        out.writeInt(drop.getOwnerId());
         out.write(2); // 0 = timeout for non-owner, 1 = timeout for non-owner's party, 2 = FFA, 3 = explosive/FFA
         out.writePosition(posTo);
         out.writeInt(0); // drop from id
@@ -339,18 +340,42 @@ public class WorldPacket {
         return out;
     }
 
+
+    public static OutPacket dropLeaveField(int charId, int dropId) {
+        return dropLeaveField(DropLeaveType.CharPickup1, charId, dropId, (short) 0, 0, 0);
+    }
+
     public static OutPacket dropLeaveField(DropLeaveType type, int charId, int dropId) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.DROP_LEAVE_FIELD.getValue());
+        return dropLeaveField(type, charId, dropId, (short) 0, 0, 0);
+    }
+
+    public static OutPacket dropLeaveField(DropLeaveType type, int charId, int dropId, short delay, int petId, int key) {
+        OutPacket out = new OutPacket(SendOpcode.DROP_LEAVE_FIELD);
         out.write(type.getVal());
         out.writeInt(dropId);
-        out.writeInt(charId);
+        switch (type) {
+            case CharPickup1:
+            case CharPickup2:
+                out.writeInt(charId);
+                break;
+            case PetPickup:
+                out.writeInt(charId);
+                out.writeInt(petId);
+                break;
+            case DelayedPickup:
+                out.writeShort(delay);
+                break;
+            case Absorb:
+                out.writeInt(key);
+                break;
+        }
         return out;
     }
 
+
     public static OutPacket incExpMessage(ExpIncreaseInfo expIncreaseInfo) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        out.writeShort(SendOpcode.MESSAGE.getValue());
         out.write(INC_EXP_MESSAGE.getVal());
         expIncreaseInfo.encode(out);
         out.writeInt(0);
@@ -370,7 +395,7 @@ public class WorldPacket {
                                               short smallChangeExtra,
                                               short quantity) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
+        out.writeShort(SendOpcode.MESSAGE.getValue());
         out.write(DROP_PICKUP_MESSAGE.getVal());
         out.writeInt(0);
         out.write(0);
@@ -535,6 +560,7 @@ public class WorldPacket {
         OutPacket out = new OutPacket();
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         out.writeShort(SendOpcode.USER_ENTER_FIELD.getValue());
+        out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
         out.writeInt(chr.getId());
         out.writeInt(chr.getLevel());
         out.writeMapleAsciiString(chr.getName());
@@ -577,7 +603,7 @@ public class WorldPacket {
         out.write(0);
         out.writeInt(1051291);
         out.writeZeroBytes(29);
-        out.writeMapleAsciiString(String.valueOf(chr.getWorld() + "-" + StringUtil.getLeftPaddedStr(String.valueOf(chr.getId()), '0', 6)));
+        out.writeMapleAsciiString(chr.getWorld() + "-" + StringUtil.getLeftPaddedStr(String.valueOf(chr.getId()), '0', 6));
         out.writeInt(0);
         return out;
     }
@@ -792,6 +818,32 @@ public class WorldPacket {
     public static OutPacket checkTrickOrTreatResult(boolean b) {
         OutPacket out = new OutPacket(SendOpcode.CHECK_TRICK_OR_TREAT_RESULT);
         out.writeBool(b);
+        return out;
+    }
+
+    public static OutPacket onlineRewardResult(OnlineRewardResult result) {
+        OutPacket out = new OutPacket(SendOpcode.ONLINE_REWARD_RESULT);
+        out.write(result.getType().getVal());
+        switch (result.getType()) {
+            case LIST:
+                List<OnlineReward> rewards = result.getRewards();
+                out.writeInt(rewards.size());
+                for (OnlineReward reward : rewards) {
+                    reward.encode(out);
+                }
+                break;
+            case GET_VOUCHER:
+                OnlineReward reward = result.getReward();
+                out.writeInt(reward.getSort());
+                out.writeInt(reward.getVoucher());
+                out.writeInt(0);
+                break;
+            case GET_ITEM:
+                reward = result.getReward();
+                out.writeInt(reward.getSort());
+                out.writeInt(0);
+                break;
+        }
         return out;
     }
 }

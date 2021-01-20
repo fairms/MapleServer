@@ -49,7 +49,7 @@ public class MobHandler {
         boolean useSkill = action != -1;
         byte multiTargetForBallSize = in.readByte();
         for (int i = 0; i < multiTargetForBallSize; i++) {
-            Position pos = in.readPos(); // list of ball positions
+            Position pos = in.readPosition(); // list of ball positions
             msai.multiTargetForBalls.add(pos);
         }
         in.skip(22);

@@ -6,14 +6,17 @@ import im.cave.ms.client.character.items.ExceptionItem;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.items.PetItem;
 import im.cave.ms.client.character.skill.Skill;
+import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.movement.MovementInfo;
+import im.cave.ms.client.field.obj.Drop;
+import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.PetPacket;
 import im.cave.ms.connection.packet.UserPacket;
-import im.cave.ms.connection.server.service.EventManager;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.QuestConstants;
+import im.cave.ms.enums.FieldOption;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.PetSkill;
 import im.cave.ms.enums.SkillStat;
@@ -21,6 +24,7 @@ import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.provider.info.SkillInfo;
+import im.cave.ms.tools.Position;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -51,24 +55,31 @@ public class PetHandler {
         }
         PetItem petItem = (PetItem) item;
         if (petItem.getActiveState() == 0) {
-            if (player.getPets().size() > GameConstants.MAX_PET_AMOUNT) {
+            if (player.getPets().size() >= GameConstants.MAX_PET_AMOUNT) {
                 return;
             }
             Pet pet = petItem.createPet(player);
             petItem.setActiveState((byte) (pet.getIdx() + 1));
             player.addPet(pet);
-            petItem.updateToChar(player);
             player.getMap().broadcastMessage(PetPacket.petActivateChange(pet, true, (byte) 0));
             if (petItem.getExceptionList() != null) {
                 player.announce(PetPacket.initPetExceptionList(pet));
             }
         } else {
-            byte index = petItem.getActiveState();
-            Pet pet = player.getPetByIdx(index);
+            Pet pet = player.getPets()
+                    .stream()
+                    .filter(p -> p.getPetItem().getActiveState() == petItem.getActiveState())
+                    .findFirst().orElse(null);
+            if (pet == null) {
+                player.enableAction();
+                return;
+            }
             petItem.setActiveState((byte) 0);
-            petItem.updateToChar(player);
+            player.removePet(pet);
             player.getMap().broadcastMessage(PetPacket.petActivateChange(pet, false, (byte) 1));
         }
+        petItem.updateToChar(player);
+
     }
 
     public static void handlePetActionSpeak(InPacket in, MapleClient c) {
@@ -204,5 +215,26 @@ public class PetHandler {
         petItem.updateToChar(player);
         player.consumeItem(itemId, 1);
         player.announce(PetPacket.petActionCommand(player.getId(), idx, 2, 1, itemId));
+    }
+
+    public static void handlePetPickUpRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        MapleMap map = player.getMap();
+        if ((map.getFieldLimit() & FieldOption.NoPet.getVal()) > 0) {
+            return;
+        }
+        int idx = in.readInt();
+        in.readByte(); //field key
+        player.setTick(in.readInt());
+        Position pos = in.readPosition(); //todo check
+        int dropId = in.readInt();
+        MapleMapObj obj = map.getObj(dropId);
+        if (obj instanceof Drop) {
+            Drop drop = (Drop) obj;
+            boolean success = drop.isCanBePickedUpByPet() && drop.canBePickedUpBy(player) && player.addDrop(drop);
+            if (success) {
+                map.removeDrop(dropId, player.getId(), false, idx);
+            }
+        }
     }
 }

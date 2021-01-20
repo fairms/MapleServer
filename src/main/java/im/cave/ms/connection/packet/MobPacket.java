@@ -20,8 +20,7 @@ import im.cave.ms.tools.Position;
 public class MobPacket {
 
     public static OutPacket spawnMob(Mob mob, boolean hasBennInit) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SPAWN_MOB.getValue());
+        OutPacket out = new OutPacket(SendOpcode.SPAWN_MOB);
         out.writeBool(mob.isSealedInsteadDead());
         out.writeInt(mob.getObjectId());
         out.write(mob.getCalcDamageIndex());
@@ -44,8 +43,7 @@ public class MobPacket {
 
 
     public static OutPacket mobCtrlAck(int objId, int moveId, boolean useSkill, int currentMp, int skillId, short skillLevel) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.MOB_CONTROL_ACK.getValue());
+        OutPacket out = new OutPacket(SendOpcode.MOB_CONTROL_ACK);
         out.writeInt(objId);
         out.writeShort(moveId);
         out.writeBool(useSkill);
@@ -58,8 +56,7 @@ public class MobPacket {
     }
 
     public static OutPacket hpIndicator(int objectId, byte percentage) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.HP_INDICATOR.getValue());
+        OutPacket out = new OutPacket(SendOpcode.HP_INDICATOR);
         out.writeInt(objectId);
         out.writeInt(percentage);
         out.write(0);
@@ -68,8 +65,7 @@ public class MobPacket {
 
 
     public static OutPacket removeMob(int objectId, RemoveMobType type) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.REMOVE_MOB.getValue());
+        OutPacket out = new OutPacket(SendOpcode.REMOVE_MOB);
         out.writeInt(objectId);
         out.write(type.getVal());
         out.writeZeroBytes(8);
@@ -77,8 +73,7 @@ public class MobPacket {
     }
 
     public static OutPacket changeMobController(Mob mob, boolean hasBeenInit, boolean isController) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.MOB_CHANGE_CONTROLLER.getValue());
+        OutPacket out = new OutPacket(SendOpcode.MOB_CHANGE_CONTROLLER);
         out.writeBool(isController);
         out.writeInt(mob.getObjectId());
         if (isController) {

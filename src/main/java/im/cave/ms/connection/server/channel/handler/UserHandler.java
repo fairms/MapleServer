@@ -156,13 +156,10 @@ public class UserHandler {
             in.readByte();//unk
         }
         in.skip(18);
-        short pX = in.readShort(); // int?
-        in.readShort();
-        short pY = in.readShort();
-        in.readShort();
+        Position position = in.readIntPosition();
 
-        in.readInt(); // 00 00 00 00
-        in.readInt(); // DF 2B 9E 22 固定的
+        in.readLong(); // 00 00 00 00
+        in.readInt(); // 8E B1 05 5F 固定的
         in.skip(3);
         if (attackInfo.attackHeader == RANGED_ATTACK) {
             in.readInt();
@@ -210,7 +207,7 @@ public class UserHandler {
                 mobAttackInfo.damages[j] = in.readLong();
             }
             in.readInt(); // 00 00 00 00
-            in.readInt(); // crc E7 DA 52 9A
+            in.readInt(); // crc 7C 45 9E 38
             mobAttackInfo.type = in.readByte();
             if (mobAttackInfo.type == 1) {
                 mobAttackInfo.currentAnimationName = in.readMapleAsciiString();
@@ -224,7 +221,7 @@ public class UserHandler {
             } else if (mobAttackInfo.type == 2) {
                 player.dropMessage("mobAttackInfo.type == 2 !!!");
             }
-            in.skip(14); //unk pos
+            in.skip(18); //unk pos
             attackInfo.mobAttackInfo.add(mobAttackInfo);
         }
         player.getJobHandler().handleAttack(c, attackInfo);
@@ -271,9 +268,7 @@ public class UserHandler {
                 }
                 //todo handle reflect
             }
-            if (mob != null && mob.getHp() < 0) {
-                log.warn("mob was dead");
-            }
+
         }
         if (killedCount > 0) {
             if (System.currentTimeMillis() - player.getLastKill() < 10000) {
@@ -379,7 +374,7 @@ public class UserHandler {
         int chairId = in.readInt();
         int pos = in.readByte();
         boolean textChair = in.readInt() != 0;
-        Position position = in.readPosInt();
+        Position position = in.readIntPosition();
         in.readInt();
         int unk1 = in.readInt();
         short unk2 = in.readShort();
@@ -540,7 +535,7 @@ public class UserHandler {
         }
         byte mapKey = in.readByte();
         player.setTick(in.readInt());
-        Position position = in.readPos();
+        Position position = in.readPosition();
         int dropId = in.readInt();
         MapleMap map = player.getMap();
         MapleMapObj obj = map.getObj(dropId);
@@ -1118,7 +1113,7 @@ public class UserHandler {
     public static void handleAndroidShopRequest(InPacket in, MapleClient c) {
         in.readInt(); //charId
         int type = in.readInt();
-        Position position = in.readPosInt();
+        Position position = in.readIntPosition();
         MapleCharacter player = c.getPlayer();
         Android android = player.getAndroid();
         AndroidInfo androidInfo = ItemData.getAndroidInfoByType(type);

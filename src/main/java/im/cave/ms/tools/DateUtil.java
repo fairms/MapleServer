@@ -14,7 +14,9 @@ public class DateUtil {
     public final static long DAY = 60L * 60L * 24L * 1000L * 10000L;
 
     public static void main(String[] args) {
-        System.out.println(getFileTime(System.currentTimeMillis() + 60 * 1000));
+        System.out.println(getFileTime(System.currentTimeMillis()));
+        long timestamp = getTimestamp(132556540595520000L);
+        System.out.println(getTimeFromTimestamp(timestamp));
     }
 
     public static long getFileTime(long timestamp) {
@@ -44,6 +46,11 @@ public class DateUtil {
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
         String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
         return Integer.parseInt(format);
+    }
+
+    public static String getTimeFromTimestamp(long timestamp) {
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+        return localDateTime.format(DateTimeFormatter.ofPattern("yyyy年MM月dd日HH时mm分ss秒"));
     }
 
 

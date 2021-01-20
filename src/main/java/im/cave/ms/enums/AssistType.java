@@ -1,7 +1,7 @@
 package im.cave.ms.enums;
 
 
-public enum AssistType {
+public enum AssistType { //Summon Assist Type
     None(0),
     Attack(1),
     Heal(2),

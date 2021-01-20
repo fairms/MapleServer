@@ -38,12 +38,12 @@ public class CharlistRequestHandler {
                 c.setChannel(pair.getRight());
                 Server.getInstance().addAccount(account);
                 c.setLoginStatus(LoginStatus.LOGGEDIN);
-                c.announce(LoginPacket.authSuccess(c));
             }
         } else if (c.getLoginStatus() == LoginStatus.NOTLOGGEDIN) {
             c.announce(LoginPacket.loginResult(c, LoginType.AuthFail));
             return;
         }
+        c.announce(LoginPacket.authSuccess(c));
         List<MapleCharacter> characters = c.loadCharacters(worldId);
         c.announce(LoginPacket.account(c.getAccount()));
         c.announce(LoginPacket.charactersList(c, characters, 0));

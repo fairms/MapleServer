@@ -5,6 +5,7 @@ import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.tools.HexTool;
+import im.cave.ms.tools.Position;
 
 import java.util.Arrays;
 import java.util.List;
@@ -64,23 +65,7 @@ public class FamiliarPacket {
         int i = 1;
         for (Familiar familiar : familiars) {
             out.writeShort(i);
-            out.writeLong(i);
-            out.writeInt(2);
-            out.writeInt(familiar.getFamiliarId());
-            out.writeAsciiString(familiar.getName(), 13);
-            out.write(0);
-            out.writeShort(familiar.getLevel());
-            out.writeShort(familiar.getSkill());
-            out.writeShort(131);
-            out.writeInt(familiar.getExp());
-            out.writeShort(familiar.getLevel());
-            out.writeShort(familiar.getOption1());
-            out.writeShort(familiar.getOption2());
-            out.writeShort(familiar.getOption3());
-            out.write(8);
-            out.write(familiar.getGrade());
-            out.writeInt(82009);
-            out.writeShort(0);
+            familiar.encode(out);
         }
         out.writeInt(0);
         out.write(0);
@@ -103,7 +88,7 @@ public class FamiliarPacket {
 
     public static void encode(OutPacket out, List<Short> parts, MapleCharacter chr) {
 
-      //12 D5 5A 82
+        //12 D5 5A 82
         for (Short part : parts) {
             out.writeShort(part);
             switch (part) {
@@ -132,23 +117,7 @@ public class FamiliarPacket {
                     int i = 1;
                     for (Familiar familiar : familiars) {
                         out.writeShort(i);
-                        out.writeLong(i);
-                        out.writeInt(2);
-                        out.writeInt(familiar.getFamiliarId());
-                        out.writeAsciiString(familiar.getName(), 13);
-                        out.write(0);
-                        out.writeShort(familiar.getLevel());
-                        out.writeShort(familiar.getSkill());
-                        out.writeShort(131);
-                        out.writeInt(familiar.getExp());
-                        out.writeShort(familiar.getLevel());
-                        out.writeShort(familiar.getOption1());
-                        out.writeShort(familiar.getOption2());
-                        out.writeShort(familiar.getOption3());
-                        out.write(8);
-                        out.write(familiar.getGrade());
-                        out.writeInt(82009);
-                        out.writeShort(0);
+                        familiar.encode(out);
                     }
                     out.writeShort(0);
                     break;
@@ -174,5 +143,59 @@ public class FamiliarPacket {
         }
     }
 
+
+    public static OutPacket showRevealFamiliars(MapleCharacter chr, List<Familiar> familiars) {
+        return familiarResult(chr, (byte) 5, revealFamiliars(familiars), null);
+    }
+
+    public static OutPacket spawnFamiliar(Familiar before, Familiar after, MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.FAMILIAR);
+        out.writeInt(chr.getId());
+        out.write(7);
+        out.writeInt(before == null ? 1 : before.getObjectId());
+        out.writeInt(-1692623269);
+        out.writeInt(chr.getAccId());
+        out.writeInt(chr.getId());
+        if (before != null && after != null) {
+            out.writeShort(2);
+            out.writeInt(after.getObjectId());
+            out.writeInt(-1692623269);
+            out.writeInt(chr.getAccId());
+            out.writeInt(chr.getId());
+
+        }
+        if (after != null) {
+            out.writeBool(true);
+            out.writeShort(2);//2
+            out.writeInt(chr.getAccId());
+            out.writeInt(chr.getId());
+            out.writeShort(3);//3
+            out.writeInt(1);
+            out.writeShort(4);//5
+            after.encode(out);
+            out.writeShort(5);//5
+            Position position = after.getPosition();
+            out.writePositionInt(position);
+            out.writeShort(6);//6
+            out.writeInt(2000);
+            out.writeShort(7);//7
+            out.writeInt(2000);
+            out.writeShort(0);
+            out.write(0);
+        } else {
+            out.writeShort(2);
+        }
+
+        out.writeInt(1);
+        out.write(-1723358014);
+        out.writeInt(chr.getAccId());
+        out.writeInt(chr.getId());
+        out.write(1);
+        out.writeShort(4);
+        out.writeInt(after == null ? 0 : after.getObjectId());
+        out.writeShort(0);
+        out.write(0);
+        return out;
+    }
 
 }

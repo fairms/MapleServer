@@ -2,11 +2,11 @@ package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
-import im.cave.ms.client.multiplayer.MapleMessage;
+import im.cave.ms.client.multiplayer.MapleNotes;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.enums.BroadcastMsgType;
-import im.cave.ms.enums.MapleMessageType;
+import im.cave.ms.enums.MapleNotesType;
 import im.cave.ms.enums.WhisperType;
 import im.cave.ms.provider.data.StringData;
 
@@ -93,7 +93,7 @@ public class MessagePacket {
                 out.write(chr.getWorld());
                 out.writeInt(chr.getId()); //unk 8025765
                 out.write(chr.getChannel());
-                out.writeBool(true);
+                out.writeBool(true); //是否可以点击私聊
                 out.writeInt(5076100);
                 out.writeBool(item != null);
                 if (item != null) {
@@ -105,7 +105,7 @@ public class MessagePacket {
                 out.writeMapleAsciiString(content);
                 out.writeInt(item.getItemId());
                 out.writeInt(chr.getChannel());
-                out.writeInt(3); //unk color?
+                out.writeInt(3); // color?
                 out.writeBool(true);
                 item.encode(out);
                 break;
@@ -146,8 +146,8 @@ public class MessagePacket {
         return out;
     }
 
-    public static OutPacket mapleMessageResult(MapleMessageType type, List<MapleMessage> messages, int param) {
-        OutPacket out = new OutPacket(SendOpcode.MAPLE_MESSAGE);
+    public static OutPacket mapleNotesResult(MapleNotesType type, List<MapleNotes> notes, int param) {
+        OutPacket out = new OutPacket(SendOpcode.MAPLE_NOTES);
         out.write(type.getVal());
         switch (type) {
             case Res_Send_Success:
@@ -156,14 +156,19 @@ public class MessagePacket {
                 out.write(param);
                 break;
             case Res_Add_Sent:
-                MapleMessage msg = messages.get(0);
-                msg.encode(out);
+                MapleNotes msg = notes.get(0);
+                msg.encodeForOut(out);
                 break;
             case Res_Inbox:
+                out.write(notes.size());
+                for (MapleNotes message : notes) {
+                    message.encodeForIn(out);
+                }
+                break;
             case Res_Outbox:
-                out.write(messages.size());
-                for (MapleMessage message : messages) {
-                    message.encode(out);
+                out.write(notes.size());
+                for (MapleNotes message : notes) {
+                    message.encodeForOut(out);
                 }
                 break;
             case Res_Delete_Received_Success:
@@ -171,7 +176,7 @@ public class MessagePacket {
                 out.writeInt(1);
                 out.writeInt(param);
                 break;
-            case Res_InMessage_Read:
+            case Res_InNotes_Read:
                 out.write(2);
                 out.writeInt(1);
                 out.writeInt(param);

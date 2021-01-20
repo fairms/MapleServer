@@ -12,7 +12,7 @@ public enum GreyFieldType {
     Reactor(8),
     ;
 
-    private byte val;
+    private final byte val;
 
     GreyFieldType(int val) {this.val = (byte) val;}
 

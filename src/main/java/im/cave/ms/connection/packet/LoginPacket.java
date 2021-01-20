@@ -270,10 +270,10 @@ public class LoginPacket {
     public static OutPacket authSuccess(MapleClient c) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.AUTH_SUCCESS.getValue());
-        out.write(0);
+        out.write(0);//succeed
         out.writeInt(c.getAccount().getId());
         out.write(0);
-        out.writeInt(0);
+        out.writeInt(0x14); //ACCOUNT TYPE
         out.writeInt(0);
         out.write(3);
         out.write(0);

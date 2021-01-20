@@ -2,6 +2,7 @@ package im.cave.ms.enums;
 
 
 public enum UIType {
+    FAMILIAR(596),
     UI_ITEM(0),
     UI_EQUIP(1),
     UI_STAT(2),

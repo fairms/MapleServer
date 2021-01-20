@@ -50,4 +50,11 @@ public class ExpressResult {
         expressResult.setAction(action);
         return expressResult;
     }
+
+    public static ExpressResult haveNewExpress() {
+        ExpressResult expressResult = new ExpressResult();
+        expressResult.setFromName("系统");
+        expressResult.setArg1(2);
+        return expressResult;
+    }
 }

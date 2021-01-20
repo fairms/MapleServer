@@ -39,8 +39,8 @@ public enum SendOpcode {
     //
     CHANGE_SKILL_RESULT(0x70), //77-7
     FAME_RESPONSE(0x7A), //
-    SHOW_STATUS_INFO(0x7C), //83 - 7
-    MAPLE_MESSAGE(0x7D), // -7
+    MESSAGE(0x7C), //83 - 7
+    MAPLE_NOTES(0x7D), // -7
     MAP_TRANSFER_RESULT(0x7E),//-7
     GATHER_ITEM_RESULT(0x94), //-7
     SORT_ITEM_RESULT(0x95),//
@@ -103,7 +103,7 @@ public enum SendOpcode {
 
     CASH_POINT_RESULT(0x20E), //219-b
     SLOT_EXPAND_RESULT(0x20F),//
-
+    ONLINE_REWARD_RESULT(0x212),
     MACRO_SYS_DATA_INIT(0x22A),//235-b
     SET_MAP(0x22B), //236 - B
     SET_CASH_SHOP(0x22E),//-b

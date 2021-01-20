@@ -3,7 +3,7 @@ package im.cave.ms.connection.packet;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
-import im.cave.ms.enums.StatMessageType;
+import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.QuestStatus;
 import im.cave.ms.enums.QuestType;
 
@@ -18,8 +18,8 @@ public class QuestPacket {
 
     public static OutPacket questRecordMessage(Quest quest) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SHOW_STATUS_INFO.getValue());
-        out.write(StatMessageType.QUEST_RECORD_MESSAGE.getVal());
+        out.writeShort(SendOpcode.MESSAGE.getValue());
+        out.write(MessageType.QUEST_RECORD_MESSAGE.getVal());
         out.writeInt(quest.getQrKey());
         QuestStatus state = quest.getStatus();
         out.write(state.getVal());

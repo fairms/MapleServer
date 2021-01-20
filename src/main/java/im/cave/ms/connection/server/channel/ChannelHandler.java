@@ -16,7 +16,6 @@ import im.cave.ms.connection.server.channel.handler.QuestHandler;
 import im.cave.ms.connection.server.channel.handler.UserHandler;
 import im.cave.ms.connection.server.channel.handler.WorldHandler;
 import im.cave.ms.connection.server.service.EventManager;
-import im.cave.ms.connection.server.world.World;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.ServerType;
 import io.netty.channel.ChannelHandlerContext;
@@ -251,7 +250,7 @@ public class ChannelHandler extends AbstractServerHandler {
                 PetHandler.handleUserRegisterPetAutoBuffRequest(in, c);
                 break;
             case COMBO_KILL_CHECK:
-//                WorldHandler.handleComboKill(in, c);
+                WorldHandler.handleComboKill(in, c);
                 break;
             case FAMILIAR:
                 WorldHandler.handleFamiliarRequest(in, c);
@@ -268,6 +267,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case PET_ACTION_SPEAK:
                 PetHandler.handlePetActionSpeak(in, c);
                 break;
+            case PET_DROP_PICK_UP_REQUEST:
+                PetHandler.handlePetPickUpRequest(in, c);
+                break;
             case PET_SET_EXCEPTION_LIST:
                 PetHandler.handlePetSetExceptionList(in, c);
                 break;
@@ -283,8 +285,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case CHANGE_QUICKSLOT:
                 UserHandler.handleChangeQuickSlot(in, c);
                 break;
-            case SEND_MAPLE_MESSAGE:
-                WorldHandler.handleSendMapleMessage(in, c);
+            case SEND_MAPLE_NOTES:
+                WorldHandler.handleSendMapleNotes(in, c);
                 break;
             case CHAT_ROOM:
                 WorldHandler.handleChatRoom(in, c);
@@ -301,8 +303,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case FRIEND_REQUEST:
                 WorldHandler.handleFriendRequest(in, c);
                 break;
-            case MAPLE_MESSAGE_REQUEST:
-                WorldHandler.handleMapleMessageRequest(in, c);
+            case MAPLE_NOTES_REQUEST:
+                WorldHandler.handleMapleNotesRequest(in, c);
                 break;
             case CHANGE_KEYMAP:
                 UserHandler.handleChangeKeyMap(in, c);
