@@ -20,16 +20,16 @@ import javax.persistence.Table;
  * @date 1/12 22:19
  */
 @Entity
-@Table(name = "message")
+@Table(name = "notes")
 @Getter
 @Setter
 @Builder(toBuilder = true)
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
-public class MapleMessage {
+public class MapleNotes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private byte status;
+    private byte status; //02已读 01未读 //00发送
     private int fromId;
     private String fromChr;
     private int toId;
@@ -37,13 +37,26 @@ public class MapleMessage {
     private String msg;
     private long createdTime;
 
-    public MapleMessage() {
+    public MapleNotes() {
 
     }
 
-    public void encode(OutPacket out) {
+    public void encodeForIn(OutPacket out) {
         out.writeInt(getId());
-        out.write(getStatus());
+        out.writeInt(getStatus());
+        out.writeInt(getFromId());
+        out.writeMapleAsciiString(getFromChr());
+        out.writeMapleAsciiString(getMsg());
+        out.writeLong(getCreatedTime());
+        out.write(0);
+        out.writeMapleAsciiString(getFromChr());
+        out.writeMapleAsciiString(getMsg());
+        out.writeZeroBytes(13);
+    }
+
+    public void encodeForOut(OutPacket out) {
+        out.writeInt(getId());
+        out.write(0);
         out.writeInt(getFromId());
         out.writeMapleAsciiString(getFromChr());
         out.writeInt(getToId());
