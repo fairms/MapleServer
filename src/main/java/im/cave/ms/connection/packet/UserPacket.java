@@ -390,8 +390,7 @@ public class UserPacket {
     }
 
     public static OutPacket macroSysDataInit(MapleCharacter chr) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.MACRO_SYS_DATA_INIT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.MACRO_SYS_DATA_INIT);
         out.write(chr.getMacros().size());
         for (Macro macro : chr.getMacros()) {
             macro.encode(out);

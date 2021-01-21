@@ -156,6 +156,7 @@ public class OutPacket {
     }
 
     public void release() {
-        byteBuf.release();
+        ReferenceCountUtil.release(byteBuf);
     }
+
 }

@@ -20,6 +20,7 @@ import im.cave.ms.provider.info.AndroidInfo;
 import im.cave.ms.provider.info.CashItemInfo;
 import im.cave.ms.provider.info.FamiliarInfo;
 import im.cave.ms.provider.info.ItemInfo;
+import im.cave.ms.provider.info.ItemRewardInfo;
 import im.cave.ms.provider.info.PetInfo;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataDirectoryEntry;
@@ -974,6 +975,36 @@ public class ItemData {
         }
         if (ItemConstants.isFamiliar(item.getItemId())) {
             item.setSlotMax(1);
+        }
+        MapleData rewardData = data.getChildByPath("reward");
+        if (rewardData != null) {
+            for (MapleData reward : rewardData.getChildren()) {
+                ItemRewardInfo rewardInfo = new ItemRewardInfo();
+                for (MapleData attr : reward.getChildren()) {
+                    String name = attr.getName();
+                    String value = MapleDataTool.getString(attr);
+                    switch (name) {
+                        case "item":
+                            rewardInfo.setItemId(Integer.parseInt(value));
+                            break;
+                        case "prob":
+                            rewardInfo.setProb(Integer.parseInt(value));
+                            break;
+                        case "Effect":
+                            rewardInfo.setEffect(value);
+                            break;
+                        case "count":
+                            rewardInfo.setCount(Integer.parseInt(value));
+                            break;
+                        case "period":
+                            rewardInfo.setPeriod(Integer.parseInt(value));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                item.addItemReward(rewardInfo);
+            }
         }
         items.put(item.getItemId(), item);
         return item;

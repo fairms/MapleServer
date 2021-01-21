@@ -3,7 +3,10 @@ package im.cave.ms.client.field.obj;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.DropEnterType;
+import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.provider.info.ItemInfo;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +26,7 @@ public class Drop extends MapleMapObj {
     private int ownerId;
     private boolean canBePickedUpByPet;
     private long expireTime;
+    private int questId;
 
     public Drop(int templateId, Item item) {
         super(templateId);
@@ -41,10 +45,22 @@ public class Drop extends MapleMapObj {
         expireTime = ZERO_TIME;
     }
 
-
     @Override
     public void sendSpawnPacket(MapleCharacter chr) {
-        chr.announce(WorldPacket.dropEnterField(this, DropEnterType.Instant, getPosition()));
+        Item item = getItem();
+        ItemInfo ii = null;
+        if (item != null) {
+            ii = ItemData.getItemInfoById(item.getItemId());
+        }
+        boolean canBeSeen = isMoney()
+                || (item != null && ItemConstants.isEquip(item.getItemId()))
+                || (ii != null && chr.hasQuestInProgress(getQuestId()));
+        if (ii != null && ii.isQuest() && getQuestId() == 0) {
+            return;
+        }
+        if (canBeSeen) {
+            chr.announce(WorldPacket.dropEnterField(this, DropEnterType.Instant, getPosition()));
+        }
     }
 
     public boolean canBePickedUpBy(MapleCharacter chr) {

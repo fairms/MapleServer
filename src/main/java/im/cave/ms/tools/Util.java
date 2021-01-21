@@ -1,6 +1,8 @@
 package im.cave.ms.tools;
 
 import io.netty.buffer.ByteBuf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,12 +18,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class Util {
+    private static final Logger log = LoggerFactory.getLogger(Util.class);
 
     private static final Map<Class, Class> boxedToPrimClasses = new HashMap<>();
     private static final Pattern regexPattern = Pattern.compile("^\\$2[a-z]\\$.{56}$");
@@ -472,5 +477,28 @@ public class Util {
 
     public static String quotes(String var) {
         return String.format("\"%s\"", var);
+    }
+
+
+    /**
+     * @param <K> prob
+     * @param <V> item
+     * @return rand Item
+     */
+    public static <K extends Number, V> V random(List<Pair<K, V>> list) {
+        if (list == null || list.size() == 0) {
+            return null;
+        }
+        TreeMap<Double, V> weightMap = new TreeMap<>();
+        for (Pair<K, V> pair : list) {
+            if (pair.getLeft().doubleValue() <= 0) {
+                continue;
+            }
+            double lastWeight = weightMap.size() == 0 ? 0 : weightMap.lastKey();
+            weightMap.put(pair.getLeft().doubleValue() + lastWeight, pair.getRight());
+        }
+        double randomWeight = weightMap.lastKey() * Math.random();
+        NavigableMap<Double, V> tailMap = weightMap.tailMap(randomWeight, false);
+        return tailMap.get(tailMap.firstKey());
     }
 }

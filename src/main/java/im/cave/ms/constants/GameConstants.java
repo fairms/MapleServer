@@ -72,7 +72,7 @@ public class GameConstants {
     public static final int MIN_MONEY_MULT = 6;
     public static final int MAX_MONEY_MULT = 9;
     public static final int MAX_DROP_CHANCE = 10000;
-    public static final int MESO_DROP_CHANCE = MAX_DROP_CHANCE / 2;
+    public static final int MESO_DROP_CHANCE = MAX_DROP_CHANCE / 5;
 
 
     // Potential Chance on Drop Equips

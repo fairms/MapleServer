@@ -172,7 +172,7 @@ public class MapleMap {
     public void broadcastMessage(MapleCharacter source, OutPacket packet) {
         for (MapleCharacter chr : characters) {
             if (chr != source) {
-                chr.announce(packet);
+                chr.write(packet);
             }
         }
         packet.release();
@@ -330,6 +330,7 @@ public class MapleMap {
         Drop drop = new Drop(-1);
         drop.setPosition(posTo);
         drop.setOwnerId(ownerId);
+        drop.setQuestId(dropInfo.getQuestId());
         Set<Integer> quests = new HashSet<>();
         if (itemID != 0) {
             item = ItemData.getItemCopy(itemID, true);
@@ -353,7 +354,7 @@ public class MapleMap {
         EventManager.addEvent(() -> drop.setOwnerId(0), GameConstants.DROP_REMOVE_OWNERSHIP_TIME, TimeUnit.SECONDS);
         for (MapleCharacter chr : getCharacters()) {
             if (chr.hasAnyQuestsInProgress(quests)) {
-                broadcastMessage(WorldPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo, 190, drop.canBePickedUpBy(chr)));
+                chr.announce(WorldPacket.dropEnterField(drop, DropEnterType.Floating, posFrom, posTo, 190, drop.canBePickedUpBy(chr)));
             }
         }
     }

@@ -685,6 +685,10 @@ public class MapleCharacter implements Serializable {
         client.announce(out);
     }
 
+    public void write(OutPacket out) {
+        client.write(out);
+    }
+
     public boolean equip(Item item) {
         Equip equip = (Equip) item;
         if (equip.hasSpecialAttribute(EquipSpecialAttribute.Vestige)) {
@@ -1379,7 +1383,11 @@ public class MapleCharacter implements Serializable {
     }
 
     public boolean hasAnyQuestsInProgress(Set<Integer> quests) {
-        return true;
+        return quests.size() == 0 || quests.stream().anyMatch(this::hasQuestInProgress);
+    }
+
+    public boolean hasQuestInProgress(int questId) {
+        return questId == 0 || getQuestManager().hasQuestInProgress(questId);
     }
 
     public void changeSkillState(int skillId) {
@@ -1578,7 +1586,9 @@ public class MapleCharacter implements Serializable {
 
     public boolean canHold(int id) {
         boolean canHold;
-        if (ItemConstants.isEquip(id)) {  //Equip
+        if (ItemConstants.isCashEquip(id)) {
+            canHold = getCashEquipInventory().getSlots() > getCashEquipInventory().getItems().size();
+        } else if (ItemConstants.isEquip(id)) {  //Equip
             canHold = getEquipInventory().getSlots() > getEquipInventory().getItems().size();
         } else {    //Item
             ItemInfo ii = ItemData.getItemInfoById(id);

@@ -29,14 +29,15 @@ public class DropInfo {
     private int mobId;
     private int itemID;
     private int chance;
+    private int minQuantity = 1;
+    private int maxQuantity = 1;
+    private int questId;
     @Transient
     private int money;
     @Transient
     private int minMoney;
     @Transient
     private int maxMoney;
-    private int minQuantity = 1;
-    private int maxQuantity = 1;
     @Transient
     private int quantity = 1;
 

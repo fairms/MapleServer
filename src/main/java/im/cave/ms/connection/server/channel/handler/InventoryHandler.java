@@ -479,6 +479,7 @@ public class InventoryHandler {
             ItemScriptManager.getInstance().startScript(itemId, script, 0, c);
             return;
         }
+
         switch (itemId) {
             case Item_Tag: {
                 short ePos = in.readShort();

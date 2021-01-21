@@ -164,6 +164,11 @@ public class MapleClient {
 
     public void announce(OutPacket out) {
         ch.writeAndFlush(out);
+        out.release();
+    }
+
+    public void write(OutPacket out) {
+        ch.writeAndFlush(out);
     }
 
     public void pongReceived() {

@@ -11,7 +11,7 @@ import java.time.temporal.TemporalAdjusters;
 public class DateUtil {
 
     public final static long FT_OFFSET = 116444520000000000L + 60 * 60 * 14 * 1000 * 10000L; // 2339-01-01 02:00:00:000
-    public final static long DAY = 60L * 60L * 24L * 1000L * 10000L;
+    public final static long DAY = 60L * 60L * 24L * 1000L * 10000L; //nano
 
     public static void main(String[] args) {
         System.out.println(getFileTime(System.currentTimeMillis()));
@@ -30,6 +30,11 @@ public class DateUtil {
             timestamp = timestamp * 10000;
         }
         return timestamp + FT_OFFSET;
+    }
+
+    public static long getFileTime(long timestamp, int addDay) {
+        long now = System.currentTimeMillis();
+        return getFileTime(now + (addDay * DAY / 10000));
     }
 
     public static long getTimestamp(long filetime) {

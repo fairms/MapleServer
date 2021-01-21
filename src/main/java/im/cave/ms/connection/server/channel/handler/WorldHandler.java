@@ -131,7 +131,6 @@ public class WorldHandler {
                 return;
         }
         c.announce(WorldPacket.resultInstanceTable(requestStr, type, subType, value));
-
     }
 
     public static void handleMigrateToCashShopRequest(InPacket in, MapleClient c) {

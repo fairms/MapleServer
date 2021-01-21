@@ -1,9 +1,15 @@
 package im.cave.ms.provider.info;
 
 
+import im.cave.ms.client.character.items.Item;
+import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.tools.DateUtil;
+
+import static im.cave.ms.constants.ServerConstants.MAX_TIME;
+
 public class ItemRewardInfo {
     private int count;
-    private int itemID;
+    private int itemId;
     private double prob;
     private int period;
     private String effect = "";
@@ -16,12 +22,12 @@ public class ItemRewardInfo {
         return count;
     }
 
-    public void setItemID(int itemID) {
-        this.itemID = itemID;
+    public void setItemId(int itemId) {
+        this.itemId = itemId;
     }
 
-    public int getItemID() {
-        return itemID;
+    public int getItemId() {
+        return itemId;
     }
 
     public void setProb(double prob) {
@@ -46,5 +52,12 @@ public class ItemRewardInfo {
 
     public String getEffect() {
         return effect;
+    }
+
+    public Item getItem() {
+        Item item = ItemData.getItemCopy(getItemId(), false);
+        item.setQuantity(getCount());
+        item.setExpireTime(getPeriod() == 0 ? MAX_TIME : DateUtil.getFileTime(System.currentTimeMillis(), getPeriod()));
+        return item;
     }
 }

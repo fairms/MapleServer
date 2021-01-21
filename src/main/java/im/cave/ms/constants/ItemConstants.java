@@ -773,6 +773,11 @@ public class ItemConstants {
         return id / 1000000 == 1;
     }
 
+    public static boolean isCashEquip(int id) {
+        ItemInfo ii = ItemData.getItemInfoById(id);
+        return id / 1000000 == 1 && ii.isCash();
+    }
+
     public static boolean isClaw(int id) {
         return getItemPrefix(id) == 147;
     }

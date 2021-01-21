@@ -11,7 +11,7 @@ public class ServerConstants {
     public static final long ZERO_TIME = 94354848000000000L;
     public static final long ONE_DAY_TIMES = 60 * 60 * 24 * 1000L;
     public static final short VERSION = 177;
-    public static final String PATH = "1";
+    public static final String PATH = "2";
     public static final int LOGIN_PORT = 8484;
     public static final int BCRYPT_ITERATIONS = 10;
     public static final String DIR = System.getProperty("user.dir");

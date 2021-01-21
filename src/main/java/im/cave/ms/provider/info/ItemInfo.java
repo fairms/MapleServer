@@ -79,4 +79,7 @@ public class ItemInfo {
         limitedPets.add(itemId);
     }
 
+    public void addItemReward(ItemRewardInfo rewardInfo) {
+        itemRewardInfos.add(rewardInfo);
+    }
 }

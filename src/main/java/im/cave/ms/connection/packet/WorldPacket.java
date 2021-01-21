@@ -429,8 +429,7 @@ public class WorldPacket {
     }
 
     public static OutPacket resultInstanceTable(String requestStr, int type, int subType, int value) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.RESULT_INSTANCE_TABLE.getValue());
+        OutPacket out = new OutPacket(SendOpcode.RESULT_INSTANCE_TABLE);
         out.writeMapleAsciiString(requestStr);
         out.writeInt(type);
         out.writeInt(subType);

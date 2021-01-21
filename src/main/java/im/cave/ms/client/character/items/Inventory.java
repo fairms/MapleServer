@@ -68,7 +68,7 @@ public class Inventory {
         if (item.getPos() == 0 || !isFreeSlot((byte) item.getPos())) {
             item.setPos(getNextFreeSlot());
         }
-        if (getItems().size() < slots) {
+        if (getItems().size() < getSlots()) {
             item.setInvType(getType());
             items.add(item);
             sortItemsByIndex();
@@ -124,7 +124,7 @@ public class Inventory {
         return getItems().stream().filter(item -> item.getItemId() == itemId).findFirst().orElse(null);
     }
 
-    private boolean isFull() {
+    public boolean isFull() {
         return getItems().size() >= getSlots();
     }
 
