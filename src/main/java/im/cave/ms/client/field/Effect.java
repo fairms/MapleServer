@@ -4,6 +4,7 @@ package im.cave.ms.client.field;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.UserPacket;
+import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.enums.TextEffectType;
 import im.cave.ms.enums.UserEffectType;
 import im.cave.ms.tools.Position;
@@ -235,8 +236,8 @@ public class Effect {
         MapleMap map = chr.getMap();
         chr.announce(UserPacket.effect(Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/front")));
         chr.announce(UserPacket.effect(Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/back")));
-//        map.broadcastMessage(UserPacket.effect(chr.getId(), Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/front")));
-//        map.broadcastMessage(UserPacket.effect(chr.getId(), Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/back")));
+        map.broadcastMessage(UserRemote.effect(chr.getId(), Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/front")));
+        map.broadcastMessage(UserRemote.effect(chr.getId(), Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/back")));
     }
 
 

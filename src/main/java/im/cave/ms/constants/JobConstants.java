@@ -2,6 +2,7 @@ package im.cave.ms.constants;
 
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Itzik
@@ -831,6 +832,5 @@ public class JobConstants {
         return isAdventurerPirate(jobID) || isThunderBreaker(jobID) || isShade(jobID) || isAngelicBuster(jobID) ||
                 isXenon(jobID) || isMechanic(jobID) || isJett(jobID);
     }
-
-
+    
 }

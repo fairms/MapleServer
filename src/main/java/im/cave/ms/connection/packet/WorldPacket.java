@@ -845,4 +845,13 @@ public class WorldPacket {
         }
         return out;
     }
+
+    public static OutPacket npcDisableInfo(int[] npcs) {
+        OutPacket out = new OutPacket(SendOpcode.LIMITED_NPC_DISABLE_INFO);
+        out.write(npcs.length);
+        for (int npc : npcs) {
+            out.writeInt(npc);
+        }
+        return out;
+    }
 }

@@ -2,8 +2,11 @@ package im.cave.ms.connection.server.channel.handler;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.connection.packet.FamiliarPacket;
+import im.cave.ms.connection.packet.UserPacket;
+import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.info.FamiliarInfo;
 import im.cave.ms.provider.info.ItemInfo;
@@ -66,8 +69,11 @@ public class ItemActuator {
         }
         if (canHold) {
             chr.addItemToInv(reward);
+            chr.announce(UserPacket.effect(Effect.avatarOriented(itemRewardInfo.getEffect())));
+            chr.getMap().broadcastMessage(UserRemote.effect(chr.getId(), Effect.avatarOriented(itemRewardInfo.getEffect())));
             return true;
         } else {
+            //todo
 //            chr.announce() //背包空间不足
             return false;
         }

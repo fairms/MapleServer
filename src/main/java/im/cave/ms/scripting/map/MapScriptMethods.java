@@ -34,4 +34,8 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         effect.setArg1(delay);
         getChar().announce(WorldPacket.fieldEffect(effect));
     }
+
+    public void npcDisableInfo(int[] npcs) {
+        getChar().announce(WorldPacket.npcDisableInfo(npcs));
+    }
 }
