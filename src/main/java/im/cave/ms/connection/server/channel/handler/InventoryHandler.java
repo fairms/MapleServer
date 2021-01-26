@@ -449,7 +449,7 @@ public class InventoryHandler {
             return;
         }
         player.getInventory(invType).expandSlot(6);
-        player.announce(UserPacket.invExpandResult(i, account.getPoint(), cash));
+        player.announce(UserPacket.invExpandResult(i, account.getMaplePoint(), cash));
     }
 
     public static void handleUserConsumeCashItemUseRequest(InPacket in, MapleClient c) {

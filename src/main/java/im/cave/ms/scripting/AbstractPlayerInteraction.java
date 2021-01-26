@@ -7,10 +7,13 @@ import im.cave.ms.client.RecordManager;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.JobEnum;
 import im.cave.ms.enums.RecordType;
 
 import java.util.Calendar;
+import java.util.List;
 
 public class AbstractPlayerInteraction {
 
@@ -24,20 +27,16 @@ public class AbstractPlayerInteraction {
         return c;
     }
 
-    public MapleCharacter getPlayer() {
-        return c.getPlayer();
-    }
-
     public MapleCharacter getChar() {
         return c.getPlayer();
     }
 
     public int getJob() {
-        return getPlayer().getJob();
+        return getChar().getJob();
     }
 
     public int getLevel() {
-        return getPlayer().getLevel();
+        return getChar().getLevel();
     }
 
     public MapleMap getMap() {
@@ -113,4 +112,21 @@ public class AbstractPlayerInteraction {
         return record != null ? record.getValue() : 0;
     }
 
+    public void openUI() {
+        MapleCharacter player = c.getPlayer();
+        c.announce(WorldPacket.openUI(player.getCombo()));
+        player.setCombo(player.getCombo() + 1);
+    }
+
+    public List<JobEnum> getAdvancedJobs(int jobId) {
+        return JobEnum.getAdvancedJobs(jobId);
+    }
+
+    public int getJobReqLev(int jobId) {
+        return JobConstants.getJobReqLev(jobId);
+    }
+
+    public boolean changeJob(int jobId) {
+        return getChar().changeJob(jobId);
+    }
 }

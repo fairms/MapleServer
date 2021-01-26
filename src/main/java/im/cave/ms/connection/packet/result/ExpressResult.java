@@ -2,6 +2,8 @@ package im.cave.ms.connection.packet.result;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.multiplayer.Express;
+import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.enums.ExpressAction;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,10 +53,10 @@ public class ExpressResult {
         return expressResult;
     }
 
-    public static ExpressResult haveNewExpress() {
+    public static ExpressResult haveNewExpress(Express express) {
         ExpressResult expressResult = new ExpressResult();
-        expressResult.setFromName("系统");
-        expressResult.setArg1(2);
+        expressResult.setFromName(express.getFromChar());
+        expressResult.setArg1(express.getStatus());
         return expressResult;
     }
 }

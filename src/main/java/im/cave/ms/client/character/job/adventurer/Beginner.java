@@ -9,14 +9,13 @@ import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.connection.netty.InPacket;
-import im.cave.ms.constants.JobConstants;
+import im.cave.ms.enums.JobEnum;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.SkillInfo;
 
 import java.util.Arrays;
 
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Booster;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Regen;
 import static im.cave.ms.enums.SkillStat.time;
 import static im.cave.ms.enums.SkillStat.x;
@@ -121,8 +120,8 @@ public class Beginner extends MapleJob {
 
     @Override
     public boolean isHandlerOfJob(short id) {
-        JobConstants.JobEnum job = JobConstants.JobEnum.getJobById(id);
-        return job == JobConstants.JobEnum.BEGINNER;
+        JobEnum job = JobEnum.getJobById(id);
+        return job == JobEnum.BEGINNER;
     }
 
     @Override

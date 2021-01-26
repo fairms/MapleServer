@@ -411,7 +411,7 @@ public class WorldHandler {
                 c.announce(LoginPacket.account(player.getAccount()));
                 c.announce(UserPacket.quickslotInit(player));
                 c.announce(UserPacket.macroSysDataInit(player));
-                c.announce(UserPacket.updateVoucher(player));
+                c.announce(UserPacket.updateMaplePoint(player));
                 c.getAccount().buildSharedQuestEx();
                 c.announce(MapleSignIn.signinInit());
                 c.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Inbox, player.getInBox(), 0));
@@ -420,7 +420,7 @@ public class WorldHandler {
                 c.announce(WorldPacket.onlineRewardResult(OnlineRewardResult.onlineRewardsList(player)));
                 player.announce(UserPacket.remainingMapTransferCoupon(player));
                 if (player.getExpresses().size() > 0) {
-                    c.announce(WorldPacket.expressResult(ExpressResult.haveNewExpress()));
+                    c.announce(WorldPacket.expressResult(ExpressResult.haveNewExpress(player.getNewExpress())));
                 }
                 player.initPotionPot();
                 break;

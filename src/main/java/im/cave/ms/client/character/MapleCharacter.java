@@ -134,6 +134,8 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 import static im.cave.ms.enums.InventoryType.ETC;
 import static im.cave.ms.enums.InventoryType.INSTALL;
 
+import im.cave.ms.enums.JobEnum;
+
 /**
  * @author fair
  * @version V1.0
@@ -1077,7 +1079,7 @@ public class MapleCharacter implements Serializable {
 
 
     public boolean setJob(int jobId) {
-        JobConstants.JobEnum job = JobConstants.JobEnum.getJobById((short) jobId);
+        JobEnum job = JobEnum.getJobById((short) jobId);
         if (job == null) {
             return false;
         }
@@ -1346,18 +1348,19 @@ public class MapleCharacter implements Serializable {
                 forEach(this::addToBaseStatCache);
     }
 
-    public void changeJob(int jobId) {
-        JobConstants.JobEnum job = JobConstants.JobEnum.getJobById((short) jobId);
+    public boolean changeJob(int jobId) {
+        JobEnum job = JobEnum.getJobById((short) jobId);
         if (job == null) {
-            return;
+            return false;
         }
         if (!setJob(jobId)) {
-            return;
+            return false;
         }
         setJobHandler(JobManager.getJobById(getJob(), this));
         HashMap<Stat, Long> stats = new HashMap<>();
         stats.put(Stat.JOB, (long) getJob());
         announce(UserPacket.updatePlayerStats(stats, this));
+        return true;
     }
 
     public boolean hasSkill(int skill) {
@@ -1770,11 +1773,11 @@ public class MapleCharacter implements Serializable {
             case Cash:
                 getAccount().addCash(amount);
                 break;
-            case Voucher:
-                getAccount().addVoucher(amount);
+            case MaplePoint:
+                getAccount().addPoint(amount);
                 break;
             case Point:
-                getAccount().addPoint(amount);
+                getAccount().addMaplePoint(amount);
                 break;
             case Meso:
                 addMeso(amount);
@@ -1859,10 +1862,10 @@ public class MapleCharacter implements Serializable {
 
             out.writeInt(0); //pvp exp
             out.write(10); //pvp grade
-            out.writeInt(0); // pvp point
+            out.writeInt(0); // pvp maplePoint
             out.write(5); // unk
             out.write(5); // pvp mode type
-            out.writeInt(0); //event point
+            out.writeInt(0); //event maplePoint
 
             out.writeReversedLong(getLastLogout());
             out.writeLong(MAX_TIME);
@@ -1909,6 +1912,7 @@ public class MapleCharacter implements Serializable {
 
     public void addFamiliar(Familiar familiar) {
         familiars.add(familiar);
+
     }
 
     public void removePet(Pet pet) {
@@ -1921,5 +1925,9 @@ public class MapleCharacter implements Serializable {
 
     public Familiar getFamiliar(int id) {
         return Util.findWithPred(getFamiliars(), fam -> fam.getItemId() == id);
+    }
+
+    public Express getNewExpress() {
+        return Util.findWithPred(getExpresses(), express -> express.getStatus() == 2);
     }
 }

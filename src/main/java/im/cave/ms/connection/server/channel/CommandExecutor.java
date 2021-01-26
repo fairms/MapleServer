@@ -15,6 +15,7 @@ import im.cave.ms.connection.packet.MessagePacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.server.Server;
+import im.cave.ms.connection.server.channel.handler.NpcHandler;
 import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
@@ -108,6 +109,9 @@ public class CommandExecutor {
                 Foothold fh = map.findFootHoldBelow(new Position(position.getX(), position.getY() - GameConstants.DROP_HEIGHT));
                 drop.setCanBePickedUpByPet(false);
                 map.drop(drop, position, new Position(position.getX(), fh.getYFromX(position.getX())), true);
+                break;
+            case NPC:
+                NpcHandler.talkToNPC(player, 9220050);
                 break;
         }
     }
@@ -257,7 +261,7 @@ public class CommandExecutor {
 //                NpcData.refreshShop();
 //                break;
 //            case "em":
-//                c.getAccount().addPoint(100000);
+//                c.getAccount().addMaplePoint(100000);
 //                c.getMapleChannel().broadcast(WorldPacket.eventMessage("测试测试", 2, 3000));
 //                break;
 //            case "meso":

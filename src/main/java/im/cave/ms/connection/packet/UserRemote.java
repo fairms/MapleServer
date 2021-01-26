@@ -26,9 +26,19 @@ import static im.cave.ms.constants.QuestConstants.QUEST_EX_SOUL_EFFECT;
  * @date 12/29 12:42
  */
 public class UserRemote {
+
+    public static OutPacket skillCancel(int chrId, int skillId) {
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_SKILL_CANCEL);
+
+        out.writeInt(chrId);
+        out.writeInt(skillId);
+
+        return out;
+    }
+
     public static OutPacket hit(MapleCharacter player, HitInfo hitInfo) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.REMOTE_HIT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_HIT);
+
         out.writeInt(player.getId());
         out.write(hitInfo.type);
         out.writeInt(hitInfo.hpDamage);
@@ -48,19 +58,22 @@ public class UserRemote {
             out.writeInt(hitInfo.curStanceSkill);
         }
         out.writeInt(hitInfo.hpDamage);
+
         return out;
     }
 
     public static OutPacket effect(int id, Effect effect) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.REMOTE_EFFECT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_EFFECT);
+
         out.writeInt(id);
         effect.encode(out);
+
         return out;
     }
 
     public static OutPacket attack(MapleCharacter player, AttackInfo attackInfo) {
         OutPacket out = new OutPacket();
+
         switch (attackInfo.attackHeader) {
             case CLOSE_RANGE_ATTACK:
                 out.writeShort(SendOpcode.REMOTE_CLOSE_RANGE_ATTACK.getValue());
@@ -72,6 +85,7 @@ public class UserRemote {
                 out.writeShort(SendOpcode.REMOTE_MAGIC_ATTACK.getValue());
                 break;
         }
+
         out.writeInt(player.getId());
         out.write(attackInfo.fieldKey);
         out.write(attackInfo.mobCount << 4 | attackInfo.hits);
@@ -97,12 +111,13 @@ public class UserRemote {
                 out.writeLong(damage);
             }
         }
+
         return out;
     }
 
     public static OutPacket charInfo(MapleCharacter chr) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.CHAR_INFO.getValue());
+        OutPacket out = new OutPacket(SendOpcode.CHAR_INFO);
+
         out.writeInt(chr.getId());
         out.writeInt(chr.getLevel());
         out.writeShort(chr.getJob());
@@ -157,27 +172,31 @@ public class UserRemote {
         for (Item item : medals) {
             out.writeInt(item.getItemId());
         }
+
         return out;
     }
 
     public static OutPacket showBlackboard(MapleCharacter chr, boolean show, String content) {
-        OutPacket out = new OutPacket();
+        OutPacket out = new OutPacket(SendOpcode.BLACK_BOARD);
+
         out.writeInt(chr.getId());
         out.writeBool(show);
         if (show) {
             out.writeMapleAsciiString(content);
         }
+
         return out;
     }
 
 
     public static OutPacket emotion(Integer charId, int emotion, int duration, boolean byItemOption) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.REMOTE_EMOTION.getValue());
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_EMOTION);
+
         out.writeInt(charId);
         out.writeInt(emotion);
         out.writeInt(duration);
         out.writeBool(byItemOption);
+
         return out;
     }
 
@@ -254,16 +273,17 @@ public class UserRemote {
     }
 
     public static OutPacket setSoulEffect(Integer charId, boolean set) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SET_SOUL_EFFECT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.SET_SOUL_EFFECT);
+
         out.writeInt(charId);
         out.writeBool(set);
+
         return out;
     }
 
     public static OutPacket setSoulEffect(MapleCharacter player) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SET_SOUL_EFFECT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.SET_SOUL_EFFECT);
+
         out.writeInt(player.getId());
         Map<String, String> options = player.getQuestEx().get(QUEST_EX_SOUL_EFFECT);
         boolean set = false;
@@ -271,6 +291,7 @@ public class UserRemote {
             set = options.get("effect").equals("1");
         }
         out.writeBool(set);
+
         return out;
     }
 }

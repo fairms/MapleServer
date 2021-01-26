@@ -30,7 +30,7 @@ public class OnlineReward {
     private int itemId;
     private int quantity;
     private int meso;
-    private int voucher;
+    private int maplePoint;
     private int exp;
     private String msg;
 
@@ -46,7 +46,7 @@ public class OnlineReward {
         out.writeInt(0);
         out.writeLong(MAX_TIME);
         out.writeInt(0);
-        out.writeInt(getVoucher());
+        out.writeInt(getMaplePoint());
         out.writeZeroBytes(26);
         out.writeMapleAsciiString(getMsg());
     }

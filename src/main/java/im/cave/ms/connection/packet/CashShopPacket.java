@@ -111,8 +111,8 @@ public class CashShopPacket {
     public static OutPacket queryCashResult(Account acc) {
         OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_QUERY_CASH_RESULT);
         out.writeInt(acc.getCash());
-        out.writeInt(acc.getVoucher());
         out.writeInt(acc.getPoint());
+        out.writeInt(acc.getMaplePoint());
         return out;
     }
 

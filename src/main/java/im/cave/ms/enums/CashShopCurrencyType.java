@@ -10,7 +10,7 @@ import java.util.Arrays;
  */
 public enum CashShopCurrencyType {
     Cash(0),
-    Voucher(1),
+    MaplePoint(1),
     Point(-1),
     Meso(-1);
 

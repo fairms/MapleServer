@@ -278,7 +278,7 @@ public class MobData {
                     case "bodyDiseaseLevel":
                         mob.setBodyDiseaseLevel(Integer.parseInt(value));
                         break;
-                    case "point":
+                    case "maplePoint":
                         mob.setPoint(Integer.parseInt(value));
                         break;
                     case "partyBonusR":

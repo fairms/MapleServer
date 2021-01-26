@@ -682,8 +682,8 @@ public class WorldPacket {
     public static OutPacket queryCashPointResult(Account account) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.CASH_POINT_RESULT.getValue());
+        out.writeInt(account.getMaplePoint());
         out.writeInt(account.getPoint());
-        out.writeInt(account.getVoucher());
         return out;
     }
 
@@ -691,10 +691,24 @@ public class WorldPacket {
         return openUI(uiType.getVal());
     }
 
+
     public static OutPacket openUI(int uiId) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.OPEN_UI.getValue());
         out.writeInt(uiId);
+        return out;
+    }
+
+    public static OutPacket openUIWithOption(UIType uiType, int option) {
+        return openUIWithOption(uiType.getVal(), option);
+    }
+
+    // 00 00 00 00 10 00 00 00 背包 - 装备栏
+    public static OutPacket openUIWithOption(int uiId, int option) {
+        OutPacket out = new OutPacket(SendOpcode.OPEN_UI_WITH_OPTION);
+        out.writeInt(uiId);
+        out.writeInt(option);
+        out.writeInt(0); //minigame options
         return out;
     }
 
@@ -831,10 +845,10 @@ public class WorldPacket {
                     reward.encode(out);
                 }
                 break;
-            case GET_VOUCHER:
+            case GET_MAPLE_POINT:
                 OnlineReward reward = result.getReward();
                 out.writeInt(reward.getSort());
-                out.writeInt(reward.getVoucher());
+                out.writeInt(reward.getMaplePoint());
                 out.writeInt(0);
                 break;
             case GET_ITEM:

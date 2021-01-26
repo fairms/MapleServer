@@ -1,6 +1,8 @@
 package im.cave.ms.constants;
 
 
+import im.cave.ms.enums.JobEnum;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,7 +36,7 @@ public class JobConstants {
     }
 
     public static boolean isAngelicBuster(int id) {
-        return id == JobConstants.JobEnum.ANGELIC_BUSTER.getJob() || id / 100 == 65;
+        return id == JobEnum.ANGELIC_BUSTER.getJob() || id / 100 == 65;
     }
 
     public static boolean isBlazeWizard(short job) {
@@ -102,11 +104,11 @@ public class JobConstants {
     }
 
     public static boolean isKanna(short id) {
-        return id == JobConstants.JobEnum.KANNA.getJob() || id / 100 == 42;
+        return id == JobEnum.KANNA.getJob() || id / 100 == 42;
     }
 
     public static boolean isHayato(short id) {
-        return id == JobConstants.JobEnum.HAYATO.getJob() || id / 100 == 41;
+        return id == JobEnum.HAYATO.getJob() || id / 100 == 41;
     }
 
     public static boolean isNightWalker(short id) {
@@ -190,11 +192,11 @@ public class JobConstants {
     }
 
     public static boolean isMechanic(short id) {
-        return id >= JobConstants.JobEnum.MECHANIC_1.getJob() && id <= JobConstants.JobEnum.MECHANIC_4.getJob();
+        return id >= JobEnum.MECHANIC_1.getJob() && id <= JobEnum.MECHANIC_4.getJob();
     }
 
     public static boolean isBattleMage(short id) {
-        return id >= JobConstants.JobEnum.BATTLE_MAGE_1.getJob() && id <= JobConstants.JobEnum.BATTLE_MAGE_4.getJob();
+        return id >= JobEnum.BATTLE_MAGE_1.getJob() && id <= JobEnum.BATTLE_MAGE_4.getJob();
     }
 
     public static boolean isGmJob(short id) {
@@ -207,289 +209,6 @@ public class JobConstants {
 
     public static boolean isSuperGm(short id) {
         return id == JobEnum.SUPER_GM.getJob();
-    }
-
-    public enum JobEnum {
-        BEGINNER(0, 0),
-        WARRIOR(100, 0),
-        FIGHTER(110, 0),
-        CRUSADER(111, 0),
-        HERO(112, 0),
-        PAGE(120, 0),
-        WHITE_KNIGHT(121, 0),
-        PALADIN(122, 0),
-        SPEARMAN(130, 0),
-        DRAGON_KNIGHT(131, 0),
-        DARK_KNIGHT(132, 0),
-        MAGICIAN(200, 0),
-        FP_WIZARD(210, 0),
-        FP_MAGE(211, 0),
-        FP_ARCHMAGE(212, 0),
-        IL_WIZARD(220, 0),
-        IL_MAGE(221, 0),
-        IL_ARCHMAGE(222, 0),
-        CLERIC(230, 0),
-        PRIEST(231, 0),
-        BISHOP(232, 0),
-        BOWMAN(300, 0),
-        HUNTER(310, 0),
-        RANGER(311, 0),
-        BOW_MASTER(312, 0),
-        CROSS_BOWMAN(320, 0),
-        SNIPER(321, 0),
-        MARKSMAN(322, 0),
-        PATH_FINDER1(301, 0),
-        PATH_FINDER2(330, 0),
-        PATH_FINDER3(331, 0),
-        PATH_FINDER4(332, 0),
-        THIEF(400, 0),
-        ASSASSIN(410, 0),
-        HERMIT(411, 0),
-        NIGHT_LORD(412, 0),
-        BANDIT(420, 0),
-        CHIEF_BANDIT(421, 0),
-        SHADOWER(422, 0),
-        BLADE_RECRUIT(430, 0),
-        BLADE_ACOLYTE(431, 0),
-        BLADE_SPECIALIST(432, 0),
-        BLADE_LORD(433, 0),
-        BLADE_MASTER(434, 0),
-        PIRATE(500, 0),
-        PIRATE_CANNONNEER(501, 0),
-        JETT1(508, 0),
-        BRAWLER(510, 0),
-        MARAUDER(511, 0),
-        BUCCANEER(512, 0),
-        GUNSLINGER(520, 0),
-        OUTLAW(521, 0),
-        CORSAIR(522, 0),
-        CANNONEER(530, 0),
-        CANNON_BLASTER(531, 0),
-        CANNON_MASTER(532, 0),
-        JETT2(570, 0),
-        JETT3(571, 0),
-        JETT4(572, 0),
-        BRAWLER_NEW(580, 0),
-        MARAUDER_NEW(581, 0),
-        BUCCANEER_NEW(582, 0),
-        GUNSLINGER_NEW(590, 0),
-        OUTLAW_NEW(591, 0),
-        CORSAIR_NEW(592, 0),
-        MANAGER(800, 0),
-        GM(900, 0),
-        SUPER_GM(910, 0),
-        NOBLESSE(1000, 1000),
-        DAWNWARRIOR1(1100, 1000),
-        DAWNWARRIOR2(1110, 1000),
-        DAWNWARRIOR3(1111, 1000),
-        DAWNWARRIOR4(1112, 1000),
-        BLAZEWIZARD1(1200, 1000),
-        BLAZEWIZARD2(1210, 1000),
-        BLAZEWIZARD3(1211, 1000),
-        BLAZEWIZARD4(1212, 1000),
-        WINDARCHER1(1300, 1000),
-        WINDARCHER2(1310, 1000),
-        WINDARCHER3(1311, 1000),
-        WINDARCHER4(1312, 1000),
-        NIGHTWALKER1(1400, 1000),
-        NIGHTWALKER2(1410, 1000),
-        NIGHTWALKER3(1411, 1000),
-        NIGHTWALKER4(1412, 1000),
-        THUNDERBREAKER1(1500, 1000),
-        THUNDERBREAKER2(1510, 1000),
-        THUNDERBREAKER3(1511, 1000),
-        THUNDERBREAKER4(1512, 1000),
-        LEGEND(2000, 2000),
-        EVAN_NOOB(2001, 2001),
-        ARAN1(2100, 2000),
-        ARAN2(2110, 2000),
-        ARAN3(2111, 2000),
-        ARAN4(2112, 2000),
-        EVAN(2200, 2001),
-        EVAN1(2210, 2001),
-        EVAN2(2212, 2001),
-        EVAN3(2214, 2001),
-        EVAN4(2218, 2001),
-        MERCEDES(2002, 2002),
-        MERCEDES1(2300, 2002),
-        MERCEDES2(2310, 2002),
-        MERCEDES3(2311, 2002),
-        MERCEDES4(2312, 2002),
-        PHANTOM(2003, 2003),
-        PHANTOM1(2400, 2003),
-        PHANTOM2(2410, 2003),
-        PHANTOM3(2411, 2003),
-        PHANTOM4(2412, 2003),
-        SHADE(2005, 2005),
-        SHADE1(2500, 2005),
-        SHADE2(2510, 2005),
-        SHADE3(2511, 2005),
-        SHADE4(2512, 2005),
-        LUMINOUS(2004, 2004),
-        LUMINOUS1(2700, 2004),
-        LUMINOUS2(2710, 2004),
-        LUMINOUS3(2711, 2004),
-        LUMINOUS4(2712, 2004),
-        CITIZEN(3000, 3000),
-        DEMON_SLAYER(3001, 3001),
-        XENON(3002, 3002),
-        DEMON_SLAYER1(3100, 3001),
-        DEMON_SLAYER2(3110, 3001),
-        DEMON_SLAYER3(3111, 3001),
-        DEMON_SLAYER4(3112, 3001),
-        DEMON_AVENGER1(3101, 3001),
-        DEMON_AVENGER2(3120, 3001),
-        DEMON_AVENGER3(3121, 3001),
-        DEMON_AVENGER4(3122, 3001),
-        BATTLE_MAGE_1(3200, 3000),
-        BATTLE_MAGE_2(3210, 3000),
-        BATTLE_MAGE_3(3211, 3000),
-        BATTLE_MAGE_4(3212, 3000),
-        WILD_HUNTER_1(3300, 3000),
-        WILD_HUNTER_2(3310, 3000),
-        WILD_HUNTER_3(3311, 3000),
-        WILD_HUNTER_4(3312, 3000),
-        MECHANIC_1(3500, 3000),
-        MECHANIC_2(3510, 3000),
-        MECHANIC_3(3511, 3000),
-        MECHANIC_4(3512, 3000),
-        BLASTER_1(3700, 3000),
-        BLASTER_2(3710, 3000),
-        BLASTER_3(3711, 3000),
-        BLASTER_4(3712, 3000),
-        XENON1(3600, 3002),
-        XENON2(3610, 3002),
-        XENON3(3611, 3002),
-        XENON4(3612, 3002),
-        HAYATO(4001, 4001),
-        KANNA(4002, 4002),
-        HAYATO1(4100, 4001),
-        HAYATO2(4110, 4001),
-        HAYATO3(4111, 4001),
-        HAYATO4(4112, 4001),
-        KANNA1(4200, 4002),
-        KANNA2(4210, 4002),
-        KANNA3(4211, 4002),
-        KANNA4(4212, 4002),
-        NAMELESS_WARDEN(5000, 5000),
-        MIHILE1(5100, 5000),
-        MIHILE2(5110, 5000),
-        MIHILE3(5111, 5000),
-        MIHILE4(5112, 5000),
-        KAISER(6000, 6000),
-        ANGELIC_BUSTER(6001, 6001),
-        CADENA(6002, 6002),
-        KAISER1(6100, 6000),
-        KAISER2(6110, 6000),
-        KAISER3(6111, 6000),
-        KAISER4(6112, 6000),
-        CADENA1(6400, 6002),
-        CADENA2(6410, 6002),
-        CADENA3(6411, 6002),
-        CADENA4(6412, 6002),
-        ANGELIC_BUSTER1(6500, 6001),
-        ANGELIC_BUSTER2(6510, 6001),
-        ANGELIC_BUSTER3(6511, 6001),
-        ANGELIC_BUSTER4(6512, 6001),
-        RIDE_SKILLS(8000, 0),
-        ADDITIONAL_SKILLS(9000, 0),
-        ZERO(10000, 10000),
-        ZERO1(10100, 10000),
-        ZERO2(10110, 10000),
-        ZERO3(10111, 10000),
-        ZERO4(10112, 10000),
-        BEAST_TAMER(11000, 11000),
-        BEAST_TAMER_1(11200, 11000),
-        BEAST_TAMER_2(11210, 11000),
-        BEAST_TAMER_3(11211, 11000),
-        BEAST_TAMER_4(11212, 11000),
-        PINK_BEAN_0(13000, 13000),
-        PINK_BEAN_1(13100, 13000),
-        KINESIS_0(14000, 14000),
-        KINESIS_1(14200, 14000),
-        KINESIS_2(14210, 14000),
-        KINESIS_3(14211, 14000),
-        KINESIS_4(14212, 14000),
-        ILLIUM(15000, 15000),
-        ILLIUM1(15200, 15000),
-        ILLIUM2(15210, 15000),
-        ILLIUM3(15211, 15000),
-        ILLIUM4(15212, 15000),
-        ARK(15001, 15001),
-        ARK1(15500, 15001),
-        ARK2(15510, 15001),
-        ARK3(15511, 15001),
-        ARK4(15512, 15001),
-        HOYOUNG(16000, 16000),
-        HOYOUNG1(16400, 16000),
-        HOYOUNG2(16410, 16000),
-        HOYOUNG3(16411, 16000),
-        HOYOUNG4(16412, 16000),
-        ADELE(15002, 15002),
-        ADELE1(15100, 15002),
-        ADELE2(15110, 15002),
-        ADELE3(15111, 15002),
-        ADELE4(15112, 15002),
-        EMPTY_0(30000, 0),
-        V_SKILLS(40000, 0),
-        EMPTY_2(40001, 0),
-        EMPTY_3(40002, 0),
-        EMPTY_4(40003, 0),
-        EMPTY_5(40004, 0),
-        EMPTY_6(40005, 0),
-        PINK_BEAN_EMPTY_0(800000, 13000),
-        PINK_BEAN_EMPTY_1(800001, 13000),
-        PINK_BEAN_EMPTY_2(800002, 13000),
-        PINK_BEAN_EMPTY_3(800003, 13000),
-        PINK_BEAN_EMPTY_4(800004, 13000),
-        PINK_BEAN_EMPTY_5(800010, 13000),
-        PINK_BEAN_EMPTY_6(800011, 13000),
-        PINK_BEAN_EMPTY_7(800012, 13000),
-        PINK_BEAN_EMPTY_8(800013, 13000),
-        PINK_BEAN_EMPTY_9(800014, 13000),
-        PINK_BEAN_EMPTY_10(800015, 13000),
-        PINK_BEAN_EMPTY_11(800016, 13000),
-        PINK_BEAN_EMPTY_12(800017, 13000),
-        PINK_BEAN_EMPTY_13(800018, 13000),
-        PINK_BEAN_EMPTY_14(800019, 13000),
-        PINK_BEAN_EMPTY_15(800022, 13000);
-
-        private final short jobId;
-        private final int mapId;
-        private final short beginnerJobId;
-
-        JobEnum(short jobId, short beginnerJobId) {
-            this.jobId = jobId;
-            this.beginnerJobId = beginnerJobId;
-            this.mapId = 100000000;
-        }
-
-        JobEnum(int jobId, int beginnerJobId, int mapId) {
-            this.jobId = (short) jobId;
-            this.beginnerJobId = (short) beginnerJobId;
-            this.mapId = mapId;
-        }
-
-        JobEnum(int jobId, int beginnerJobId) {
-            this((short) jobId, (short) beginnerJobId);
-        }
-
-
-        public short getJob() {
-            return jobId;
-        }
-
-        public short getBeginnerJobId() {
-            return beginnerJobId;
-        }
-
-        public static JobEnum getJobById(short id) {
-            return Arrays.stream(JobEnum.values()).filter(j -> j.getJob() == id).findAny().orElse(null);
-        }
-
-        public int getMapId() {
-            return mapId;
-        }
     }
 
     public enum LoginJob {
@@ -662,7 +381,7 @@ public class JobConstants {
     }
 
     public static boolean isKaiser(short jobId) {
-        return jobId == JobConstants.JobEnum.KAISER.getJob() || jobId / 100 == 61;
+        return jobId == JobEnum.KAISER.getJob() || jobId / 100 == 61;
     }
 
     public static boolean isZero(short jobId) {
@@ -701,6 +420,38 @@ public class JobConstants {
         return jobId == JobEnum.ARK.getJob() || jobId == JobEnum.ARK1.getJob() || jobId == JobEnum.ARK2.getJob() || jobId == JobEnum.ARK3.getJob() || jobId == JobEnum.ARK4.getJob();
     }
 
+
+    public static int getJobReqLev(int jobId) {
+        if (isDualBlade((short) jobId)) {
+            switch (jobId) {
+                case 430:
+                    return 20;
+                case 431:
+                    return 30;
+                case 432:
+                    return 45;
+                case 433:
+                    return 60;
+                case 434:
+                    return 100;
+                default:
+                    return 0;
+            }
+        }
+        int jobLevel = getJobLevel((short) jobId);
+        switch (jobLevel) {
+            case 1:
+                return 10;
+            case 2:
+                return 30;
+            case 3:
+                return 60;
+            case 4:
+                return 100;
+        }
+        return 0;
+    }
+
     public static boolean isBeginnerJob(short jobId) {
         switch (jobId) {
             case 2001:
@@ -726,6 +477,7 @@ public class JobConstants {
                 return jobId % 1000 == 0;
         }
     }
+
 
     public static int getJobLevel(short jobId) {
         int prefix;
@@ -832,5 +584,5 @@ public class JobConstants {
         return isAdventurerPirate(jobID) || isThunderBreaker(jobID) || isShade(jobID) || isAngelicBuster(jobID) ||
                 isXenon(jobID) || isMechanic(jobID) || isJett(jobID);
     }
-    
+
 }

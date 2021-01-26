@@ -13,12 +13,6 @@ public class DateUtil {
     public final static long FT_OFFSET = 116444520000000000L + 60 * 60 * 14 * 1000 * 10000L; // 2339-01-01 02:00:00:000
     public final static long DAY = 60L * 60L * 24L * 1000L * 10000L; //nano
 
-    public static void main(String[] args) {
-        System.out.println(getFileTime(System.currentTimeMillis()));
-        long timestamp = getTimestamp(132556540595520000L);
-        System.out.println(getTimeFromTimestamp(timestamp));
-    }
-
     public static long getFileTime(long timestamp) {
         return getFileTime(timestamp, false);
     }

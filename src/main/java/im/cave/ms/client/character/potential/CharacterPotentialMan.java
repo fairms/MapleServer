@@ -44,7 +44,7 @@ public class CharacterPotentialMan {
         CharacterPotential cp = getPotentialByKey(key);
         if (cp != null) {
             getPotentials().remove(cp);
-//            chr.announce(WvsContext.characterPotentialReset(PotentialResetType.Pos, cp.getKey()));
+//            chr.announce(UserPacket.characterPotentialReset(PotentialResetType.Pos, cp.getKey()));
         }
     }
 

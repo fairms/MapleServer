@@ -99,7 +99,7 @@ public enum SendOpcode {
     //
     POTION_POT_UPDATE(0x1E8),//
     CHARACTER_MODIFIED(0x1F0), //1fb-b
-    UPDATE_VOUCHER(0x1F6),//201-b
+    UPDATE_MAPLE_POINT(0x1F6),//201-b
 
     CASH_POINT_RESULT(0x20E), //219-b
     SLOT_EXPAND_RESULT(0x20F),//
@@ -150,13 +150,13 @@ public enum SendOpcode {
     ANDROID_MODIFIED(0x323),//
     ANDROID_REMOVED(0x324), //
     REMOTE_MOVE(0x33E), //345-7
-    REMOTE_CLOSE_RANGE_ATTACK(0x33F),//checked
+    REMOTE_CLOSE_RANGE_ATTACK(0x33F),//
     REMOTE_RANGED_ATTACK(0x340),//
     REMOTE_MAGIC_ATTACK(341),//
     //
     //
     //
-    //
+    REMOTE_SKILL_CANCEL(0x345), //charId + skillId
     REMOTE_HIT(0x346),//
     REMOTE_EMOTION(0x347),//
     //

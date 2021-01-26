@@ -988,8 +988,8 @@ public class UserHandler {
                     case Cash:
                         currency = account.getCash();
                         break;
-                    case Voucher:
-                        currency = account.getVoucher();
+                    case MaplePoint:
+                        currency = account.getPoint();
                         break;
                     default:
                         throw new IllegalStateException("Unexpected value: " + currencyType);
@@ -1098,7 +1098,7 @@ public class UserHandler {
                 int sn = ItemData.getSn(item.getItemId());
                 CashItemInfo cashItemInfo = ItemData.getCashItemInfo(sn);
                 int price = cashItemInfo.getPrice();
-                account.addVoucher((int) (price * 0.3));
+                account.addPoint((int) (price * 0.3));
                 locker.removeItemBySerialNumber(serialNumber);
                 player.announce(CashShopPacket.destroyDone(serialNumber));
                 player.announce(CashShopPacket.queryCashResult(account));

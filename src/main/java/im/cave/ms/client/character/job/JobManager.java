@@ -12,6 +12,7 @@ import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.constants.JobConstants;
+import im.cave.ms.enums.JobEnum;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -68,7 +69,7 @@ public class JobManager {
 
     private short id;
 
-    public JobConstants.JobEnum getJobEnum() {
+    public JobEnum getJobEnum() {
         return JobConstants.getJobEnumById(getId());
     }
 

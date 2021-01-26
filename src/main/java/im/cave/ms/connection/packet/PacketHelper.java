@@ -109,10 +109,10 @@ public class PacketHelper {
          */
         out.writeInt(0); //pvp exp
         out.write(10); //pvp grade
-        out.writeInt(0); // pvp point
+        out.writeInt(0); // pvp maplePoint
         out.write(5); // unk
         out.write(5); // pvp mode type
-        out.writeInt(0); //event point
+        out.writeInt(0); //event maplePoint
 
         out.writeReversedLong(chr.getLastLogout());
         out.writeLong(MAX_TIME);

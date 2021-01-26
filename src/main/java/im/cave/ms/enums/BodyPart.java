@@ -11,12 +11,12 @@ public enum BodyPart {
     EyeAccessory(3),
     Earrings(4),
     Top(5),
-    Overall(5), // Top and overall share the same body part
+    Overall(5),
     Bottom(6),
     Shoes(7),
     Gloves(8),
     Cape(9),
-    Shield(10), // Includes things such as katara, 2ndary
+    Shield(10),
     Weapon(11),
     Ring1(12),
     Ring2(13),

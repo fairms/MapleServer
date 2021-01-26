@@ -29,7 +29,7 @@ CREATE TABLE `account` (
   `isBanned` tinyint NOT NULL DEFAULT '0',
   `banReason` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `cash` int unsigned NOT NULL DEFAULT '0' COMMENT '点券',
-  `voucher` int unsigned NOT NULL DEFAULT '0' COMMENT '抵用券',
+  `maplePoint` int unsigned NOT NULL DEFAULT '0' COMMENT '抵用券',
   `point` int unsigned NOT NULL DEFAULT '0' COMMENT '积分',
   `characterSlots` tinyint unsigned NOT NULL DEFAULT '6' COMMENT '角色位',
   `gm` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '账号等级 0:普通用户',

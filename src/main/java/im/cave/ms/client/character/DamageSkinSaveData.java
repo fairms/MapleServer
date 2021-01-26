@@ -37,7 +37,7 @@ public class DamageSkinSaveData {
 
     public static DamageSkinSaveData getByItemID(int itemID) {
         return new DamageSkinSaveData(ItemConstants.getDamageSkinIDByItemID(itemID), itemID, true,
-                ""); // desc = StringData.getItemStringById(itemID)
+                ""); // desc = StringData.getItemStringById(itemID)  可以自定义描述文本 \r\n`
     }
 
     public void encode(OutPacket out) {

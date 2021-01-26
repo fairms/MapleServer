@@ -164,11 +164,11 @@ public class UserPacket {
         return out;
     }
 
-    public static OutPacket updateVoucher(MapleCharacter chr) {
+    public static OutPacket updateMaplePoint(MapleCharacter chr) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.UPDATE_VOUCHER.getValue());
+        out.writeShort(SendOpcode.UPDATE_MAPLE_POINT.getValue());
         out.writeInt(chr.getId());
-        out.writeInt(chr.getAccount().getVoucher());
+        out.writeInt(chr.getAccount().getPoint());
         return out;
     }
 

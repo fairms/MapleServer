@@ -14,6 +14,7 @@ import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.JobEnum;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.provider.data.ItemData;
@@ -80,12 +81,12 @@ public class CharOperationHandler {
         int sn = in.readInt();
         boolean cash = in.readByte() == 0;
         Account account = c.getAccount();
-        if (accId != account.getId() || account.getPoint() < 3000) {
+        if (accId != account.getId() || account.getMaplePoint() < 3000) {
             return;
         }
-        account.addPoint(-3000);
+        account.addMaplePoint(-3000);
         account.addSlot(1);
-        c.announce(LoginPacket.characterSlotsExpandResult(i1, account.getPoint(), cash));
+        c.announce(LoginPacket.characterSlotsExpandResult(i1, account.getMaplePoint(), cash));
     }
 
     public static void handleCheckDuplicatedId(InPacket in, MapleClient c) {
@@ -106,7 +107,7 @@ public class CharOperationHandler {
         }
         in.skip(4);
         int curSelectedRace = in.readInt();
-        JobConstants.JobEnum job = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginJob();
+        JobEnum job = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginJob();
         int mapId = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginMap();
         if (job == null) {
             c.announce(MessagePacket.broadcastMsg("未开放创建的职业", BroadcastMsgType.ALERT));

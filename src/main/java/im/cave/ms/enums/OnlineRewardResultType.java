@@ -8,7 +8,7 @@ package im.cave.ms.enums;
  */
 public enum OnlineRewardResultType {
     LIST(0xD5),
-    GET_VOUCHER(0xD7),
+    GET_MAPLE_POINT(0xD7),
     GET_ITEM(0xD8);
     private final byte val;
 

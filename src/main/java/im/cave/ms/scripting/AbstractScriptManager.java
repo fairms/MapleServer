@@ -1,6 +1,7 @@
 package im.cave.ms.scripting;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.constants.ServerConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public abstract class AbstractScriptManager {
 
     protected Invocable getInvocable(String path, MapleClient c) {
         try {
-            path = "scripts/" + path;
+            path = ServerConstants.SCRIPT_DIR + path;
             engine = null;
             if (c != null) {
                 engine = c.getScriptEngine(path);

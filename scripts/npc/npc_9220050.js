@@ -9,7 +9,7 @@ function start() {
     options.put(4, '获取当前地图怪物');
     options.put(5, '获取当前地图掉落');
     options.put(6, '任务查看');
-    let select = cm.sendAskMenu(options);
+    var select = cm.sendAskMenu(options);
     cm.dropMessage(select);
     if (select === 0) {
         const options = [31050, 31040, 31000];

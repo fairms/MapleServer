@@ -5,9 +5,11 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.connection.packet.NpcPacket;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.packet.result.ExpressResult;
+import im.cave.ms.enums.JobEnum;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.scripting.AbstractPlayerInteraction;
 
+import java.util.List;
 import java.util.Map;
 
 import static im.cave.ms.enums.NpcMessageType.AskAccept;
@@ -27,7 +29,7 @@ import static im.cave.ms.enums.NpcMessageType.SayOk;
 public class NpcConversationManager extends AbstractPlayerInteraction {
 
     private final int npcId;
-    private String script;
+    private final String script;
     private final NpcScriptManager nsm;
     private final NpcScriptInfo npcScriptInfo;
 
@@ -193,11 +195,9 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         getNpcScriptInfo().addParam(NpcScriptInfo.Param.FlipBoxChatAsPlayerNoEscape);
     }
 
-
     public NpcScriptInfo getNpcScriptInfo() {
         return npcScriptInfo;
     }
-
 
     public void setSpeakerID(int templateID) {
         NpcScriptInfo nsi = getNpcScriptInfo();
@@ -213,17 +213,9 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         return npcId;
     }
 
-
-    public void openUI() {
-        MapleCharacter player = c.getPlayer();
-        c.announce(WorldPacket.openUI(player.getCombo()));
-        player.setCombo(player.getCombo() + 1);
-    }
-
     public String getScript() {
         return script;
     }
-
 
     public void openExpressDialog() {
         c.announce(WorldPacket.expressResult(ExpressResult.open()));

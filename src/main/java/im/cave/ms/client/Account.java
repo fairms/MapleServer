@@ -48,7 +48,7 @@ public class Account {
     private int id;
     private String account, password;
     private int characterSlots;
-    private int cash, point, voucher;
+    private int cash, maplePoint, point;
     private boolean gm;
     private boolean isBanned;
     private String banReason;
@@ -166,12 +166,12 @@ public class Account {
         getCharacters().removeIf(character -> character.getId() == charId);
     }
 
-    public void addPoint(int amount) {
-        point += amount;
+    public void addMaplePoint(int amount) {
+        maplePoint += amount;
     }
 
-    public void addVoucher(int amount) {
-        voucher += amount;
+    public void addPoint(int amount) {
+        point += amount;
     }
 
     public void addCash(int amount) {
