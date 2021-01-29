@@ -31,6 +31,7 @@ import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
 import im.cave.ms.client.multiplayer.Express;
 import im.cave.ms.client.multiplayer.MapleNotes;
 import im.cave.ms.client.multiplayer.friend.Friend;
+import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.client.multiplayer.miniroom.MiniRoom;
 import im.cave.ms.client.multiplayer.miniroom.TradeRoom;
 import im.cave.ms.client.multiplayer.party.Party;
@@ -268,6 +269,9 @@ public class MapleCharacter implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charId")
     private List<OnlineReward> onlineRewards;
+    @JoinColumn(name = "guild")
+    @OneToOne(cascade = CascadeType.ALL)
+    private Guild guild;
     /////////////////////////////////////////////////////////
     @Transient
     private MapleMap map;

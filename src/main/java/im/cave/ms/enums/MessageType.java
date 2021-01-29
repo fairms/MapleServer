@@ -9,7 +9,7 @@ public enum MessageType {
     INC_SP_MESSAGE(4),// 增加SP   // 04  short:jobId  + amount
     INC_POP_MESSAGE(5),// v200
     INC_MONEY_MESSAGE(6),// v
-    INC_GP_MESSAGE(7),
+    INC_GP_MESSAGE(7), // 07 1E 00 00 00
     INC_COMMITMENT_MESSAGE(8),
     GIVE_BUFF_MESSAGE(9),
     GENERAL_ITEM_EXPIRE_MESSAGE(10),  //道具过期 10

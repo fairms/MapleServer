@@ -14,11 +14,13 @@ import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.multiplayer.Express;
 import im.cave.ms.client.multiplayer.friend.Friend;
+import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.client.multiplayer.party.PartyResult;
 import im.cave.ms.client.storage.Trunk;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.packet.result.ExpressResult;
+import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.connection.packet.result.OnlineRewardResult;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.ChatType;
@@ -35,6 +37,7 @@ import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Randomizer;
 import im.cave.ms.tools.StringUtil;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +68,7 @@ public class WorldPacket {
         out.writeShort(SendOpcode.SET_MAP.getValue());
         out.writeShort(1);
         out.writeLong(1);
-        out.writeInt(chr.getClient().getChannel());
+        out.writeInt(chr.getClient().getChannelId());
         out.write(0);
         out.writeInt(0);
         out.write(0);
@@ -438,6 +441,7 @@ public class WorldPacket {
         return out;
     }
 
+    //todo 未完成
     public static OutPacket dojoRank(MapleCharacter chr) {
         OutPacket out = new OutPacket(SendOpcode.DOJO_RANK);
         out.write(0);
@@ -875,6 +879,38 @@ public class WorldPacket {
         for (int npc : npcs) {
             out.writeInt(npc);
         }
+        return out;
+    }
+
+    public static OutPacket guildSearchResult(byte searchType, boolean exact, String searchTerm, Collection<Guild> guilds) {
+        OutPacket out = new OutPacket(SendOpcode.GUILD_SEARCH_RESULT);
+
+        out.writeShort(searchType);
+        out.writeMapleAsciiString(searchTerm);
+        out.writeShort(exact ? 1 : 0);
+        out.writeShort(1);
+        out.writeInt(0);
+
+        out.writeInt(guilds.size());
+        for (Guild g : guilds) {
+            out.writeInt(g.getId());
+            out.write(g.getLevel());
+            out.writeMapleAsciiString(g.getName());
+            out.writeMapleAsciiString(g.getGuildLeader().getName());
+            out.writeShort(g.getMembers().size());
+            out.writeInt(g.getAverageMemberLevel());
+            out.writeZeroBytes(7);
+            out.write(1);
+            out.writeZeroBytes(15);
+        }
+        return out;
+    }
+
+    public static OutPacket guildResult(GuildResult gri) {
+        OutPacket out = new OutPacket(SendOpcode.GUILD_RESULT);
+
+        gri.encode(out);
+
         return out;
     }
 }

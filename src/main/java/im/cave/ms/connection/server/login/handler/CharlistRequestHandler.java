@@ -25,7 +25,7 @@ public class CharlistRequestHandler {
         in.skip(1);
         int worldId = in.readByte();
         int channel = in.readByte();
-        c.setWorld(worldId);
+        c.setWorldId(worldId);
         c.setChannel(channel);
         if (c.getLoginStatus() == LoginStatus.NOTLOGGEDIN && in.available() == 284) {
             in.skip(2);

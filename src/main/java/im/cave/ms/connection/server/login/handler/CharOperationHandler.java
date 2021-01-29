@@ -37,8 +37,8 @@ public class CharOperationHandler {
             MapleCharacter player = c.getAccount().getCharacter(charId);
 //            c.setPlayer(player);
             c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
-            Server.getInstance().addClientInTransfer(c.getChannel(), charId, c);
-            int port = Server.getInstance().getChannel(c.getWorld(), c.getChannel()).getPort();
+            Server.getInstance().addClientInTransfer(c.getChannelId(), charId, c);
+            int port = Server.getInstance().getChannel(c.getWorldId(), c.getChannelId()).getPort();
             c.announce(LoginPacket.selectCharacterResult(LoginType.Success, (byte) 0, port, charId));
         } else {
             c.announce(LoginPacket.selectCharacterResult(LoginType.UnauthorizedUser, (byte) 0, 0, 0));
@@ -134,13 +134,13 @@ public class CharOperationHandler {
         }
         {
             chr.setAccId(c.getAccount().getId());
-            chr.setWorld(c.getWorld());
+            chr.setWorld(c.getWorldId());
             chr.setSubJob(subJob);
             chr.setGender(gender);
             chr.setSkin(skin);
             chr.setName(name);
             chr.setGm(c.getAccount().isGm());
-            chr.setChannel(c.getChannel());
+            chr.setChannel(c.getChannelId());
             chr.getKeyMap().setDefault(keyMode != 0);
             chr.setFace(items[0]);
             chr.setHair(items[1]);
@@ -172,7 +172,7 @@ public class CharOperationHandler {
             account.setOnlineChar(chr);
             c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
 //            c.setPlayer(chr);
-            Server.getInstance().addClientInTransfer(c.getChannel(), charId, c);
+            Server.getInstance().addClientInTransfer(c.getChannelId(), charId, c);
             c.announce(LoginPacket.selectCharacterResult(LoginType.Success, (byte) 0, c.getMapleChannel().getPort(), chr.getId()));
         }
     }

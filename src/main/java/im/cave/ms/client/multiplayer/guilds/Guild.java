@@ -1,5 +1,6 @@
 package im.cave.ms.client.multiplayer.guilds;
 
+import im.cave.ms.connection.netty.OutPacket;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author fair
@@ -35,10 +37,10 @@ public class Guild {
     private int leaderId;
     private int worldId;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @CollectionTable(name = "guild_requestors", joinColumns = @JoinColumn(name = "guildId"))
+    @CollectionTable(name = "guild_requester", joinColumns = @JoinColumn(name = "guildId"))
     private List<GuildRequestor> requestors = new ArrayList<>();
     @ElementCollection
-    @CollectionTable(name = "grade_names", joinColumns = @JoinColumn(name = "guildID"))
+    @CollectionTable(name = "grade_name", joinColumns = @JoinColumn(name = "guildId"))
     @Column(name = "gradeName")
     private List<String> gradeNames = new ArrayList<>();
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -57,7 +59,37 @@ public class Guild {
     private int rank;
     private int ggp;
     private boolean appliable;
-    private int joinSetting;
-    private int reqLevel;
-    private int battleSp;
+    private int trendActive;
+    private int trendTime;
+    private int trendAges;
+
+    public GuildMember getGuildLeader() {
+        return getMemberByCharId(getLeaderId());
+    }
+
+    private GuildMember getMemberByCharId(int charId) {
+        return getMembers().stream().filter(gm -> gm.getCharId() == charId).findAny().orElse(null);
+
+    }
+
+    public int getAverageMemberLevel() {
+        int size = getMembers().size();
+        int averageLevel = 0;
+        for (GuildMember gm : getMembers()) {
+            averageLevel += gm.getLevel();
+        }
+        return averageLevel / size;
+    }
+
+    public List<GuildMember> getOnlineMembers() {
+        return getMembers().stream().filter(GuildMember::isOnline).collect(Collectors.toList());
+    }
+
+    public void broadcast(OutPacket out) {
+        getOnlineMembers().stream().filter(gm -> gm.getChr() != null).forEach(gm -> gm.getChr().write(out));
+    }
+
+    public void encode(OutPacket out) {
+
+    }
 }

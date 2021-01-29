@@ -310,6 +310,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case PARTY_INVITE_RESPONSE:
                 WorldHandler.handlePartyInviteResponse(in, c);
                 break;
+            case GUILD_REQUEST:
+                WorldHandler.handleGuildRequest(in, c);
+                break;
             case SYSTEM_OPTION:
                 UserHandler.handleUserSystemOptionRequest(in, c);
                 break;

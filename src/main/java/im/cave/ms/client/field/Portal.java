@@ -64,7 +64,7 @@ public class Portal {
             PortalScriptManager psm = PortalScriptManager.getInstance();
             changed = psm.executePortalScript(this, c);
         } else if (targetMapId != 999999999) {
-            MapleChannel channel = Server.getInstance().getWorldById(c.getWorld()).getChannel(c.getChannel());
+            MapleChannel channel = Server.getInstance().getWorldById(c.getWorldId()).getChannel(c.getChannelId());
             MapleMap toMap = channel.getMap(targetMapId);
             if (toMap == null) {
                 return;

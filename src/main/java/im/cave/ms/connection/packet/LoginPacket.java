@@ -261,7 +261,7 @@ public class LoginPacket {
             i++;
         }
         String key = new String(ss);
-        LoginServer.getInstance().putLoginAuthKey(key, c.getAccount().getAccount(), c.getChannel());
+        LoginServer.getInstance().putLoginAuthKey(key, c.getAccount().getAccount(), c.getChannelId());
         out.writeShort(SendOpcode.CHANGE_CHAR_KEY.getValue());
         out.writeMapleAsciiString(key);
         return out;

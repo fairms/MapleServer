@@ -6,6 +6,7 @@ import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.LoginPacket;
 import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.channel.MapleChannel;
+import im.cave.ms.connection.server.world.World;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.enums.ServerType;
@@ -37,8 +38,8 @@ public class MapleClient {
     private final Channel ch;
     private final ReentrantLock lock = new ReentrantLock(true);
     private Account account;
-    private byte world;
-    private byte channel = -1;
+    private byte worldId;
+    private byte channelId = -1;
     private byte[] machineID;
     private MapleCharacter player;
     private int storeLength = -1;
@@ -66,16 +67,16 @@ public class MapleClient {
         this.account = account;
     }
 
-    public byte getChannel() {
-        return channel;
+    public byte getChannelId() {
+        return channelId;
     }
 
-    public void setChannel(byte channel) {
-        this.channel = channel;
+    public void setChannelId(byte channelId) {
+        this.channelId = channelId;
     }
 
     public void setChannel(int channel) {
-        this.channel = (byte) channel;
+        this.channelId = (byte) channel;
     }
 
     public byte[] getMachineID() {
@@ -102,16 +103,16 @@ public class MapleClient {
         this.loginStatus = loginStatus;
     }
 
-    public byte getWorld() {
-        return world;
+    public byte getWorldId() {
+        return worldId;
     }
 
-    public void setWorld(byte world) {
-        this.world = world;
+    public void setWorldId(byte world) {
+        this.worldId = world;
     }
 
-    public void setWorld(int world) {
-        this.world = (byte) world;
+    public void setWorldId(int world) {
+        this.worldId = (byte) world;
     }
 
     public int getRecvIv() {
@@ -203,11 +204,11 @@ public class MapleClient {
     }
 
     public void sendPing() {
-        announce(LoginPacket.ping(channel == -1 ? ServerType.LOGIN : ServerType.CHANNEL));
+        announce(LoginPacket.ping(channelId == -1 ? ServerType.LOGIN : ServerType.CHANNEL));
     }
 
     public MapleChannel getMapleChannel() {
-        return Server.getInstance().getChannel(world, channel);
+        return Server.getInstance().getChannel(worldId, channelId);
     }
 
     public long getLastPong() {
@@ -232,5 +233,9 @@ public class MapleClient {
 
     public void removeScriptEngine(String name) {
         engines.remove(name);
+    }
+
+    public World getWorld() {
+        return Server.getInstance().getWorldById(worldId);
     }
 }

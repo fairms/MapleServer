@@ -110,7 +110,7 @@ public class PartyMember {
             setJob(chr.getJob());
             setSubJob((short) 0);
             setLevel(chr.getLevel());
-            setChannel(chr.getClient().getChannel());
+            setChannel(chr.getClient().getChannelId());
             setMapId(chr.getMapId());
         } else {
             setMapId(0);

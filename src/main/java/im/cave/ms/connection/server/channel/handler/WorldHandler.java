@@ -17,6 +17,7 @@ import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.multiplayer.Express;
 import im.cave.ms.client.multiplayer.MapleNotes;
 import im.cave.ms.client.multiplayer.friend.Friend;
+import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.client.multiplayer.miniroom.ChatRoom;
 import im.cave.ms.client.multiplayer.miniroom.TradeRoom;
 import im.cave.ms.client.multiplayer.party.Party;
@@ -37,10 +38,12 @@ import im.cave.ms.connection.packet.SummonPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.packet.result.ExpressResult;
+import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.connection.packet.result.OnlineRewardResult;
 import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
 import im.cave.ms.connection.server.channel.MapleChannel;
+import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.SkillConstants;
@@ -52,6 +55,7 @@ import im.cave.ms.enums.ExpressAction;
 import im.cave.ms.enums.FieldOption;
 import im.cave.ms.enums.FriendFlag;
 import im.cave.ms.enums.FriendType;
+import im.cave.ms.enums.GuildType;
 import im.cave.ms.enums.InstanceTableType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
@@ -70,6 +74,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -344,7 +349,7 @@ public class WorldHandler {
         }
         byte channel = in.readByte();
         in.readInt(); //tick
-        if (c.getChannel() == channel) {
+        if (c.getChannelId() == channel) {
             c.close(); //hack
             return;
         }
@@ -375,8 +380,8 @@ public class WorldHandler {
         }
         byte channel = transInfo.getLeft();
         c.setMachineID(machineId);
-        c.setWorld(worldId);
-        c.setChannel(channel);
+        c.setWorldId(worldId);
+        c.setChannelId(channel);
         c.setAccount(account);
         Server.getInstance().removeTransfer(charId);
         player.setClient(c);
@@ -927,7 +932,7 @@ public class WorldHandler {
                 break;
             case Req_PickUp:
                 int expressId = in.readInt();
-                Express express = Util.findWithPred(player.getExpresses(), e -> e.getId() == expressId);
+
                 //todo
                 player.getExpresses().removeIf(e -> e.getId() == expressId);
                 player.announce(WorldPacket.expressResult(ExpressResult.remove(expressId, 0)));
@@ -968,7 +973,7 @@ public class WorldHandler {
                 MapleCharacter toChar = MapleCharacter.getCharByName(toCharName);
                 long now = DateUtil.getFileTime(System.currentTimeMillis());
 
-                express = Express.builder()
+                Express express = Express.builder()
                         .toId(toChar.getId()).toChar(toChar.getName())
                         .fromId(player.getId()).fromChar(player.getName())
                         .expiredDate(now + 30 * DateUtil.DAY)
@@ -1053,6 +1058,40 @@ public class WorldHandler {
         if (map.getObj(oid) != null && map.getObj(oid) instanceof Summon) {
             Summon summon = (Summon) map.getObj(oid);
             summon.onSkillUse(skillId);
+        }
+    }
+
+    public static void handleGuildRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        byte val = in.readByte();
+        GuildType type = GuildType.getTypeByVal(val);
+        if (type == null) {
+            player.chatMessage("Unhandled type val : " + val);
+            return;
+        }
+        Guild guild = player.getGuild();
+        switch (type) {
+            case Req_Search:
+                byte searchType = in.readByte();
+                World world = c.getWorld();
+                Collection<Guild> guildCol;
+                String searchTerm = in.readMapleAsciiString();
+                boolean exact = in.readByte() != 0;
+                guildCol = world.getGuildsByString(searchType, exact, searchTerm);
+                player.announce(WorldPacket.guildSearchResult(searchType, exact, searchTerm, guildCol));
+                break;
+            case Req_Setting:
+                if (player.getId() != guild.getLeaderId()) {
+                    return;
+                }
+                guild.setAppliable(in.readByte() != 0);
+                guild.setTrendActive(in.readInt());
+                guild.setTrendTime(in.readInt());
+                guild.setTrendAges(in.readInt());
+                guild.broadcast(WorldPacket.guildResult(GuildResult.updateSetting(guild)));
+                break;
+            case Req_Signin:
+
         }
     }
 }
