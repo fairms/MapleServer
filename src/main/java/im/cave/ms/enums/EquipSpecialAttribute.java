@@ -14,7 +14,7 @@ public enum EquipSpecialAttribute {
     VestigePossibleTrading(0x400),
     VestigeAppliedAccountShare(0x800);
 
-    private int val;
+    private final int val;
 
     EquipSpecialAttribute(int val) {
         this.val = val;

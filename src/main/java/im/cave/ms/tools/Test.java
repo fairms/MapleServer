@@ -24,11 +24,12 @@ import java.io.FileReader;
  */
 public class Test {
     public static void main(String[] args) {
-        try {
-            scriptTest();
-        } catch (FileNotFoundException | ScriptException | NoSuchMethodException e) {
-            e.printStackTrace();
-        }
+        System.out.println(JobConstants.getJobLevel((short) 110));
+//        try {
+//            scriptTest();
+//        } catch (FileNotFoundException | ScriptException | NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
     }
 
 

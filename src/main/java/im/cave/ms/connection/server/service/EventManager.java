@@ -106,7 +106,7 @@ public class EventManager {
      * @param timeUnit     The time unit of the delay
      * @return The created event (ScheduledFuture)
      */
-    public static ScheduledFuture addFixedDelayEvent(Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit) {
+    public static ScheduledFuture<?> addFixedDelayEvent(Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit) {
         return scheduler.scheduleWithFixedDelay(runnable, initialDelay, delay, timeUnit);
     }
 
@@ -117,7 +117,7 @@ public class EventManager {
      * @param delay    The delay (in ms) after which the call should start
      * @return The created event (ScheduledFuture)
      */
-    public static ScheduledFuture addEvent(Runnable runnable, long delay) {
+    public static ScheduledFuture<?> addEvent(Runnable runnable, long delay) {
         return scheduler.schedule(runnable, delay, TimeUnit.MILLISECONDS);
     }
 
@@ -129,7 +129,7 @@ public class EventManager {
      * @param timeUnit The time unit of the delay
      * @return The created event (ScheduledFuture)
      */
-    public static ScheduledFuture addEvent(Runnable runnable, long delay, TimeUnit timeUnit) {
+    public static ScheduledFuture<?> addEvent(Runnable runnable, long delay, TimeUnit timeUnit) {
         return scheduler.schedule(runnable, delay, timeUnit);
     }
 }

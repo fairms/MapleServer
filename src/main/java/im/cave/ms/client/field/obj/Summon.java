@@ -2,6 +2,7 @@ package im.cave.ms.client.field.obj;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.job.adventurer.Warrior;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.connection.packet.SummonPacket;
@@ -290,5 +291,16 @@ public class Summon extends MapleMapObj {
     @Override
     public void sendSpawnPacket(MapleCharacter chr) {
         chr.announce(SummonPacket.spawnSummon(chr.getId(), this));
+    }
+
+    public void onSkillUse(int skillId) {
+        switch (skillId) {
+            case Warrior.KNIGHT_EVIL_EYE:
+                ((Warrior) chr.getJobHandler()).healByEvilEye();
+                break;
+            case Warrior.KNIGHT_HEX_OF_THE_EVIL_EYE:
+                ((Warrior) chr.getJobHandler()).giveHexOfTheEvilEyeBuffs();
+                break;
+        }
     }
 }

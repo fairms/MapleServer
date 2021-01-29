@@ -2,7 +2,8 @@ package im.cave.ms.enums;
 
 
 public enum UIType {
-    FAMILIAR(596), //怪怪图鉴
+    UI_FAMILIAR(596), //怪怪图鉴
+    UI_LEGION(1148), //联盟
     UI_ITEM(0),
     UI_EQUIP(1),
     UI_STAT(2),

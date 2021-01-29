@@ -6,6 +6,7 @@ import im.cave.ms.client.Record;
 import im.cave.ms.client.RecordManager;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
+import im.cave.ms.client.field.Portal;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.ChatType;
@@ -28,7 +29,7 @@ public class AbstractPlayerInteraction {
     }
 
     public MapleCharacter getChar() {
-        return c.getPlayer();
+        return getChar();
     }
 
     public int getJob() {
@@ -40,7 +41,7 @@ public class AbstractPlayerInteraction {
     }
 
     public MapleMap getMap() {
-        return c.getPlayer().getMap();
+        return getChar().getMap();
     }
 
     public int getHourOfDay() {
@@ -56,16 +57,16 @@ public class AbstractPlayerInteraction {
     }
 
     public void dropMessage(String content) {
-        c.getPlayer().dropMessage(content);
+        getChar().dropMessage(content);
     }
 
     public boolean forceCompleteQuest(int questId) {
-        c.getPlayer().getQuestManager().completeQuest(questId);
+        getChar().getQuestManager().completeQuest(questId);
         return true;
     }
 
     public boolean forceStartQuest(int questId) {
-        c.getPlayer().getQuestManager().addQuest(questId);
+        getChar().getQuestManager().addQuest(questId);
         return true;
     }
 
@@ -74,11 +75,17 @@ public class AbstractPlayerInteraction {
     }
 
     public void warp(int mapId) {
-        c.getPlayer().changeMap(mapId);
+        getChar().changeMap(mapId);
+    }
+
+    public void warp(int mapId, String portalName) {
+        MapleCharacter player = getChar();
+        Portal portal = player.getMap().getPortal(portalName);
+        player.changeMap(mapId, portal != null ? portal.getId() : 0);
     }
 
     public int getMapId() {
-        return c.getPlayer().getMapId();
+        return getChar().getMapId();
     }
 
     public void updateRecord(String typeStr, int key, int value) throws ScriptException {
@@ -86,7 +93,7 @@ public class AbstractPlayerInteraction {
         if (type == null) {
             throw new ScriptException("记录类型名称错误.");
         }
-        RecordManager recordManager = c.getPlayer().getRecordManager();
+        RecordManager recordManager = getChar().getRecordManager();
         Record record = recordManager.getRecord(type, key);
         if (record == null) {
             record = Record.builder()
@@ -107,13 +114,13 @@ public class AbstractPlayerInteraction {
         if (type == null) {
             throw new ScriptException("记录类型名称错误.");
         }
-        RecordManager recordManager = c.getPlayer().getRecordManager();
+        RecordManager recordManager = getChar().getRecordManager();
         Record record = recordManager.getRecord(type, key);
         return record != null ? record.getValue() : 0;
     }
 
     public void openUI() {
-        MapleCharacter player = c.getPlayer();
+        MapleCharacter player = getChar();
         c.announce(WorldPacket.openUI(player.getCombo()));
         player.setCombo(player.getCombo() + 1);
     }

@@ -6,11 +6,16 @@ import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.connection.netty.InPacket;
+import im.cave.ms.connection.packet.SummonPacket;
+import im.cave.ms.connection.packet.UserPacket;
+import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.AssistType;
+import im.cave.ms.enums.JobEnum;
 import im.cave.ms.enums.MoveAbility;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.provider.data.SkillData;
@@ -21,25 +26,24 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.BasicStatUp;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Booster;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ComboCounter;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.CrossOverChain;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieDamR;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePAD;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieUnk1;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MaxHP;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MaxMP;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.PDD;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.PowerGuard;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.*;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
+import static im.cave.ms.enums.SkillStat.epad;
+import static im.cave.ms.enums.SkillStat.epdd;
+import static im.cave.ms.enums.SkillStat.hp;
+import static im.cave.ms.enums.SkillStat.indieBDR;
+import static im.cave.ms.enums.SkillStat.indieCr;
 import static im.cave.ms.enums.SkillStat.indieDamR;
+import static im.cave.ms.enums.SkillStat.indiePMdR;
 import static im.cave.ms.enums.SkillStat.indiePad;
 import static im.cave.ms.enums.SkillStat.indiePowerGuard;
 import static im.cave.ms.enums.SkillStat.pdd;
 import static im.cave.ms.enums.SkillStat.time;
+import static im.cave.ms.enums.SkillStat.u;
+import static im.cave.ms.enums.SkillStat.w;
 import static im.cave.ms.enums.SkillStat.x;
 import static im.cave.ms.enums.SkillStat.y;
+import static im.cave.ms.enums.SkillStat.z;
 
 /**
  * @author fair
@@ -48,41 +52,140 @@ import static im.cave.ms.enums.SkillStat.y;
  * @date 12/7 19:55
  */
 public class Warrior extends Beginner {
-    public static final int IRON_BODY = 1000003;
-    public static final int WARRIOR_MASTERY = 1000009;
-    //HERO
-    public static final int HERO_WEAPON_BOOSTER = 1101004;
-    public static final int HERO_RAGE = 1101006;
-    public static final int HERO_COMBO_ATTACK = 1101013;
-    public static final int HERO_FINAL_ATTACK = 1100002;
-    public static final int HERO_PHYSICAL_TRAINING = 1100009;
-    public static final int HERO_MAPLE_WARRIOR = 1121000;
-    public static final int HERO_LEGEND_ADVENTURER = 1121053;
-    //KNIGHT
-    public static final int KNIGHT_WEAPON_BOOSTER = 1301004;
-    public static final int KNIGHT_IRON_WILL = 1301006;
-    public static final int KNIGHT_HYPER_BODY = 1301007;
-    public static final int KNIGHT_EVIL_EYE = 1301013;
-    public static final int KNIGHT_EVIL_EYE_OF_DOMINATION = 1311013;
-    public static final int KNIGHT_CROSS_CHAIN = 1311015;
-    public static final int KNIGHT_MAPLE_WARRIOR = 1321053;
+    //WARRIOR 战士一转
+    public static final int SLASH_BLAST = 1001005; //群体攻击
+    public static final int WAR_LEAP = 1001008; //战士飞叶
+    public static final int LEAP_ATTACK = 1001010; //飞跃一击
+    public static final int IRON_BODY = 1000003; //圣甲术
+    public static final int WARRIOR_MASTERY = 1000009; //战士精通
+    //HERO 英雄
+    //  二转
+    public static final int BRANDISH = 1101011; //轻舞飞扬
+    public static final int HERO_COMBO_FURY = 1101012; //狂澜之力
+    public static final int HERO_COMBO_FURY_DOWN = 1100012; //狂澜之力_下
+    public static final int HERO_COMBO_ATTACK = 1101013; //斗气集中
+    public static final int HERO_WEAPON_BOOSTER = 1101004; //快速武器
+    public static final int HERO_RAGE = 1101006; //愤怒之火
+    public static final int HERO_WEAPON_MASTERY = 1100000; //武器精通
+    public static final int HERO_FINAL_ATTACK = 1100002; //终极剑斧
+    public static final int HERO_PHYSICAL_TRAINING = 1100009; //物理训练
+    // 三转
+    public static final int HERO_INTREPID_SLASH = 1111010; //勇猛劈砍
+    public static final int HERO_RUSH = 1111012; //突进
+    public static final int HERO_PANIC = 1111003; //恐慌
+    public static final int HERO_SHOUT = 1111008; //虎咆啸
+    public static final int HERO_UPWARD_CHARGE = 1111015; //冲天击
+    public static final int HERO_COMBO_SYNERGY = 1110013; //斗气协和
+    public static final int HERO_SELF_RECOVERY = 1110000; //自我恢复
+    public static final int HERO_CHANGE_ATTACK = 1110009; //乘胜追击
+    public static final int HERO_ENDURE = 1110011; //抵抗力
+    //  四转
+    public static final int HERO_RAGING_BLOW = 1121008; //终极打击
+    public static final int HERO_RAGING_BLOW_ENHANCED = 1120017; //强化终极打击
+    public static final int HERO_PUNCTURE = 1121015; //烈焰冲斩
+    public static final int HERO_MAGIC_CRASH = 1121016; //魔击无效
+    public static final int HERO_POWER_STANCE = 1120014; //稳如泰山
+    public static final int HERO_ENRAGE = 1120010; //葵花宝典
+    public static final int HERO_MAPLE_WARRIOR = 1121000; //冒险岛勇士
+    public static final int HERO_HERO__WILL = 1120011; //勇士的意志
+    public static final int HERO_ADVANCED_COMBO = 1120003; //进阶斗气
+    public static final int HERO_COMBAT_MASTERY = 1120012; //战斗精通
+    public static final int HERO_ADVANCED_FINAL_ATTACK = 1120013; //进阶终极攻击
+    //  超级技能
+    public static final int HERO_LEGEND_ADVENTURER = 1121053; //传说冒险家
+    public static final int HERO_CRY_VALHALLA = 1121054; //战灵附体
+    //Paladin 圣骑士
+    //  二转
+    public static final int PALADIN_FLAME_CHARGE = 1201011; //火焰冲击
+    public static final int PALADIN_BLIZZARD_CHARGE = 1201012; //寒冰冲击
+    public static final int PALADIN_ELEMENTAL_CHARGE = 1200014; //元素冲击
+    public static final int PALADIN_CLOSE_COMBAT = 1201013; //准骑士密令
+    public static final int PALADIN_WEAPON_BOOSTER = 1201004; //快速武器
+    public static final int PALADIN_WEAPON_MASTERY = 1200000; //精准武器
+    public static final int PALADIN_FINAL_ATTACK = 1200002; //终极剑钝器
+    public static final int PALADIN_PHYSICAL_TRAINING = 1200009; //物理训练
+    //  三转
+    public static final int PALADIN_LIGHTNING_CHARGE = 1211008; //雷鸣冲击
+    public static final int PALADIN_HP_RECOVERY = 1211010; //元气恢复
+    public static final int PALADIN_RUSH = 1211012; //突进
+    public static final int PALADIN_THREATEN = 1211013; //压制术
+    public static final int PALADIN_UPWARD_CHARGE = 1211017; //冲天击
+    public static final int PALADIN_PARASHOCK_GUARD = 1211014; //抗震防御
+    public static final int PALADIN_COMBAT_ORDERS = 1211011; //战斗命令
+    public static final int PALADIN_SHIELD_MASTERY = 1210001; //盾牌精通
+    public static final int PALADIN_ACHILLES = 1210015; //阿基里斯
+    public static final int PALADIN_DIVINE_SHIELD = 1210016; //祝福盔甲
+    //  四转
+    public static final int PALADIN_BLAST = 1221009; //连环环坡
+    public static final int PALADIN_DIVINE_CHARGE = 1221004; //神圣冲击
+    public static final int PALADIN_MAGIC_CRASH = 1221014; //魔击无效
+    public static final int PALADIN_HEAVEN_HAMMER = 1221011; //圣域
+    public static final int PALADIN_ELEMENTAL_FORCE = 1221015; //元素之力
+    public static final int PALADIN_POWER_STANCE = 1220017; //稳如泰山
+    public static final int PALADIN_MAPLE_WARRIOR = 1221000; //冒险岛勇士
+    public static final int PALADIN_HERO_WILL = 1221012; //勇士的意志
+    public static final int PALADIN_GUARDIAN = 1221016; //守护之神
+    public static final int PALADIN_HIGH_PALADIN = 1220018; //圣骑士专家
+    public static final int PALADIN_ADVANCED_CHARGE = 1220010; //万佛归一破
+    //DARK KNIGHT 黑骑士
+    //  二转
+    public static final int KNIGHT_PIERCING_DRIVE = 1301011; //贯穿刺透
+    public static final int KNIGHT_EVIL_EYE = 1301013; //灵魂助力
+    public static final int KNIGHT_SPEAR_SWEEP = 1301012; //神矛天引
+    public static final int KNIGHT_WEAPON_BOOSTER = 1301004; //快速武器
+    public static final int KNIGHT_IRON_WILL = 1301006; //极限防御
+    public static final int KNIGHT_HYPER_BODY = 1301007; //神圣之火
+    public static final int KNIGHT_WEAPON_MASTERY = 1300000; //精准武器
+    public static final int KNIGHT_FINAL_ATTACK = 1300004; //终极枪矛
+    public static final int KNIGHT_PHYSICAL_TRAINING = 1300009; //物理训练
+    //  三转
+    public static final int KNIGHT_LA_MANCHA_SPEAR = 1311011; //拉曼查之枪
+    public static final int KNIGHT_RUSH = 1311012; //突进
+    public static final int KNIGHT_EVIL_EYE_SHOCK = 1311014; //灵魂助力震惊
+    public static final int KNIGHT_UPWARD_CHARGE = 1311017; //冲天击
+    public static final int KNIGHT_CROSS_CHAIN = 1311015; //交叉锁链
+    public static final int KNIGHT_EVIL_EYE_OF_DOMINATION = 1310013; //灵魂助力统治
+    public static final int KNIGHT_LORD_OF_DARKNESS = 1310009; //黑暗至尊
+    public static final int KNIGHT_ENDURE = 1310010; //抵抗力
+    public static final int KNIGHT_HEX_OF_THE_EVIL_EYE = 1310016; //灵魂祝福
+    //  四转
+    public static final int KNIGHT_GUNGNIRS_DESCENT = 1321013; //神枪降临
+    public static final int KNIGHT_MAGIC_CRASH = 1321014; //魔击无效
+    public static final int KNIGHT_DARK_IMPALE = 1321012; //黑暗穿刺
+    public static final int KNIGHT_POWER_STANCE = 1320017; //稳如泰山
+    public static final int KNIGHT_SACRIFICE = 1321015; //龙之献祭
+    public static final int KNIGHT_MAPLE_WARRIOR = 1321000; //冒险岛勇士
+    public static final int KNIGHT_HERO_WILL = 1321010; //勇士的意志
+    public static final int KNIGHT_FINAL_PACT = 1320016; //重生契约
+    public static final int KNIGHT_BARRICADE_MASTERY = 1320018; //进阶精准武器
+    public static final int KNIGHT_REVENGE_OF_THE_EVIL_EYE = 1320011; //灵魂复仇
+    //  超级技能
+    public static final int KNIGHT_DARK_THIRST = 1321054; //黑暗饥渴
 
     public final AtomicInteger comboCount = new AtomicInteger(1);
-
     private Summon evilEye;
-
+    private int lastCharge;
     private static final int[] buffs = new int[]{
             HERO_WEAPON_BOOSTER,
             HERO_RAGE,
             HERO_COMBO_ATTACK,
             HERO_LEGEND_ADVENTURER,
             HERO_MAPLE_WARRIOR,
+            HERO_CRY_VALHALLA,
+
+            PALADIN_WEAPON_BOOSTER,
+            PALADIN_COMBAT_ORDERS,
+            PALADIN_PARASHOCK_GUARD,
+            PALADIN_MAPLE_WARRIOR,
+            PALADIN_GUARDIAN,
+
             KNIGHT_WEAPON_BOOSTER,
             KNIGHT_IRON_WILL,
             KNIGHT_HYPER_BODY,
             KNIGHT_EVIL_EYE,
             KNIGHT_EVIL_EYE_OF_DOMINATION,
-            KNIGHT_MAPLE_WARRIOR
+            KNIGHT_MAPLE_WARRIOR,
+            KNIGHT_SACRIFICE
     };
 
     private static final int[] passive = new int[]{
@@ -93,21 +196,41 @@ public class Warrior extends Beginner {
 
     public Warrior(MapleCharacter chr) {
         super(chr);
-        if (chr != null && JobConstants.isHero(chr.getJob())) {
-            if (!chr.hasSkill(HERO_COMBO_ATTACK)) {
-                Skill skill = SkillData.getSkill(HERO_COMBO_ATTACK);
-                Objects.requireNonNull(skill).setCurrentLevel(1);
-                chr.addSkill(skill);
+        if (chr != null) {
+            short jobId = chr.getJob();
+            if (JobConstants.isHero(jobId)) {
+                JobEnum job = JobEnum.getJobById(jobId);
+                if (job.isAdvancedJobOf(JobEnum.FIGHTER)) {
+                    if (!chr.hasSkill(HERO_COMBO_ATTACK)) {
+                        Skill skill = SkillData.getSkill(HERO_COMBO_ATTACK);
+                        Objects.requireNonNull(skill).setCurrentLevel(1);
+                        chr.addSkill(skill);
+                    }
+                }
+                if (job.isAdvancedJobOf(JobEnum.CRUSADER)) {
+                    if (!chr.hasSkill(HERO_UPWARD_CHARGE)) {
+                        Skill skill = SkillData.getSkill(HERO_UPWARD_CHARGE);
+                        Objects.requireNonNull(skill).setCurrentLevel(1);
+                        chr.addSkill(skill);
+                    }
+                }
             }
         }
     }
 
     @Override
-    public void handleSkill(MapleClient c, int skillId, int skillLevel, InPacket in) {
-        super.handleSkill(c, skillId, skillLevel, in);
-        if (isBuff(skillId)) {
-            handleBuff(c, in, skillId, skillLevel);
+    public void handleSkill(MapleClient c, int skillId, int slv, InPacket in) {
+        try {
+            super.handleSkill(c, skillId, slv, in);
+        } catch (Exception e) {
+            getMapleCharacter().chatMessage("skill not exist");
         }
+        switch (skillId) {
+            case PALADIN_HP_RECOVERY:
+                hpRecovery();
+                break;
+        }
+
     }
 
     @Override
@@ -119,6 +242,8 @@ public class Warrior extends Beginner {
         SkillInfo si = null;
         if (skill != null) {
             si = SkillData.getSkillInfo(attackInfo.skillId);
+        } else {
+            return;
         }
         boolean hasHitMobs = attackInfo.mobCount > 0;
         if (JobConstants.isHero(player.getJob())) {
@@ -128,6 +253,20 @@ public class Warrior extends Beginner {
                     incCombo();
                 }
             }
+        }
+        switch (attackInfo.skillId) {
+            case PALADIN_FLAME_CHARGE:
+            case PALADIN_BLIZZARD_CHARGE:
+            case PALADIN_LIGHTNING_CHARGE:
+            case PALADIN_DIVINE_CHARGE:
+                Option option = new Option();
+                option.nOption = attackInfo.skillId == PALADIN_DIVINE_CHARGE ? 1 : 0;
+                option.rOption = attackInfo.skillId;
+                option.tOption = si.getValue(time, attackInfo.skillLevel);
+                tsm.putCharacterStatValue(WeaponCharge, option);
+                tsm.sendSetStatPacket();
+                giveChargeBuff(attackInfo.skillId, tsm);
+                break;
         }
     }
 
@@ -159,26 +298,29 @@ public class Warrior extends Beginner {
         super.handleBuff(c, in, skillId, slv);
         MapleCharacter player = c.getPlayer();
         TemporaryStatManager tsm = player.getTemporaryStatManager();
-        SkillInfo skillInfo = SkillData.getSkillInfo(skillId);
+        SkillInfo si = SkillData.getSkillInfo(skillId);
         boolean sendStat = true;
         Option o = new Option();
         Option oo = new Option();
+        Option ooo = new Option();
         switch (skillId) {
             case HERO_WEAPON_BOOSTER:
             case KNIGHT_WEAPON_BOOSTER:
-                o.nOption = skillInfo.getValue(x, slv);
+            case PALADIN_WEAPON_BOOSTER:
+                o.nOption = si.getValue(x, slv);
                 o.rOption = skillId;
-                o.tOption = skillInfo.getValue(time, slv);
+                o.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Booster, o);
                 break;
             case HERO_RAGE:
                 o.nReason = skillId;
-                o.nValue = skillInfo.getValue(indiePad, slv);
-                o.tTerm = skillInfo.getValue(time, slv);
+                o.nValue = si.getValue(indiePad, slv);
+                o.tStart = ((int) System.currentTimeMillis());
+                o.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o);
-                oo.nOption = skillInfo.getValue(indiePowerGuard, slv); //减伤百分比
+                oo.nOption = si.getValue(indiePowerGuard, slv); //减伤百分比
                 oo.rOption = skillId;
-                oo.tOption = skillInfo.getValue(time, slv);
+                oo.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(PowerGuard, oo);
                 break;
             case HERO_COMBO_ATTACK:
@@ -192,32 +334,94 @@ public class Warrior extends Beginner {
                 }
                 tsm.putCharacterStatValue(ComboCounter, o);
                 break;
-            case HERO_MAPLE_WARRIOR:
-            case KNIGHT_MAPLE_WARRIOR:
-                o.nOption = skillInfo.getValue(x, slv);
+            case HERO_ENRAGE:
+                o.nOption = 1;
                 o.rOption = skillId;
-                o.tOption = skillInfo.getValue(time, slv);
-                tsm.putCharacterStatValue(BasicStatUp, o);
+                tsm.putCharacterStatValue(Enrage, o);
+                oo.nOption = si.getValue(y, slv);
+                oo.rOption = skillId;
+                tsm.putCharacterStatValue(EnrageCrDam, oo); //暴击伤害
+                break;
+            case HERO_CRY_VALHALLA:
+                o.nReason = skillId;
+                o.nValue = si.getValue(indieCr, slv);
+                o.tStart = ((int) System.currentTimeMillis());
+                o.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieCr, o);
+                oo.nReason = skillId;
+                oo.nValue = si.getValue(indiePad, slv);
+                oo.tStart = ((int) System.currentTimeMillis());
+                oo.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o);
+                ooo.nOption = 100;
+                ooo.rOption = skillId;
+                ooo.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Stance, ooo);
+                Option oooo = new Option();
+                oooo.nOption = si.getValue(x, slv);
+                oooo.rOption = skillId;
+                oooo.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, oooo);
+                tsm.putCharacterStatValue(TerR, oooo);
                 break;
             case HERO_LEGEND_ADVENTURER:
                 o.nReason = skillId;
-                o.nValue = skillInfo.getValue(indieDamR, slv);
-                o.tTerm = skillInfo.getValue(time, slv);
+                o.nValue = si.getValue(indieDamR, slv);
+                o.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o);
                 break;
-            case KNIGHT_IRON_WILL:
-                o.nOption = skillInfo.getValue(pdd, slv);
+            case PALADIN_PARASHOCK_GUARD:
+                if (tsm.getOptByCTSAndSkill(Guard, skillId) != null) {
+                    tsm.removeStatsBySkill(PALADIN_PARASHOCK_GUARD);
+                    tsm.sendResetStatPacket();
+                    break;
+                }
+                o.nReason = skillId;
+                o.nValue = si.getValue(indiePad, slv);
+                o.tStart = ((int) System.currentTimeMillis());
+                tsm.putCharacterStatValue(IndiePAD, o);
+                oo.nReason = skillId;
+                oo.nValue = si.getValue(z, slv);
+                oo.tStart = ((int) System.currentTimeMillis());
+                tsm.putCharacterStatValue(IndiePDDR, oo);
+                ooo.nOption = -si.getValue(x, slv);
+                ooo.rOption = si.getSkillId();
+                tsm.putCharacterStatValue(Guard, ooo); //todo check
+                break;
+            case PALADIN_COMBAT_ORDERS:
+                o.nOption = si.getValue(x, slv);
                 o.rOption = skillId;
-                o.tOption = skillInfo.getValue(time, slv);
+                o.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(CombatOrders, o);
+                break;
+            case PALADIN_ELEMENTAL_FORCE:
+                o.nReason = skillId;
+                o.nValue = si.getValue(indiePMdR, slv);
+                o.tStart = ((int) System.currentTimeMillis());
+                o.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePMdR, o);
+                break;
+            case HERO_MAPLE_WARRIOR:
+            case KNIGHT_MAPLE_WARRIOR:
+            case PALADIN_MAPLE_WARRIOR:
+                o.nOption = si.getValue(x, slv);
+                o.rOption = skillId;
+                o.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(BasicStatUp, o);
+                break;
+            case KNIGHT_IRON_WILL:
+                o.nOption = si.getValue(pdd, slv);
+                o.rOption = skillId;
+                o.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(PDD, o);
                 break;
             case KNIGHT_HYPER_BODY:
-                o.nOption = skillInfo.getValue(x, slv);
+                o.nOption = si.getValue(x, slv);
                 o.rOption = skillId;
-                int duration = skillInfo.getValue(time, slv);
+                int duration = si.getValue(time, slv);
                 o.tOption = duration;
                 tsm.putCharacterStatValue(MaxHP, o);
-                oo.nOption = skillInfo.getValue(y, slv);
+                oo.nOption = si.getValue(y, slv);
                 oo.rOption = skillId;
                 oo.tOption = duration;
                 tsm.putCharacterStatValue(MaxMP, oo);
@@ -227,17 +431,56 @@ public class Warrior extends Beginner {
                 sendStat = false;
                 break;
             case KNIGHT_CROSS_CHAIN:
-                o.nOption = skillInfo.getValue(x, slv);
+                o.nOption = si.getValue(x, slv);
                 o.rOption = skillId;
-                o.tOption = skillInfo.getValue(time, slv);
+                o.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(CrossOverChain, o);
                 break;
+            case KNIGHT_SACRIFICE:
+                if (tsm.hasStatBySkillId(KNIGHT_EVIL_EYE)) {
+                    o.nReason = skillId;
+                    o.nValue = si.getValue(x, slv);
+                    o.tStart = (int) System.currentTimeMillis();
+                    o.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o);
+
+                    oo.nReason = skillId;
+                    oo.nValue = si.getValue(indieBDR, slv);
+                    oo.tStart = (int) System.currentTimeMillis();
+                    oo.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieBDR, oo);
+
+                    tsm.removeStatsBySkill(KNIGHT_EVIL_EYE_OF_DOMINATION);
+                    tsm.removeStatsBySkill(KNIGHT_EVIL_EYE_SHOCK);
+                    removeEvilEye(tsm, c);
+
+                    chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
+                    chr.announce(UserPacket.skillCoolDown(1321013));
+                }
+            case KNIGHT_DARK_THIRST:
+                o.nReason = skillId;
+                o.nValue = si.getValue(indiePad, 1);
+                o.tStart = ((int) System.currentTimeMillis());
+                o.tTerm = si.getValue(time, 1);
+                tsm.putCharacterStatValue(IndiePAD, o);
+
+                oo.nOption = si.getValue(x, 1);
+                oo.rOption = skillId;
+                oo.tOption = si.getValue(time, 1);
+                tsm.putCharacterStatValue(AttackRecovery, oo);
             default:
                 sendStat = false;
         }
         if (sendStat) {
             tsm.sendSetStatPacket();
         }
+    }
+
+    private void removeEvilEye(TemporaryStatManager tsm, MapleClient c) {
+        tsm.removeStatsBySkill(KNIGHT_EVIL_EYE);
+        tsm.sendResetStatPacket();
+        c.getPlayer().getMap().broadcastMessage(SummonPacket.summonRemoved(evilEye, (byte) 15));
+        //level type 15:龙之献祭
     }
 
     @Override
@@ -265,9 +508,9 @@ public class Warrior extends Beginner {
         if (chr.hasSkill(HERO_COMBO_ATTACK)) {
             num = 6;
         }
-//        if (chr.hasSkill(ADVANCED_COMBO)) {
-//            num = 11;
-//        }
+        if (chr.hasSkill(HERO_ADVANCED_COMBO)) {
+            num = 11;
+        }
         return num;
     }
 
@@ -275,6 +518,7 @@ public class Warrior extends Beginner {
     public void spawnEvilEye(int skillID, byte slv) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o = new Option();
+        Option oo = new Option();
         SkillInfo si = SkillData.getSkillInfo(skillID);
 
         MapleMap map;
@@ -285,12 +529,118 @@ public class Warrior extends Beginner {
         evilEye.setAssistType(AssistType.Heal);
         evilEye.setAttackActive(true);
         map.spawnSummon(evilEye);
+
         o.nReason = skillID;
         o.nValue = 1;
         o.summon = evilEye;
         o.tStart = (int) System.currentTimeMillis();
         o.tTerm = si.getValue(time, slv);
-        tsm.putCharacterStatValue(IndieUnk1, o);
+        tsm.putCharacterStatValue(IndieEmpty, o);
+
+        oo.nOption = 1;
+        oo.rOption = skillID;
+        oo.tOption = si.getValue(time, slv);
+        tsm.putCharacterStatValue(Beholder, oo);
         tsm.sendSetStatPacket();
+    }
+
+    private void giveChargeBuff(int skillId, TemporaryStatManager tsm) {
+        Option o = new Option();
+        SkillInfo chargeInfo = SkillData.getSkillInfo(PALADIN_ELEMENTAL_CHARGE);
+        int amount = 1;
+        if (tsm.hasStat(ElementalCharge)) {
+            amount = tsm.getOption(ElementalCharge).mOption;
+            if (lastCharge == skillId) {
+                return;
+            }
+            if (amount < chargeInfo.getValue(z, 1)) {
+                amount++;
+            }
+        }
+        lastCharge = skillId;
+        o.nOption = 1;
+        o.rOption = PALADIN_ELEMENTAL_CHARGE;
+        o.tOption = (10 * chargeInfo.getValue(time, 1)); // elemental charge  // 10x actual duration
+        o.mOption = amount;
+        o.wOption = amount * chargeInfo.getValue(w, 1); // elemental charge
+        o.uOption = amount * chargeInfo.getValue(u, 1);
+        o.zOption = amount * chargeInfo.getValue(z, 1);
+        tsm.putCharacterStatValue(ElementalCharge, o);
+        tsm.sendSetStatPacket();
+    }
+
+
+    public void hpRecovery() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        Option o = new Option();
+        if (chr.hasSkill(PALADIN_HP_RECOVERY)) {
+            Skill skill = chr.getSkill(PALADIN_HP_RECOVERY);
+            byte slv = (byte) skill.getCurrentLevel();
+            SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
+            int recovery = si.getValue(x, slv);
+            int amount = 10;
+
+            if (tsm.hasStat(Restoration)) {
+                amount = tsm.getOption(Restoration).nOption;
+                if (amount < 300) {
+                    amount = amount + 10;
+                }
+            }
+
+            o.nOption = amount;
+            o.rOption = skill.getSkillId();
+            o.tOption = si.getValue(time, slv);
+            int heal = Math.max((recovery + 10) - amount, 10);
+            chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)));
+            tsm.putCharacterStatValue(Restoration, o);
+            tsm.sendSetStatPacket();
+        }
+    }
+
+    public void healByEvilEye() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (chr.hasSkill(KNIGHT_EVIL_EYE) && tsm.hasStatBySkillId(KNIGHT_EVIL_EYE)) {
+            Skill skill = chr.getSkill(KNIGHT_EVIL_EYE);
+            SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
+            byte slv = (byte) skill.getCurrentLevel();
+            int healHp = si.getValue(hp, slv);
+            chr.heal(healHp);
+            chr.announce(UserPacket.effect(Effect.hpRecovery(healHp)));
+            chr.getMap().broadcastMessage(SummonPacket.summonedSkill(evilEye, skill.getSkillId()));
+            chr.announce(UserPacket.effect(Effect.skillAffected(KNIGHT_EVIL_EYE, slv, 0)));
+            chr.getMap().broadcastMessage(chr, UserRemote.effect(chr.getId(), Effect.skillAffected(KNIGHT_EVIL_EYE, slv, 0)));
+        }
+    }
+
+    public void giveHexOfTheEvilEyeBuffs() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        Option o = new Option();
+        Option oo = new Option();
+        Option ooo = new Option();
+        Option oooo = new Option();
+        Skill skill = chr.getSkill(KNIGHT_HEX_OF_THE_EVIL_EYE);
+        byte slv = (byte) skill.getCurrentLevel();
+        SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
+        if (tsm.getOptByCTSAndSkill(EPDD, KNIGHT_HEX_OF_THE_EVIL_EYE) == null) {
+            o.nOption = si.getValue(epad, slv);
+            o.rOption = skill.getSkillId();
+            o.tOption = si.getValue(time, slv);
+            tsm.putCharacterStatValue(EPAD, o);
+
+            oo.nOption = si.getValue(epdd, slv);
+            oo.rOption = skill.getSkillId();
+            oo.tOption = si.getValue(time, slv);
+            tsm.putCharacterStatValue(EPDD, ooo);
+            tsm.putCharacterStatValue(EMDD, ooo);
+
+            ooo.nReason = skill.getSkillId();
+            ooo.nValue = si.getValue(indieCr, slv);
+            ooo.tStart = (int) System.currentTimeMillis();
+            ooo.tTerm = si.getValue(time, slv);
+            tsm.putCharacterStatValue(IndieCr, ooo);
+
+            tsm.sendSetStatPacket();
+        }
+
     }
 }

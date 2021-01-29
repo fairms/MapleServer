@@ -726,6 +726,16 @@ public class Effect {
         return effect;
     }
 
+    public static Effect hpRecovery(int amount) {
+        Effect effect = new Effect();
+
+        effect.setUserEffectType(UserEffectType.IncDecHPEffect_EX);
+        effect.setArg1(amount);
+
+        return effect;
+
+    }
+
     public static Effect speechBalloon(boolean normal, int range, int nameHeight, String speech, int time, int origin, int x, int y, int z, int lineSpace, int templateID, int charID) {
         Effect effect = new Effect();
         effect.setUserEffectType(SpeechBalloon);

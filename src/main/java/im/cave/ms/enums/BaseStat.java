@@ -164,7 +164,6 @@ public enum BaseStat {
             case IndieMDD:
                 stats.put(mdd, o.nValue);
                 break;
-            case MDD:
             case EMDD:
                 stats.put(mdd, o.nOption);
                 break;

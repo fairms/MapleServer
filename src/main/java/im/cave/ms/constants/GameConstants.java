@@ -5,8 +5,10 @@ import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.QuickMoveType;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.tools.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static im.cave.ms.constants.ServerConstants.MAX_TIME;
@@ -480,4 +482,30 @@ public class GameConstants {
         return cumulativeTraitExp[level];
     }
 
+
+    private static final int[][] STAR_FORCE_LEVELS = {
+            {Integer.MAX_VALUE, -1}, // per equip
+            {137, 20},
+            {127, 15},
+            {117, 10},
+            {107, 8},
+            {95, 5},
+    };
+
+    private static final int[][] STAR_FORCE_LEVELS_SUPERIOR = {
+            {Integer.MAX_VALUE, 15},
+            {137, 12},
+            {127, 10},
+            {117, 8},
+            {107, 5},
+            {95, 3},
+    };
+
+
+    public static int getMaxStars(Equip equip) {
+        int level = equip.getRLevel() - equip.getIIncReq();
+        int stars = Arrays.stream(equip.isSuperiorEqp() ? STAR_FORCE_LEVELS_SUPERIOR : STAR_FORCE_LEVELS)
+                .filter(lv -> level <= lv[0]).findFirst().orElse(new int[]{5})[1]; //很别扭
+        return stars != -1 ? stars : 25;
+    }
 }

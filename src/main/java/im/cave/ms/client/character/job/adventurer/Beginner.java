@@ -58,26 +58,12 @@ public class Beginner extends MapleJob {
     }
 
     @Override
-    public void handleSkill(MapleClient c, int skillId, int skillLevel, InPacket in) {
-        super.handleSkill(c, skillId, skillLevel, in);
+    public void handleSkill(MapleClient c, int skillId, int slv, InPacket in) throws Exception {
+        super.handleSkill(c, skillId, slv, in);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillId);
-        SkillInfo si;
-        if (skill != null) {
-            si = SkillData.getSkillInfo(skillId);
-        } else {
-            return;
-        }
-        if (isBuff(skillId)) {
-            Option o = new Option();
-            if (skillId == RECOVERY) {
-                o.nOption = si.getValue(x, skillLevel);
-                o.rOption = skillId;
-                o.tOption = si.getValue(time, skillLevel);
-                tsm.putCharacterStatValue(Regen, o);
-                tsm.sendSetStatPacket();
-            }
-        } else {
+        SkillInfo si = SkillData.getSkillInfo(skillId);
+        if (!isBuff(skillId)) {
             switch (skillId) {
                 case THREE_SNAILS:
 
@@ -88,20 +74,26 @@ public class Beginner extends MapleJob {
         }
     }
 
+    @Override
     public void handleBuff(MapleClient c, InPacket in, int skillId, int slv) {
+        super.handleBuff(c, in, skillId, slv);
         MapleCharacter player = c.getPlayer();
         TemporaryStatManager tsm = player.getTemporaryStatManager();
-        SkillInfo skillInfo = SkillData.getSkillInfo(skillId);
+        SkillInfo si = SkillData.getSkillInfo(skillId);
         boolean sendStat = true;
+        Option option = new Option();
         switch (skillId) {
             case RECOVERY:
-                sendStat = false;
+                option.nOption = si.getValue(x, slv);
+                option.rOption = skillId;
+                option.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Regen, option);
+                tsm.sendSetStatPacket();
                 break;
             case NIMBLE_FEET:
-                Option option = new Option();
-                option.nOption = skillInfo.getValue(SkillStat.speed, slv);
+                option.nOption = si.getValue(SkillStat.speed, slv);
                 option.rOption = skillId;
-                option.tOption = skillInfo.getValue(SkillStat.time, slv);
+                option.tOption = si.getValue(SkillStat.time, slv);
                 tsm.putCharacterStatValue(CharacterTemporaryStat.Speed, option);
                 break;
             default:

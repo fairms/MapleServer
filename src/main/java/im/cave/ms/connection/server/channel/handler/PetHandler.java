@@ -150,7 +150,7 @@ public class PetHandler {
             } else {
                 options.put("autoEat", "0");
             }
-            player.addQuestEx(QuestConstants.QUEST_EX_PET_AUTO_EAT_FOOD, options);
+            player.addQuestExAndSendPacket(QuestConstants.QUEST_EX_PET_AUTO_EAT_FOOD, options);
         }
     }
 

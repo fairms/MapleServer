@@ -88,7 +88,7 @@ public class CommandExecutor {
                 }
                 break;
             case FAMILIAR:
-                player.announce(WorldPacket.openUI(UIType.FAMILIAR));
+                player.announce(WorldPacket.openUI(UIType.UI_FAMILIAR));
                 break;
             case JOB:
                 if (paramsSize < 1) {

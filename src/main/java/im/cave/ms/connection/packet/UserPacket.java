@@ -18,6 +18,7 @@ import im.cave.ms.connection.crypto.TripleDESCipher;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
+import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.CharMask;
 import im.cave.ms.enums.DamageSkinType;
@@ -25,6 +26,7 @@ import im.cave.ms.enums.EquipmentEnchantType;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.RecordType;
+import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Randomizer;
 
 import java.util.ArrayList;
@@ -284,8 +286,7 @@ public class UserPacket {
     }
 
     public static OutPacket effect(Effect effect) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.EFFECT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.EFFECT);
         effect.encode(out);
         return out;
     }
@@ -369,7 +370,7 @@ public class UserPacket {
 
     public static OutPacket scrollUpgradeDisplay(boolean feverTime, List<ScrollUpgradeInfo> scrolls) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
+        out.writeShort(SendOpcode.EQUIPMENT_ENCHANT.getValue());
         out.write(EquipmentEnchantType.ScrollUpgradeDisplay.getVal());
         out.writeBool(feverTime);
         out.write(scrolls.size());
@@ -379,7 +380,7 @@ public class UserPacket {
 
     public static OutPacket showScrollUpgradeResult(boolean feverTime, int result, String desc, Equip prevEquip, Equip equip) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.EQUIP_ENCHANT.getValue());
+        out.writeShort(SendOpcode.EQUIPMENT_ENCHANT.getValue());
         out.write(EquipmentEnchantType.ShowScrollUpgradeResult.getVal());
         out.writeBool(feverTime);
         out.writeInt(result);
@@ -696,6 +697,93 @@ public class UserPacket {
         Record free = chr.getRecordManager().getRecord(RecordType.MAP_TRANSFER_COUPON_FREE);
         out.writeInt(free != null ? free.getValue() : 0);
         out.writeInt(cash != null ? cash.getValue() : 0);
+        return out;
+    }
+
+    public static OutPacket hyperUpgradeDisplay(Equip equip, boolean downgradable, long stars, int successChance, int destroyChance,
+                                                boolean chanceTime) {
+
+        OutPacket out = new OutPacket(SendOpcode.EQUIPMENT_ENCHANT);
+
+        out.write(EquipmentEnchantType.HyperUpgradeDisplay.getVal());
+        out.writeBool(downgradable);
+        out.writeLong(stars);
+        out.writeZeroBytes(18);
+        out.writeInt(successChance);
+        out.writeInt(destroyChance);
+        out.writeBool(chanceTime);
+        out.writeLong(0);
+
+        TreeMap<EnchantStat, Integer> vals = equip.getHyperUpgradeStats();
+        int mask = 0;
+        for (EnchantStat es : vals.keySet()) {
+            mask |= es.getVal();
+        }
+        out.writeInt(mask);
+        vals.forEach((es, val) -> out.writeInt(val));
+
+        return out;
+    }
+
+    public static OutPacket showUnknownEnchantFailResult(byte type) {
+        OutPacket outPacket = new OutPacket(SendOpcode.EQUIPMENT_ENCHANT);
+
+        outPacket.write(EquipmentEnchantType.ShowUnknownFailResult.getVal());
+        outPacket.write(type);
+
+        return outPacket;
+    }
+
+    public static OutPacket miniGameDisplay() {
+        OutPacket outPacket = new OutPacket(SendOpcode.EQUIPMENT_ENCHANT);
+
+        outPacket.write(EquipmentEnchantType.MiniGameDisplay.getVal());
+        outPacket.write(0);
+        outPacket.writeInt(DateUtil.getTime());
+
+        return outPacket;
+    }
+
+    public static OutPacket showUpgradeResult(Equip oldEquip, Equip equip, boolean succeed, boolean boom, boolean canDegrade) {
+        OutPacket out = new OutPacket(SendOpcode.EQUIPMENT_ENCHANT);
+
+        out.write(EquipmentEnchantType.ShowHyperUpgradeResult.getVal());
+        out.writeInt(boom ? 2 : succeed ? 1 : canDegrade ? 0 : 3);
+        out.write(0);
+        oldEquip.encode(out);
+        equip.encode(out);
+
+        return out;
+    }
+
+    public static OutPacket additionalCubeResult(int charId, boolean upgrade, Item item, Equip equip) {
+        OutPacket out = new OutPacket(SendOpcode.ADDITIONAL_CUBE_RESULT);
+
+        out.writeInt(charId);
+        out.writeBool(upgrade);
+        out.writeInt(item.getItemId());
+        out.writeInt(equip.getPos());
+        out.writeInt(item.getQuantity());
+        equip.encode(out);
+
+        return out;
+    }
+
+    public static OutPacket memorialCubeResult(Item item, Equip equip) {
+        OutPacket out = new OutPacket(SendOpcode.MEMORIAL_CUBE_RESULT);
+        out.writeLong(equip.getId());
+        out.writeBool(true);
+        equip.encode(out);
+        out.writeInt(item.getItemId());
+        out.writeInt(equip.getPos());
+        out.writeInt(item.getQuantity());
+        out.writeInt(item.getPos());
+        return out;
+    }
+
+    public static OutPacket memorialCubeModified() {
+        OutPacket out = new OutPacket(SendOpcode.MEMORIAL_CUBE_MODIFIED);
+        out.writeBool(false);
         return out;
     }
 }

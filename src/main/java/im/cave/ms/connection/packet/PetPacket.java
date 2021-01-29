@@ -89,4 +89,12 @@ public class PetPacket {
         }
         return out;
     }
+
+    public static OutPacket skillPetMove(int charId, int index, MovementInfo movementInfo) {
+        OutPacket out = new OutPacket(SendOpcode.SKILL_PET_MOVE);
+        out.writeInt(charId);
+        out.writeInt(index);
+        movementInfo.encode(out);
+        return out;
+    }
 }

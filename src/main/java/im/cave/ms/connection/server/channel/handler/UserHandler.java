@@ -45,6 +45,7 @@ import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
+import im.cave.ms.constants.QuestConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.CashItemType;
 import im.cave.ms.enums.CashShopCurrencyType;
@@ -61,11 +62,13 @@ import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.AndroidInfo;
 import im.cave.ms.provider.info.CashItemInfo;
+import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Util;
+import im.cave.ms.tools.exception.SkillException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -476,7 +479,7 @@ public class UserHandler {
 
     }
 
-    public static void handleUseSkill(InPacket in, MapleClient c) {
+    public static void handleUseSkill(InPacket in, MapleClient c) throws Exception {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
@@ -1159,4 +1162,64 @@ public class UserHandler {
         //todo
     }
 
+    public static void handleUserMemorialCubeOptionRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(in.readInt());
+        boolean chooseBefore = in.readByte() == 7;
+        long id = in.readLong();
+        Map<String, String> values = player.getQuestEx().getOrDefault(QuestConstants.QUEST_EX_MEMORIAL_CUBE, null);
+        if (values == null) {
+            return;
+        }
+        if (chooseBefore) {
+            player.removeQuestEx(QuestConstants.QUEST_EX_MEMORIAL_CUBE);
+        } else {
+            int ePos = Integer.parseInt(values.getOrDefault("dst", "-1"));
+            int pot0 = Integer.parseInt(values.getOrDefault("pot0", "-1"));
+            int pot1 = Integer.parseInt(values.getOrDefault("pot1", "-1"));
+            int pot2 = Integer.parseInt(values.getOrDefault("pot2", "-1"));
+            boolean add = Boolean.parseBoolean(values.getOrDefault("add", "0"));
+            boolean lvup = Boolean.parseBoolean(values.getOrDefault("lvup", "0"));
+            Equip equip = (Equip) player.getEquipInventory().getItem((short) ePos);
+            if (equip.getId() != id) {
+                player.dropMessage("????");
+                return;
+            }
+            equip.setOption(0, pot0 == -1 ? 0 : pot0, add);
+            equip.setOption(1, pot1 == -1 ? 0 : pot1, add);
+            equip.setOption(2, pot2 == -1 ? 0 : pot2, add);
+            equip.updateToChar(player);
+        }
+        player.announce(UserPacket.memorialCubeModified());
+    }
+
+    public static void handleUserSystemOptionRequest(InPacket in, MapleClient c) {
+        String key = in.readMapleAsciiString(); //TrembleOption
+        boolean value = in.readByte() != 0;
+    }
+
+    public static void handleUserBeastTamerHideItemRequest(InPacket in, MapleClient c) {
+        int itemId = in.readInt();
+        MapleCharacter player = c.getPlayer();
+        Item item = player.getCashInventory().getItemByItemID(itemId);
+        if (item != null) {
+            Map<String, String> values;
+            if (player.getQuestEx().containsKey(QuestConstants.QUEST_EX_BEAST_TAMER_LOOK)) {
+                values = player.getQuestEx().get(QuestConstants.QUEST_EX_BEAST_TAMER_LOOK);
+            } else {
+                values = new HashMap<>();
+                values.put("bTail", "1");
+                values.put("bEar", "0");
+                values.put("TailID", "5010119");
+                values.put("EarID", "5010116");
+            }
+            if (itemId == 5012000) {
+                values.put("bEar", values.get("bEar").equals("1") ? "0" : "1");
+            } else if (itemId == 5012001) {
+                values.put("bTail", values.get("bTail").equals("1") ? "0" : "1");
+            }
+
+            player.addQuestExAndSendPacket(QuestConstants.QUEST_EX_BEAST_TAMER_LOOK, values);
+        }
+    }
 }

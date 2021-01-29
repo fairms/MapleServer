@@ -157,4 +157,8 @@ public class Inventory {
     public void expandSlot(int i) {
         slots += i;
     }
+
+    public int getEmptySlots() {
+        return getSlots() - getItems().size();
+    }
 }

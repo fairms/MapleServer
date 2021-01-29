@@ -36,10 +36,13 @@ import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.scripting.item.ItemScriptManager;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Util;
+import org.graalvm.nativeimage.c.struct.CField;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static im.cave.ms.constants.ItemConstants.Item_Tag;
@@ -191,6 +194,85 @@ public class InventoryHandler {
                 c.announce(UserPacket.scrollUpgradeDisplay(false, scrolls));
                 break;
             case ScrollTimerEffective:
+                break;
+            case HyperUpgradeDisplay:
+                pos = in.readInt();
+                iv = pos < 0 ? player.getEquippedInventory() : player.getEquipInventory();
+                equip = (Equip) iv.getItem((short) (pos < 0 ? -pos : pos));
+                if (equip == null) {
+                    return;
+                }
+                if (equip.hasSpecialAttribute(EquipSpecialAttribute.Vestige) || !ItemConstants.isUpgradable(equip.getItemId())) {
+                    c.announce(UserPacket.showUnknownEnchantFailResult((byte) 0));
+                    return;
+                }
+                c.announce(UserPacket.hyperUpgradeDisplay(equip, false, 1, 1000, 0, true));
+            case MiniGameDisplay:
+                c.announce(UserPacket.miniGameDisplay());
+                break;
+            case HyperUpgradeRequest:
+                player.setTick(in.readInt());
+                short ePos = in.readShort();
+                boolean extraChanceFromMiniGame = in.readByte() != 0;
+                boolean equippedInv = ePos < 0;
+                Inventory inv = equippedInv ? player.getEquippedInventory() : player.getEquipInventory();
+                equip = (Equip) inv.getItem((short) Math.abs(ePos));
+                if (equip == null) {
+                    player.chatMessage("Could not find the given equip.");
+                    player.write(UserPacket.showUnknownEnchantFailResult((byte) 0));
+                    return;
+                }
+
+                if (!ItemConstants.isUpgradable(equip.getItemId()) ||
+                        (equip.getBaseStat(tuc) != 0) ||
+                        player.getEquipInventory().getEmptySlots() == 0 ||
+                        equip.getChuc() >= GameConstants.getMaxStars(equip) ||
+                        equip.hasSpecialAttribute(EquipSpecialAttribute.Vestige)) {
+                    player.chatMessage("Equipment cannot be enhanced.");
+                    player.write(UserPacket.showUnknownEnchantFailResult((byte) 0));
+                    return;
+                }
+                //todo calc cost
+
+                Equip oldEquip = equip.deepCopy();
+//                int successProp = GameConstants.getEnchantmentSuccessRate(equip);
+                int successProp = 1000;
+                int destroyProp = 0;
+                if (extraChanceFromMiniGame) {
+                    successProp *= 1.045;
+                }
+                boolean success = Util.succeedProp(successProp, 1000);
+                boolean boom = false;
+                boolean canDegrade = equip.isSuperiorEqp() ? equip.getChuc() > 0 : equip.getChuc() > 5 && equip.getChuc() % 5 != 0;
+
+                if (success) {
+                    equip.setChuc((short) (equip.getChuc() + 1));
+                    equip.setDropStreak(0);
+                } else if (Util.succeedProp(destroyProp, 1000)) {
+                    equip.setChuc((short) 0);
+                    equip.addSpecialAttribute(EquipSpecialAttribute.Vestige); //痕迹？
+                    boom = true;
+                    if (equippedInv) {
+                        player.unequip(equip);
+                        equip.setPos(player.getEquipInventory().getNextFreeSlot());
+                        equip.updateToChar(player);
+                        c.write(UserPacket.inventoryOperation(true, MOVE, ePos, (short) equip.getPos(), 0, equip));
+                    }
+                    if (!equip.isSuperiorEqp()) {
+                        equip.setChuc((short) Math.min(12, equip.getChuc()));
+                    } else {
+                        equip.setChuc((short) 0);
+                    }
+                } else if (canDegrade) {
+                    equip.setChuc((short) (equip.getChuc() - 1));
+                    equip.setDropStreak(equip.getDropStreak() + 1);
+                }
+                //player.consume(starItem,cost) 消耗星星
+                equip.reCalcEnchantmentStats();
+                oldEquip.reCalcEnchantmentStats();
+                equip.updateToChar(player);
+                c.write(UserPacket.showUpgradeResult(oldEquip, equip, success, boom, canDegrade));
+                player.enableAction();
                 break;
         }
     }
@@ -583,9 +665,9 @@ public class InventoryHandler {
     public static void handleUserItemReleaseRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         player.setTick(in.readInt());
-        short uPos = in.readShort();
+        short uPos = in.readShort(); //20000 快捷放大镜
         short ePos = in.readShort();
-        Item item = player.getConsumeInventory().getItem(uPos); // 放大镜
+        Item item = player.getConsumeInventory().getItem(uPos); // todo 放大镜
         InventoryType invType = ePos < 0 ? EQUIPPED : EQUIP;
         Equip equip = (Equip) player.getInventory(invType).getItem(ePos);
         if (equip == null) {

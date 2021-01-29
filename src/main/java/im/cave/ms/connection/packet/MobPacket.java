@@ -26,7 +26,7 @@ public class MobPacket {
         out.write(mob.getCalcDamageIndex());
         out.writeInt(mob.getTemplateId());
         ForcedMobStat forcedMobStat = mob.getForcedMobStat();
-        out.writeBool(forcedMobStat != null);
+        out.writeBool(forcedMobStat != null); //modified stat
         if (forcedMobStat != null) {
             forcedMobStat.encode(out);
         }
@@ -34,7 +34,8 @@ public class MobPacket {
         out.writeInt(0);
         out.writeInt(0);
         out.writeInt(0);
-        out.writeInt(0);
+        out.writeInt(0);  //mobTempStatMast
+
         if (!hasBennInit) {
             mob.encodeInit(out);
         }

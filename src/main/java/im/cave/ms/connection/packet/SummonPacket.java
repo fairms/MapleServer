@@ -49,4 +49,26 @@ public class SummonPacket {
         movementInfo.encode(out);
         return out;
     }
+
+
+    public static OutPacket summonedSkill(Summon summon, int summonSkillID) {
+        OutPacket out = new OutPacket(SendOpcode.SUMMON_SKILL);
+
+        out.writeInt(summon.getChr().getId());
+        out.writeInt(summon.getObjectId());
+        out.writeInt(summonSkillID);
+        out.write(0);
+
+        return out;
+    }
+
+    public static OutPacket summonRemoved(Summon summon, byte levelType) {
+        OutPacket out = new OutPacket(SendOpcode.REMOVE_SUMMON);
+
+        out.writeInt(summon.getChr().getId());
+        out.writeInt(summon.getObjectId());
+        out.write(levelType);
+
+        return out;
+    }
 }

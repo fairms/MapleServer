@@ -87,7 +87,7 @@ public class JobManager {
         }
     }
 
-    public static void handleSkill(MapleClient c, InPacket in) {
+    public static void handleSkill(MapleClient c, InPacket in) throws Exception {
         for (Class<?> clazz : jobClasses) {
             MapleJob job = null;
             try {

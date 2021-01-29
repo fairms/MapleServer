@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.CombatOrders;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ComboCounter;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ElementalCharge;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOver;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOverR;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.LifeTidal;
@@ -166,7 +167,7 @@ public class TemporaryStatManager {
                 addBaseStat(stats.getKey(), stats.getValue());
             }
             if (option.tTerm > 0) {
-                Tuple tuple = new Tuple(cts, option);
+                Tuple<CharacterTemporaryStat, Option> tuple = new Tuple<>(cts, option);
                 if (getIndieSchedules().containsKey(tuple)) {
                     getIndieSchedules().get(tuple).cancel(false);
                 }
@@ -235,7 +236,7 @@ public class TemporaryStatManager {
             }
         }
         sendResetStatPacket();
-        Tuple tuple = new Tuple(cts, option);
+        Tuple<CharacterTemporaryStat, Option> tuple = new Tuple<>(cts, option);
         if (!fromSchedule && getIndieSchedules().containsKey(tuple)) {
             getIndieSchedules().get(tuple).cancel(false);
         } else {
@@ -310,8 +311,15 @@ public class TemporaryStatManager {
                 out.writeInt(o.tOption);
             }
         }
+        out.writeZeroBytes(9);
+        if (hasNewStat(ElementalCharge)) {
+            out.write(getOption(ElementalCharge).mOption);
+            out.writeShort(getOption(ElementalCharge).wOption);
+            out.write(getOption(ElementalCharge).uOption);
+            out.write(getOption(ElementalCharge).zOption);
+        }
 
-        out.writeZeroBytes(13);
+        out.writeInt(0);
         if (hasNewStat(ComboCounter)) { //todo
             out.writeInt(getOption(ComboCounter).bOption);
         }
@@ -322,7 +330,6 @@ public class TemporaryStatManager {
         out.write(1);
         out.writeInt(0);
         out.write(0);  //sometimes
-
         getNewStats().clear();
     }
 
@@ -332,11 +339,7 @@ public class TemporaryStatManager {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         TreeMap<CharacterTemporaryStat, List<Option>> sortedStats = new TreeMap<>(stats);
-        if (sortedStats.size() == 0) {
-            out.writeInt(0);
-        }
         for (Map.Entry<CharacterTemporaryStat, List<Option>> stat : sortedStats.entrySet()) {
-            int curTime = (int) System.currentTimeMillis();
             List<Option> options = stat.getValue();
             if (options == null) {
                 out.writeInt(0);
@@ -346,12 +349,13 @@ public class TemporaryStatManager {
             for (Option option : options) {
                 out.writeInt(option.nReason);
                 out.writeInt(option.nValue);
-                out.writeInt(curTime);
+                out.writeInt(option.tStart);
                 out.writeInt(0);
                 out.writeInt(option.tTerm);
-                out.writeZeroBytes(16);
+                out.writeZeroBytes(12);
             }
         }
+        out.writeInt(0);
     }
 
 

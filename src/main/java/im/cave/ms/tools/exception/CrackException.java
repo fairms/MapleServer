@@ -1,4 +1,4 @@
-package im.cave.ms.connection.server;
+package im.cave.ms.tools.exception;
 
 /**
  * @author fair
@@ -6,5 +6,5 @@ package im.cave.ms.connection.server;
  * @Package im.cave.ms.connection.handler.login
  * @date 11/21 15:21
  */
-public class CrackException extends Throwable {
+public class CrackException extends Exception {
 }

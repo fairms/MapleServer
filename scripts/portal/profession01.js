@@ -1,4 +1,8 @@
+const RecordType = Java.Type("im.cave.ms.enums.RecordType");
+const map = 951000000;
+
 function enter(pm) {
-    pm.warp(951000000);
+    pm.warp(map);
+    pm.updateRecord(RecordType.RETURN_MAP, map, pm.getMapId())
     return true;
 }

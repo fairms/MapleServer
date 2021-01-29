@@ -1110,7 +1110,11 @@ public class MapleCharacter implements Serializable {
         changeMap(mapId, false);
     }
 
-    public void changeMap(MapleMap map, byte portal) {
+    public void changeMap(MapleMap map, int portal) {
+        changeMap(map, (byte) portal, false);
+    }
+
+    public void changeMap(int mapId, byte portal) {
         changeMap(map, portal, false);
     }
 
@@ -1444,6 +1448,11 @@ public class MapleCharacter implements Serializable {
         } else {
             questEx.get(questId).putAll(value);
         }
+    }
+
+    public void removeQuestEx(int questId) {
+        questEx.remove(questId);
+        announce(UserPacket.message(MessageType.QUEST_RECORD_EX_MESSAGE, questId, "", (byte) 0));
     }
 
     public void addQuestExAndSendPacket(int questId, Map<String, String> value) {

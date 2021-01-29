@@ -1041,4 +1041,18 @@ public class WorldHandler {
                 break;
         }
     }
+
+    public static void handleSummonSkill(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        MapleMap map = chr.getMap();
+
+        int oid = in.readInt();
+        in.readInt();
+        int skillId = in.readInt();
+
+        if (map.getObj(oid) != null && map.getObj(oid) instanceof Summon) {
+            Summon summon = (Summon) map.getObj(oid);
+            summon.onSkillUse(skillId);
+        }
+    }
 }

@@ -997,4 +997,10 @@ public class Equip extends Item {
         }
         out.writeLong(getLimitBreak());
     }
+
+    public void addSpecialAttribute(EquipSpecialAttribute esa) {
+        short attr = getSpecialAttribute();
+        attr |= esa.getVal();
+        setSpecialAttribute(attr);
+    }
 }

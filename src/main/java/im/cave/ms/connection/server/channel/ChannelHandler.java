@@ -161,6 +161,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_ITEM_RELEASE_REQUEST:
                 InventoryHandler.handleUserItemReleaseRequest(in, c);
                 break;
+            case USER_MEMORIAL_CUBE_OPTION_REQUEST:
+                UserHandler.handleUserMemorialCubeOptionRequest(in, c);
+                break;
             case USER_PORTAL_SCROLL_USE_REQUEST:
                 InventoryHandler.handleUserPortalScrollUseRequest(in, c);
                 break;
@@ -232,7 +235,11 @@ public class ChannelHandler extends AbstractServerHandler {
                 UserHandler.handleSkillUp(in, c);
                 break;
             case USER_SKILL_USE_REQUEST:
-                UserHandler.handleUseSkill(in, c);
+                try {
+                    UserHandler.handleUseSkill(in, c);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
             case USER_SKILL_CANCEL_REQUEST:
                 UserHandler.handleCancelBuff(in, c);
@@ -279,6 +286,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case SUMMON_MOVE:
                 WorldHandler.handleSummonMove(in, c);
                 break;
+            case SUMMON_SKILL:
+                WorldHandler.handleSummonSkill(in, c);
+                break;
             case ANDROID_MOVE:
                 WorldHandler.handleAndroidMove(in, c);
                 break;
@@ -299,6 +309,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case PARTY_INVITE_RESPONSE:
                 WorldHandler.handlePartyInviteResponse(in, c);
+                break;
+            case SYSTEM_OPTION:
+                UserHandler.handleUserSystemOptionRequest(in, c);
                 break;
             case FRIEND_REQUEST:
                 WorldHandler.handleFriendRequest(in, c);
@@ -369,6 +382,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case BATTLE_ANALYSIS:
                 WorldHandler.handleBattleAnalysis(in, c);
+                break;
+            case BEAST_TAMER_HIDE_EAR:
+                UserHandler.handleUserBeastTamerHideItemRequest(in, c);
                 break;
             case EQUIP_EFFECT_OPT:
                 UserHandler.handleEquipEffectOpt(in.readInt(), c);

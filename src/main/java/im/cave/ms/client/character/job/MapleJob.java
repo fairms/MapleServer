@@ -17,6 +17,7 @@ import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.SkillInfo;
+import im.cave.ms.tools.exception.SkillException;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -157,11 +158,18 @@ public abstract class MapleJob {
 //        }
     }
 
-    public void handleSkill(MapleClient c, int skillId, int slv, InPacket in) {
+    /*
+        全职业通用技能
+     */
+    public void handleSkill(MapleClient c, int skillId, int slv, InPacket in) throws SkillException, Exception {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         MapleCharacter chr = c.getPlayer();
         SkillInfo si = SkillData.getSkillInfo(skillId);
         int cooltime = si.getValue(SkillStat.cooltime, slv);
+        if (!chr.hasSkill(skillId)) {
+            chr.enableAction();
+            throw new SkillException("技能不存在");
+        }
         if (cooltime > 0) {
             //处理冷却时间减少
             HashMap<Integer, Integer> cooltimes = new HashMap<>();
@@ -172,13 +180,11 @@ public abstract class MapleJob {
             EventManager.addEvent(() -> c.announce(UserPacket.skillCoolDown(skillId)), cooltime, TimeUnit.SECONDS);
         }
         if (in != null && isBuff(skillId)) {
-            handleJobLessBuff(c, in, skillId, slv);
-        } else {
-
+            handleBuff(c, in, skillId, slv);
         }
     }
 
-    public void handleJobLessBuff(MapleClient c, InPacket in, int skillId, int slv) {
+    public void handleBuff(MapleClient c, InPacket in, int skillId, int slv) {
         MapleCharacter player = c.getPlayer();
         SkillInfo skillInfo = SkillData.getSkillInfo(skillId);
         TemporaryStatManager tsm = player.getTemporaryStatManager();
@@ -321,7 +327,6 @@ public abstract class MapleJob {
 //    }
 
 
-
 //    public void handleHit(MapleClient c, HitInfo hitInfo) {
 //        MapleCharacter chr = c.getChr();
 //        hitInfo.hpDamage = Math.max(0, hitInfo.hpDamage); // to prevent -1 (dodges) healing the player.
@@ -414,7 +419,7 @@ public abstract class MapleJob {
 //    }
 
 
-//    public void handleHit(MapleClient c, InPacket in, HitInfo hitInfo) {
+    //    public void handleHit(MapleClient c, InPacket in, HitInfo hitInfo) {
 //        MapleCharacter chr = c.getChr();
 //        TemporaryStatManager tsm = chr.getTemporaryStatManager();
 //

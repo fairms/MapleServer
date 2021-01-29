@@ -144,6 +144,6 @@ public class ForcedMobStat {
 //        out.writeInt(getSpeed() > 0 ? -getSpeed() : getSpeed());
         out.writeInt(getLevel());
         out.writeInt(getUserCount());
-        out.writeBool(true);
+        out.write(1);
     }
 }

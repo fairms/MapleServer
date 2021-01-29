@@ -27,12 +27,11 @@ public class GM extends MapleJob {
 
     @Override
     public void handleSkill(MapleClient c, int skillId, int slv, InPacket in) {
-        super.handleSkill(c, skillId, slv, in);
-    }
-
-    @Override
-    public void handleJobLessBuff(MapleClient c, InPacket in, int skillId, int slv) {
-        super.handleJobLessBuff(c, in, skillId, slv);
+        try {
+            super.handleSkill(c, skillId, slv, in);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

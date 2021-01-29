@@ -1,0 +1,12 @@
+# LL:装备等级
+# 使用JS公式计算
+# 普通装备
+STAR_FORCE:
+  COST: LL * 4 + 3
+  SUCCESS:
+  DESTROY:
+# 极真装备
+SUPERIOR_STAR_FORCE:
+  COST: LL * 4 + 3
+  SUCCESS:
+  DESTROY:

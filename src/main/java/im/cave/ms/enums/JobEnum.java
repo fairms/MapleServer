@@ -300,4 +300,9 @@ public enum JobEnum {
     public String getName() {
         return name;
     }
+
+    //todo check job class
+    public boolean isAdvancedJobOf(JobEnum job) {
+        return getJob() >= job.getJob();
+    }
 }

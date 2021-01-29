@@ -12,6 +12,7 @@ import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.enums.BodyPart;
+import im.cave.ms.enums.EquipmentEnchantType;
 
 import java.util.List;
 import java.util.Map;
@@ -230,8 +231,7 @@ public class UserRemote {
     }
 
     public static OutPacket showItemUpgradeEffect(int charId, boolean success, boolean enchantDlg, int uItemId, int eItemId, boolean boom) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SHOW_ITEM_UPGRADE_EFFECT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.SHOW_ITEM_UPGRADE_EFFECT);
         out.writeInt(charId);
         out.write(boom ? 2 : success ? 1 : 0);
         out.writeBool(enchantDlg);
@@ -291,6 +291,18 @@ public class UserRemote {
             set = options.get("effect").equals("1");
         }
         out.writeBool(set);
+
+        return out;
+    }
+
+
+    public static OutPacket showItemAdditionalReleaseEffect(int charId, int itemId) {
+        OutPacket out = new OutPacket(SendOpcode.SHOW_ITEM_ADDITIONAL_RELEASE_EFFECT);
+
+        out.writeInt(charId);
+        out.writeBool(true);
+        out.writeInt(itemId);
+        out.writeLong(0);
 
         return out;
     }

@@ -52,7 +52,6 @@ import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ItemUpByIt
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Jump;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.LUK;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MAD;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MDD;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MaxHP;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MaxMP;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MesoUpByItem;
@@ -108,7 +107,7 @@ public class ItemBuffs {
                     tsm.putCharacterStatValue(PDD, o);
                     break;
                 case mdd:
-                    tsm.putCharacterStatValue(MDD, o);
+                    tsm.putCharacterStatValue(PDD, o);
                     break;
                 case acc:
                     tsm.putCharacterStatValue(ACC, o);

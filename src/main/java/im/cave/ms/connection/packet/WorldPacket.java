@@ -438,6 +438,14 @@ public class WorldPacket {
         return out;
     }
 
+    public static OutPacket dojoRank(MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.DOJO_RANK);
+        out.write(0);
+        out.writeInt(chr.getJob());
+        return out;
+    }
+
+
     public static OutPacket unityPortal() {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.OPEN_UNITY_PORTAL.getValue());
@@ -583,6 +591,7 @@ public class WorldPacket {
         for (int i = 0; i < 6; i++) {
             out.write(-1); // unk
         }
+        //椅子
         out.writeZeroBytes(14);
         out.writePosition(chr.getPosition());
         out.write(chr.getMoveAction());
