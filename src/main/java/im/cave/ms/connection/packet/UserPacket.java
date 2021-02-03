@@ -228,8 +228,8 @@ public class UserPacket {
 
     public static OutPacket changeSkillRecordResult(List<Skill> skills, boolean exclRequestSent, boolean showResult
             , boolean removeLinkSkill, boolean sn) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.CHANGE_SKILL_RESULT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.CHANGE_SKILL_RESULT);
+
         out.writeBool(exclRequestSent);
         out.writeBool(showResult);
         out.writeBool(removeLinkSkill);
@@ -241,6 +241,7 @@ public class UserPacket {
             out.writeLong(MAX_TIME);
         }
         out.writeBool(sn);
+
         return out;
     }
 

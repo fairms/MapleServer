@@ -98,7 +98,9 @@ public class CharacterPotential {
 
     public Skill getSkill() {
         Skill skill = SkillData.getSkill(getSkillID());
-        skill.setCurrentLevel(getSlv());
+        if (skill != null) {
+            skill.setCurrentLevel(getSlv());
+        }
         return skill;
     }
 }

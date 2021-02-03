@@ -231,6 +231,12 @@ public class ChannelHandler extends AbstractServerHandler {
             case CHANGE_STAT_REQUEST:
                 UserHandler.handleChangeStatRequest(in, c);
                 break;
+            case REMOVE_SON_OF_LINKED_SKILL_REQUEST:
+                UserHandler.handleRemoveSonOfLinkedSkillRequest(in, c);
+                break;
+            case SET_SON_OF_LINKED_SKILL_REQUEST:
+                UserHandler.handleSetSonOfLinkedSkillRequest(in, c);
+                break;
             case USER_SKILL_UP_REQUEST:
                 UserHandler.handleSkillUp(in, c);
                 break;

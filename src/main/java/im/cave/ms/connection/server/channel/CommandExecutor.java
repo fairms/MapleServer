@@ -47,6 +47,7 @@ import static im.cave.ms.enums.InventoryOperationType.UPDATE_QUANTITY;
 public class CommandExecutor {
     public static void handle(MapleCharacter player, String msg) {
         boolean gm = player.isGm();
+        boolean gmCommand = msg.startsWith("!");
         String[] params = msg.substring(1).split(" ");
         int paramsSize = params.length - 1; //参数数量
         Command cmd = Command.getByName(params[0]);
@@ -57,6 +58,7 @@ public class CommandExecutor {
             player.chatMessage(Notice, String.format("等级不足,无法使用该命令 要求等级:%d", cmd.getReqLev()));
             return;
         }
+        checkParam(cmd, params);
         switch (cmd) {
             case SAVE:
                 long start = System.currentTimeMillis();
@@ -115,159 +117,8 @@ public class CommandExecutor {
                 break;
         }
     }
+
+    private static void checkParam(Command cmd, String[] params) {
+
+    }
 }
-
-//
-//public class CommandHandler {
-//    public static void handle(MapleClient c, String content) {
-//        String[] s = content.substring(1).split(" ");
-//        switch (s[0]) {
-//            case "aa": {
-//                MapleCharacter player = c.getPlayer();
-//                Equip item = ((Equip) player.getEquipInventory().getItem((short) 1));
-//                item.updateToChar(player);
-//                break;
-//            }
-//            case "save":
-//                c.getPlayer().saveToDB();
-//                c.announce(WorldPacket.chatMessage("保存角色", Notice));
-//                break;
-//            case "chat":
-//                if (s.length < 2) {
-//                    return;
-//                }
-//                int type = Integer.parseInt(s[1]);
-//                ChatType chatType = ChatType.getByVal(type);
-//                if (chatType == null) {
-//                    return;
-//                }
-//                c.announce(WorldPacket.chatMessage("3:3:3" + chatType, chatType));
-//                break;
-//            case "mob":
-//                if (s.length < 2) {
-//                    return;
-//                }
-//                if (s[1] != null && !s[1].equals("") && Util.isNumber(s[1])) {
-//                    Mob mob = MobData.getMob(Integer.parseInt(s[1]));
-//                    if (mob == null) {
-//                        return;
-//                    }
-//                    for (int i = 0; i < 1; i++) {
-//                        Mob copy = mob.deepCopy();
-//                        copy.setHp(mob.getMaxHp());
-//                        copy.setMp(mob.getMaxMp());
-//                        copy.setPosition(c.getPlayer().getPosition());
-//                        c.getPlayer().getMap().spawnObj(copy, c.getPlayer());
-//                    }
-//                }
-//                break;
-//            case "npc":
-//                if (s.length < 2) {
-//                    return;
-//                }
-//                if (s[1] != null && !s[1].equals("") && Util.isNumber(s[1])) {
-//                    Npc npc = NpcData.getNpc(Integer.parseInt(s[1])).deepCopy();
-//                    if (npc == null) {
-//                        return;
-//                    }
-//                    npc.setPosition(c.getPlayer().getPosition());
-//                    npc.setRx0(npc.getPosition().getX() - 50);
-//                    npc.setRx1(npc.getPosition().getX() + 50);
-//                    npc.setCy(npc.getPosition().getY());
-//                    npc.setFh(c.getPlayer().getFoothold());
-//                    c.getPlayer().getMap().spawnObj(npc, c.getPlayer());
-//
-//                }
-//                break;
-//            case "ea":
-//                c.getPlayer().setConversation(false);
-//                QuestScriptManager.getInstance().dispose(c);
-//                c.announce(UserPacket.enableActions());
-//                c.announce(MessagePacket.broadcastMsg("[提示] 解卡操作已处理", BroadcastMsgType.NOTICE_WITH_OUT_PREFIX));
-//                break;
-//            case "item":
-//                if (s.length < 2) {
-//                    return;
-//                }
-//                int itemId = Integer.parseInt(s[1]);
-//                if (ItemConstants.isEquip(itemId)) {
-//                    Equip equip = ItemData.getEquipDeepCopyFromID(itemId, false);
-//                    if (equip == null) {
-//                        return;
-//                    }
-//                    c.getPlayer().addItemToInv(equip);
-//
-//                } else {
-//                    Item item = ItemData.getItemCopy(itemId, false);
-//                    if (item == null) {
-//                        return;
-//                    }
-//                    item.setQuantity(1);
-//                    c.getPlayer().addItemToInv(item);
-//                }
-//                break;
-//            case "t":
-//                if (s.length < 2) {
-//                    return;
-//                }
-//                int i = content.indexOf(" ");
-//                String substring = content.substring(i);
-//                byte[] byteArrayFromHexString = HexTool.getByteArrayFromHexString(substring);
-//                OutPacket out = new OutPacket();
-//                out.write(byteArrayFromHexString);
-//                c.announce(out);
-//                break;
-//            case "debug":
-//                MapleCharacter player = c.getPlayer();
-//                player.chatMessage(ChatType.Tip, Server.getInstance().onlinePlayer());
-//                break;
-//            case "maps":
-//                int num = 0;
-//                List<World> worlds = Server.getInstance().getWorlds();
-//                for (World world : worlds) {
-//                    for (MapleChannel channel : world.getChannels()) {
-//                        for (MapleMap map : channel.getMaps()) {
-//                            num += map.getCharacters().size();
-//                        }
-//                    }
-//                }
-//                c.getPlayer().chatMessage(ChatType.Tip, "所有地图在线" + num);
-//                break;
-//            case "warp":
-//                if (s.length < 2 || !StringUtil.isNumber(s[1])) {
-//                    return;
-//                }
-//                c.getPlayer().changeMap(Integer.parseInt(s[1]));
-//                break;
-//            case "job":
-//                if (s.length < 2) {
-//                    return;
-//                }
-//                c.getPlayer().changeJob(Integer.parseInt(s[1]));
-//                break;
-//            case "notice":
-//                if (s.length < 2) {
-//                    return;
-//                }
-//                c.getPlayer().dropMessage(s[1]);
-//                break;
-//
-//            case "mobs":
-//                c.getPlayer().dropMessage("当前地图OBJ总数:" + c.getPlayer().getMap().getObjs().size());
-//                c.getPlayer().dropMessage("可见OBJ数目:" + c.getPlayer().getVisibleMapObjs().size());
-//                break;
-//            case "reload":
-//                c.getEngines().clear();
-//                NpcData.refreshShop();
-//                break;
-//            case "em":
-//                c.getAccount().addMaplePoint(100000);
-//                c.getMapleChannel().broadcast(WorldPacket.eventMessage("测试测试", 2, 3000));
-//                break;
-//            case "meso":
-//                if (s.length < 2) {
-//                    return;
-//                }
-//                c.getPlayer().addMeso(Long.parseLong(s[1]));
-//                break;
-

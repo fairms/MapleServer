@@ -1199,6 +1199,10 @@ public class MapleCharacter implements Serializable {
         }
     }
 
+    public void addSkill(int linkSkillID, byte linkSkillLevel, int i) {
+
+    }
+
     public void addToBaseStatCache(Skill skill) {
         SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
         if (SkillConstants.isPassiveSkill(skill.getSkillId())) {

@@ -5,6 +5,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.connection.packet.NpcPacket;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.packet.result.ExpressResult;
+import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.enums.JobEnum;
 import im.cave.ms.enums.NpcMessageType;
 import im.cave.ms.scripting.AbstractPlayerInteraction;
@@ -219,5 +220,9 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
     public void openExpressDialog() {
         c.announce(WorldPacket.expressResult(ExpressResult.open()));
+    }
+
+    public void inputGuildName() {
+        c.announce(WorldPacket.guildResult(GuildResult.inputGuildName()));
     }
 }

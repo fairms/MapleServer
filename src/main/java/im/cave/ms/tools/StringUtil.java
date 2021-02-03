@@ -2,6 +2,7 @@ package im.cave.ms.tools;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.nio.charset.Charset;
 import java.util.StringTokenizer;
 
 /**
@@ -100,6 +101,13 @@ public class StringUtil {
         return str.matches("^[-+]?(([0-9]+)([.]([0-9]+))?|([.]([0-9]+))?)$");
     }
 
+
+    public static int len(String s) {
+        if (s == null) {
+            return 0;
+        }
+        return s.getBytes(Charset.forName("gbk")).length;
+    }
 
     public static String codeString(String fileName) throws Exception {
         BufferedInputStream bin = new BufferedInputStream(

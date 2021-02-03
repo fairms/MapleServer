@@ -20,6 +20,7 @@ import im.cave.ms.client.quest.reward.QuestMoneyReward;
 import im.cave.ms.client.quest.reward.QuestPopReward;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.QuestStatus;
+import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.provider.info.QuestInfo;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataProvider;
@@ -43,6 +44,7 @@ public class QuestData {
     private static final Logger log = LoggerFactory.getLogger(QuestData.class);
     private static final MapleDataProvider questData = MapleDataProviderFactory.getDataProvider(new File(ServerConstants.WZ_DIR + "/Quest.wz"));
     private static final Map<Integer, QuestInfo> quests = new HashMap<>();
+    private static final Map<Integer, Integer> medalQuest = new HashMap<>();
 
     public static void loadQuests() {
         MapleData checkData = questData.getData("/Check.img");
@@ -63,6 +65,8 @@ public class QuestData {
                         quest.setAutoComplete(Integer.parseInt(value) == 1);
                         break;
                     case "viewMedalItem":
+                        Integer medal = Integer.valueOf(value);
+                        medalQuest.put(questId, medal);
                         quest.setMedalItemId(Integer.parseInt(value));
                         break;
                 }
@@ -378,6 +382,10 @@ public class QuestData {
                                             questStartItemRequirement.setId(Integer.parseInt(reqValue));
                                         } else {
                                             questProgressItemRequirement.setItemID(Integer.parseInt(reqValue));
+                                            ItemInfo ii = ItemData.getItemInfoById(Integer.parseInt(reqValue));
+                                            if (ii.isQuest()) {
+                                                System.out.printf("任务%d, 物品:%s%n", questId, reqValue);
+                                            }
                                         }
                                         break;
                                     case "count":
@@ -389,6 +397,7 @@ public class QuestData {
                                         break;
                                     case "order":
                                     case "secret":
+
                                         break;
                                     default:
                                         break;
@@ -603,6 +612,10 @@ public class QuestData {
         }
         return quest;
 
+    }
+
+    public static int getMedalSource(int medal) {
+        return medalQuest.getOrDefault(medal, 0);
     }
 
 }

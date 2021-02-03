@@ -47,6 +47,13 @@ public class DateUtil {
         return Integer.parseInt(format);
     }
 
+    public static int getDate(long timestamp) {
+        LocalDate localDate = LocalDate.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+        String format = localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        return Integer.parseInt(format);
+    }
+
+
     public static String getTimeFromTimestamp(long timestamp) {
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
         return localDateTime.format(DateTimeFormatter.ofPattern("yyyy年MM月dd日HH时mm分ss秒"));

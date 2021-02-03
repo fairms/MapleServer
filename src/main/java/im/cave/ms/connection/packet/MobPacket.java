@@ -30,11 +30,14 @@ public class MobPacket {
         if (forcedMobStat != null) {
             forcedMobStat.encode(out);
         }
-        out.writeInt(0);
-        out.writeInt(0);
-        out.writeInt(0);
-        out.writeInt(0);
-        out.writeInt(0);  //mobTempStatMast
+
+        MobTemporaryStat temporaryStat = mob.getTemporaryStat();
+        temporaryStat.encode(out);
+//        out.writeInt(0);
+//        out.writeInt(0);
+//        out.writeInt(0);
+//        out.writeInt(0);
+//        out.writeInt(0);  //mobTempStatMast
 
         if (!hasBennInit) {
             mob.encodeInit(out);

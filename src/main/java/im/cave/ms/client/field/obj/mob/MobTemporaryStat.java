@@ -57,7 +57,7 @@ public class MobTemporaryStat {
     private Map<Tuple<Integer, Integer>, ScheduledFuture> burnCancelSchedules = new HashMap<>();
     private Map<Tuple<Integer, Integer>, ScheduledFuture> burnSchedules = new HashMap<>();
     private String linkTeam;
-    private Comparator<MobStat> mobStatComper = (o1, o2) -> {
+    private Comparator<MobStat> mobStatComparator = (o1, o2) -> {
         int res = 0;
         if (o1.getPos() < o2.getPos()) {
             res = -1;
@@ -72,9 +72,9 @@ public class MobTemporaryStat {
         }
         return res;
     };
-    private final TreeMap<MobStat, Option> currentStatVals = new TreeMap<>(mobStatComper);
-    private TreeMap<MobStat, Option> newStatVals = new TreeMap<>(mobStatComper);
-    private TreeMap<MobStat, Option> removedStatVals = new TreeMap<>(mobStatComper);
+    private final TreeMap<MobStat, Option> currentStatVals = new TreeMap<>(mobStatComparator);
+    private TreeMap<MobStat, Option> newStatVals = new TreeMap<>(mobStatComparator);
+    private TreeMap<MobStat, Option> removedStatVals = new TreeMap<>(mobStatComparator);
     private Map<MobStat, ScheduledFuture> schedules = new HashMap<>();
     private Mob mob;
 
@@ -89,7 +89,7 @@ public class MobTemporaryStat {
 //			copy.getBurnedInfos().add(bi.deepCopy());
 //		}
         copy.setLinkTeam(getLinkTeam());
-        copy.mobStatComper = getMobStatComper();
+        copy.mobStatComparator = getMobStatComparator();
         for (MobStat ms : getCurrentStatVals().keySet()) {
             copy.addStatOptions(ms, getCurrentStatVals().get(ms).deepCopy());
         }
@@ -405,6 +405,7 @@ public class MobTemporaryStat {
 //        }
 //        return res; // wow no lambda for once
 //    }
+
     public boolean hasRemovedMobStat(MobStat mobStat) {
         return getRemovedStatVals().containsKey(mobStat);
     }
@@ -516,8 +517,8 @@ public class MobTemporaryStat {
 //        this.burnedInfos = burnedInfos;
 //    }
 
-    public Comparator getMobStatComper() {
-        return mobStatComper;
+    public Comparator getMobStatComparator() {
+        return mobStatComparator;
     }
 
     public String getLinkTeam() {

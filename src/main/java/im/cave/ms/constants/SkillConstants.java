@@ -290,4 +290,13 @@ public class SkillConstants {
         return prefix == 10000 || prefix == 10100 || prefix == 10110 || prefix == 10111 || prefix == 10112;
 
     }
+
+    public static int getLinkSkillLevelByMapleCharacterLevel(short level) {
+        if (level >= 120) {
+            return 2;
+        } else if (level >= 70) {
+            return 1;
+        }
+        return 0;
+    }
 }

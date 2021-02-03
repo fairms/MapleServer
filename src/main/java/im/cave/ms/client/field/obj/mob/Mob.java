@@ -5,7 +5,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.FieldEffect;
 import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
-import im.cave.ms.client.field.obj.DropInfo;
+import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.configs.Config;
 import im.cave.ms.connection.netty.OutPacket;
@@ -37,10 +37,10 @@ import static im.cave.ms.enums.RemoveMobType.ANIMATION_DEATH;
 public class Mob extends MapleMapObj {
     private boolean sealedInsteadDead, patrolMob;
     private int option, effectItemID, range, detectX, senseX, phase, curZoneDataType;
-    private int refImgMobID, lifeReleaseOwnerAID, afterAttack, currentAction, scale = 100, eliteGrade = -1, eliteType, targetUserIdFromServer;
+    private int refImgMobID, lifeReleaseOwnerAID, afterAttack, currentAction, scale, eliteGrade = -1, eliteType, targetUserIdFromServer;
     private long hp;
     private long mp;
-    private byte calcDamageIndex = 1, moveAction = 5, appearType = -2, teamForMCarnival = -1;
+    private byte calcDamageIndex, moveAction = 5, appearType = -2, teamForMCarnival = -1;
     private Position prevPos;
     private Foothold curFoothold;
     private Foothold homeFoothold;
@@ -56,14 +56,14 @@ public class Mob extends MapleMapObj {
     private double fs;
     private String elemAttr = "";
     private int hpTagColor;
-    private int hpTagBgcolor;
-    private boolean HPgaugeHide;
+    private int hpTagBgColor;
+    private boolean HPGaugeHide;
     private int rareItemDropLevel;
     private boolean boss;
     private int hpRecovery;
     private int mpRecovery;
     private boolean undead;
-    private int mbookID;
+    private int mBookID;
     private boolean noRegen;
     private int chaseSpeed;
     private int explosiveReward;
@@ -94,7 +94,7 @@ public class Mob extends MapleMapObj {
     private String fixedMoveDir = "";
     private boolean noDoom;
     private boolean useCreateScript;
-    private boolean knockback;
+    private boolean knockBack;
     private boolean blockUserMove;
     private int bodyDisease;
     private int bodyDiseaseLevel;
@@ -116,8 +116,8 @@ public class Mob extends MapleMapObj {
     private int splitLink;
     private Map<MapleCharacter, Long> injuryStatistics = new HashMap<>();
     private Set<DropInfo> drops = new HashSet<>();
-    //    private List<MobSkill> skills = new ArrayList<>();
-//    private List<MobSkill> attacks = new ArrayList<>();
+    private List<MobSkill> skills = new ArrayList<>();
+    private List<MobSkill> attacks = new ArrayList<>();
     private Set<Integer> quests = new HashSet<>();
     private Set<Integer> revives = new HashSet<>();
     private Map<Integer, Long> skillCooldowns = new HashMap<>();
@@ -147,6 +147,9 @@ public class Mob extends MapleMapObj {
     public Mob(int id) {
         super(id);
         forcedMobStat = new ForcedMobStat();
+        temporaryStat = new MobTemporaryStat(this);
+        scale = 100;
+        calcDamageIndex = 1;
     }
 
     public Mob() {
@@ -255,14 +258,14 @@ public class Mob extends MapleMapObj {
         copy.setFs(getFs());
         copy.setElemAttr(getElemAttr());
         copy.setHpTagColor(getHpTagColor());
-        copy.setHpTagBgcolor(getHpTagBgcolor());
-        copy.setHPgaugeHide(isHPgaugeHide());
+        copy.setHpTagBgColor(getHpTagBgColor());
+        copy.setHPGaugeHide(isHPGaugeHide());
         copy.setRareItemDropLevel(getRareItemDropLevel());
         copy.setBoss(isBoss());
         copy.setHpRecovery(getHpRecovery());
         copy.setMpRecovery(getMpRecovery());
         copy.setUndead(isUndead());
-        copy.setMbookID(getMbookID());
+        copy.setMBookID(getMBookID());
         copy.setNoRegen(isNoRegen());
         copy.setChaseSpeed(getChaseSpeed());
         copy.setExplosiveReward(getExplosiveReward());
@@ -293,7 +296,7 @@ public class Mob extends MapleMapObj {
         copy.setFixedMoveDir(getFixedMoveDir());
         copy.setNoDoom(isNoDoom());
         copy.setUseCreateScript(isUseCreateScript());
-        copy.setKnockback(isKnockback());
+        copy.setKnockBack(isKnockBack());
         copy.setBlockUserMove(isBlockUserMove());
         copy.setBodyDisease(getBodyDisease());
         copy.setBodyDiseaseLevel(getBodyDiseaseLevel());
@@ -319,22 +322,35 @@ public class Mob extends MapleMapObj {
         copy.setBanMsgType(getBanMsgType());
         copy.setBanMsg(getBanMsg());
         copy.setBanMaps(getBanMaps());
-//        for (MobSkill ms : getSkills()) {
-//            copy.addSkill(ms);
-//        }
-//        for (MobSkill ms : getAttacks()) {
-//            copy.addAttack(ms);
-//        }
-//        for (int rev : getRevives()) {
-//            copy.addRevive(rev);
-//        }
-//        for (int i : getQuests()) {
-//            copy.addQuest(i);
-//        }
+        for (MobSkill ms : getSkills()) {
+            copy.addSkill(ms);
+        }
+        for (MobSkill ms : getAttacks()) {
+            copy.addAttack(ms);
+        }
+        for (int rev : getRevives()) {
+            copy.addRevive(rev);
+        }
+        for (int i : getQuests()) {
+            copy.addQuest(i);
+        }
         copy.setEscortMob(isEscortMob());
         return copy;
 
     }
+
+    public void addAttack(MobSkill mobSkill) {
+        getAttacks().add(mobSkill);
+    }
+
+    public void addSkill(MobSkill skill) {
+        getSkills().add(skill);
+    }
+
+    public void addQuest(int questID) {
+        getQuests().add(questID);
+    }
+
 
     private void setLevel(int level) {
         forcedMobStat.setLevel(level);

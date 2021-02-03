@@ -1222,4 +1222,23 @@ public class UserHandler {
             player.addQuestExAndSendPacket(QuestConstants.QUEST_EX_BEAST_TAMER_LOOK, values);
         }
     }
+
+
+    /*
+        LINK技能
+     */
+    public static void handleSetSonOfLinkedSkillRequest(InPacket in, MapleClient c) {
+        int skillId = in.readInt();
+        int originId = in.readInt();
+        int linkedId = in.readInt();
+        Account account = c.getAccount();
+        MapleCharacter player = c.getPlayer();
+        MapleCharacter origin = account.getCharacter(originId);
+
+    }
+
+    public static void handleRemoveSonOfLinkedSkillRequest(InPacket in, MapleClient c) {
+        int skillId = in.readInt();
+
+    }
 }

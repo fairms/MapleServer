@@ -1,4 +1,4 @@
-package im.cave.ms.client.field.obj;
+package im.cave.ms.provider.info;
 
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.tools.Util;

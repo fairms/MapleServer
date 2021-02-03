@@ -18,6 +18,7 @@ import im.cave.ms.client.multiplayer.Express;
 import im.cave.ms.client.multiplayer.MapleNotes;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.guilds.Guild;
+import im.cave.ms.client.multiplayer.guilds.GuildMember;
 import im.cave.ms.client.multiplayer.miniroom.ChatRoom;
 import im.cave.ms.client.multiplayer.miniroom.TradeRoom;
 import im.cave.ms.client.multiplayer.party.Party;
@@ -1024,7 +1025,6 @@ public class WorldHandler {
                         in.readShort();
                         Item item = player.getConsumeInventory().getItem(pos);
                         if (item == null || !ItemConstants.isFamiliar(item.getItemId()) || item.getFamiliar() == null) {
-                            player.dropMessage("error");
                             player.enableAction();
                             return;
                         }
@@ -1033,6 +1033,17 @@ public class WorldHandler {
                         player.announce(FamiliarPacket.updateFamiliars(player));
                         player.consumeItem(item);
                         break;
+                    case 14:
+                        pos = (short) in.readInt(); //怪怪魔方
+                        long familiarId = in.readLong();
+                        item = player.getCashInventory().getItem(pos);
+                        if (item == null || !ItemConstants.isFamiliar(item.getItemId()) || item.getFamiliar() == null) {
+                            player.enableAction();
+                            return;
+                        }
+                        familiar = player.getFamiliar((int) familiarId);
+                        familiar.randomizer();
+                        player.announce(FamiliarPacket.updateFamiliarToChar(familiar, player));
                 }
                 break;
             case 4:
@@ -1071,6 +1082,12 @@ public class WorldHandler {
         }
         Guild guild = player.getGuild();
         switch (type) {
+            case Req_RemoveGuild:
+                if (guild == null || guild.getLeaderId() != player.getId()) {
+                    return;
+                }
+                guild.disband();
+                break;
             case Req_Search:
                 byte searchType = in.readByte();
                 World world = c.getWorld();
@@ -1091,7 +1108,37 @@ public class WorldHandler {
                 guild.broadcast(WorldPacket.guildResult(GuildResult.updateSetting(guild)));
                 break;
             case Req_Signin:
+                GuildMember gm = guild.getMemberByChar(player);
 
+                break;
+            case Req_Rank:
+                player.announce(WorldPacket.guildResult(GuildResult.updateRank(guild)));
+                break;
+            case Req_CheckGuildName:
+                world = c.getWorld();
+                String name = in.readMapleAsciiString();
+                long meso = player.getMeso();
+                if (meso < GameConstants.CREATE_GUILD_COST) {
+                    player.announce(MessagePacket.broadcastMsg("你没有足够的金币创建一个家族。当前创建家族需要: 5000000 的金币.", BroadcastMsgType.ALERT));
+                    return;
+                }
+                if (!world.checkGuildName(name)) {
+                    //todo
+                    player.announce(MessagePacket.broadcastMsg("该家族名已被使用,请换一个.", BroadcastMsgType.ALERT));
+                    return;
+                }
+                guild = new Guild();
+                guild.setName(name);
+                DataBaseManager.saveToDB(guild);
+                player.setGuild(guild);
+                guild = player.getGuild();
+                guild.addMember(player);
+                guild.setWorldId(player.getWorld());
+                gm = guild.getMemberByChar(player);
+                player.announce(WorldPacket.guildResult(GuildResult.loadResult(guild)));
+                gm.addCommitment(500);
+                player.deductMoney(GameConstants.CREATE_GUILD_COST);
+                break;
         }
     }
 }

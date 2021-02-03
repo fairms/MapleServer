@@ -126,5 +126,9 @@ public class Familiar extends MapleMapObj {
         out.writeInt(82009);
         out.writeShort(0);
     }
+
+    public void randomizer() {
+
+    }
 }
 

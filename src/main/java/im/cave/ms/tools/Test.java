@@ -4,6 +4,8 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Stat;
 import im.cave.ms.constants.JobConstants;
+import im.cave.ms.provider.data.MobData;
+import im.cave.ms.provider.data.QuestData;
 import im.cave.ms.scripting.npc.NpcConversationManager;
 
 import javax.script.Bindings;
@@ -15,6 +17,9 @@ import javax.script.ScriptException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * @author fair
@@ -24,8 +29,12 @@ import java.io.FileReader;
  */
 public class Test {
     public static void main(String[] args) {
-        System.out.println(JobConstants.getJobLevel((short) 110));
-//        try {
+//        QuestData.loadQuests();
+//        MobData.loadMobsData();
+        System.out.println(DateUtil.FT_OFFSET);
+        long timestamp = DateUtil.getTimestamp(116444736000000000L);
+        System.out.println(DateUtil.getTime(timestamp));
+        //        try {
 //            scriptTest();
 //        } catch (FileNotFoundException | ScriptException | NoSuchMethodException e) {
 //            e.printStackTrace();

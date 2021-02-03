@@ -923,6 +923,14 @@ public class ItemData {
                 case "android":
                     item.setAndroid(MapleDataTool.getInt(attr));
                     break;
+                case "islot":
+                case "vslot":
+                case "reqJob":
+                case "reqSTR":
+                case "reqDEX":
+                case "reqINT":
+                case "reqLUK":
+                case "medalTag":
                 default:
                     log.warn(String.format("Unknown node: %s, itemID = %s", name, item.getItemId()));
 

@@ -4,7 +4,7 @@ import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.items.ItemOption;
 import im.cave.ms.client.character.items.ScrollUpgradeInfo;
-import im.cave.ms.client.field.obj.DropInfo;
+import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.enums.BodyPart;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.EquipPrefix;

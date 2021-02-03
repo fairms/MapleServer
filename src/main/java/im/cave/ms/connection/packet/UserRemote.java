@@ -306,4 +306,13 @@ public class UserRemote {
 
         return out;
     }
+
+    public static OutPacket guildNameChanged(MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_GUILD_NAME_CHANGED);
+
+        out.writeInt(chr.getId());
+        out.writeMapleAsciiString(chr.getGuild().getName());
+
+        return out;
+    }
 }

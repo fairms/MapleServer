@@ -8,7 +8,10 @@ import im.cave.ms.configs.WorldConfig;
 import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
 import im.cave.ms.connection.server.channel.MapleChannel;
+import im.cave.ms.tools.StringUtil;
+import im.cave.ms.tools.Util;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -171,5 +174,14 @@ public class World {
             }
         }
         return character;
+    }
+
+    public boolean checkGuildName(String name) {
+        int len = StringUtil.len(name);
+        if (len < 4 || len > 13) {
+            return false;
+        }
+        Guild guild = Util.findWithPred(guilds.values(), g -> g.getName().equalsIgnoreCase(name));
+        return guild == null;
     }
 }

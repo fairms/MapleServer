@@ -11,11 +11,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+
 /**
  * @author fair
  * @version V1.0
  * @Package im.cave.ms.connection.packet
  * @date 1/18 21:51
+ * todo 搞懂这些！！！
  */
 public class FamiliarPacket {
     public static OutPacket familiarResult(MapleCharacter chr, byte type, OutPacket action, Familiar familiar) {
@@ -198,4 +200,23 @@ public class FamiliarPacket {
         return out;
     }
 
+    public static OutPacket updateFamiliarToChar(Familiar familiar, MapleCharacter player) {
+        OutPacket out = new OutPacket(SendOpcode.FAMILIAR);
+
+        out.writeInt(player.getId());
+        out.write(7);
+        out.writeInt(1);
+        out.writeInt(-1723358014);
+        out.writeInt(player.getAccId());
+        out.writeInt(player.getId());
+        out.write(1);
+        out.writeShort(5);
+        out.writeShort(1);
+        out.writeShort(1);
+        familiar.encode(out);
+        out.writeInt(0);
+        out.write(0);
+
+        return out;
+    }
 }

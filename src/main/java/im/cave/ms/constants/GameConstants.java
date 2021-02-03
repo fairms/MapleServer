@@ -38,6 +38,7 @@ public class GameConstants {
     public static final int POTION_POT_MAX_LIMIT = 10000000;
     public static final int MAX_FLAME_BONUS_SAGAS = 6;
     public static final int FLAME_STAT_MULTIPLE = 1000;
+    public static final int CREATE_GUILD_COST = 5000000;
     //  default keymap
     public static final byte[] DEFAULT_KEY = {1, 2, 3, 4, 5, 6, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 31, 34, 35, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 48, 50, 56, 57, 59, 60, 61, 63, 64, 65, 66, 70};
     public static final byte[] DEFAULT_TYPE = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 4};
@@ -60,11 +61,11 @@ public class GameConstants {
     //Guild
     public static final int MAX_DAY_COMMITMENT = 50000;
     public static final int SP_PER_GUILD_LEVEL = 2;
-    public static final double GGP_PER_CONTRIBUTION = 0.3;
+    public static final double GGP_PER_CONTRIBUTION = 0.1;
     public static final double IGP_PER_CONTRIBUTION = 0.7;
     public static final int GUILD_BBS_RECORDS_PER_PAGE = 10;
     public static final int GGP_FOR_SKILL_RESET = 50000;
-    public static final int MAX_GUILD_LV = 25;
+    public static final int MAX_GUILD_LV = 30;
     public static final int MAX_GUILD_MEMBERS = 200;
     //drop
     public static final int DROP_HEIGHT = 100; // was 20
@@ -143,7 +144,6 @@ public class GameConstants {
             {{40, 44}, {0, 0}, {0, 0}, {28, 32}, {0, 0}, {0, 0}},// 23 - Kanna
     };
 
-
     static {
         initCharExp();
         initQuickMove();
@@ -174,6 +174,16 @@ public class GameConstants {
         quickMoveInfos.add(new QuickMoveInfo(0, 0, QuickMoveType.Party, 20, "可以移动到组队特殊地图。", true,
                 ZERO_TIME, MAX_TIME));
     }
+
+    public static int[] guildExp = new int[]{
+            0, 15000, 60000, 135000, 240000,
+            375000, 540000, 735000, 960000, 1215000,
+            1500000, 1815000, 2160000, 2535000, 2940000,
+            3375000, 3840000, 4335000, 4860000, 5415000,
+            6000000, 6615000, 7260000, 7935000, 8640000,
+            9375000, 10140000, 10935000, 11760000, 12615000
+    };
+
 
     private static void initCharExp() {
         charExp[1] = 15;
@@ -507,5 +517,12 @@ public class GameConstants {
         int stars = Arrays.stream(equip.isSuperiorEqp() ? STAR_FORCE_LEVELS_SUPERIOR : STAR_FORCE_LEVELS)
                 .filter(lv -> level <= lv[0]).findFirst().orElse(new int[]{5})[1]; //很别扭
         return stars != -1 ? stars : 25;
+    }
+
+    public static int getExpRequiredForNextGuildLevel(int curLevel) {
+        if (curLevel >= 25 || curLevel < 0) {
+            return 0;
+        }
+        return guildExp[curLevel];
     }
 }

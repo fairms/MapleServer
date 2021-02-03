@@ -90,9 +90,7 @@ public class MapleData implements MapleDataEntity, Iterable<MapleData> {
             case FLOAT: {
                 return Float.parseFloat(attributes.getNamedItem("value").getNodeValue());
             }
-            case INT: {
-                return Integer.parseInt(attributes.getNamedItem("value").getNodeValue());
-            }
+            case INT:
             case LONG: {
                 return Long.parseLong(attributes.getNamedItem("value").getNodeValue());
             }

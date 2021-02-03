@@ -6,6 +6,7 @@ import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.skill.AttackInfo;
+import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.UserPacket;
@@ -14,6 +15,7 @@ import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.LinkSkill;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.SkillInfo;
@@ -532,8 +534,10 @@ public abstract class MapleJob {
             stats.put(Stat.AVAILABLESP, (long) 1);
         }
 
+
+        //todo 需要去偷一下 ...
 //        byte linkSkillLevel = (byte) SkillConstants.getLinkSkillLevelByMapleCharacterLevel(level);
-//        int linkSkillID = SkillConstants.getOriginalOfLinkedSkill(SkillConstants.getLinkSkillByJob(chr.getJob()));
+//        int linkSkillID = SkillConstants.getOriginalOfLinkedSkill(LinkSkill.getLinkSkillByJob(chr.getJob()));
 //        if (linkSkillID != 0 && linkSkillLevel > 0) {
 //            Skill skill = chr.getSkill(linkSkillID, true);
 //            if (skill.getCurrentLevel() != linkSkillLevel) {

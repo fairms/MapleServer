@@ -4,7 +4,7 @@ import im.cave.ms.client.character.Clock;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.field.obj.Drop;
-import im.cave.ms.client.field.obj.DropInfo;
+import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.field.obj.mob.Mob;

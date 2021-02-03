@@ -185,7 +185,7 @@ public class FieldEffect {
         fieldEffect.setArg2(ratio > 1 ? (int) (mob.getHp() / ratio) : (int) mob.getHp());
         fieldEffect.setArg3(maxHP);
         fieldEffect.setArg4(mob.getHpTagColor());
-        fieldEffect.setArg5(mob.getHpTagBgcolor());
+        fieldEffect.setArg5(mob.getHpTagBgColor());
         return fieldEffect;
     }
 

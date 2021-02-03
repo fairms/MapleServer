@@ -22,7 +22,7 @@ import im.cave.ms.client.character.items.WishedItem;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.field.obj.Android;
-import im.cave.ms.client.field.obj.DropInfo;
+import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
 import im.cave.ms.client.multiplayer.Express;

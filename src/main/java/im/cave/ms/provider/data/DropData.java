@@ -1,6 +1,6 @@
 package im.cave.ms.provider.data;
 
-import im.cave.ms.client.field.obj.DropInfo;
+import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.connection.db.DataBaseManager;
 import org.hibernate.Session;
 import org.hibernate.Transaction;

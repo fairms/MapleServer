@@ -13,8 +13,14 @@ public class MapleDataTool {
         if (data.getData() instanceof Integer) {
             return Integer.toString((Integer) data.getData());
         }
+        if (data.getData() instanceof Long) {
+            return Long.toString(((Long) data.getData()));
+        }
         if (data.getData() instanceof Float) {
             return Float.toString((Float) data.getData());
+        }
+        if (data.getData() instanceof Double) {
+            return Double.toString(((Double) data.getData()));
         }
         if (data.getData() instanceof Short) {
             return Short.toString((Short) data.getData());
