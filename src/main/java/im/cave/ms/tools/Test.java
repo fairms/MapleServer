@@ -31,8 +31,8 @@ public class Test {
     public static void main(String[] args) {
 //        QuestData.loadQuests();
 //        MobData.loadMobsData();
-        System.out.println(DateUtil.FT_OFFSET);
-        long timestamp = DateUtil.getTimestamp(116444736000000000L);
+//        System.out.println(DateUtil.FT_OFFSET);
+        long timestamp = DateUtil.getTimestamp(132568417553930000L);
         System.out.println(DateUtil.getTime(timestamp));
         //        try {
 //            scriptTest();

@@ -86,7 +86,7 @@ public class MapleDataTool {
         } else {
             if (data.getType() == MapleDataType.STRING) {
                 String data_ = getString(data);
-                if (data_.isEmpty()) {
+                if (data_ == null || data_.isEmpty()) {
                     data_ = "0";
                 }
                 return Integer.parseInt(data_);
@@ -95,7 +95,7 @@ public class MapleDataTool {
             } else if (data.getType() == MapleDataType.DOUBLE) {
                 return (int) (double) data.getData();
             } else {
-                return ((Integer) data.getData());
+                return ((Long) data.getData()).intValue();
             }
         }
     }

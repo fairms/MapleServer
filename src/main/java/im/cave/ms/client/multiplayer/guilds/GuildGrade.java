@@ -1,5 +1,6 @@
 package im.cave.ms.client.multiplayer.guilds;
 
+import im.cave.ms.enums.GuildRight;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,9 +31,12 @@ public class GuildGrade {
     private String name;
     private int right;
 
-    public GuildGrade(int grade, String name, int right) {
+    public GuildGrade(int grade, String name, GuildRight... rights) {
+        this.grade = grade;
         this.name = name;
-        this.right = right;
+        for (GuildRight right : rights) {
+            this.right = this.right | right.getVal();
+        }
     }
 
     public GuildGrade() {
@@ -41,11 +45,11 @@ public class GuildGrade {
 
     public static List<GuildGrade> getDefault() {
         List<GuildGrade> grades = new ArrayList<>();
-        grades.add(new GuildGrade(1, "族长", -1));
-        grades.add(new GuildGrade(2, "副族长", 71));
-        grades.add(new GuildGrade(3, "成员", 64));
-        grades.add(new GuildGrade(4, "成员", 64));
-        grades.add(new GuildGrade(5, "成员", 64));
+        grades.add(new GuildGrade(1, "族长", GuildRight.ALL));
+        grades.add(new GuildGrade(2, "副族长", GuildRight.INVITE, GuildRight.VERIFY_APPLY));
+        grades.add(new GuildGrade(3, "成员", GuildRight.NULL));
+        grades.add(new GuildGrade(4, "成员", GuildRight.NULL));
+        grades.add(new GuildGrade(5, "成员", GuildRight.NULL));
         return grades;
     }
 }

@@ -2,12 +2,11 @@ package im.cave.ms.client.multiplayer.guilds;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.connection.netty.OutPacket;
-import im.cave.ms.connection.packet.MessagePacket;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.constants.GameConstants;
-import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.tools.Util;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +20,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,7 +43,7 @@ public class Guild {
     private int leaderId;
     private int worldId;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @CollectionTable(name = "guild_requester", joinColumns = @JoinColumn(name = "guildId"))
+    @CollectionTable(name = "guild_requestor", joinColumns = @JoinColumn(name = "guildId"))
     private List<GuildRequestor> requestors = new ArrayList<>();
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "guildId")
@@ -58,15 +58,20 @@ public class Guild {
     private int maxMembers;
     private String notice;
     private int points; //声望
+    @Transient
     private int seasonPoints;
-    private int allianceID;
+    private int allianceID; //联盟ID
     private int level;
-    private int rank;
+    private int rank; // 似乎没用
     private int ggp; //贡献
     private boolean appliable; //允许申请
+    private int battleSp; //高级家族技能技能点
     private int trendActive;
     private int trendTime;
     private int trendAges;
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    @JoinColumn(name = "guildId")
+    private List<GuildSkill> skills;
 
     public GuildMember getGuildLeader() {
         return getMemberByCharId(getLeaderId());
@@ -88,6 +93,14 @@ public class Guild {
     public void setGrades(List<GuildGrade> grades) {
         getGrades().clear();
         getGrades().addAll(grades);
+    }
+
+    public void setGradeName(String name, int grade) {
+        getGrades().get(grade - 1).setName(name);
+    }
+
+    public void setGradeRight(int right, int grade) {
+        getGrades().get(grade - 1).setRight(right);
     }
 
     public int getAverageMemberLevel() {
@@ -143,8 +156,8 @@ public class Guild {
         //skillId int
         //skillLevel short
         //maxTime long
-        //out.writeMapleAsciiString(); 升级者的名字?
-        //out.writeShort(0)
+        //out.writeMapleAsciiString(); 升级者的名字? buy char name
+        //out.writeShort(0)  extend char name
         out.writeZeroBytes(9);
         out.writeInt(GameConstants.guildExp.length);
         for (int exp : GameConstants.guildExp) {
@@ -205,7 +218,7 @@ public class Guild {
         setGgp(getGgp() + ggp);
     }
 
-    private GuildMember getMemberByCharID(int id) {
+    public GuildMember getMemberByCharID(int id) {
         return getMembers().stream().filter(gm -> gm.getCharId() == id).findAny().orElse(null);
     }
 
@@ -217,5 +230,27 @@ public class Guild {
                     getName(), getLevel()), ChatType.Notice2));
         }
         broadcast(WorldPacket.guildResult(GuildResult.setPointAndLevel(this)));
+    }
+
+
+    public int getSpentSp() {
+        return getSkills().stream().mapToInt(GuildSkill::getLevel).sum();
+    }
+
+    public GuildSkill getSkillById(int skillId) {
+        return Util.findWithPred(getSkills(), guildSkill -> guildSkill.getId() == skillId);
+    }
+
+    public int getSpentBattleSp() {
+        int spentSp = 0;
+        for (int i = 91001022; i < 91001024; i++) {
+            GuildSkill gs = getSkillById(i);
+            spentSp += gs == null ? 0 : gs.getLevel();
+        }
+        return spentSp;
+    }
+
+    public void addGuildSkill(GuildSkill skill) {
+        getSkills().add(skill);
     }
 }

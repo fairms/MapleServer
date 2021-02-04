@@ -217,16 +217,26 @@ public class CashShopPacket {
 
     public static OutPacket destroyDone(long serialNumber) {
         OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT);
+
         out.write(CashItemType.Res_Destroy_Done.getVal());
         out.writeLong(serialNumber);
+
         return out;
     }
 
     public static OutPacket rebateDone(long serialNumber) {
         OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT);
+
         out.write(CashItemType.Res_Rebate_Done.getVal());
         out.writeLong(serialNumber);
-        return out;
 
+        return out;
+    }
+
+    public static OutPacket sendGift() {
+        OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT);
+
+
+        return out;
     }
 }

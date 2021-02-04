@@ -319,6 +319,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case GUILD_REQUEST:
                 WorldHandler.handleGuildRequest(in, c);
                 break;
+            case GUILD_RANK:
+                WorldHandler.handleGuildRankRequest(c);
+                break;
             case SYSTEM_OPTION:
                 UserHandler.handleUserSystemOptionRequest(in, c);
                 break;

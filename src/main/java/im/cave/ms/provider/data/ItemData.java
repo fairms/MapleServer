@@ -931,6 +931,16 @@ public class ItemData {
                 case "reqINT":
                 case "reqLUK":
                 case "medalTag":
+                case "walk":
+                case "stand":
+                case "attack":
+                case "afterImage":
+                case "attackSpeed":
+                case "sfx":
+                case "exItem":
+                case "setItemID":
+                case "addition":
+                    break;
                 default:
                     log.warn(String.format("Unknown node: %s, itemID = %s", name, item.getItemId()));
 
@@ -970,6 +980,9 @@ public class ItemData {
                         break;
                     case "incTameness":
                         item.setIncTameness(Integer.parseInt(value));
+                        break;
+                    case "poison": //解毒药
+                    case "thaw": //空气铃
                         break;
                     default:
                         SpecStat ss = SpecStat.getSpecStatByName(name);

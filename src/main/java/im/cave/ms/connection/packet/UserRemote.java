@@ -9,10 +9,10 @@ import im.cave.ms.client.character.skill.HitInfo;
 import im.cave.ms.client.character.skill.MobAttackInfo;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.obj.Pet;
+import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.enums.BodyPart;
-import im.cave.ms.enums.EquipmentEnchantType;
 
 import java.util.List;
 import java.util.Map;
@@ -107,9 +107,12 @@ public class UserRemote {
 
         for (MobAttackInfo mobAttackInfo : attackInfo.mobAttackInfo) {
             out.writeInt(mobAttackInfo.objectId);
-            out.writeZeroBytes(13);
-            for (long damage : mobAttackInfo.damages) {
-                out.writeLong(damage);
+            if (mobAttackInfo.objectId > 0) {
+                out.writeZeroBytes(12);
+                for (long damage : mobAttackInfo.damages) {
+                    out.writeBool(mobAttackInfo.isCritical); // 是否暴击
+                    out.writeLong(damage);
+                }
             }
         }
 
@@ -312,6 +315,20 @@ public class UserRemote {
 
         out.writeInt(chr.getId());
         out.writeMapleAsciiString(chr.getGuild().getName());
+
+        return out;
+    }
+
+    public static OutPacket guildMarkChanged(MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_GUILD_MARK_CHANGED);
+
+        out.writeInt(chr.getId());
+        Guild guild = chr.getGuild();
+        out.writeShort(guild.getMarkBg());
+        out.write(guild.getMarkBgColor());
+        out.writeShort(guild.getMark());
+        out.write(guild.getMarkBg());
+        out.writeInt(0);
 
         return out;
     }

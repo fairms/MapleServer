@@ -109,7 +109,7 @@ public class World {
         getGuilds().put(guild.getId(), guild);
     }
 
-    private Map<Integer, Guild> getGuilds() {
+    public Map<Integer, Guild> getGuilds() {
         return guilds;
     }
 

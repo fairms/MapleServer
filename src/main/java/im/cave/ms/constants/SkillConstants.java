@@ -299,4 +299,13 @@ public class SkillConstants {
         }
         return 0;
     }
+
+    public static boolean isGuildContentSkill(int skillId) {
+        return (skillId >= 91000007 && skillId <= 91000015) || (skillId >= 91001016 && skillId <= 91001021);
+    }
+
+    public static boolean isGuildNoblesseSkill(int skillId) {
+        return skillId >= 91001022 && skillId <= 91001024;
+    }
+
 }

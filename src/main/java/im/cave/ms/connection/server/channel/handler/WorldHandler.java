@@ -19,6 +19,7 @@ import im.cave.ms.client.multiplayer.MapleNotes;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.client.multiplayer.guilds.GuildMember;
+import im.cave.ms.client.multiplayer.guilds.GuildSkill;
 import im.cave.ms.client.multiplayer.miniroom.ChatRoom;
 import im.cave.ms.client.multiplayer.miniroom.TradeRoom;
 import im.cave.ms.client.multiplayer.party.Party;
@@ -37,6 +38,7 @@ import im.cave.ms.connection.packet.MiniRoomPacket;
 import im.cave.ms.connection.packet.QuestPacket;
 import im.cave.ms.connection.packet.SummonPacket;
 import im.cave.ms.connection.packet.UserPacket;
+import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
@@ -67,6 +69,8 @@ import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.TradeRoomType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Pair;
 import im.cave.ms.tools.Util;
@@ -81,6 +85,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_COMBO_KILL;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
@@ -1097,7 +1102,70 @@ public class WorldHandler {
                 guildCol = world.getGuildsByString(searchType, exact, searchTerm);
                 player.announce(WorldPacket.guildSearchResult(searchType, exact, searchTerm, guildCol));
                 break;
+            case Req_SkillLevelSetUp:
+                if (guild == null) {
+                    return;
+                }
+                int skillId = in.readInt();
+                boolean up = in.readByte() != 0;
+                if (up) {
+                    if (!SkillConstants.isGuildContentSkill(skillId) && !SkillConstants.isGuildNoblesseSkill(skillId)) {
+                        return;
+                    }
+                    int spentSp = guild.getSpentSp();
+                    if (SkillConstants.isGuildContentSkill(skillId)) {
+                        if (spentSp >= guild.getLevel() * 2) {
+                            return;
+                        }
+                    } else if (guild.getBattleSp() - guild.getSpentBattleSp() <= 0) { // Noblesse
+                        return;
+                    }
+                    SkillInfo si = SkillData.getSkillInfo(skillId);
+                    if (spentSp < si.getReqTierPoint()) {
+                        return;
+                    }
+                    for (Map.Entry<Integer, Integer> entry : si.getReqSkills().entrySet()) {
+                        int reqSkillID = entry.getKey();
+                        int reqSlv = entry.getValue();
+                        GuildSkill gs = guild.getSkillById(skillId);
+                        if (gs == null || gs.getLevel() < reqSlv) {
+                            return;
+                        }
+                    }
+                    GuildSkill skill = guild.getSkillById(skillId);
+                    if (skill == null) {
+                        skill = new GuildSkill();
+                        skill.setBuyCharName(player.getName());
+                        skill.setExtendCharName(player.getName());
+                        skill.setSkillId(skillId);
+                        guild.addGuildSkill(skill);
+                    }
+                    if (skill.getLevel() >= si.getMaxLevel()) {
+                        player.chatMessage("That skill is already at its max level.");
+                        player.enableAction();
+                        return;
+                    }
+                    skill.setLevel((byte) (skill.getLevel() + 1));
+                    guild.addCommitmentToChar(player, 1000);
+                    player.announce(UserPacket.message(MessageType.INC_GP_MESSAGE, 1000, null, (byte) 0));
+                    guild.broadcast(WorldPacket.guildResult(GuildResult.setSkill(guild, skill, player.getId())));
+                } else {
+                    GuildSkill gs = guild.getSkillById(skillId);
+                    if (gs == null || gs.getLevel() == 0) {
+                        return;
+                    }
+                    if (guild.getGgp() < GameConstants.GGP_FOR_SKILL_RESET) {
+                        return;
+                    }
+                    guild.setGgp(guild.getGgp() - GameConstants.GGP_FOR_SKILL_RESET);
+                    gs.setLevel((byte) (gs.getLevel() - 1));
+                    guild.broadcast(WorldPacket.guildResult(GuildResult.setSkill(guild, gs, player.getId())));
+                }
+                break;
             case Req_Setting:
+                if (guild == null) {
+                    return;
+                }
                 if (player.getId() != guild.getLeaderId()) {
                     return;
                 }
@@ -1108,10 +1176,15 @@ public class WorldHandler {
                 guild.broadcast(WorldPacket.guildResult(GuildResult.updateSetting(guild)));
                 break;
             case Req_Signin:
-                GuildMember gm = guild.getMemberByChar(player);
-
+                if (guild == null) {
+                    return;
+                }
+                guild.addCommitmentToChar(player, 50);
                 break;
             case Req_Rank:
+                if (guild == null) {
+                    return;
+                }
                 player.announce(WorldPacket.guildResult(GuildResult.updateRank(guild)));
                 break;
             case Req_CheckGuildName:
@@ -1134,11 +1207,92 @@ public class WorldHandler {
                 guild = player.getGuild();
                 guild.addMember(player);
                 guild.setWorldId(player.getWorld());
-                gm = guild.getMemberByChar(player);
+                GuildMember gm = guild.getMemberByChar(player);
                 player.announce(WorldPacket.guildResult(GuildResult.loadResult(guild)));
                 gm.addCommitment(500);
                 player.deductMoney(GameConstants.CREATE_GUILD_COST);
                 break;
+            case Req_SetNotice:
+                if (guild == null) {
+                    return;
+                }
+                //todo check right
+                String notice = in.readMapleAsciiString();
+                //check notice
+                guild.setNotice(notice);
+                guild.broadcast(WorldPacket.guildResult(GuildResult.setNoticeDone(guild, player)));
+                break;
+            case Req_SetGradeName:
+                if (guild == null) {
+                    return;
+                }
+                for (int i = 1; i <= 5; i++) {
+                    String gradeName = in.readMapleAsciiString();
+                    guild.setGradeName(gradeName, i);
+                }
+                guild.broadcast(WorldPacket.guildResult(GuildResult.updateGradeName(guild, player.getId())));
+                break;
+            case Req_SetGradeRight:
+                if (guild == null) {
+                    return;
+                }
+                for (int i = 1; i <= 5; i++) {
+                    int right = in.readInt();
+                    guild.setGradeRight(right, i);
+                }
+                guild.broadcast(WorldPacket.guildResult(GuildResult.setGradeRightDone(guild, player.getId())));
+                break;
+            case Req_SetGradeNameAndRight:
+                if (guild == null) {
+                    return;
+                }
+                for (int i = 1; i <= 5; i++) {
+                    int right = in.readInt();
+                    name = in.readMapleAsciiString();
+                    guild.setGradeName(name, i);
+                    guild.setGradeRight(right, i);
+                }
+                guild.broadcast(WorldPacket.guildResult(GuildResult.setGradeNameAndRightDone(guild, player.getId())));
+                break;
+            case Req_SetMemberGrade:
+                if (guild == null) {
+                    return;
+                }
+                int id = in.readInt();
+                byte grade = in.readByte();
+                gm = guild.getMemberByCharID(id);
+                gm.setGrade(grade);
+                guild.broadcast(WorldPacket.guildResult(GuildResult.setMemberGrade(guild, gm)));
+                break;
+            case Req_SetMark:
+                //消耗15万GP，属实坑
+                if (guild == null) {
+                    return;
+                }
+                in.readByte();
+                guild.setMarkBg(in.readShort());
+                guild.setMarkBgColor(in.readByte());
+                guild.setMark(in.readShort());
+                guild.setMarkBg(in.readByte());
+                guild.broadcast(WorldPacket.guildResult(GuildResult.setMark(guild)));
+                for (GuildMember onlineMember : guild.getOnlineMembers()) {
+                    MapleCharacter chr = onlineMember.getChr();
+                    chr.getMap().broadcastMessage(UserRemote.guildNameChanged(chr));
+                    chr.getMap().broadcastMessage(UserRemote.guildMarkChanged(chr));
+                }
+                player.announce(UserPacket.message(MessageType.SYSTEM_MESSAGE, 0, "本次修改耗费0Gp", (byte) 0));
+                break;
         }
     }
+
+    public static void handleGuildRankRequest(MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        World world = player.getMapleWorld();
+        Map<Integer, Guild> guilds = world.getGuilds();
+        List<Guild> captureTheFlagGameRank = new ArrayList<>();
+        List<Guild> undergroundWaterwayRank = new ArrayList<>();
+        List<Guild> ggpWeaklyRank = guilds.values().stream().sorted(Comparator.comparingInt(Guild::getGgp)).collect(Collectors.toList());
+        player.announce(WorldPacket.guildRank(ggpWeaklyRank, captureTheFlagGameRank, undergroundWaterwayRank));
+    }
+
 }

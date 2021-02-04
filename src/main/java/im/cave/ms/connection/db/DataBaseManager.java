@@ -22,6 +22,8 @@ import im.cave.ms.client.character.items.WishedItem;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.field.obj.Android;
+import im.cave.ms.client.multiplayer.guilds.GuildGrade;
+import im.cave.ms.client.multiplayer.guilds.GuildSkill;
 import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
@@ -93,6 +95,8 @@ public class DataBaseManager {
                 Guild.class,
                 GuildMember.class,
                 GuildRequestor.class,
+                GuildGrade.class,
+                GuildSkill.class,
                 Friend.class,
                 Macro.class,
                 DamageSkinSaveData.class,
@@ -112,7 +116,8 @@ public class DataBaseManager {
                 WishedItem.class,
                 ExceptionItem.class,
                 OnlineReward.class,
-                Express.class
+                Express.class,
+
         };
         for (var clazz : dbClasses) {
             configuration.addAnnotatedClass(clazz);

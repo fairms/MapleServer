@@ -1,6 +1,7 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.Account;
+import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.OnlineReward;
 import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
@@ -17,11 +18,13 @@ import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.client.multiplayer.party.PartyResult;
 import im.cave.ms.client.storage.Trunk;
+import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.connection.packet.result.OnlineRewardResult;
+import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DimensionalMirror;
@@ -37,9 +40,12 @@ import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Randomizer;
 import im.cave.ms.tools.StringUtil;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static im.cave.ms.constants.ServerConstants.NEXON_IP;
 import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
@@ -910,6 +916,37 @@ public class WorldPacket {
         OutPacket out = new OutPacket(SendOpcode.GUILD_RESULT);
 
         gri.encode(out);
+
+        return out;
+    }
+
+    public static OutPacket guildRank(List<Guild> ggpWeaklyRank, List<Guild> captureTheFlagGameRank, List<Guild> undergroundWaterwayRank) {
+        OutPacket out = new OutPacket(SendOpcode.GUILD_RANK);
+
+        out.writeBool(true);
+        out.writeInt(ggpWeaklyRank.size());
+        for (Guild guild : ggpWeaklyRank) {
+            out.writeInt(guild.getId());
+            out.writeInt(guild.getGgp());
+            out.writeLong(DateUtil.getFileTime(System.currentTimeMillis())); //可能是GGP最后更新时间
+            out.writeMapleAsciiString(guild.getName());
+        }
+
+        out.writeInt(captureTheFlagGameRank.size());
+        for (Guild guild : captureTheFlagGameRank) {
+            out.writeInt(guild.getId());
+            out.writeInt(guild.getGgp()); //todo 这里应该变一下
+            out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+            out.writeMapleAsciiString(guild.getName());
+        }
+
+        out.writeInt(undergroundWaterwayRank.size());
+        for (Guild guild : undergroundWaterwayRank) {
+            out.writeInt(guild.getId());
+            out.writeInt(guild.getGgp()); //todo 这里应该变一下
+            out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+            out.writeMapleAsciiString(guild.getName());
+        }
 
         return out;
     }
