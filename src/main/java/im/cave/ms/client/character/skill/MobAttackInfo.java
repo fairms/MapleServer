@@ -41,6 +41,7 @@ public class MobAttackInfo {
     public byte calcDamageStatIndexAndDoomed;
     public int hitPartRunTimesSize;
     public short magicInfo;
+    public boolean isCritical;
 
     public MobAttackInfo deepCopy() {
         MobAttackInfo mai = new MobAttackInfo();
