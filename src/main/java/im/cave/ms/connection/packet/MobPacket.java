@@ -9,6 +9,7 @@ import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.enums.RemoveMobType;
 import im.cave.ms.tools.Position;
+import im.cave.ms.tools.Rect;
 
 
 /**
@@ -67,6 +68,22 @@ public class MobPacket {
         return out;
     }
 
+    public static OutPacket mobSkillDelay(int mobId, int skillAfter, int skillId, int slv, int sequenceDelay, Rect rect) {
+        OutPacket out = new OutPacket(SendOpcode.MOB_SKILL_DELAY);
+
+        out.writeInt(mobId);
+        out.writeInt(skillAfter);
+        out.writeInt(skillId);
+        out.writeInt(slv);
+        out.writeInt(sequenceDelay);
+        if (rect != null) {
+            out.writeRect(rect);
+        } else {
+            out.write(new byte[8]); // (0,0),(0,0)
+        }
+
+        return out;
+    }
 
     public static OutPacket removeMob(int objectId, RemoveMobType type) {
         OutPacket out = new OutPacket(SendOpcode.REMOVE_MOB);

@@ -135,7 +135,7 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 import static im.cave.ms.enums.InventoryType.ETC;
 import static im.cave.ms.enums.InventoryType.INSTALL;
 
-import im.cave.ms.enums.JobEnum;
+import im.cave.ms.enums.JobType;
 
 /**
  * @author fair
@@ -359,6 +359,8 @@ public class MapleCharacter implements Serializable {
     private RecordManager recordManager;
     @Transient
     private Familiar familiar; //当前召唤的怪怪
+    @Transient
+    private int activeNickItemId; //激活的称号ID
 
     public MapleCharacter() {
         temporaryStatManager = new TemporaryStatManager(this);
@@ -1083,7 +1085,7 @@ public class MapleCharacter implements Serializable {
 
 
     public boolean setJob(int jobId) {
-        JobEnum job = JobEnum.getJobById((short) jobId);
+        JobType job = JobType.getJobById((short) jobId);
         if (job == null) {
             return false;
         }
@@ -1251,8 +1253,18 @@ public class MapleCharacter implements Serializable {
         MapleMap map = getMap();
         map.removeChar(this);
         Server.getInstance().addClientInTransfer((byte) channel, getId(), getClient());
-        announce(WorldPacket.getChannelChange(true, Server.getInstance().getCashShop(getWorld()).getPort()));
+        announce(WorldPacket.getChannelChange(true, getMapleWorld().getCashShop().getPort()));
     }
+
+    public void enterAuction() {
+        logout();
+        setChangingChannel(true);
+        MapleMap map = getMap();
+        map.removeChar(this);
+        Server.getInstance().addClientInTransfer((byte) channel, getId(), getClient());
+        announce(WorldPacket.getChannelChange(true, getMapleWorld().getAuction().getPort()));
+    }
+
 
     public void changeChannel(byte channel) {
         changeChannelAndWarp(channel, getMapId());
@@ -1299,11 +1311,7 @@ public class MapleCharacter implements Serializable {
     }
 
     public boolean isSkillInCd(int skillId) {
-        boolean t = System.currentTimeMillis() > getSkillCooltimes().getOrDefault(skillId, 0L);
-        if (t) {
-            getSkillCooltimes().remove(skillId);
-        }
-        return t;
+        return System.currentTimeMillis() < getSkillCooltimes().getOrDefault(skillId, 0L);
     }
 
     private double getTotalStatAsDouble(BaseStat baseStat) {
@@ -1361,7 +1369,7 @@ public class MapleCharacter implements Serializable {
     }
 
     public boolean changeJob(int jobId) {
-        JobEnum job = JobEnum.getJobById((short) jobId);
+        JobType job = JobType.getJobById((short) jobId);
         if (job == null) {
             return false;
         }
@@ -1379,8 +1387,21 @@ public class MapleCharacter implements Serializable {
         return getSkills().stream().anyMatch(s -> s.getSkillId() == skill) && getSkill(skill, false).getCurrentLevel() > 0;
     }
 
-    public void addSkillCooltime(int skillId, int cooltime) {
-        getSkillCooltimes().put(skillId, System.currentTimeMillis() + cooltime);
+
+    public void setSkillCooltime(int skillId, int slv) {
+        SkillInfo si = SkillData.getSkillInfo(skillId);
+        if (si != null) {
+            int cdInSec = si.getValue(SkillStat.cooltime, slv);
+            int cdInMillis = cdInSec > 0 ? cdInSec * 1000 : si.getValue(SkillStat.cooltimeMS, slv);
+            if (cdInMillis > 0) {
+                addSkillCoolTime(skillId, System.currentTimeMillis() + cdInMillis);
+                write(UserPacket.skillCoolTimeSet(skillId, cdInMillis));
+            }
+        }
+    }
+
+    public void addSkillCoolTime(int skillId, long cooltime) {
+        getSkillCooltimes().put(skillId, cooltime);
     }
 
     public boolean isMarried() {
@@ -1947,4 +1968,9 @@ public class MapleCharacter implements Serializable {
     public Express getNewExpress() {
         return Util.findWithPred(getExpresses(), express -> express.getStatus() == 2);
     }
+
+    public int getActiveNickItemId() {
+        return activeNickItemId;
+    }
+
 }

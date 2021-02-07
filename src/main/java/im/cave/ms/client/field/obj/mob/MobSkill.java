@@ -1,5 +1,7 @@
 package im.cave.ms.client.field.obj.mob;
 
+import im.cave.ms.client.character.skill.MobSkillInfo;
+import im.cave.ms.provider.data.SkillData;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,4 +40,17 @@ public class MobSkill {
     private int useLimit;
     private String speak;
     private int skillID;
+
+
+    public void handleEffect(Mob mob) {
+        MobTemporaryStat mts = mob.getTemporaryStat();
+        short skill = (short) getSkillID();
+        short level = (short) getLevel();
+//        MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(skill, level);
+//        MobSkillID msID = MobSkillID.getMobSkillIDByVal(skill);
+//        Field field = mob.getField();
+//        Option o = new Option(skill);
+//        o.slv = level;
+//        o.tOption = msi.getSkillStatIntValue(time);
+    }
 }

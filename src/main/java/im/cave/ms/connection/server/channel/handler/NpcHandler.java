@@ -154,8 +154,6 @@ public class NpcHandler {
 
     public static void handleNpcAnimation(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.NPC_ANIMATION.getValue());
         int objectID = in.readInt();
         byte oneTimeAction = in.readByte();
         byte chatIdx = in.readByte();

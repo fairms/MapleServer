@@ -2,6 +2,7 @@ package im.cave.ms.connection.netty;
 
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.tools.Position;
+import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Util;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -159,4 +160,10 @@ public class OutPacket {
         ReferenceCountUtil.release(byteBuf);
     }
 
+    public void writeRect(Rect rect) {
+        writeShort(rect.getLeft());
+        writeShort(rect.getTop());
+        writeShort(rect.getRight());
+        writeShort(rect.getBottom());
+    }
 }

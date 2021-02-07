@@ -44,12 +44,12 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieScriptBuff(27),
     IndieMDF(28),
     IndieMaxDamageOver(-1),
-    IndieAsrR(29),
+    IndieAsrR(29), //异常抗性
     IndieTerR(30),
 
     IndieCr(31),//
     IndiePDDR(32),
-    IndieCrDam(33),
+    IndieCrDam(33), //暴击伤害
     IndieBDR(34), // Checked Boss伤
     IndieStatR(35),
     IndieStance(36), // Checked 稳如泰山
@@ -129,7 +129,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     ManaReflection(115),//
     Attract(116),//
     NoBulletConsume(117), // Checked 无限子弹
-    Infinity(115),//
+    Infinity(118),//
     AdvancedBless(116),//
     IllusionStep(117), // Checked 幻影步
     Blind(118),//
@@ -153,7 +153,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     DojangShield(127),// 
     SoulMasterFinal(128),// 
     WindBreakerFinal(129),// Checked 隐形剑
-    ElementalReset(138), // Checked 无视抗性
+    ElementalReset(141), // Checked 无视抗性
     HideAttack(131),// 
 
     EventRate(132),// 
@@ -209,7 +209,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Dice(180),//
     BlessingArmor(181),//
     DamR(181),//
-    TeleportMasteryOn(182),//
+    TeleportMasteryOn(181),//
     CombatOrders(183), // Checked 战斗命令
     Beholder(184),// Checked 灵魂助力
 
@@ -314,7 +314,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Larkness(264),// 
     StackBuff(265),// 
     BlessOfDarkness(266),// 
-    AntiMagicShell(267),// 
+    AntiMagicShell(274),//
     AntiMagicShellBool(267),// 
     LifeTidal(268),// 
     HitCriDamR(269),// 
@@ -413,7 +413,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Reincarnation(351),// 
     KnightsAura(352),//  抗震防御
 
-    ChillingStep(353),// 寒冰步
+    ChillingStep(357),// 寒冰步
     DotBasedBuff(354),// 元素爆破?
     BlessEnsenble(355),// 祈祷众生
     ComboCostInc(356),// 

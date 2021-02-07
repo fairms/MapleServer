@@ -63,6 +63,10 @@ public class CashShopServer extends AbstractServer {
         characters.add(character);
     }
 
+    public void removeChar(MapleCharacter character) {
+        characters.remove(character);
+    }
+
     public Map<Integer, CashShopItem> getModifiedItems() {
         return modifiedItems;
     }

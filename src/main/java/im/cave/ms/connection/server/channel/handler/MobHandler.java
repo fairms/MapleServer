@@ -6,12 +6,16 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.mob.Mob;
+import im.cave.ms.client.field.obj.mob.MobSkill;
 import im.cave.ms.client.field.obj.mob.MobSkillAttackInfo;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.MobPacket;
 import im.cave.ms.tools.Position;
+import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * @author fair
@@ -59,4 +63,24 @@ public class MobHandler {
         player.getMap().broadcastMessage(player, MobPacket.moveMobRemote(mob, msai, movementInfo), false);
     }
 
+    public static void handleMobSkillDelayEnd(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        MapleMapObj obj = chr.getMap().getObj(in.readInt());
+        if (!(obj instanceof Mob)) {
+            return;
+        }
+        Mob mob = (Mob) obj;
+        int skillId = in.readInt();
+        int slv = in.readInt();
+        int remainCount = 0; // only set in MobDelaySkill::UpdateSequenceMode
+        if (in.readByte() != 0) {
+            remainCount = in.readInt();
+        }
+        List<MobSkill> delays = mob.getSkillDelays();
+        MobSkill ms = Util.findWithPred(delays, skill -> skill.getSkillID() == skillId && skill.getLevel() == slv);
+        if (ms != null) {
+            ms.handleEffect(mob);
+        }
+
+    }
 }

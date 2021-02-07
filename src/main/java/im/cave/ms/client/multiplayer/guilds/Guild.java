@@ -73,6 +73,7 @@ public class Guild {
     @JoinColumn(name = "guildId")
     private List<GuildSkill> skills;
 
+
     public GuildMember getGuildLeader() {
         return getMemberByCharId(getLeaderId());
     }
@@ -252,5 +253,23 @@ public class Guild {
 
     public void addGuildSkill(GuildSkill skill) {
         getSkills().add(skill);
+    }
+
+    public void encodeForRemote(OutPacket out) {
+        out.writeInt(getId());
+        out.writeMapleAsciiString(getName());
+        out.writeShort(getMarkBg());
+        out.write(getMarkBgColor());
+        out.writeShort(getMark());
+        out.write(getMarkColor());
+    }
+
+    public static void defaultEncodeForRemote(OutPacket out) {
+        out.writeInt(0);
+        out.writeMapleAsciiString("");
+        out.writeShort(0);
+        out.write(0);
+        out.writeShort(0);
+        out.write(0);
     }
 }

@@ -4,6 +4,7 @@ import im.cave.ms.client.character.Clock;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.field.obj.Drop;
+import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
@@ -68,7 +69,6 @@ public class MapleMap {
     private Set<Foothold> footholds = new HashSet<>();
     private List<MapleCharacter> characters = new CopyOnWriteArrayList<>();
     private Map<Integer, MapleMapObj> objs;
-    // 怪物出生点
     private List<MobGen> mobGens = new ArrayList<>();
     private String onFirstUserEnter = "";
     private String onUserEnter = "";
@@ -85,6 +85,8 @@ public class MapleMap {
                   2.角色
      */
     private Clock clock;
+
+    private Set<FieldEffect> fieldEffects;
 
     public MapleMap(int id, int world, int channel) {
         this.id = id;
@@ -234,6 +236,9 @@ public class MapleMap {
         mobGens.add(mobGen);
     }
 
+    public Set<Npc> getNpcs() {
+        return getLifesByClass(Npc.class);
+    }
 
     public Set<Mob> getMobs() {
         return getLifesByClass(Mob.class);
@@ -537,5 +542,9 @@ public class MapleMap {
 
     public MapleCharacter getCharByName(String name) {
         return Util.findWithPred(characters, character -> character.getName().equals(name));
+    }
+
+    public Npc getNpcById(int npcId) {
+        return Util.findWithPred(getNpcs(), npc -> npc.getTemplateId() == npcId);
     }
 }

@@ -16,7 +16,7 @@ public enum GuildType {
     Req_SetNotice(23),
     Req_Setting(24),
     Req_SkillLevelSetUp(37),
-    Req_Search(46),
+    Search(46),
     Req_Signin(49),
     Req_Rank(53),
 

@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static im.cave.ms.enums.RemoveMobType.ANIMATION_DEATH;
 
@@ -124,7 +125,7 @@ public class Mob extends MapleMapObj {
     private long nextPossibleSkillTime = 0;
     private List<Tuple<Integer, Integer>> eliteSkills = new ArrayList<>();
     private boolean selfDestruction;
-    //    private List<MobSkill> skillDelays = new CopyOnWriteArrayList<>();
+    private List<MobSkill> skillDelays = new CopyOnWriteArrayList<>();
     private boolean inAttack;
     private boolean isBanMap;
     private int banType = 1;// default

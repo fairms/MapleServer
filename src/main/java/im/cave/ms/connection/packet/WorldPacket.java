@@ -13,6 +13,7 @@ import im.cave.ms.client.field.FieldEffect;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.Drop;
+import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.client.multiplayer.Express;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.guilds.Guild;
@@ -581,32 +582,53 @@ public class WorldPacket {
         out.writeInt(chr.getId());
         out.writeInt(chr.getLevel());
         out.writeMapleAsciiString(chr.getName());
-        out.writeZeroBytes(22);   //todo
+        out.writeMapleAsciiString("");
+        if (chr.getGuild() != null) {
+            chr.getGuild().encodeForRemote(out);
+        } else {
+            Guild.defaultEncodeForRemote(out);
+        }
+        out.writeZeroBytes(8);   //可能和家族相关
         out.write(chr.getGender());
-        out.writeZeroBytes(17); //todo
+        out.writeInt(chr.getFame());
+        out.writeZeroBytes(13); //todo
         Map<CharacterTemporaryStat, List<Option>> spawnBuffs = CharacterTemporaryStat.getSpawnBuffs();
         spawnBuffs.putAll(tsm.getCurrentStats());
         tsm.encodeForRemote(out, spawnBuffs);
         out.writeShort(chr.getJob());
         out.writeShort(chr.getSubJob());
-        out.writeInt(chr.getTotalChuc());
+        out.writeInt(chr.getTotalChuc()); //星之力
         out.writeInt(0);
         chr.getCharLook().encode(out);
         out.writeInt(0); // int or short
         out.write(0xFF);
         out.writeInt(0);
         out.write(0xFF);
-        out.writeInt(0);
-        out.writeZeroBytes(70);
+        out.writeZeroBytes(32);
+//        out.writeInt(chr.getActiveEffectItemID());
+//        out.writeInt(chr.getMonkeyEffectItemID());
+        out.writeInt(chr.getActiveNickItemId());
+        out.write(0);
+        out.writeInt(chr.getDamageSkin().getDamageSkinID());
+        out.writeZeroBytes(33);
         for (int i = 0; i < 6; i++) {
             out.write(-1); // unk
         }
-        //椅子
-        out.writeZeroBytes(14);
+        out.writeZeroBytes(14); //椅子
         out.writePosition(chr.getPosition());
         out.write(chr.getMoveAction());
         out.writeShort(chr.getFoothold());
-        out.writeZeroBytes(3); //unk
+        out.write(0);
+        for (Pet pet : chr.getPets()) {
+            if (pet.getId() == 0) {
+                continue;
+            }
+            out.write(1);
+            out.writeInt(pet.getIdx());
+            pet.encode(out);
+        }
+        out.write(0);
+        out.write(0);
         out.write(1);
         out.writeZeroBytes(28);
         for (int i = 0; i < 5; i++) {
@@ -622,7 +644,8 @@ public class WorldPacket {
         out.writeInt(1051291);
         out.writeZeroBytes(29);
         out.writeMapleAsciiString(chr.getWorld() + "-" + StringUtil.getLeftPaddedStr(String.valueOf(chr.getId()), '0', 6));
-        out.writeInt(0);
+        out.writeInt(0); // 如果是5 则有怪怪  应该是MASK
+
         return out;
     }
 

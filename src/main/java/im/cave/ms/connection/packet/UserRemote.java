@@ -7,6 +7,8 @@ import im.cave.ms.client.character.items.PetItem;
 import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.skill.HitInfo;
 import im.cave.ms.client.character.skill.MobAttackInfo;
+import im.cave.ms.client.character.temp.CharacterTemporaryStat;
+import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.client.multiplayer.guilds.Guild;
@@ -68,6 +70,21 @@ public class UserRemote {
 
         out.writeInt(id);
         effect.encode(out);
+
+        return out;
+    }
+
+
+    public static OutPacket resetTemporaryStat(MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_RESET_TEMPORARY_STAT);
+
+        out.writeInt(chr.getId());
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int[] mask = tsm.getMaskByCollection(tsm.getRemovedStats());
+        for (int maskElem : mask) {
+            out.writeInt(maskElem);
+        }
+        out.writeBool(true);
 
         return out;
     }
@@ -134,7 +151,7 @@ public class UserRemote {
         //9200
         //9201
         //9202
-        out.writeMapleAsciiString("-"); //party name
+        out.writeMapleAsciiString(chr.getGuild() != null ? chr.getGuild().getName() : "");
         out.writeMapleAsciiString(""); // 联盟
         out.write(-1); //unk
         out.write(0);  //unk
@@ -156,7 +173,7 @@ public class UserRemote {
         Equip medal = chr.getEquippedEquip(BodyPart.Medal);
         out.writeInt(medal != null ? medal.getItemId() : 0);
         out.writeShort(0); //收藏数目
-        //todo 收藏任务id+完成时间
+        //todo 收藏任务id+完成时间 long     1612535270000
         chr.encodeDamageSkins(out);
         out.write(chr.getStats().getCharismaLevel());
         out.write(chr.getStats().getInsightLevel());
@@ -164,8 +181,13 @@ public class UserRemote {
         out.write(chr.getStats().getCraftLevel());
         out.write(chr.getStats().getSenseLevel());
         out.write(chr.getStats().getCharmLevel());
-        out.write(0);
         out.writeLong(0);
+        out.writeBool(false); //是否有小屋
+        //if(有小屋){
+        //  out.writeInt(myHome.getId());
+        //  剩余336位
+        // }
+        //340
         List<Item> chairs = chr.getChairs();
         out.writeInt(chairs.size());//椅子数
         for (Item chair : chairs) {
@@ -244,6 +266,17 @@ public class UserRemote {
         return out;
     }
 
+    public static OutPacket petTrainingEffect(int charId, int skillId) {
+        OutPacket out = new OutPacket(SendOpcode.PET_TRAINING_EFFECT);
+
+        out.writeInt(charId);
+        out.write(1);
+        out.writeInt(skillId);
+        out.writeLong(0);
+
+        return out;
+    }
+
     public static OutPacket hiddenEffectEquips(MapleCharacter player) {
         OutPacket out = new OutPacket(SendOpcode.HIDDEN_EFFECT_EQUIP);
         out.writeInt(player.getId());
@@ -272,6 +305,17 @@ public class UserRemote {
         out.writeInt(charId);
         out.writeShort(ePos);
         out.writeBool(bonus);
+        return out;
+    }
+
+    public static OutPacket showCubeEffect(int charId, int itemId) {
+        OutPacket out = new OutPacket(SendOpcode.SHOW_CUBE_EFFECT);
+
+        out.writeInt(charId);
+        out.writeBool(true);
+        out.writeInt(itemId);
+        out.writeLong(0);
+
         return out;
     }
 

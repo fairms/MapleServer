@@ -7,10 +7,11 @@ import im.cave.ms.client.RecordManager;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.Portal;
+import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.ChatType;
-import im.cave.ms.enums.JobEnum;
+import im.cave.ms.enums.JobType;
 import im.cave.ms.enums.RecordType;
 
 import java.util.Calendar;
@@ -29,7 +30,7 @@ public class AbstractPlayerInteraction {
     }
 
     public MapleCharacter getChar() {
-        return getChar();
+        return c.getPlayer();
     }
 
     public int getJob() {
@@ -84,6 +85,10 @@ public class AbstractPlayerInteraction {
         player.changeMap(mapId, portal != null ? portal.getId() : 0);
     }
 
+    public void warp(int mapId, int portal) {
+        getChar().changeMap(mapId, (byte) portal);
+    }
+
     public int getMapId() {
         return getChar().getMapId();
     }
@@ -125,8 +130,8 @@ public class AbstractPlayerInteraction {
         player.setCombo(player.getCombo() + 1);
     }
 
-    public List<JobEnum> getAdvancedJobs(int jobId) {
-        return JobEnum.getAdvancedJobs(jobId);
+    public List<JobType> getAdvancedJobs(int jobId) {
+        return JobType.getAdvancedJobs(jobId);
     }
 
     public int getJobReqLev(int jobId) {
@@ -135,5 +140,15 @@ public class AbstractPlayerInteraction {
 
     public boolean changeJob(int jobId) {
         return getChar().changeJob(jobId);
+    }
+
+    public int findSPNearNpc(int mapId, int npcId) {
+        MapleMap map = getChar().getMapleChannel().getMap(mapId);
+        Npc npc = map.getNpcById(npcId);
+        Portal portal = null;
+        if (npc != null) {
+            portal = map.getSpawnPortalNearby(npc.getPosition());
+        }
+        return portal != null ? portal.getId() : 0;
     }
 }

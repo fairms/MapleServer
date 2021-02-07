@@ -32,7 +32,7 @@ public class SummonPacket {
         out.writeBool(summon.isBeforeFirstAttack()); //0
         out.writeInt(summon.getTemplateId()); // 00 00 00 00
         out.writeInt(summon.getBulletID()); // 00 00 00 00
-        out.writeBool(false);
+        out.write(0);
         out.writeBool(summon.isJaguarActive());
         out.writeInt(summon.getSummonTerm());
         out.writeBool(summon.isAttackActive());

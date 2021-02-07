@@ -89,7 +89,7 @@ public class InPacket {
         return new Position(readShort(), readShort());
     }
 
-    public Position readIntPosition() {
+    public Position readPositionInt() {
         return new Position(readInt(), readInt());
     }
 

@@ -2,7 +2,9 @@ package im.cave.ms.client.character;
 
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.BodyPart;
 import lombok.Builder;
@@ -144,10 +146,19 @@ public class CharLook {
         out.writeInt(getWeaponId());
         out.writeInt(getSubWeaponId());
 
-        out.writeZeroBytes(20);
+        out.writeLong(0);
+        out.write(0); // 0或1
+        for (int i = 0; i < GameConstants.MAX_PET_AMOUNT; i++) {
+            if (chr.getPets().size() > i) {
+                out.writeInt(chr.getPets().get(i).getTemplateId());
+            } else {
+                out.writeInt(0);
+            }
+        }
+
         if (JobConstants.isXenon((short) getJob()) || JobConstants.isDemon((short) getJob())) {
             out.writeInt(getMark());
         }
-        out.writeLong(0);
+        out.writeZeroBytes(7);
     }
 }

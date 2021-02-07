@@ -1,10 +1,9 @@
 package im.cave.ms.constants;
 
 
-import im.cave.ms.enums.JobEnum;
+import im.cave.ms.enums.JobType;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Itzik
@@ -23,11 +22,11 @@ public class JobConstants {
     }
 
     public static boolean isPinkBean(short job) {
-        return job == JobEnum.PINK_BEAN_0.getJob() || job == JobEnum.PINK_BEAN_1.getJob();
+        return job == JobType.PINK_BEAN_0.getJob() || job == JobType.PINK_BEAN_1.getJob();
     }
 
-    public static JobEnum getJobEnumById(short jobId) {
-        return Arrays.stream(JobEnum.values()).filter(job -> job.getJob() == jobId)
+    public static JobType getJobEnumById(short jobId) {
+        return Arrays.stream(JobType.values()).filter(job -> job.getJob() == jobId)
                 .findFirst().orElse(null);
     }
 
@@ -36,7 +35,7 @@ public class JobConstants {
     }
 
     public static boolean isAngelicBuster(int id) {
-        return id == JobEnum.ANGELIC_BUSTER.getJob() || id / 100 == 65;
+        return id == JobType.ANGELIC_BUSTER.getJob() || id / 100 == 65;
     }
 
     public static boolean isBlazeWizard(short job) {
@@ -92,7 +91,7 @@ public class JobConstants {
     }
 
     public static boolean isJett(short job) {
-        return job / 10 == 57 || job == JobEnum.JETT1.getJob();
+        return job / 10 == 57 || job == JobType.JETT1.getJob();
     }
 
     public static boolean isDemonSlayer(short job) {
@@ -104,11 +103,11 @@ public class JobConstants {
     }
 
     public static boolean isKanna(short id) {
-        return id == JobEnum.KANNA.getJob() || id / 100 == 42;
+        return id == JobType.KANNA.getJob() || id / 100 == 42;
     }
 
     public static boolean isHayato(short id) {
-        return id == JobEnum.HAYATO.getJob() || id / 100 == 41;
+        return id == JobType.HAYATO.getJob() || id / 100 == 41;
     }
 
     public static boolean isNightWalker(short id) {
@@ -124,7 +123,7 @@ public class JobConstants {
     }
 
     public static boolean isShade(short id) {
-        return id == JobEnum.SHADE.getJob() || id / 100 == 25;
+        return id == JobType.SHADE.getJob() || id / 100 == 25;
     }
 
     public static boolean isWindArcher(short id) {
@@ -192,11 +191,11 @@ public class JobConstants {
     }
 
     public static boolean isMechanic(short id) {
-        return id >= JobEnum.MECHANIC_1.getJob() && id <= JobEnum.MECHANIC_4.getJob();
+        return id >= JobType.MECHANIC_1.getJob() && id <= JobType.MECHANIC_4.getJob();
     }
 
     public static boolean isBattleMage(short id) {
-        return id >= JobEnum.BATTLE_MAGE_1.getJob() && id <= JobEnum.BATTLE_MAGE_4.getJob();
+        return id >= JobType.BATTLE_MAGE_1.getJob() && id <= JobType.BATTLE_MAGE_4.getJob();
     }
 
     public static boolean isGmJob(short id) {
@@ -204,55 +203,55 @@ public class JobConstants {
     }
 
     public static boolean isGm(short id) {
-        return id == JobEnum.GM.getJob();
+        return id == JobType.GM.getJob();
     }
 
     public static boolean isSuperGm(short id) {
-        return id == JobEnum.SUPER_GM.getJob();
+        return id == JobType.SUPER_GM.getJob();
     }
 
     public enum LoginJob {
-        RESISTANCE(0, JobFlag.DISABLED, JobEnum.CITIZEN),
-        EXPLORER(1, JobFlag.ENABLED, JobEnum.BEGINNER, 4000010),
-        CYGNUS(2, JobFlag.ENABLED, JobEnum.NOBLESSE),
-        ARAN(3, JobFlag.DISABLED, JobEnum.LEGEND),
-        EVAN(4, JobFlag.DISABLED, JobEnum.EVAN_NOOB),
-        MERCEDES(5, JobFlag.DISABLED, JobEnum.MERCEDES),
-        DEMON(6, JobFlag.ENABLED, JobEnum.DEMON_SLAYER),
-        PHANTOM(7, JobFlag.DISABLED, JobEnum.PHANTOM),
-        DUAL_BLADE(8, JobFlag.DISABLED, JobEnum.BEGINNER),
-        MIHILE(9, JobFlag.DISABLED, JobEnum.NAMELESS_WARDEN),
-        LUMINOUS(10, JobFlag.ENABLED, JobEnum.LUMINOUS),
-        KAISER(11, JobFlag.ENABLED, JobEnum.KAISER),
-        ANGELIC(12, JobFlag.ENABLED, JobEnum.ANGELIC_BUSTER),
-        CANNONER(13, JobFlag.DISABLED, JobEnum.BEGINNER),
-        XENON(14, JobFlag.ENABLED, JobEnum.XENON),
-        ZERO(15, JobFlag.DISABLED, JobEnum.ZERO),
-        SHADE(16, JobFlag.DISABLED, JobEnum.SHADE),
-        JETT(17, JobFlag.ENABLED, JobEnum.JETT1),
-        HAYATO(18, JobFlag.ENABLED, JobEnum.HAYATO),
-        KANNA(19, JobFlag.ENABLED, JobEnum.KANNA),
-        CHASE(20, JobFlag.DISABLED, JobEnum.BEAST_TAMER),
-        PINK_BEAN(21, JobFlag.DISABLED, JobEnum.PINK_BEAN_0),
-        KINESIS(22, JobFlag.DISABLED, JobEnum.KINESIS_0),
-        CADENA(23, JobFlag.DISABLED, JobEnum.CADENA),
-        ILLIUM(24, JobFlag.DISABLED, JobEnum.ILLIUM),
-        ARK(25, JobFlag.DISABLED, JobEnum.ARK),
-        FINDER(26, JobFlag.DISABLED, JobEnum.BEGINNER),
-        HOYOUNG(27, JobFlag.DISABLED, JobEnum.HOYOUNG),
-        ADELE(28, JobFlag.DISABLED, JobEnum.ADELE);
+        RESISTANCE(0, JobFlag.DISABLED, JobType.CITIZEN),
+        EXPLORER(1, JobFlag.ENABLED, JobType.BEGINNER, 4000010),
+        CYGNUS(2, JobFlag.ENABLED, JobType.NOBLESSE),
+        ARAN(3, JobFlag.DISABLED, JobType.LEGEND),
+        EVAN(4, JobFlag.DISABLED, JobType.EVAN_NOOB),
+        MERCEDES(5, JobFlag.DISABLED, JobType.MERCEDES),
+        DEMON(6, JobFlag.ENABLED, JobType.DEMON_SLAYER),
+        PHANTOM(7, JobFlag.DISABLED, JobType.PHANTOM),
+        DUAL_BLADE(8, JobFlag.DISABLED, JobType.BEGINNER),
+        MIHILE(9, JobFlag.DISABLED, JobType.NAMELESS_WARDEN),
+        LUMINOUS(10, JobFlag.ENABLED, JobType.LUMINOUS),
+        KAISER(11, JobFlag.ENABLED, JobType.KAISER),
+        ANGELIC(12, JobFlag.ENABLED, JobType.ANGELIC_BUSTER),
+        CANNONER(13, JobFlag.DISABLED, JobType.BEGINNER),
+        XENON(14, JobFlag.ENABLED, JobType.XENON),
+        ZERO(15, JobFlag.DISABLED, JobType.ZERO),
+        SHADE(16, JobFlag.DISABLED, JobType.SHADE),
+        JETT(17, JobFlag.ENABLED, JobType.JETT1),
+        HAYATO(18, JobFlag.ENABLED, JobType.HAYATO),
+        KANNA(19, JobFlag.ENABLED, JobType.KANNA),
+        CHASE(20, JobFlag.DISABLED, JobType.BEAST_TAMER),
+        PINK_BEAN(21, JobFlag.DISABLED, JobType.PINK_BEAN_0),
+        KINESIS(22, JobFlag.DISABLED, JobType.KINESIS_0),
+        CADENA(23, JobFlag.DISABLED, JobType.CADENA),
+        ILLIUM(24, JobFlag.DISABLED, JobType.ILLIUM),
+        ARK(25, JobFlag.DISABLED, JobType.ARK),
+        FINDER(26, JobFlag.DISABLED, JobType.BEGINNER),
+        HOYOUNG(27, JobFlag.DISABLED, JobType.HOYOUNG),
+        ADELE(28, JobFlag.DISABLED, JobType.ADELE);
 
         private final int jobType, flag, beginMap;
-        private final JobEnum beginJob;
+        private final JobType beginJob;
 
-        LoginJob(int jobType, JobFlag flag, JobEnum beginJob) {
+        LoginJob(int jobType, JobFlag flag, JobType beginJob) {
             this.jobType = jobType;
             this.flag = flag.getFlag();
             this.beginJob = beginJob;
             this.beginMap = 100000000;
         }
 
-        LoginJob(int jobType, JobFlag flag, JobEnum beginJob, int beginMap) {
+        LoginJob(int jobType, JobFlag flag, JobType beginJob, int beginMap) {
             this.jobType = jobType;
             this.flag = flag.getFlag();
             this.beginJob = beginJob;
@@ -267,7 +266,7 @@ public class JobConstants {
             return flag;
         }
 
-        public JobEnum getBeginJob() {
+        public JobType getBeginJob() {
             return beginJob;
         }
 
@@ -381,7 +380,7 @@ public class JobConstants {
     }
 
     public static boolean isKaiser(short jobId) {
-        return jobId == JobEnum.KAISER.getJob() || jobId / 100 == 61;
+        return jobId == JobType.KAISER.getJob() || jobId / 100 == 61;
     }
 
     public static boolean isZero(short jobId) {
@@ -409,15 +408,15 @@ public class JobConstants {
     }
 
     public static boolean isCadena(short jobId) {
-        return jobId == JobEnum.CADENA.getJob() || jobId == JobEnum.CADENA1.getJob() || jobId == JobEnum.CADENA2.getJob() || jobId == JobEnum.CADENA3.getJob() || jobId == JobEnum.CADENA4.getJob();
+        return jobId == JobType.CADENA.getJob() || jobId == JobType.CADENA1.getJob() || jobId == JobType.CADENA2.getJob() || jobId == JobType.CADENA3.getJob() || jobId == JobType.CADENA4.getJob();
     }
 
     public static boolean isIllium(short jobId) {
-        return jobId == JobEnum.ILLIUM.getJob() || jobId == JobEnum.ILLIUM1.getJob() || jobId == JobEnum.ILLIUM2.getJob() || jobId == JobEnum.ILLIUM3.getJob() || jobId == JobEnum.ILLIUM4.getJob();
+        return jobId == JobType.ILLIUM.getJob() || jobId == JobType.ILLIUM1.getJob() || jobId == JobType.ILLIUM2.getJob() || jobId == JobType.ILLIUM3.getJob() || jobId == JobType.ILLIUM4.getJob();
     }
 
     public static boolean isArk(short jobId) {
-        return jobId == JobEnum.ARK.getJob() || jobId == JobEnum.ARK1.getJob() || jobId == JobEnum.ARK2.getJob() || jobId == JobEnum.ARK3.getJob() || jobId == JobEnum.ARK4.getJob();
+        return jobId == JobType.ARK.getJob() || jobId == JobType.ARK1.getJob() || jobId == JobType.ARK2.getJob() || jobId == JobType.ARK3.getJob() || jobId == JobType.ARK4.getJob();
     }
 
 

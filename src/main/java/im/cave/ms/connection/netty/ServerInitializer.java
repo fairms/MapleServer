@@ -1,6 +1,7 @@
 package im.cave.ms.connection.netty;
 
 import im.cave.ms.connection.server.AbstractServer;
+import im.cave.ms.connection.server.auction.AuctionHandler;
 import im.cave.ms.connection.server.cashshop.CashShopHandler;
 import im.cave.ms.connection.server.channel.ChannelHandler;
 import im.cave.ms.connection.server.login.LoginServerHandler;
@@ -44,6 +45,9 @@ public class ServerInitializer extends ChannelInitializer<SocketChannel> {
                 break;
             case CASHSHOP:
                 pipeline.addLast(new CashShopHandler(worldId));
+                break;
+            case AUCTION:
+                pipeline.addLast(new AuctionHandler(worldId));
                 break;
         }
     }

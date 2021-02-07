@@ -6,6 +6,7 @@ import im.cave.ms.client.character.Stat;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.provider.data.MobData;
 import im.cave.ms.provider.data.QuestData;
+import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.scripting.npc.NpcConversationManager;
 
 import javax.script.Bindings;
@@ -30,10 +31,11 @@ import java.util.Arrays;
 public class Test {
     public static void main(String[] args) {
 //        QuestData.loadQuests();
+//        SkillData.loadMakingRecipeSkills();
 //        MobData.loadMobsData();
 //        System.out.println(DateUtil.FT_OFFSET);
-        long timestamp = DateUtil.getTimestamp(132568417553930000L);
-        System.out.println(DateUtil.getTime(timestamp));
+        long timestamp = DateUtil.getTimestamp(132571759860000000L);
+        System.out.println(DateUtil.getTimeFromTimestamp(timestamp));
         //        try {
 //            scriptTest();
 //        } catch (FileNotFoundException | ScriptException | NoSuchMethodException e) {

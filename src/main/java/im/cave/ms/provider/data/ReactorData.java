@@ -1,6 +1,8 @@
 package im.cave.ms.provider.data;
 
 /**
+ * 用处不大
+ *
  * @author fair
  * @version V1.0
  * @Package im.cave.ms.provider.data

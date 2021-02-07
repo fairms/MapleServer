@@ -65,8 +65,6 @@ public class MovementInfo {
     }
 
     private static List<Movement> parseMovement(InPacket in) {
-        // Taken from mushy when my IDA wasn't able to show this properly
-        // Made by Maxcloud
         List<Movement> res = new ArrayList<>();
         byte size = in.readByte();
         for (int i = 0; i < size; i++) {

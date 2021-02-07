@@ -30,6 +30,7 @@ import im.cave.ms.configs.Config;
 import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.AndroidPacket;
+import im.cave.ms.connection.packet.AuctionPacket;
 import im.cave.ms.connection.packet.CashShopPacket;
 import im.cave.ms.connection.packet.FamiliarPacket;
 import im.cave.ms.connection.packet.LoginPacket;
@@ -44,12 +45,14 @@ import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.connection.packet.result.OnlineRewardResult;
 import im.cave.ms.connection.server.Server;
+import im.cave.ms.connection.server.auction.Auction;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
 import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.SkillConstants;
+import im.cave.ms.enums.AuctionAction;
 import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.ChatRoomType;
 import im.cave.ms.enums.ChatType;
@@ -437,7 +440,7 @@ public class WorldHandler {
                 break;
             }
             case CASHSHOP:
-                CashShopServer cashShop = Server.getInstance().getCashShop((byte) worldId);
+                CashShopServer cashShop = player.getMapleWorld().getCashShop();
                 cashShop.addChar(player);
                 c.announce(CashShopPacket.getWrapToCashShop(player));
                 c.announce(CashShopPacket.setCashShop(cashShop));
@@ -447,6 +450,9 @@ public class WorldHandler {
                 c.announce(CashShopPacket.queryCashResult(player.getAccount()));
                 c.announce(CashShopPacket.initCashShopEvent());
                 break;
+            case AUCTION:
+                Auction auction = player.getMapleWorld().getAuction();
+                c.announce(AuctionPacket.getWrapToAuction(player));
         }
     }
 
@@ -1093,7 +1099,7 @@ public class WorldHandler {
                 }
                 guild.disband();
                 break;
-            case Req_Search:
+            case Search:
                 byte searchType = in.readByte();
                 World world = c.getWorld();
                 Collection<Guild> guildCol;
@@ -1295,4 +1301,37 @@ public class WorldHandler {
         player.announce(WorldPacket.guildRank(ggpWeaklyRank, captureTheFlagGameRank, undergroundWaterwayRank));
     }
 
+    public static void handleMigrateToAuctionRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(in.readInt());
+        c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
+        player.enterCashShop();
+    }
+
+    public static void handleAuctionRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        int val = in.readInt();
+        AuctionAction action = AuctionAction.getActionByVal(val);
+        switch (action) {
+            case Search:
+                in.readLong();
+                break;
+            case QuickSearch:
+                break;
+            case Put_On_Sell:
+                in.readInt();
+                int itemId = in.readInt();
+                int quantity = in.readInt();
+                long price = in.readLong();
+                in.readInt();
+                InventoryType invType = InventoryType.getTypeById(in.readByte());
+                if (invType == null) {
+                    return;
+                }
+                Inventory inventory = player.getInventory(invType);
+                int pos = in.readInt();
+                in.readInt();
+                break;
+        }
+    }
 }

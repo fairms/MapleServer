@@ -62,13 +62,11 @@ import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.AndroidInfo;
 import im.cave.ms.provider.info.CashItemInfo;
-import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Util;
-import im.cave.ms.tools.exception.SkillException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -159,7 +157,7 @@ public class UserHandler {
             in.readByte();//unk
         }
         in.skip(18);
-        Position position = in.readIntPosition();
+        Position position = in.readPositionInt();
 
         in.readLong(); // 00 00 00 00
         in.readInt(); // 8E B1 05 5F 固定的
@@ -377,7 +375,7 @@ public class UserHandler {
         int chairId = in.readInt();
         int pos = in.readByte();
         boolean textChair = in.readInt() != 0;
-        Position position = in.readIntPosition();
+        Position position = in.readPositionInt();
         in.readInt();
         int unk1 = in.readInt();
         short unk2 = in.readShort();
@@ -486,8 +484,11 @@ public class UserHandler {
         }
         in.readInt(); //crc
         int skillId = in.readInt();
+        if (SkillConstants.isZeroSkill(skillId)) {
+            in.readByte();
+        }
         int skillLevel = in.readInt();
-        if (player.applyMpCon(skillId, skillLevel) && player.isSkillInCd(skillId)) {
+        if (player.applyMpCon(skillId, skillLevel) && !player.isSkillInCd(skillId)) {
             player.getMap().broadcastMessage(UserRemote.effect(player.getId(), Effect.skillUse(skillId, (byte) skillLevel, 0)));
             SkillInfo skillInfo = SkillData.getSkillInfo(skillId);
             MapleJob sourceJobHandler = player.getJobHandler();
@@ -1116,7 +1117,7 @@ public class UserHandler {
     public static void handleAndroidShopRequest(InPacket in, MapleClient c) {
         in.readInt(); //charId
         int type = in.readInt();
-        Position position = in.readIntPosition();
+        Position position = in.readPositionInt();
         MapleCharacter player = c.getPlayer();
         Android android = player.getAndroid();
         AndroidInfo androidInfo = ItemData.getAndroidInfoByType(type);
@@ -1240,5 +1241,35 @@ public class UserHandler {
     public static void handleRemoveSonOfLinkedSkillRequest(InPacket in, MapleClient c) {
         int skillId = in.readInt();
 
+    }
+
+    public static void handleUserThrowGrenade(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        Position des = in.readPositionInt();
+        Position src = in.readPositionInt();
+        int keyDown = in.readInt();
+        int skillId = in.readInt();
+        int bySummonId = in.readInt();
+        boolean left = in.readByte() != 0;
+        int attackSpeed = in.readInt();
+        int grenadeId = in.readInt();
+        Skill skill = chr.getSkill(skillId);
+        int slv = skill == null ? 0 : skill.getCurrentLevel();
+        if (slv == 0) {
+            return;
+        } else {
+            boolean success = true;
+            if (SkillData.getSkillInfo(skillId).hasCooltime()) {
+                if (chr.isSkillInCd(skillId)) {
+                    success = false;
+                } else {
+                    chr.setSkillCooltime(skillId, (byte) slv);
+                }
+            }
+            if (success) {
+//                chr.getField().broadcastPacket(UserRemote.throwGrenade(chr.getId(), grenadeID, pos, keyDown, skillID,
+//                        bySummonedID, slv, left, attackSpeed), chr);
+            }
+        }
     }
 }

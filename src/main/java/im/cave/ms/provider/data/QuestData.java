@@ -382,10 +382,10 @@ public class QuestData {
                                             questStartItemRequirement.setId(Integer.parseInt(reqValue));
                                         } else {
                                             questProgressItemRequirement.setItemID(Integer.parseInt(reqValue));
-                                            ItemInfo ii = ItemData.getItemInfoById(Integer.parseInt(reqValue));
-                                            if (ii.isQuest()) {
-                                                System.out.printf("任务%d, 物品:%s%n", questId, reqValue);
-                                            }
+//                                            ItemInfo ii = ItemData.getItemInfoById(Integer.parseInt(reqValue));
+//                                            if (ii.isQuest()) {
+//                                                System.out.printf("任务%d, 物品:%s%n", questId, reqValue);
+//                                            }
                                         }
                                         break;
                                     case "count":

@@ -14,7 +14,7 @@ import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.InventoryType;
-import im.cave.ms.enums.JobEnum;
+import im.cave.ms.enums.JobType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.provider.data.ItemData;
@@ -107,7 +107,7 @@ public class CharOperationHandler {
         }
         in.skip(4);
         int curSelectedRace = in.readInt();
-        JobEnum job = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginJob();
+        JobType job = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginJob();
         int mapId = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginMap();
         if (job == null) {
             c.announce(MessagePacket.broadcastMsg("未开放创建的职业", BroadcastMsgType.ALERT));

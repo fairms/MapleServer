@@ -1,6 +1,8 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.movement.Movement;
+import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
@@ -29,6 +31,7 @@ public class FamiliarPacket {
                 byte[] data = action.getData();
                 out.writeShort(data.length);
                 out.write(data);
+                action.release();
                 break;
             case 7:
                 out.writeInt(familiar.getObjectId());
@@ -54,6 +57,7 @@ public class FamiliarPacket {
 
     public static OutPacket updateFamiliars(MapleCharacter chr) {
         OutPacket out = new OutPacket(SendOpcode.FAMILIAR);
+
         out.writeInt(chr.getId());
         out.write(7);
         out.writeInt(1);
@@ -71,6 +75,7 @@ public class FamiliarPacket {
         }
         out.writeInt(0);
         out.write(0);
+
         return out;
     }
 
@@ -218,5 +223,15 @@ public class FamiliarPacket {
         out.write(0);
 
         return out;
+    }
+
+    public static OutPacket moveFamiliar(MapleCharacter chr, MovementInfo movementInfo) {
+        OutPacket out = new OutPacket();
+        out.writeInt(4);
+        out.writeShort(2);
+        out.write(120);  //状态或者方向
+        movementInfo.encode(out);
+        out.write(0);
+        return familiarResult(chr, (byte) 5, out, null);
     }
 }

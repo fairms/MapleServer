@@ -114,6 +114,7 @@ public enum SendOpcode {
     ONLINE_REWARD_RESULT(0x212),
     MACRO_SYS_DATA_INIT(0x22A),//235-b
     SET_MAP(0x22B), //236 - B
+    SET_AUCTION(0x22C),
     SET_CASH_SHOP(0x22E),//-b
     SET_CASH_SHOP_INFO(0x22F),//
     WHISPER(0x237),//
@@ -121,6 +122,7 @@ public enum SendOpcode {
     FIELD_MESSAGE(0x23A), //
     CLOCK(0x23F),//
     QUICKSLOT_INIT(0x24D),  //258 -B
+    nnnnn(0x252),
     QUICK_MOVE(0x260),//26b - b
     //28e user_stand_up
     USER_SIT(0x28F), //29B-C
@@ -128,10 +130,10 @@ public enum SendOpcode {
     USER_LEAVE_FIELD(0x2AC), // 2b6 - a
     CHAT(0x2AD), //2b7 - a
     UNK2AE(0x2AE),//
-    BLACK_BOARD(0x2AF),//2b9 - a
+    BLACK_BOARD(0x2AF),//2b9 - a //小黑板
     SHOW_ITEM_UPGRADE_EFFECT(0x2B2),//
     SHOW_ITEM_RELEASE_EFFECT(0x2B6),//
-    SHOW_CUBE_EFFECT(0x2B9), //唯一魔方 8F 1D 00 00 01 8A 3D 4D 00 00 00 00 00 00 00 00 00
+    SHOW_CUBE_EFFECT(0x2B9), //唯一魔方 8F 1D 00 00  01  8A 3D 4D 00 00 00 00 00 00 00 00 00
     SHOW_ITEM_ADDITIONAL_RELEASE_EFFECT(0x2BA), //8F 1D 00 00 char Id| 01 | 64 3F 4D 00 itemId|00 00 00 00 00 00 00 00
     ADDITIONAL_CUBE_RESULT(0x2BF),
     SET_DAMAGE_SKIN(0x2D2),//
@@ -140,7 +142,7 @@ public enum SendOpcode {
     FAMILIAR(0x2D8),//
     LEGACY_CUBE_RESULT(0x2E2),
     //2e6
-
+    PET_TRAINING_EFFECT(0x306),
     HIDDEN_EFFECT_EQUIP(0x30F), // -7
     LIMIT_BREAK_UI(0x310),//-7
     PET_ACTIVATED(0x311),//-7
@@ -201,6 +203,7 @@ public enum SendOpcode {
     BAG_ITEM_USE_RESULT(0x3A9),// //BAG_ITEM_USE_RESULT
     DODGE_SKILL_READY(0x3AE),//闪避技能准备
     IN_GAME_DIRECTION_EVENT(0x3B2),
+    DEATH_COUNT(0x3BA),
     CHECK_TRICK_OR_TREAT_RESULT(0x3C1),
     SET_DEAD(0x3C5),//
     OPEN_DEAD_UI(0x3C6),//
@@ -239,6 +242,7 @@ public enum SendOpcode {
     MOB_AFFECTED(0x4E7),//
     MOB_DAMAGED(0x4E8),//
     HP_INDICATOR(0x4EF), //4ec+3
+    MOB_SKILL_DELAY(0x4F5),
     SPAWN_NPC(0x54B), //542 + 9
     REMOVE_NPC(0x54C),//543+9
     //54D    544+9
@@ -249,8 +253,9 @@ public enum SendOpcode {
     NPC_ANIMATION(0x552), //549 + 9
     DROP_ENTER_FIELD(0x571), //569+8
     DROP_LEAVE_FIELD(0x573), //56b+8
-    SPAWN_REACTOR(0x582),//
-    REMOVE_REACTOR(0x584),//
+    REACTOR_CHANGE_STATE(0x582),
+    REACTOR_ENTER_FIELD(0x584),//
+    REACTOR_REMOVE(0x586),//
     NPC_TALK(0x729), //741-18
     NPC_SHOP_OPEN(0x72A),//
     NPC_SHOP_RESULT(0x72B),//
@@ -263,6 +268,7 @@ public enum SendOpcode {
     CASH_SHOP_CASH_ITEM_RESULT(0x7AD),//
     CASH_SHOP_SAVE_COLLOCATION_RESULT(0x7B3), //
     POTION_POT_CREATE(0x7C8), //
+    AUCTION(0x7CB),
     SIGNIN_INIT(0x7DB), //
     OPEN_UNITY_PORTAL(0x7DF), //7f3-14
     LEGION(0x7E1),

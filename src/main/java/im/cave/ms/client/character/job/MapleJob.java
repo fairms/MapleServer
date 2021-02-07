@@ -6,7 +6,6 @@ import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.skill.AttackInfo;
-import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.UserPacket;
@@ -15,7 +14,6 @@ import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.SkillConstants;
 import im.cave.ms.enums.ChatType;
-import im.cave.ms.enums.LinkSkill;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.SkillInfo;
@@ -174,11 +172,8 @@ public abstract class MapleJob {
         }
         if (cooltime > 0) {
             //处理冷却时间减少
-            HashMap<Integer, Integer> cooltimes = new HashMap<>();
-            chr.addSkillCooltime(skillId, cooltime * 1000);
-            cooltimes.put(skillId, cooltime * 1000);
-            c.announce(UserPacket.skillCoolTimeSet(cooltimes));
-            //todo
+            chr.addSkillCoolTime(skillId, System.currentTimeMillis() + cooltime * 1000);
+            c.announce(UserPacket.skillCoolTimeSet(skillId, cooltime * 1000));
             EventManager.addEvent(() -> c.announce(UserPacket.skillCoolDown(skillId)), cooltime, TimeUnit.SECONDS);
         }
         if (in != null && isBuff(skillId)) {

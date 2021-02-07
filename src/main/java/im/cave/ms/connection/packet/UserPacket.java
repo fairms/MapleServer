@@ -245,6 +245,12 @@ public class UserPacket {
         return out;
     }
 
+    public static OutPacket skillCoolTimeSet(int skillId, int cdMS) {
+        Map<Integer, Integer> cds = new HashMap<>();
+        cds.put(skillId, cdMS);
+        return skillCoolTimeSet(cds);
+    }
+
     public static OutPacket skillCoolTimeSet(Map<Integer, Integer> cooltimes) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.SKILL_COOLTIME_SET.getValue());

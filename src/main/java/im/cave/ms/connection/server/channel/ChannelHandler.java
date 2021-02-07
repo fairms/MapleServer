@@ -98,6 +98,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_QUEST_REQUEST:
                 EventManager.addEvent(() -> QuestHandler.handleQuestRequest(in, c), 0);
                 break;
+            case USER_THROW_GRENADE:
+                UserHandler.handleUserThrowGrenade(in, c);
+                break;
             case USER_MACRO_SYS_DATA_MODIFIED:
                 UserHandler.handleUserMacroSysDataModified(in, c);
                 break;
@@ -124,6 +127,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case MOB_MOVE:
                 MobHandler.handleMobMove(in, c);
+                break;
+            case MOB_SKILL_DELAY_END:
+                MobHandler.handleMobSkillDelayEnd(in, c);
                 break;
             case NPC_ANIMATION:
                 NpcHandler.handleNpcAnimation(in, c);
@@ -209,6 +215,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case EXPRESS_REQUEST:
                 WorldHandler.handleMapleExpressRequest(in, c);
                 break;
+            case AUCTION:
+                WorldHandler.handleAuctionRequest(in, c);
+                break;
             case CHAR_HIT:
                 UserHandler.handleHit(in, c);
                 break;
@@ -217,6 +226,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case MIGRATE_TO_CASH_SHOP_REQUEST:
                 WorldHandler.handleMigrateToCashShopRequest(in, c);
+                break;
+            case MIGRATE_TO_AUCTION_REQUEST:
+                WorldHandler.handleMigrateToAuctionRequest(in, c);
                 break;
             case CLOSE_RANGE_ATTACK:
             case RANGED_ATTACK:
