@@ -12,7 +12,7 @@ function start() {
         cm.sendSayOkay("已经完成所有转职。");
     } else {
         for (let advancedJob of advancedJobs) {
-            options.put(advancedJob.getJobId, advancedJob.name())
+            options.put(advancedJob.getJobId, advancedJob.getName())
         }
         const selected = cm.sendAskMenu(options);
         if (selected > 0) {

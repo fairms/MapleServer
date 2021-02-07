@@ -26,7 +26,7 @@ function start() {
                     break
                 case 2:
                     let i = 0;
-                    while (res !== -1) {
+                    while (res !== -1 && i < talk_how_tow_create_guild.length) {
                         res = cm.sendNext(talk_how_tow_create_guild[i])
                         if (res === 1) {
                             i++
@@ -47,7 +47,9 @@ function start() {
                             }
                         }
                     }
+                    break
                 case 4:
+                    break
             }
         }
     } else if (guild.getLeaderId() === player.getId()) {
