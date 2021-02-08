@@ -75,14 +75,14 @@ public class Server {
 
     public static void main(String[] args) {
         getInstance().init();
-        Runtime rt = Runtime.getRuntime();
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            try {
-                rt.exec("gsudo netsh int i add addr 1 221.231.130.70");
-            } catch (IOException ignored) {
-
-            }
-        }
+//        Runtime rt = Runtime.getRuntime();
+//        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+//            try {
+//                rt.exec("gsudo netsh int i add addr 1 221.231.130.70");
+//            } catch (IOException ignored) {
+//
+//            }
+//        }
     }
 
     private void initDataProvider() {
@@ -121,27 +121,8 @@ public class Server {
         transfers.remove(charId);
     }
 
-
-    public String onlinePlayer() {
-        StringBuilder sb = new StringBuilder();
-        for (World world : worlds) {
-            for (MapleChannel channel : world.getChannels()) {
-                sb.append("world-").append(world.getId()).append(" channel-").append(channel.getChannelId())
-                        .append(" online:").append(channel.getPlayerCount()).append("        ");
-            }
-        }
-        return sb.toString();
-    }
-
     public CashShopServer getCashShop(byte world) {
         return getWorldById(world).getCashShop();
-    }
-
-    public void reloadScripts() {
-        PortalScriptManager.getInstance().reloadPortalScripts();
-        NpcScriptManager.getInstance().reloadNpcScripts();
-        MapScriptManager.getInstance().reloadScripts();
-        QuestScriptManager.getInstance().reloadQuestScripts();
     }
 
     public long getServerCurrentTime() {
@@ -199,11 +180,11 @@ public class Server {
             World world = new World(worldInfo.id, worldInfo.event_message);
             if (world.init()) {
                 worlds.add(world);
-                log.info("世界-{} 启动成功", world.getId());
                 for (MapleChannel channel : world.getChannels()) {
                     log.info("频道-{} 监听端口：{}", channel.getChannelId(), channel.getPort());
                 }
-                log.info("商城服务器启动成功 监听端口：{}", world.getCashShop().getPort());
+                log.info("拍卖行 监听端口:{}", world.getAuction().getPort());
+                log.info("商城 监听端口:{}", world.getCashShop().getPort());
             } else {
                 log.info("世界-{} 启动失败", world.getId());
                 return;

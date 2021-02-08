@@ -297,7 +297,6 @@ public class UserHandler {
         in.skip(1);    //unknown
         MovementInfo movementInfo = new MovementInfo(in);
         movementInfo.applyTo(player);
-        player.chatMessage(ChatType.Tip, player.getPosition().toString());
         player.getMap().sendMapObjectPackets(player);
         player.getMap().broadcastMessage(player, UserPacket.move(player, movementInfo), false);
     }

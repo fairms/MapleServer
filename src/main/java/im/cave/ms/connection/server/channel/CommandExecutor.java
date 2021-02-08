@@ -35,6 +35,7 @@ import im.cave.ms.tools.Util;
 import java.util.List;
 
 import static im.cave.ms.enums.ChatType.Notice;
+import static im.cave.ms.enums.ChatType.SystemNotice;
 import static im.cave.ms.enums.InventoryOperationType.REMOVE;
 import static im.cave.ms.enums.InventoryOperationType.UPDATE_QUANTITY;
 
@@ -45,7 +46,8 @@ import static im.cave.ms.enums.InventoryOperationType.UPDATE_QUANTITY;
  * @date 12/1 13:38
  */
 public class CommandExecutor {
-    public static void handle(MapleCharacter player, String msg) {
+    public static void handle(MapleClient c, String msg) {
+        MapleCharacter player = c.getPlayer();
         boolean gm = player.isGm();
         boolean gmCommand = msg.startsWith("!");
         String[] params = msg.substring(1).split(" ");
@@ -115,6 +117,15 @@ public class CommandExecutor {
             case NPC:
                 NpcHandler.talkToNPC(player, 9220050);
                 break;
+            case RELOAD:
+                if (paramsSize < 1) {
+                    player.chatMessage(Notice, "请检查参数 !reload <type>  ");
+                    return;
+                }
+                if (params[1].equalsIgnoreCase("1")) {
+                    player.chatMessage(SystemNotice, "重载脚本");
+                    c.resetScripts();
+                }
         }
     }
 

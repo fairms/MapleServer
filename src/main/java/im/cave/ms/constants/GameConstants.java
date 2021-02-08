@@ -28,6 +28,10 @@ public class GameConstants {
     public static long[] charExp = new long[276];
     public static final int MAX_PET_AMOUNT = 3;
     public static int maxLevel = 275;
+    public static final int MAX_HP = 500000;
+    public static final int MAX_MP = 500000;
+    public static final int MIN_HP = 50;
+    public static final int MIN_MP = 10;
     public static final long MAX_MONEY = 3000000000L;
     public static final short DAMAGE_SKIN_MAX_SIZE = 20;
     public static final int BEGINNER_SP_MAX_LV = 7;

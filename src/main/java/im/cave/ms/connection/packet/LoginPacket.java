@@ -13,6 +13,7 @@ import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.LoginType;
+import im.cave.ms.enums.PrivateStatusIDFlag;
 import im.cave.ms.enums.ServerType;
 import im.cave.ms.tools.DateUtil;
 
@@ -273,7 +274,7 @@ public class LoginPacket {
         out.write(0);//succeed
         out.writeInt(c.getAccount().getId());
         out.write(0);
-        out.writeInt(0x14); //ACCOUNT TYPE
+        out.writeInt(PrivateStatusIDFlag.NONE.getFlag()); //ACCOUNT TYPE
         out.writeInt(0);
         out.write(3);
         out.write(0);

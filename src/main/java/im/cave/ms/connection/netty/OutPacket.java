@@ -6,11 +6,11 @@ import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Util;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
@@ -20,23 +20,29 @@ import java.util.Arrays;
  * @Package im.cave.ms.tools
  * @date 12/13 14:33
  */
-public class OutPacket {
+public class OutPacket extends Packet {
     private static final Logger log = LoggerFactory.getLogger(OutPacket.class);
     private static final Charset ASCII = Charset.forName("GBK");
 
-    private final ByteBuf byteBuf;
+    private ByteBuf byteBuf;
+    private short opcode;
 
     public OutPacket() {
+        super(new byte[]{});
         byteBuf = ByteBufAllocator.DEFAULT.buffer();
     }
 
     public OutPacket(SendOpcode opcode) {
-        byteBuf = ByteBufAllocator.DEFAULT.buffer();
+        super(new byte[]{});
+        byteBuf = PooledByteBufAllocator.DEFAULT.buffer();
         byteBuf.writeShortLE(opcode.getValue());
+        this.opcode = opcode.getValue();
     }
 
-    public OutPacket(ByteBuf byteBuf) {
-        this.byteBuf = byteBuf.copy();
+    public OutPacket(byte[] data) {
+        super(data);
+        byteBuf = ByteBufAllocator.DEFAULT.buffer();
+        write(data);
     }
 
     public void write(byte b) {
@@ -157,6 +163,7 @@ public class OutPacket {
     }
 
     public void release() {
+        super.release();
         ReferenceCountUtil.release(byteBuf);
     }
 
@@ -165,5 +172,11 @@ public class OutPacket {
         writeShort(rect.getTop());
         writeShort(rect.getRight());
         writeShort(rect.getBottom());
+    }
+
+
+    @Override
+    public Packet clone() {
+        return new OutPacket(getData());
     }
 }

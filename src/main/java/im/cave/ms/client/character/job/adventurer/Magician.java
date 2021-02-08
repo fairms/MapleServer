@@ -8,11 +8,14 @@ import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.connection.netty.InPacket;
+import im.cave.ms.enums.JobType;
 import im.cave.ms.enums.MoveAbility;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.SkillInfo;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.AntiMagicShell;
@@ -26,6 +29,7 @@ import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MagicGuard
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Stance;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.TeleportMasteryOn;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.TeleportMasteryRange;
+import static im.cave.ms.enums.JobType.MAGICIAN;
 import static im.cave.ms.enums.SkillStat.indieMad;
 import static im.cave.ms.enums.SkillStat.prop;
 import static im.cave.ms.enums.SkillStat.time;
@@ -216,4 +220,10 @@ public class Magician extends Beginner {
     }
 
 
+    @Override
+    public boolean isHandlerOfJob(short id) {
+        Set<JobType> jobs = JobType.getAllAdvancedJobs(MAGICIAN.getJob());
+        JobType job = JobType.getJobById(id);
+        return job == MAGICIAN || jobs.contains(job);
+    }
 }

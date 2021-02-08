@@ -635,7 +635,7 @@ public class MobData {
 
             }
         }
-//        mob.setDrops(DropData.getDrops(mobId)); todo
+        mob.setDrops(DropData.getDrops(mobId));
         mob.getDrops().add(new DropInfo(GameConstants.MESO_DROP_CHANCE,
                 GameConstants.MIN_MONEY_MULT * mob.getForcedMobStat().getLevel(),
                 GameConstants.MAX_MONEY_MULT * mob.getForcedMobStat().getLevel()

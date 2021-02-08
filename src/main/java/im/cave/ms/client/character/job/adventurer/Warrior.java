@@ -23,7 +23,9 @@ import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.Util;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.*;
@@ -239,7 +241,7 @@ public class Warrior extends Beginner {
         MapleCharacter player = c.getPlayer();
         TemporaryStatManager tsm = player.getTemporaryStatManager();
         Skill skill = player.getSkill(attackInfo.skillId);
-        SkillInfo si = null;
+        SkillInfo si;
         if (skill != null) {
             si = SkillData.getSkillInfo(attackInfo.skillId);
         } else {
@@ -642,5 +644,13 @@ public class Warrior extends Beginner {
             tsm.sendSetStatPacket();
         }
 
+    }
+
+
+    @Override
+    public boolean isHandlerOfJob(short id) {
+        Set<JobType> jobs = JobType.getAllAdvancedJobs(JobType.WARRIOR.getJob());
+        JobType job = JobType.getJobById(id);
+        return job == JobType.WARRIOR || jobs.contains(job);
     }
 }

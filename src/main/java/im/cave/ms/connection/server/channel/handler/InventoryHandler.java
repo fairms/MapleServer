@@ -820,4 +820,26 @@ public class InventoryHandler {
         PotionPot potionPot = player.getPotionPot();
         player.announce(potionPot.showPotionPotMsg(2, 0));
     }
+
+    public static void handleUserItemSkillOptionUpgradeItemUseRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(in.readInt());
+        short uPos = in.readShort();
+        short ePos = (short) Math.abs(in.readShort());
+        Item item = player.getConsumeInventory().getItem(uPos);
+        Equip equip = (Equip) player.getEquippedInventory().getItem(ePos);
+        if (item == null || equip == null || !ItemConstants.isWeapon(equip.getItemId()) ||
+                !ItemConstants.isSoulEnchanter(item.getItemId()) || equip.getRLevel() + equip.getIIncReq() < ItemConstants.MIN_LEVEL_FOR_SOUL_SOCKET) {
+            player.enableAction();
+            return;
+        }
+        int successProp = ItemData.getItemInfoById(item.getItemId()).getScrollStats().get(ScrollStat.success);
+        boolean success = Util.succeedProp(successProp);
+        if (success) {
+            equip.setSoulSocketId((short) (item.getItemId() % ItemConstants.SOUL_ENCHANTER_BASE_ID));
+            equip.updateToChar(player);
+        }
+        player.getMap().broadcastMessage(UserRemote.showItemSkillSocketUpgradeEffect(player.getId(), success));
+        player.consumeItem(item);
+    }
 }

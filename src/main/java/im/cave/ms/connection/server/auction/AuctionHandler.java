@@ -30,7 +30,7 @@ public class AuctionHandler extends AbstractServerHandler {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        log.info(" Join in World-{} CashShop", world);
-        connected(ctx, ServerType.CASHSHOP);
+        log.info(" Join in World-{} Auction", world);
+        connected(ctx, ServerType.AUCTION);
     }
 }

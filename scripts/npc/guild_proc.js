@@ -9,8 +9,8 @@ const talk_how_tow_create_guild = Array(
 function start() {
     let HashMap = Java.type('java.util.HashMap');
     let options = new HashMap();
-    const player = cm.getPlayer();
-    const guild = player.getGuild();
+    const chr = cm.getChar();
+    const guild = chr.getGuild();
     if (guild == null) {
         let res = cm.sendNext("你……是因为对家族感兴趣，才会来找我的吗？");
         if (res === 1) {
@@ -38,7 +38,7 @@ function start() {
                 case 3:
                     res = cm.sendAskYesNo("哦！你是来创建家族的吗……要想创建家族，需要500万金币。我相信你一定已经准备好了。好的～你想创建家族吗？");
                     if (res === 1) {
-                        if (player.getParty() === null) {
+                        if (chr.getParty() === null) {
                             cm.sendNext("我不在乎你觉得自己有多强…为了创建一个家族，你需要参加一个6人的组队。如果你真的很想成立一个家族的话，请创建一个6人的组队，然后把你所有的队员带回来。")
                             break
                         } else {
@@ -52,9 +52,11 @@ function start() {
                     break
             }
         }
-    } else if (guild.getLeaderId() === player.getId()) {
+    } else if (guild.getLeaderId() === chr.getId()) {
         options.put(null, "我能帮你什么吗？");
         options.put(1, "我想增加家族人数");
         options.put(2, "我想解散家族");
     }
+
+    cm.dispose();
 }

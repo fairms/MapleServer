@@ -93,6 +93,7 @@ public class World {
                 channels.add(channel);
             }
             cashShopServer = new CashShopServer(id);
+            auction = new Auction(id);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

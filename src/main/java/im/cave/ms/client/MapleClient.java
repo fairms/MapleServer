@@ -2,7 +2,7 @@ package im.cave.ms.client;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.connection.crypto.AESCipher;
-import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.netty.Packet;
 import im.cave.ms.connection.packet.LoginPacket;
 import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.channel.MapleChannel;
@@ -163,12 +163,11 @@ public class MapleClient {
         return Integer.parseInt(ch.localAddress().toString().split(":")[1]);
     }
 
-    public void announce(OutPacket out) {
+    public void announce(Packet out) {
         ch.writeAndFlush(out);
-        out.release();
     }
 
-    public void write(OutPacket out) {
+    public void write(Packet out) {
         ch.writeAndFlush(out);
     }
 
@@ -237,5 +236,9 @@ public class MapleClient {
 
     public World getWorld() {
         return Server.getInstance().getWorldById(worldId);
+    }
+
+    public void resetScripts() {
+        engines.clear();
     }
 }

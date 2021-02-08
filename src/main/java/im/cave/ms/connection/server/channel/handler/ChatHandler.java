@@ -26,7 +26,7 @@ public class ChatHandler {
         String content = in.readMapleAsciiString();
 
         if (content.startsWith("@") || content.startsWith("!")) {
-            CommandExecutor.handle(player, content);
+            CommandExecutor.handle(c, content);
             return;
         }
         player.getMap().broadcastMessage(player, MessagePacket.getChatText(player, content), true);

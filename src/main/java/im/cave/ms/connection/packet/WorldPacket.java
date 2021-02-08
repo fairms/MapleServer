@@ -299,9 +299,10 @@ public class WorldPacket {
     }
 
     public static OutPacket serverNotice(String content) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SERVER_NOTICE.getValue());
+        OutPacket out = new OutPacket(SendOpcode.SERVER_NOTICE);
+
         out.writeMapleAsciiString(content);
+
         return out;
     }
 

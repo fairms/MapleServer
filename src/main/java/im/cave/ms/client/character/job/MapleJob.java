@@ -196,7 +196,6 @@ public abstract class MapleJob {
                 player.dropMessage("20000000");
                 break;
             default:
-                player.dropMessage("unhandled buff" + skillId);
                 sendStat = false;
         }
 

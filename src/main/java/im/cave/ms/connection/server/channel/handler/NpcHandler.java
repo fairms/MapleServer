@@ -94,7 +94,8 @@ public class NpcHandler {
             }
         }
         String finalScript = script;
-        EventManager.addEvent(() -> NpcScriptManager.getInstance().start(chr.getClient(), npcId, finalScript), 0);
+        NpcScriptManager.getInstance().start(chr.getClient(), npcId, script);
+//        EventManager.addEvent(() -> NpcScriptManager.getInstance().start(chr.getClient(), npcId, finalScript), 0);
     }
 
     public static void handleUserScriptMessageAnswer(InPacket in, MapleClient c) {

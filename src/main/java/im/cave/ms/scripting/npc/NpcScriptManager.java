@@ -1,6 +1,9 @@
 package im.cave.ms.scripting.npc;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.connection.packet.MessagePacket;
+import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.scripting.AbstractScriptManager;
 
 import javax.script.Invocable;
@@ -45,6 +48,7 @@ public class NpcScriptManager extends AbstractScriptManager {
             iv.invokeFunction("start");
         } catch (Exception e) {
             e.printStackTrace();
+            c.announce(MessagePacket.broadcastMsg("脚本执行错误", BroadcastMsgType.ALERT));
             dispose(c);
         }
     }

@@ -1,4 +1,4 @@
-const RecordType = Java.Type("im.cave.ms.enums.RecordType");
+const RecordType = Java.type("im.cave.ms.enums.RecordType");
 const map = 951000000;
 
 function enter(pm) {

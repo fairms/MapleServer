@@ -15,10 +15,11 @@ import java.util.Arrays;
  * @Package im.cave.ms.tools
  * @date 12/13 14:33
  */
-public class InPacket {
+public class InPacket extends Packet {
     private ByteBuf byteBuf;
 
     public InPacket(ByteBuf byteBuf) {
+        super(byteBuf.array());
         this.byteBuf = byteBuf.copy();
     }
 
@@ -29,14 +30,6 @@ public class InPacket {
     public InPacket() {
         this(Unpooled.buffer());
     }
-
-    public void release() {
-        if (byteBuf != null) {
-            ReferenceCountUtil.release(byteBuf);
-            byteBuf = null;
-        }
-    }
-
 
     public byte readByte() {
         return byteBuf.readByte();
@@ -109,8 +102,19 @@ public class InPacket {
         return byteBuf.array();
     }
 
+    public void release() {
+        super.release();
+        ReferenceCountUtil.release(byteBuf);
+    }
+
     @Override
     public String toString() {
         return Util.readableByteArray(Arrays.copyOfRange(getData(), getData().length - available(), getData().length)); // Substring after copy of range xd
+    }
+
+
+    @Override
+    public Packet clone() {
+        return new InPacket(byteBuf);
     }
 }

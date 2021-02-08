@@ -5,6 +5,7 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.npc.Npc;
+import im.cave.ms.connection.netty.Packet;
 import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
@@ -166,18 +167,17 @@ public class MapleMap {
         broadcastMessage(null, packet);
     }
 
-    public void broadcastMessage(MapleCharacter source, OutPacket packet, boolean repeatToSource) {
+    public void broadcastMessage(MapleCharacter source, Packet packet, boolean repeatToSource) {
         broadcastMessage(repeatToSource ? null : source, packet);
     }
 
 
-    public void broadcastMessage(MapleCharacter source, OutPacket packet) {
+    public void broadcastMessage(MapleCharacter source, Packet packet) {
         for (MapleCharacter chr : characters) {
             if (chr != source) {
-                chr.write(packet);
+                chr.announce(packet);
             }
         }
-        packet.release();
     }
 
 
@@ -263,7 +263,7 @@ public class MapleMap {
                 setRandomController(entry.getKey());
             }
         }
-        broadcastMessage(WorldPacket.userLeaveMap(chr.getId()));
+        broadcastMessage(chr, WorldPacket.userLeaveMap(chr.getId()));
     }
 
 
@@ -310,7 +310,8 @@ public class MapleMap {
                 } else {
                     int y;
                     if (x > maxX || x < minX) {
-                        y = getFootholdBelow(new Position(x, position.getY())).getYFromX(x);
+                        Foothold footholdBelow = getFootholdBelow(new Position(x, position.getY()));
+                        y = footholdBelow != null ? footholdBelow.getYFromX(x) : position.getY();
                     } else {
                         y = fh.getYFromX(x);
                     }
@@ -417,22 +418,7 @@ public class MapleMap {
     }
 
     public Foothold findFootHoldBelow(Position position) {
-        Set<Foothold> footholds = getFootholds().stream().filter(fh -> fh.getX1() <= position.getX() && fh.getX2() >= position.getX()).collect(Collectors.toSet());
-        Foothold res = null;
-        int lastY = Integer.MAX_VALUE;
-        for (Foothold fh : footholds) {
-            int y = fh.getYFromX(position.getX());
-            if (res == null && y >= position.getY()) {
-                res = fh;
-                lastY = y;
-            } else {
-                if (y < lastY && y >= position.getY()) {
-                    res = fh;
-                    lastY = y;
-                }
-            }
-        }
-        return res;
+        return getFoothold(position);
     }
 
     public Foothold getFoothold(int fh) {
@@ -440,6 +426,10 @@ public class MapleMap {
     }
 
     public Foothold getFootholdBelow(Position position) {
+        return getFoothold(position);
+    }
+
+    private Foothold getFoothold(Position position) {
         Set<Foothold> footholds = getFootholds().stream().filter(fh -> fh.getX1() <= position.getX() && fh.getX2() >= position.getX()).collect(Collectors.toSet());
         Foothold res = null;
         int lastY = Integer.MAX_VALUE;

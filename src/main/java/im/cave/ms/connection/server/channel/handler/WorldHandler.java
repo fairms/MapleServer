@@ -1305,7 +1305,7 @@ public class WorldHandler {
         MapleCharacter player = c.getPlayer();
         player.setTick(in.readInt());
         c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
-        player.enterCashShop();
+        player.enterAuction();
     }
 
     public static void handleAuctionRequest(InPacket in, MapleClient c) {

@@ -2,8 +2,11 @@ package im.cave.ms.enums;
 
 import im.cave.ms.tools.Util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -281,8 +284,20 @@ public enum JobType {
         return job;
     }
 
-    public static List<JobType> getAdvancedJobs(int jobId) {
-        return Arrays.stream(values()).filter(jobEnum -> jobEnum.getPrevJob() == jobId).collect(Collectors.toList());
+    public static Set<JobType> getAdvancedJobs(int jobId) {
+        return Arrays.stream(values()).filter(jobEnum -> jobEnum.getPrevJob() == jobId).collect(Collectors.toSet());
+    }
+
+    public static Set<JobType> getAllAdvancedJobs(int jobId) {
+        Set<JobType> ret = new HashSet<>();
+        Set<JobType> advancedJobs = getAdvancedJobs(jobId);
+        while (advancedJobs != null && advancedJobs.size() > 0) {
+            for (JobType advancedJob : advancedJobs) {
+                ret.addAll(advancedJobs);
+                advancedJobs = getAllAdvancedJobs(advancedJob.getJob());
+            }
+        }
+        return ret;
     }
 
     public static JobType getJobById(short id) {

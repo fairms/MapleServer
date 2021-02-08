@@ -4,6 +4,7 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Stat;
 import im.cave.ms.constants.JobConstants;
+import im.cave.ms.enums.JobType;
 import im.cave.ms.provider.data.MobData;
 import im.cave.ms.provider.data.QuestData;
 import im.cave.ms.provider.data.SkillData;
@@ -21,6 +22,7 @@ import java.io.FileReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author fair
@@ -30,12 +32,14 @@ import java.util.Arrays;
  */
 public class Test {
     public static void main(String[] args) {
+        Set<JobType> advancedJobs = JobType.getAdvancedJobs(100);
+//        System.out.println(JobType.getAllAdvancedJobs(100));
 //        QuestData.loadQuests();
 //        SkillData.loadMakingRecipeSkills();
 //        MobData.loadMobsData();
 //        System.out.println(DateUtil.FT_OFFSET);
-        long timestamp = DateUtil.getTimestamp(132571759860000000L);
-        System.out.println(DateUtil.getTimeFromTimestamp(timestamp));
+//        long timestamp = DateUtil.getTimestamp(132571759860000000L);
+//        System.out.println(DateUtil.getTimeFromTimestamp(timestamp));
         //        try {
 //            scriptTest();
 //        } catch (FileNotFoundException | ScriptException | NoSuchMethodException e) {

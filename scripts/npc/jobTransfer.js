@@ -8,11 +8,13 @@ function start() {
     let options = new HashMap();
     const jobId = cm.getJob();
     let advancedJobs = cm.getAdvancedJobs(jobId);
-    if (advancedJobs.length === 0) {
+    if (advancedJobs.size() === 0) {
         cm.sendSayOkay("已经完成所有转职。");
     } else {
+        options.put(null, "请选择你的路线");
         for (let advancedJob of advancedJobs) {
-            options.put(advancedJob.getJobId, advancedJob.getName())
+            options.put(advancedJob.getJob(), advancedJob.getName());
+            console.log(advancedJob.getName())
         }
         const selected = cm.sendAskMenu(options);
         if (selected > 0) {

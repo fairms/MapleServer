@@ -19,12 +19,12 @@ import static im.cave.ms.constants.ServerConstants.VERSION;
  * @Package im.cave.ms.connection.netty
  * @date 11/19 19:32
  */
-public class MaplePacketEncoder extends MessageToByteEncoder<OutPacket> {
+public class MaplePacketEncoder extends MessageToByteEncoder<Packet> {
     private static final Logger log = LoggerFactory.getLogger(MaplePacketEncoder.class);
     private static final int uSeqBase = (short) ((((0xFFFF - VERSION) >> 8) & 0xFF) | (((0xFFFF - VERSION) << 8) & 0xFF00));
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, OutPacket out, ByteBuf byteBuf) {
+    protected void encode(ChannelHandlerContext ctx, Packet out, ByteBuf byteBuf) {
         byte[] data = out.getData();
         MapleClient client = ctx.channel().attr(CLIENT_KEY).get();
         AESCipher ac = ctx.channel().attr(MapleClient.AES_CIPHER).get();
@@ -50,5 +50,7 @@ public class MaplePacketEncoder extends MessageToByteEncoder<OutPacket> {
         } else {
             byteBuf.writeBytes(data);
         }
+
+        out.release();
     }
 }

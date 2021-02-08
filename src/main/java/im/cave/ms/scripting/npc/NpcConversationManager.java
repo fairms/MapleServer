@@ -117,7 +117,6 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
         nsm.dispose(getClient());
     }
 
-
     public void resetParam() {
         getNpcScriptInfo().resetParam();
     }
@@ -222,4 +221,5 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
     public void inputGuildName() {
         c.announce(WorldPacket.guildResult(GuildResult.inputGuildName()));
     }
+
 }

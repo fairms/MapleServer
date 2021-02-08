@@ -3,12 +3,12 @@ package im.cave.ms.scripting.portal;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.Portal;
+import im.cave.ms.connection.packet.MessagePacket;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.scripting.AbstractScriptManager;
 
 import javax.script.Invocable;
 import javax.script.ScriptException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author fair
@@ -19,8 +19,6 @@ import java.util.Map;
 public class PortalScriptManager extends AbstractScriptManager {
     private static final PortalScriptManager instance = new PortalScriptManager();
 
-    private final Map<String, Invocable> scripts = new HashMap<>();
-
     public static PortalScriptManager getInstance() {
         return instance;
     }
@@ -29,23 +27,10 @@ public class PortalScriptManager extends AbstractScriptManager {
         super();
     }
 
-    private Invocable getPortalScript(String scriptName, MapleClient c) {
-        String scriptPath = String.format("portal/%s.js", scriptName);
-        Invocable iv = scripts.get(scriptPath);
-        if (iv != null) {
-            return iv;
-        }
-        iv = getInvocable(scriptPath, c);
-        if (iv == null) {
-            return null;
-        }
-        scripts.put(scriptPath, iv);
-        return iv;
-    }
-
     public boolean executePortalScript(Portal portal, MapleClient client) {
         try {
-            Invocable iv = getPortalScript(portal.getScript(), client);
+            String scriptPath = String.format("portal/%s.js", portal.getScript());
+            Invocable iv = getInvocable(scriptPath, client);
             if (iv != null) {
                 return (boolean) iv.invokeFunction("enter", new PortalPlayerInteraction(client, portal));
             } else {
@@ -53,12 +38,11 @@ public class PortalScriptManager extends AbstractScriptManager {
                 client.getPlayer().dropMessage("地图:" + player.getMapId() + " 传送口:" + portal.getScript());
             }
         } catch (NoSuchMethodException | ScriptException e) {
+            client.announce(MessagePacket.broadcastMsg("脚本执行错误", BroadcastMsgType.ALERT));
+            client.getPlayer().enableAction();
             e.printStackTrace();
         }
         return false;
     }
 
-    public void reloadPortalScripts() {
-        scripts.clear();
-    }
 }

@@ -9,6 +9,7 @@ import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.server.Server;
 import im.cave.ms.enums.MessageType;
+import im.cave.ms.enums.PrivateStatusIDFlag;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -53,6 +54,8 @@ public class Account {
     private boolean isBanned;
     private String banReason;
     private long lastLogin;
+    @Column(name = "flag")
+    private PrivateStatusIDFlag accountFlag;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "accId")
     private Set<MapleCharacter> characters;

@@ -7,7 +7,6 @@ import im.cave.ms.client.character.items.PetItem;
 import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.skill.HitInfo;
 import im.cave.ms.client.character.skill.MobAttackInfo;
-import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.obj.Pet;
@@ -374,6 +373,14 @@ public class UserRemote {
         out.write(guild.getMarkBg());
         out.writeInt(0);
 
+        return out;
+    }
+
+    public static OutPacket showItemSkillSocketUpgradeEffect(int charId, boolean success) {
+        OutPacket out = new OutPacket(SendOpcode.SHOW_ITEM_SKILL_SOCKET_UPGRADE_EFFECT);
+        out.writeInt(charId);
+        out.writeBool(success);
+        out.write(0);
         return out;
     }
 }

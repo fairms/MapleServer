@@ -41,6 +41,7 @@ import im.cave.ms.client.quest.QuestManager;
 import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.db.InlinedIntArrayConverter;
 import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.netty.Packet;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.connection.packet.WorldPacket;
@@ -689,11 +690,11 @@ public class MapleCharacter implements Serializable {
     }
 
 
-    public void announce(OutPacket out) {
+    public void announce(Packet out) {
         client.announce(out);
     }
 
-    public void write(OutPacket out) {
+    public void write(Packet out) {
         client.write(out);
     }
 
@@ -1103,6 +1104,7 @@ public class MapleCharacter implements Serializable {
         if (map != null) {
             if (map == getMap() && !load) {
                 announce(WorldPacket.mapTransferResult(MapTransferType.AlreadyInMap, (byte) 0, null));
+                enableAction();
                 return;
             }
             changeMap(map, getSpawnPoint(), load);
@@ -1121,7 +1123,16 @@ public class MapleCharacter implements Serializable {
     }
 
     public void changeMap(int mapId, byte portal) {
-        changeMap(map, portal, false);
+        MapleChannel channel = Server.getInstance().getWorldById(world).getChannel(this.channel);
+        MapleMap map = channel.getMap(mapId);
+        if (map != null) {
+            if (map == getMap()) {
+                announce(WorldPacket.mapTransferResult(MapTransferType.AlreadyInMap, (byte) 0, null));
+                enableAction();
+                return;
+            }
+            changeMap(map, getSpawnPoint(), false);
+        }
     }
 
     private void changeMap(MapleMap map, byte portal, boolean load) {
