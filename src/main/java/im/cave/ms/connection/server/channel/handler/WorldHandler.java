@@ -632,6 +632,8 @@ public class WorldHandler {
         int mapId = in.readInt();
         if (mapId == 7860) { //匠人街
             player.changeMap(GameConstants.ARDENTMILL);
+        } else if (mapId == 26015) { //家族中心
+            player.changeMap(200000301);
         }
     }
 
@@ -1099,7 +1101,7 @@ public class WorldHandler {
                 }
                 guild.disband();
                 break;
-            case Search:
+            case Req_Search:
                 byte searchType = in.readByte();
                 World world = c.getWorld();
                 Collection<Guild> guildCol;
@@ -1287,6 +1289,8 @@ public class WorldHandler {
                     chr.getMap().broadcastMessage(UserRemote.guildMarkChanged(chr));
                 }
                 player.announce(UserPacket.message(MessageType.SYSTEM_MESSAGE, 0, "本次修改耗费0Gp", (byte) 0));
+                break;
+            case Req_GuildsInApplication:
                 break;
         }
     }

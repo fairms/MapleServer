@@ -50,7 +50,7 @@ public class LoginServerHandler extends AbstractServerHandler {
         }
         switch (opcode) {
             case CUSTOM_LOGIN:
-            case BEFORE_LOGIN:
+            case PERMISSION_REQUEST:
                 PasswordLoginHandler.handlePacket(c, in);
                 break;
             case CLIENT_START:

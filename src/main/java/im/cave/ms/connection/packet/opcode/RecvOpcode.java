@@ -4,7 +4,7 @@ public enum RecvOpcode {
     CUSTOM_LOGIN(0x7777),
 
     UNK1(0x66),
-    BEFORE_LOGIN(0x67),
+    PERMISSION_REQUEST(0x67),
     SDO_LOGIN_REQUEST(0x69),
     SERVERSTATUS_REQUEST(0x6A),
     CHARLIST_REQUEST(0x6B),
@@ -18,6 +18,7 @@ public enum RecvOpcode {
     DELETE_CHAR(0x82), // 84 - 2
     DELETE_CHAR_CONFIRM(0x83), //
     CANCEL_DELETE_CHAR(0x84), //86 - 2
+    TOS_ACCEPT_RESULT(0xB9), //todo check
     PONG(0x99), //9C - 3
     CPONG(0x9A), //9D-3
     ERROR_PACKET(0x9C),//

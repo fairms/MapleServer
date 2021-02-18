@@ -1,7 +1,6 @@
 # ms
 
 **maplestory emulator** 
-**当前版本177.1**
 
 ~~只能进游戏逛街😓~~
 

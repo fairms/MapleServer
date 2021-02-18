@@ -16,8 +16,9 @@ public enum GuildType {
     Req_SetNotice(23),
     Req_Setting(24),
     Req_SkillLevelSetUp(37),
-    Search(46),
+    Req_Search(46),
     Req_Signin(49),
+    Req_GuildsInApplication(50),
     Req_50(50),
     Req_Rank(53),
 
@@ -25,6 +26,7 @@ public enum GuildType {
     Res_LoadGuild_Done(58),
     Res_Rank(60),
     Res_RemoveGuild_Done(96),
+    Res_IncMaxMemberNum_Done(113),
     Res_SetGradeName_Done(119),
     Res_SetGradeRight_Done(121),
     Res_SetGradeNameAndRight_Done(123),

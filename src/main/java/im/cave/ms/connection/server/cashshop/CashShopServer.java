@@ -5,6 +5,7 @@ import im.cave.ms.client.character.items.CashShopItem;
 import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.netty.ServerAcceptor;
 import im.cave.ms.connection.server.AbstractServer;
+import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.ServerType;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -39,7 +40,7 @@ public class CashShopServer extends AbstractServer {
     public CashShopServer(int worldId) {
         super(worldId, 20);
         type = ServerType.CASHSHOP;
-        port = 8600;
+        port = ServerConstants.CASH_SHOP_PORT;
         acceptor = new ServerAcceptor(this);
         acceptor.server = this;
         new Thread(acceptor).start();

@@ -2,6 +2,7 @@ package im.cave.ms.connection.server.auction;
 
 import im.cave.ms.connection.netty.ServerAcceptor;
 import im.cave.ms.connection.server.AbstractServer;
+import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.ServerType;
 
 /**
@@ -16,7 +17,7 @@ public class Auction extends AbstractServer {
     public Auction(int worldId) {
         super(worldId, 21);
         type = ServerType.AUCTION;
-        port = 8900;
+        port = ServerConstants.AUCTION_PORT;
         acceptor = new ServerAcceptor(this);
         acceptor.server = this;
         new Thread(acceptor).start();

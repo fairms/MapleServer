@@ -74,6 +74,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1087,7 +1088,25 @@ public class UserHandler {
             }
             case Req_BuyNormal: {
                 int sn = in.readInt();
-                //todo
+                CashItemInfo cashItemInfo = ItemData.getCashItemInfo(sn);
+                if (cashItemInfo != null) {
+                    int itemId = cashItemInfo.getItemId();
+                    int count = cashItemInfo.getCount();
+                    int price = cashItemInfo.getPrice();
+                    int cost = count * price;
+                    if (player.getMeso() < cost) {
+                        return; //crack
+                    }
+                    Item item = ItemData.getItemCopy(itemId);
+                    item.setQuantity(count);
+                    if (!player.canHold(Collections.singletonList(item))) {
+                        player.announce(MessagePacket.broadcastMsg("can't hold", BroadcastMsgType.ALERT));
+                        return;
+                    }
+                    player.addItemToInv(item);
+                    player.deductMoney(cost, true);
+                    player.announce(CashShopPacket.buyNormalDone(item, price));
+                }
                 //0x6f add
                 //0x7c0 updatePlayerStat 00 00 04 00 00 00 00 00 B1 8A 2D 00 00 00 00 00
                 //Res_BuyNormal_Done 4B 01 00 00 00 01 00 06 00 D7 82 3D 00

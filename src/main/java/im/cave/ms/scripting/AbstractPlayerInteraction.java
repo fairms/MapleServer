@@ -8,7 +8,11 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.Portal;
 import im.cave.ms.client.field.obj.npc.Npc;
+import im.cave.ms.client.multiplayer.guilds.Guild;
+import im.cave.ms.connection.packet.MessagePacket;
+import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.JobType;
@@ -16,7 +20,6 @@ import im.cave.ms.enums.RecordType;
 import im.cave.ms.scripting.npc.NpcScriptManager;
 
 import java.util.Calendar;
-import java.util.List;
 import java.util.Set;
 
 public class AbstractPlayerInteraction {
@@ -161,5 +164,17 @@ public class AbstractPlayerInteraction {
 
     public void runNPCScript(String script, int npcID) {
         NpcScriptManager.getInstance().start(c, npcID, script);
+    }
+
+    public void deductMesos(long mesos) {
+        getChar().deductMoney(mesos);
+        getChar().write(UserPacket.incMoneyMessage((int) -mesos));
+    }
+
+    public void incrementMaxGuildMembers(int amount) {
+        MapleCharacter chr = getChar();
+        Guild guild = chr.getGuild();
+        guild.incMaxMembers(amount);
+        guild.broadcast(WorldPacket.guildResult(GuildResult.incMaxMemberNum(guild)));
     }
 }

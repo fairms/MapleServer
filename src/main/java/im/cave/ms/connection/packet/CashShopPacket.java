@@ -2,6 +2,7 @@ package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.items.CashShopItem;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.items.PotionPot;
@@ -15,8 +16,10 @@ import im.cave.ms.enums.CashItemType;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.tools.DateUtil;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static im.cave.ms.constants.ServerConstants.MAX_TIME;
 import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
@@ -105,6 +108,18 @@ public class CashShopPacket {
         out.write(CashItemType.Res_Buy_Failed.getVal());
         out.write(reason.getVal());
         out.writeInt(0);
+        return out;
+    }
+
+    public static OutPacket buyNormalDone(Item item, int price) {
+        OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT);
+
+        out.write(CashItemType.Res_BuyNormal_Done.getVal());
+        out.writeInt(price); //todo check price =1
+        out.writeShort(item.getQuantity());
+        out.writeShort(item.getPos());
+        out.writeInt(item.getItemId());
+
         return out;
     }
 
@@ -233,9 +248,75 @@ public class CashShopPacket {
         return out;
     }
 
-    public static OutPacket sendGift() {
-        OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT);
+//    public static OutPacket sendGift() {
+//        OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT);
+//
+//
+//        return out;
+//    }
 
+
+    public static OutPacket updatePlayerStats(Map<Stat, Long> stats, MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_UPDATE_STATS);
+
+        long mask = 0;
+        for (Stat stat : stats.keySet()) {
+            mask |= stat.getValue();
+        }
+        out.writeLong(mask);
+        Comparator<Stat> comparator = Comparator.comparingLong(Stat::getValue);
+        TreeMap<Stat, Long> sortedStats = new TreeMap<>(comparator);
+        sortedStats.putAll(stats);
+        for (Map.Entry<Stat, Long> entry : sortedStats.entrySet()) {
+            Stat stat = entry.getKey();
+            long value = entry.getValue();
+            switch (stat) {
+                case SKIN:
+                    out.write((byte) value);
+                    break;
+                case FACE:
+                case HAIR:
+                case HP:
+                case MAXHP:
+                case MP:
+                case MAXMP:
+                case FAME:
+                case CHARISMA:
+                case CHARM:
+                case WILL:
+                case SENSE:
+                case INSIGHT:
+                case CRAFT:
+                case LEVEL:
+                case ICE_GAGE:
+                case JOB:
+                    out.writeInt((int) value);
+                    break;
+                case STR:
+                case DEX:
+                case INT:
+                case LUK:
+                case AVAILABLEAP:
+                case FATIGUE:
+                    out.writeShort((int) value);
+                    break;
+                case AVAILABLESP:
+                    chr.encodeRemainingSp(out);
+                    break;
+                case EXP:
+                case MESO:
+                    out.writeLong(value);
+                    break;
+                case TODAYS_TRAITS:
+                    out.writeZeroBytes(21); //限制
+                    break;
+            }
+        }
+        out.write(chr != null ? chr.getCharLook().getHairColorBase() : -1);
+        out.write(chr != null ? chr.getCharLook().getHairColorMixed() : 0);
+        out.write(chr != null ? chr.getCharLook().getHairColorProb() : 0);
+        out.write(0);
+        out.write(0);
 
         return out;
     }

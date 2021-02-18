@@ -42,7 +42,6 @@ public class GameConstants {
     public static final int POTION_POT_MAX_LIMIT = 10000000;
     public static final int MAX_FLAME_BONUS_SAGAS = 6;
     public static final int FLAME_STAT_MULTIPLE = 1000;
-    public static final int CREATE_GUILD_COST = 5000000;
     //  default keymap
     public static final byte[] DEFAULT_KEY = {1, 2, 3, 4, 5, 6, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 31, 34, 35, 37, 38, 39, 40, 41, 43, 44, 45, 46, 47, 48, 50, 56, 57, 59, 60, 61, 63, 64, 65, 66, 70};
     public static final byte[] DEFAULT_TYPE = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 4};
@@ -71,6 +70,8 @@ public class GameConstants {
     public static final int GGP_FOR_SKILL_RESET = 50000;
     public static final int MAX_GUILD_LV = 30;
     public static final int MAX_GUILD_MEMBERS = 200;
+    public static final int CREATE_GUILD_COST = 5000000;
+    public static final int GUILD_MAX_MEMBERS_DEFAULT = 10;
     //drop
     public static final int DROP_HEIGHT = 100; // was 20
     public static final int DROP_REMAIN_ON_GROUND_TIME = 120; // 2 minutes

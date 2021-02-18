@@ -12,8 +12,8 @@ import im.cave.ms.enums.ServerType;
 public abstract class AbstractServer {
     protected ServerType type;
     protected int port;
-    protected int worldId = 0;
-    protected int channelId = 0;
+    protected int worldId;
+    protected int channelId;
     protected ServerAcceptor acceptor;
 
     public AbstractServer(int worldId, int channelId) {

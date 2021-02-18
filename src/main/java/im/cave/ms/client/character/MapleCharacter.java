@@ -8,6 +8,7 @@ import im.cave.ms.client.RecordManager;
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.items.PetItem;
 import im.cave.ms.client.character.items.PotionPot;
 import im.cave.ms.client.character.items.WishedItem;
 import im.cave.ms.client.character.job.JobManager;
@@ -42,6 +43,8 @@ import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.db.InlinedIntArrayConverter;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.netty.Packet;
+import im.cave.ms.connection.packet.CashShopPacket;
+import im.cave.ms.connection.packet.PetPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.connection.packet.WorldPacket;
@@ -1131,7 +1134,7 @@ public class MapleCharacter implements Serializable {
                 enableAction();
                 return;
             }
-            changeMap(map, getSpawnPoint(), false);
+            changeMap(map, portal, false);
         }
     }
 
@@ -1150,6 +1153,7 @@ public class MapleCharacter implements Serializable {
             announce(WorldPacket.getWarpToMap(this, map, portal));
         }
         map.addPlayer(this);
+        initPets();
         map.sendMapObjectPackets(this);
         map.broadcastMessage(UserRemote.hiddenEffectEquips(this));
         map.broadcastMessage(UserRemote.setSoulEffect(this));
@@ -1158,10 +1162,23 @@ public class MapleCharacter implements Serializable {
             announce(WorldPacket.partyResult(PartyResult.loadParty(getParty())));
         }
     }
+
     /*
         地图切换 结束
      */
 
+    private void initPets() {
+        for (PetItem petItem : getCashInventory().getItems().stream().filter(i -> i instanceof PetItem && ((PetItem) i).getActiveState() > 0)
+                .map(i -> ((PetItem) i)).collect(Collectors.toList())) {
+            Pet p = getPets().stream().filter(pet -> pet.getPetItem().equals(petItem)).findAny().orElse(null);
+            if (p == null) {
+                // only create a new pet if the active state is > 0 (active), but isn't added to our own list yet
+                p = petItem.createPet(this);
+                addPet(p);
+            }
+            getMap().broadcastMessage(PetPacket.petActivateChange(p, true, (byte) 0));
+        }
+    }
 
     public Skill getSkill(int skillId) {
         return getSkill(skillId, false);
@@ -1672,6 +1689,22 @@ public class MapleCharacter implements Serializable {
 
     public void deductMoney(long amount) {
         addMeso(-amount);
+    }
+
+    public void deductMoney(long amount, boolean cashShop) {
+        if (!cashShop) {
+            addMeso(-amount);
+        } else {
+            long meso = getMeso();
+            long newMeso = meso + amount;
+            if (newMeso >= 0) {
+                newMeso = Math.min(GameConstants.MAX_MONEY, newMeso);
+                Map<Stat, Long> stats = new HashMap<>();
+                setMeso(newMeso);
+                stats.put(Stat.MESO, newMeso);
+                announce(CashShopPacket.updatePlayerStats(stats, this));
+            }
+        }
     }
 
     public int getSpentHyperStatSp() {

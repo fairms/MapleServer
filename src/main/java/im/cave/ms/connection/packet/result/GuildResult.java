@@ -9,10 +9,12 @@ import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.enums.GuildType;
 
 import static im.cave.ms.enums.GuildType.Res_ChangeSetting_Done;
+import static im.cave.ms.enums.GuildType.Res_IncMaxMemberNum_Done;
 import static im.cave.ms.enums.GuildType.Res_IncPoint_Done;
 import static im.cave.ms.enums.GuildType.Res_InputGuildNameRequest;
 import static im.cave.ms.enums.GuildType.Res_LoadGuild_Done;
 import static im.cave.ms.enums.GuildType.Res_Rank;
+import static im.cave.ms.enums.GuildType.Res_RemoveGuild_Done;
 import static im.cave.ms.enums.GuildType.Res_SetGradeNameAndRight_Done;
 import static im.cave.ms.enums.GuildType.Res_SetGradeName_Done;
 import static im.cave.ms.enums.GuildType.Res_SetGradeRight_Done;
@@ -38,7 +40,6 @@ public class GuildResult {
     private GuildResult(GuildType type) {
         this.type = type;
     }
-
 
     public void encode(OutPacket out) {
         out.write(type.getVal());
@@ -123,6 +124,15 @@ public class GuildResult {
                 out.writeShort(guild.getMark());
                 out.write(guild.getMarkBg());
                 out.writeLong(0);
+                break;
+            case Res_IncMaxMemberNum_Done:
+                out.writeInt(guild.getId());
+                out.writeInt(guild.getMaxMembers());
+                out.write(0); //控制是否显示？
+                break;
+            case Res_RemoveGuild_Done:
+                out.writeInt(guild.getId());
+                out.write(1); //控制是否显示？
                 break;
         }
     }
@@ -211,4 +221,18 @@ public class GuildResult {
         gri.member = member;
         return gri;
     }
+
+    public static GuildResult incMaxMemberNum(Guild guild) {
+        GuildResult gri = new GuildResult(Res_IncMaxMemberNum_Done);
+        gri.guild = guild;
+        return gri;
+    }
+
+    public static GuildResult guildRemoved(Guild guild) {
+        GuildResult gri = new GuildResult(Res_RemoveGuild_Done);
+        gri.guild = guild;
+        return gri;
+    }
+
+
 }

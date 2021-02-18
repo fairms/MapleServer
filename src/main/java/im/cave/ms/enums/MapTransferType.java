@@ -17,7 +17,7 @@ public enum MapTransferType {
     RegisterFail(10),
     NotAllowedForVariousReason(11);
 
-    private byte val;
+    private final byte val;
 
     MapTransferType(int val) {
         this.val = (byte) val;

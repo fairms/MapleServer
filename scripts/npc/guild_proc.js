@@ -5,6 +5,7 @@ const talk_how_tow_create_guild = Array(
     "创建家族还需要1500000金币的费用！",
     "创建家族，带6个人来~你不能没有6个人就组成一个...哦，当然，6个人不能是其他家族的成员！如果有人已经加入了其他家族，那就不行了！！"
 );
+const GameConstants = Java.type('im.cave.ms.constants.GameConstants');
 
 function start() {
     let HashMap = Java.type('java.util.HashMap');
@@ -56,7 +57,32 @@ function start() {
         options.put(null, "我能帮你什么吗？");
         options.put(1, "我想增加家族人数");
         options.put(2, "我想解散家族");
-    }
+        let res = cm.sendAskMenu(options);
+        switch (res) {
+            case 1:
+                if (cm.sendNext("你是想增加家族人数吗？嗯，看来你的家族成长了不少～你也知道，要想增加家族人数，必须在家族本部重新登记。当然，使用金币作为手续费。此外，家族成员最多可以增加到200个。") === 1) {
+                    let incAmount = 5;
+                    let maxMembers = guild.getMaxMembers();
+                    let cost = (maxMembers - 10) / 10 * 1000000 + 500000;
+                    if (cm.sendAskYesNo("当前的家族最大人数是#b" + maxMembers + "人#k，增加#b" + incAmount + "人#k所需的手续费是#b" + cost + "金币#k。怎么样？你想增加家族人数吗？") === 1) {
+                        if (chr.getMeso() < cost) {
+                            cm.sendSayOkay("你没有足够的金币");
+                        } else {
+                            incrementMaxGuildMembers(incAmount);
+                            cm.deductMesos(cost);
+                        }
 
+                    }
+                }
+                break
+            case 2:
+                if (cm.sendAskYesNo("你真的要解散家族吗？哎呀……哎呀……解散之后，你的家族就会被永久删除。很多家族特权也会一起消失。你真的要解散吗？") === 1) {
+                    guild.disband();
+                }
+                break
+            default:
+                break
+        }
+    }
     cm.dispose();
 }

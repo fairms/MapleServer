@@ -86,7 +86,7 @@ public class Guild {
     public Guild() {
         setGrades(GuildGrade.getDefault());
         setAppliable(true);
-        setMaxMembers(10);
+        setMaxMembers(GameConstants.GUILD_MAX_MEMBERS_DEFAULT);
         setLevel(1);
         setName("Default");
     }
@@ -174,7 +174,7 @@ public class Guild {
 
     //解散
     public void disband() {
-
+        broadcast(WorldPacket.guildResult(GuildResult.guildRemoved(this)));
     }
 
     public void addMember(MapleCharacter chr) {
@@ -271,5 +271,9 @@ public class Guild {
         out.write(0);
         out.writeShort(0);
         out.write(0);
+    }
+
+    public void incMaxMembers(int amount) {
+        setMaxMembers(getMaxMembers() + amount);
     }
 }
