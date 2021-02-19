@@ -131,6 +131,13 @@ public class CharStats {
         return i;
     }
 
+    public int getRemainingSpByLevel(int level) {
+        return getRemainingSp().get(level);
+    }
+
+    public void addRemainingSp(int amount, int level) {
+        getRemainingSp().set(level, getRemainingSpByLevel(level) + amount);
+    }
 
     public byte getNonCombatStatLevel(int totalExp) {
         byte level = 0;
@@ -141,7 +148,6 @@ public class CharStats {
         }
         return level;
     }
-
 
     public byte getCharismaLevel() {
         return getNonCombatStatLevel(getCharismaExp());

@@ -52,4 +52,7 @@ public class QuestConstants {
     public static final int QUEST_EX_5TH_CORE_CHIPS_COUNT = 1477;//count=20300
 
     public static final int QUEST_EX_GUILD = 26011; //GuildID=91 创建家族还是其他的?
+
+    //npc商店组队积分
+    public static final int QUEST_EX_NPC_SHOP_QUEST_ID_PQ_POINT = 7907;
 }

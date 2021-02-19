@@ -416,7 +416,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     ChillingStep(357),// 寒冰步
     DotBasedBuff(354),// 元素爆破?
     BlessEnsenble(355),// 祈祷众生
-    ComboCostInc(356),// 
+    ComboCostInc(356), //需要检查
     ExtremeArchery(357),// 极限射箭
     NaviFlying(358),//
     QuiverCatridge(359),// 三彩箭矢

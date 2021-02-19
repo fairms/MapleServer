@@ -4,12 +4,17 @@ import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.skill.AttackInfo;
+import im.cave.ms.client.character.skill.MobAttackInfo;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.Summon;
+import im.cave.ms.client.field.obj.mob.Mob;
+import im.cave.ms.client.field.obj.mob.MobStat;
+import im.cave.ms.client.field.obj.mob.MobTemporaryStat;
 import im.cave.ms.connection.netty.InPacket;
+import im.cave.ms.connection.packet.MobPacket;
 import im.cave.ms.connection.packet.SummonPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.UserRemote;
@@ -23,12 +28,42 @@ import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.Util;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.*;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.AsrR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.AttackRecovery;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.BasicStatUp;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Beholder;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Booster;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.CombatOrders;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ComboCostInc;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ComboCounter;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.CrossOverChain;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.EMDD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.EPAD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.EPDD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ElementalCharge;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Enrage;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.EnrageCrDam;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Guard;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieBDR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieCr;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieDamR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieEmpty;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieIgnoreMobpdpR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePAD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePDDR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePMdR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MaxHP;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.MaxMP;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.PDD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.PowerGuard;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Restoration;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Stance;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.TerR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.WeaponCharge;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
 import static im.cave.ms.enums.SkillStat.epad;
 import static im.cave.ms.enums.SkillStat.epdd;
@@ -40,6 +75,8 @@ import static im.cave.ms.enums.SkillStat.indiePMdR;
 import static im.cave.ms.enums.SkillStat.indiePad;
 import static im.cave.ms.enums.SkillStat.indiePowerGuard;
 import static im.cave.ms.enums.SkillStat.pdd;
+import static im.cave.ms.enums.SkillStat.prop;
+import static im.cave.ms.enums.SkillStat.subTime;
 import static im.cave.ms.enums.SkillStat.time;
 import static im.cave.ms.enums.SkillStat.u;
 import static im.cave.ms.enums.SkillStat.w;
@@ -89,7 +126,7 @@ public class Warrior extends Beginner {
     public static final int HERO_POWER_STANCE = 1120014; //稳如泰山
     public static final int HERO_ENRAGE = 1120010; //葵花宝典
     public static final int HERO_MAPLE_WARRIOR = 1121000; //冒险岛勇士
-    public static final int HERO_HERO__WILL = 1120011; //勇士的意志
+    public static final int HERO_HERO_WILL = 1120011; //勇士的意志
     public static final int HERO_ADVANCED_COMBO = 1120003; //进阶斗气
     public static final int HERO_COMBAT_MASTERY = 1120012; //战斗精通
     public static final int HERO_ADVANCED_FINAL_ATTACK = 1120013; //进阶终极攻击
@@ -225,14 +262,24 @@ public class Warrior extends Beginner {
         try {
             super.handleSkill(c, skillId, slv, in);
         } catch (Exception e) {
-            getMapleCharacter().chatMessage("skill not exist");
+            getMapleCharacter().chatMessage("技能未处理 R:技能未学习");
+            return;
         }
         switch (skillId) {
             case PALADIN_HP_RECOVERY:
                 hpRecovery();
                 break;
+            case HERO_MAGIC_CRASH:
+            case KNIGHT_MAGIC_CRASH:
+            case PALADIN_MAGIC_CRASH:
+                chr.chatMessage("魔击无效未处理");
+                break;
+            case HERO_HERO_WILL:
+            case KNIGHT_HERO_WILL:
+            case PALADIN_HERO_WILL:
+                chr.chatMessage("勇士意志未处理");
+                break;
         }
-
     }
 
     @Override
@@ -242,8 +289,12 @@ public class Warrior extends Beginner {
         TemporaryStatManager tsm = player.getTemporaryStatManager();
         Skill skill = player.getSkill(attackInfo.skillId);
         SkillInfo si;
+        int slv = 0;
+        int skillId = 0;
         if (skill != null) {
             si = SkillData.getSkillInfo(attackInfo.skillId);
+            slv = skill.getCurrentLevel();
+            skillId = skill.getSkillId();
         } else {
             return;
         }
@@ -256,18 +307,86 @@ public class Warrior extends Beginner {
                 }
             }
         }
+        Option o = new Option();
+        Option oo = new Option();
+        Option ooo = new Option();
         switch (attackInfo.skillId) {
+            case HERO_PANIC:
+                if (tsm.hasStat(ComboCostInc)) {
+                    int amount = tsm.getOption(ComboCostInc).nOption;
+                    removeCombo(chr, 1 + amount);
+                    ooo.nOption = amount + 1;
+                    ooo.rOption = HERO_PANIC;
+                    ooo.tOption = si.getValue(subTime, slv);
+                    tsm.putCharacterStatValue(ComboCostInc, ooo);
+                    tsm.sendSetStatPacket();
+                } else {
+                    ooo.nOption = 1;
+                    ooo.rOption = HERO_PANIC;
+                    ooo.tOption = si.getValue(subTime, slv);
+                    tsm.putCharacterStatValue(ComboCostInc, ooo);
+                    tsm.sendSetStatPacket();
+                    removeCombo(chr, 1);
+                }
+                for (MobAttackInfo mobAttackInfo : attackInfo.mobAttackInfo) {
+                    int objectId = mobAttackInfo.objectId;
+                    MapleMap map = chr.getMap();
+                    Mob mob = (Mob) map.getObj(objectId);
+                    if (mob == null) {
+                        continue;
+                    }
+                    MobTemporaryStat mts = mob.getTemporaryStat();
+                    o.nOption = si.getValue(z, slv);
+                    o.rOption = skill.getSkillId();
+                    o.tOption = 0;
+                    mts.addStatOptions(MobStat.PAD, o);
+                    if (Util.succeedProp(si.getValue(prop, slv))) {
+                        oo.nOption = -si.getValue(x, slv); // minus?
+                        oo.rOption = skill.getSkillId();
+                        oo.tOption = si.getValue(time, slv);
+                        mts.addStatOptions(MobStat.ACC, oo);
+                    }
+                    c.write(MobPacket.statSet(mob, (short) 0));
+                }
+                break;
+            case HERO_SHOUT:
+                if (hasHitMobs) {
+                    removeCombo(chr, 1);
+                }
+                break;
+            case HERO_PUNCTURE:
+                for (MobAttackInfo mobAttackInfo : attackInfo.mobAttackInfo) {
+                    int objectId = mobAttackInfo.objectId;
+                    MapleMap map = chr.getMap();
+                    Mob mob = (Mob) map.getObj(objectId);
+                    if (mob == null) {
+                        continue;
+                    }
+                    MobTemporaryStat mts = mob.getTemporaryStat();
+                    o.nOption = si.getValue(z, slv);
+                    o.rOption = skill.getSkillId();
+                    o.tOption = 0;
+                    mts.addStatOptions(MobStat.AddDamParty, o);
+                    if (Util.succeedProp(si.getValue(prop, slv))) {
+                        mts.createAndAddBurnedInfo(chr, skill);
+                    }
+                    c.write(MobPacket.statSet(mob, (short) 0));
+                }
+                if (hasHitMobs) {
+                    removeCombo(chr, 1);
+                }
+                break;
             case PALADIN_FLAME_CHARGE:
             case PALADIN_BLIZZARD_CHARGE:
             case PALADIN_LIGHTNING_CHARGE:
             case PALADIN_DIVINE_CHARGE:
                 Option option = new Option();
-                option.nOption = attackInfo.skillId == PALADIN_DIVINE_CHARGE ? 1 : 0;
-                option.rOption = attackInfo.skillId;
-                option.tOption = si.getValue(time, attackInfo.skillLevel);
+                option.nOption = skillId == PALADIN_DIVINE_CHARGE ? 1 : 0;
+                option.rOption = skillId;
+                option.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(WeaponCharge, option);
                 tsm.sendSetStatPacket();
-                giveChargeBuff(attackInfo.skillId, tsm);
+                giveChargeBuff(skillId, tsm);
                 break;
         }
     }
@@ -294,6 +413,29 @@ public class Warrior extends Beginner {
         tsm.putCharacterStatValue(ComboCounter, option);
         tsm.sendSetStatPacket();
     }
+
+    private void removeCombo(MapleCharacter chr, int count) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int currentCount = getComboCount(chr);
+        Option o = new Option();
+        if (currentCount > count + 1) {
+            o.nOption = currentCount - count;
+        } else {
+            o.nOption = 0;
+        }
+        o.rOption = HERO_COMBO_ATTACK;
+        tsm.putCharacterStatValue(ComboCounter, o);
+        tsm.sendSetStatPacket();
+    }
+
+    public int getComboCount(MapleCharacter c) {
+        TemporaryStatManager tsm = c.getTemporaryStatManager();
+        if (tsm.hasStat(ComboCounter)) {
+            return tsm.getOption(ComboCounter).nOption;
+        }
+        return -1;
+    }
+
 
     @Override
     public void handleBuff(MapleClient c, InPacket in, int skillId, int slv) {

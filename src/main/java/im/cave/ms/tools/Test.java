@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -32,8 +33,7 @@ import java.util.Set;
  */
 public class Test {
     public static void main(String[] args) {
-        Set<JobType> advancedJobs = JobType.getAdvancedJobs(100);
-//        System.out.println(JobType.getAllAdvancedJobs(100));
+        //        System.out.println(JobType.getAllAdvancedJobs(100));
 //        QuestData.loadQuests();
 //        SkillData.loadMakingRecipeSkills();
 //        MobData.loadMobsData();

@@ -308,4 +308,7 @@ public class SkillConstants {
         return skillId >= 91001022 && skillId <= 91001024;
     }
 
+    public static boolean isStealableSkill(int skillID) {
+        return false;
+    }
 }

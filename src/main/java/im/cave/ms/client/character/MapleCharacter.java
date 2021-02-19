@@ -365,6 +365,10 @@ public class MapleCharacter implements Serializable {
     private Familiar familiar; //当前召唤的怪怪
     @Transient
     private int activeNickItemId; //激活的称号ID
+    @Transient
+    private boolean battleRecordOn; //是否开启战斗分析
+    @Transient
+    private DamageCalc damageCalc;
 
     public MapleCharacter() {
         temporaryStatManager = new TemporaryStatManager(this);
@@ -1076,17 +1080,12 @@ public class MapleCharacter implements Serializable {
 
     public void addSpToJobByCurrentLevel(int amount) {
         byte jobLevel = (byte) JobConstants.getJobLevelByCharLevel(getJob(), getLevel());
-        addSp(amount, jobLevel);
+        addSp(amount, jobLevel - 1);
     }
 
     public void addSp(int amount, int jobLevel) {
-        List<Integer> remainingSp = getRemainingSp();
-        if (jobLevel == 0) {  //新手没有技能点
-            return;
-        }
-        remainingSp.set(jobLevel, remainingSp.get(jobLevel - 1) + amount);
+        getStats().addRemainingSp(amount, jobLevel);
     }
-
 
     public boolean setJob(int jobId) {
         JobType job = JobType.getJobById((short) jobId);
@@ -2017,4 +2016,27 @@ public class MapleCharacter implements Serializable {
         return activeNickItemId;
     }
 
+    public boolean isBattleRecordOn() {
+        return battleRecordOn;
+    }
+
+    public void setBattleRecordOn(boolean battleRecordOn) {
+        this.battleRecordOn = battleRecordOn;
+    }
+
+    public Map<BaseStat, Integer> getTotalBasicStats() {
+        Map<BaseStat, Integer> stats = new HashMap<>();
+        for (BaseStat bs : BaseStat.values()) {
+            stats.put(bs, getTotalStat(bs));
+        }
+        return stats;
+    }
+
+    public DamageCalc getDamageCalc() {
+        return damageCalc;
+    }
+
+    public void setDamageCalc(DamageCalc damageCalc) {
+        this.damageCalc = damageCalc;
+    }
 }

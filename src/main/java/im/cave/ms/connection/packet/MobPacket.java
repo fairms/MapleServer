@@ -1,15 +1,19 @@
 package im.cave.ms.connection.packet;
 
+import im.cave.ms.client.character.skill.BurnedInfo;
 import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.mob.ForcedMobStat;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobSkillAttackInfo;
+import im.cave.ms.client.field.obj.mob.MobStat;
 import im.cave.ms.client.field.obj.mob.MobTemporaryStat;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.enums.RemoveMobType;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
+
+import java.util.List;
 
 
 /**
@@ -151,6 +155,42 @@ public class MobPacket {
             out.write(0); // ?
         }
 
+        return out;
+    }
+
+    public static OutPacket statReset(Mob mob, byte calcDamageStatIndex, boolean sn) {
+        return statReset(mob, calcDamageStatIndex, sn, null);
+    }
+
+
+    public static OutPacket statReset(Mob mob, byte calcDamageStatIndex, boolean sn, List<BurnedInfo> biList) {
+        OutPacket out = new OutPacket(SendOpcode.MOB_STAT_RESET);
+        MobTemporaryStat resetStats = mob.getTemporaryStat();
+        int[] mask = resetStats.getRemovedMask();
+        out.writeInt(mob.getObjectId());
+        for (int i = 0; i < mob.getTemporaryStat().getNewMask().length; i++) {
+            out.writeInt(mask[i]);
+        }
+        if (resetStats.hasRemovedMobStat(MobStat.BurnedInfo)) {
+            if (biList == null) {
+                out.writeInt(0);
+                out.writeInt(0);
+            } else {
+                int dotCount = biList.stream().mapToInt(BurnedInfo::getDotCount).sum();
+                out.writeInt(dotCount);
+                out.writeInt(biList.size());
+                for (BurnedInfo bi : biList) {
+                    out.writeInt(bi.getCharacterId());
+                    out.writeInt(bi.getSuperPos());
+                }
+            }
+            resetStats.getBurnedInfos().clear();
+        }
+        out.write(calcDamageStatIndex);
+        if (resetStats.hasRemovedMovementAffectingStat()) {
+            out.writeBool(sn);
+        }
+        resetStats.getRemovedStatVals().clear();
         return out;
     }
 }

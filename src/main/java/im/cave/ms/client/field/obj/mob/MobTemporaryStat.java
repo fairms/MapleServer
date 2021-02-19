@@ -1,10 +1,18 @@
 package im.cave.ms.client.field.obj.mob;
 
+import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.skill.BurnedInfo;
+import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.packet.MobPacket;
 import im.cave.ms.connection.server.service.EventManager;
+import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.Tuple;
+import im.cave.ms.tools.Util;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
 
 import static im.cave.ms.client.field.obj.mob.MobStat.ACC;
 import static im.cave.ms.client.field.obj.mob.MobStat.AddDamParty;
@@ -50,10 +59,13 @@ import static im.cave.ms.client.field.obj.mob.MobStat.SeperateSoulP;
 import static im.cave.ms.client.field.obj.mob.MobStat.SoulExplosion;
 import static im.cave.ms.client.field.obj.mob.MobStat.Speed;
 import static im.cave.ms.client.field.obj.mob.MobStat.TrueSight;
+import static im.cave.ms.enums.SkillStat.dotInterval;
+import static im.cave.ms.enums.SkillStat.dotSuperpos;
+import static im.cave.ms.enums.SkillStat.dotTime;
 
 
 public class MobTemporaryStat {
-    //	private List<BurnedInfo> burnedInfos = new ArrayList<>();
+    private List<BurnedInfo> burnedInfos = new ArrayList<>();
     private Map<Tuple<Integer, Integer>, ScheduledFuture> burnCancelSchedules = new HashMap<>();
     private Map<Tuple<Integer, Integer>, ScheduledFuture> burnSchedules = new HashMap<>();
     private String linkTeam;
@@ -84,10 +96,10 @@ public class MobTemporaryStat {
 
     public MobTemporaryStat deepCopy() {
         MobTemporaryStat copy = new MobTemporaryStat(getMob());
-//		copy.setBurnedInfos(new ArrayList<>());
-//		for (BurnedInfo bi : getBurnedInfos()) {
-//			copy.getBurnedInfos().add(bi.deepCopy());
-//		}
+        copy.setBurnedInfos(new ArrayList<>());
+        for (BurnedInfo bi : getBurnedInfos()) {
+            copy.getBurnedInfos().add(bi.deepCopy());
+        }
         copy.setLinkTeam(getLinkTeam());
         copy.mobStatComparator = getMobStatComparator();
         for (MobStat ms : getCurrentStatVals().keySet()) {
@@ -267,12 +279,12 @@ public class MobTemporaryStat {
             if (hasNewMobStat(Freeze)) {
                 outPacket.writeInt(getNewOptionsByMobStat(Freeze).cOption);
             }
-//            if (hasNewMobStat(MobStat.BurnedInfo)) {
-//                outPacket.write(getBurnedInfos().size());
-//                for (BurnedInfo bi : getBurnedInfos()) {
-//                    bi.encode(outPacket);
-//                }
-//            }
+            if (hasNewMobStat(MobStat.BurnedInfo)) {
+                outPacket.write(getBurnedInfos().size());
+                for (BurnedInfo bi : getBurnedInfos()) {
+                    bi.encode(outPacket);
+                }
+            }
             if (hasNewMobStat(InvincibleBalog)) {
                 outPacket.write(getNewOptionsByMobStat(InvincibleBalog).nOption);
                 outPacket.write(getNewOptionsByMobStat(InvincibleBalog).bOption);
@@ -383,8 +395,7 @@ public class MobTemporaryStat {
     }
 
     public boolean hasBurnFromSkillAndOwner(int skillID, int ownerCID) {
-//        return getBurnBySkillAndOwner(skillID, ownerCID) != null;
-        return false;
+        return getBurnBySkillAndOwner(skillID, ownerCID) != null;
     }
 
     /**
@@ -396,15 +407,15 @@ public class MobTemporaryStat {
      *
      * @return the BurnedInfo of the burn on this MTS, or null if there is none
      */
-//    public BurnedInfo getBurnBySkillAndOwner(int skillID, int ownerCID) {
-//        BurnedInfo res = null;
-//        for (BurnedInfo bi : getBurnedInfos()) {
-//            if (bi.getSkillId() == skillID && (bi.getCharacterId() == ownerCID || ownerCID == 0)) {
-//                res = bi;
-//            }
-//        }
-//        return res; // wow no lambda for once
-//    }
+    public BurnedInfo getBurnBySkillAndOwner(int skillID, int ownerCID) {
+        BurnedInfo res = null;
+        for (BurnedInfo bi : getBurnedInfos()) {
+            if (bi.getSkillId() == skillID && (bi.getCharacterId() == ownerCID || ownerCID == 0)) {
+                res = bi;
+            }
+        }
+        return res; // wow no lambda for once
+    }
 
     public boolean hasRemovedMobStat(MobStat mobStat) {
         return getRemovedStatVals().containsKey(mobStat);
@@ -426,7 +437,7 @@ public class MobTemporaryStat {
         synchronized (currentStatVals) {
             getRemovedStatVals().put(mobStat, getCurrentStatVals().get(mobStat));
             getCurrentStatVals().remove(mobStat);
-//            getMob().getMap().broadcastMessage(MobPool.statReset(getMob(), (byte) 1, false));
+            getMob().getMap().broadcastMessage(MobPacket.statReset(getMob(), (byte) 1, false));
             getSchedules().remove(mobStat);
             if (!fromSchedule && getSchedules().containsKey(mobStat)) {
                 getSchedules().get(mobStat).cancel(true);
@@ -437,33 +448,33 @@ public class MobTemporaryStat {
         }
     }
 
-//    public void removeBurnedInfo(Char chr, boolean fromSchedule) {
-//        synchronized (burnedInfos) {
-//            int charID = chr.getId();
-//            List<BurnedInfo> biList = getBurnedInfos().stream().filter(bi -> bi.getCharacterId() == charID).collect(Collectors.toList());
-//            getBurnedInfos().removeAll(biList);
-//            getRemovedStatVals().put(MobStat.BurnedInfo, getCurrentOptionsByMobStat(MobStat.BurnedInfo));
-//            if (getBurnedInfos().size() == 0) {
-//                getCurrentStatVals().remove(MobStat.BurnedInfo);
-//            }
-//            getMob().getField().broadcastPacket(MobPool.statReset(getMob(), (byte) 1, false, biList));
-//            if (chr.isBattleRecordOn()) {
-//                for (net.swordie.ms.life.mob.skill.BurnedInfo bi : biList) {
-//                    int count = Math.min(bi.getDotCount(), (Util.getCurrentTime() - bi.getStartTime()) / bi.getInterval());
-//                    chr.write(BattleRecordMan.dotDamageInfo(bi, count));
-//                }
-//            }
-//            if (!fromSchedule) {
-//                getBurnCancelSchedules().get(charID).cancel(true);
-//                getBurnCancelSchedules().remove(charID);
-//                getBurnSchedules().get(charID).cancel(true);
-//                getBurnSchedules().remove(charID);
-//            } else {
-//                getBurnCancelSchedules().remove(charID);
-//                getBurnSchedules().remove(charID);
-//            }
-//        }
-//    }
+    public void removeBurnedInfo(MapleCharacter chr, boolean fromSchedule) {
+        synchronized (burnedInfos) {
+            int charId = chr.getId();
+            List<BurnedInfo> biList = getBurnedInfos().stream().filter(bi -> bi.getCharacterId() == charId).collect(Collectors.toList());
+            getBurnedInfos().removeAll(biList);
+            getRemovedStatVals().put(MobStat.BurnedInfo, getCurrentOptionsByMobStat(MobStat.BurnedInfo));
+            if (getBurnedInfos().size() == 0) {
+                getCurrentStatVals().remove(MobStat.BurnedInfo);
+            }
+            getMob().getMap().broadcastMessage(MobPacket.statReset(getMob(), (byte) 1, false, biList));
+            if (chr.isBattleRecordOn()) {
+                for (BurnedInfo bi : biList) {
+                    int count = Math.min(bi.getDotCount(), (Util.getCurrentTime() - bi.getStartTime()) / bi.getInterval());
+//                    chr.write(BattleRecordMan.dotDamageInfo(bi, count)); //添加dot伤害到战斗统计中
+                }
+            }
+            if (!fromSchedule) {
+                getBurnCancelSchedules().get(charId).cancel(true);
+                getBurnCancelSchedules().remove(charId);
+                getBurnSchedules().get(charId).cancel(true);
+                getBurnSchedules().remove(charId);
+            } else {
+                getBurnCancelSchedules().remove(charId);
+                getBurnSchedules().remove(charId);
+            }
+        }
+    }
 
     /**
      * Adds a new MobStat to this MobTemporaryStat. Will immediately broadcast the reaction to all
@@ -474,10 +485,10 @@ public class MobTemporaryStat {
      * @param mobStat The MobStat to add.
      * @param option  The Option that contains the values of the stat.
      */
-//    public void addStatOptionsAndBroadcast(MobStat mobStat, Option option) {
-//        addStatOptions(mobStat, option);
-//        mob.getField().broadcastPacket(MobPool.statSet(getMob(), (short) 0));
-//    }
+    public void addStatOptionsAndBroadcast(MobStat mobStat, Option option) {
+        addStatOptions(mobStat, option);
+        mob.getMap().broadcastMessage(MobPacket.statSet(getMob(), (short) 0));
+    }
 
     /**
      * Adds a new MobStat to this MobTemporary stat. Will immediately broadcast the reaction to all
@@ -490,7 +501,7 @@ public class MobTemporaryStat {
      */
     public void addMobSkillOptionsAndBroadCast(MobStat mobStat, Option o) {
         o.rOption |= o.slv << 16; // mob skills are encoded differently: not an int, but short (skill ID), then short (slv).
-//        addStatOptionsAndBroadcast(mobStat, o);
+        addStatOptionsAndBroadcast(mobStat, o);
     }
 
     public void addStatOptions(MobStat mobStat, Option option) {
@@ -509,13 +520,13 @@ public class MobTemporaryStat {
     }
 
 
-//    public List<BurnedInfo> getBurnedInfos() {
-//        return burnedInfos;
-//    }
+    public List<BurnedInfo> getBurnedInfos() {
+        return burnedInfos;
+    }
 
-//    public void setBurnedInfos(List<BurnedInfo> burnedInfos) {
-//        this.burnedInfos = burnedInfos;
-//    }
+    public void setBurnedInfos(List<BurnedInfo> burnedInfos) {
+        this.burnedInfos = burnedInfos;
+    }
 
     public Comparator getMobStatComparator() {
         return mobStatComparator;
@@ -572,49 +583,49 @@ public class MobTemporaryStat {
         getCurrentStatVals().forEach((ms, o) -> removeMobStat(ms, false));
     }
 
-//    public void createAndAddBurnedInfo(Char chr, Skill skill) {
-//        int charId = chr.getId();
-//        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-//        int slv = skill.getCurrentLevel();
-//        Tuple<Integer, Integer> timerKey = new Tuple<>(charId, skill.getSkillId());
-//        BurnedInfo bi = getBurnBySkillAndOwner(skill.getSkillId(), chr.getId());
-//        int time = si.getValue(dotTime, slv) * 1000;
-//        if (bi == null) {
-//            // create a new burnedinfo, as one didn't exist yet (taking skill + charid combination as key)
-//            bi = new BurnedInfo();
-//            bi.setCharacterId(charId);
-//            bi.setChr(chr);
-//            bi.setSkillId(skill.getSkillId());
-//            bi.setDamage((int) chr.getDamageCalc().calcPDamageForPvM(skill.getSkillId(), (byte) skill.getCurrentLevel()));
-//            bi.setInterval(si.getValue(dotInterval, slv) * 1000);
-//            bi.setDotCount(time / bi.getInterval());
-//            bi.setSuperPos(si.getValue(dotSuperpos, slv));
-//            bi.setAttackDelay(0);
-//            bi.setDotTickIdx(0);
-//            bi.setDotTickDamR(0); //damage added for every tick
-//            bi.setDotAnimation(bi.getAttackDelay() + bi.getInterval() + time);
-//            synchronized (burnedInfos) {
-//                getBurnedInfos().add(bi);
-//            }
-//        } else {
-//            // extend the timer if it does exist
-//            getBurnCancelSchedules().get(timerKey).cancel(true);
-//            getBurnSchedules().get(timerKey).cancel(true);
-//        }
-//        long damage = bi.getDamage();
-//        bi.setStartTime(Util.getCurrentTime());
-//        bi.setLastUpdate(Util.getCurrentTime());
-//        bi.setEnd((int) (System.currentTimeMillis() + time));
-//        Option o = new Option();
-//        o.nOption = 0;
-//        o.rOption = skill.getSkillId();
-//        addStatOptionsAndBroadcast(MobStat.BurnedInfo, o);
-//        ScheduledFuture sf = EventManager.addEvent(() -> removeBurnedInfo(chr, true), time);
-//        ScheduledFuture burn = EventManager.addFixedRateEvent(
-//                () -> getMob().damage(chr, damage), bi.getAttackDelay() + bi.getInterval(), bi.getInterval(), bi.getDotCount());
-//        getBurnCancelSchedules().put(timerKey, sf);
-//        getBurnSchedules().put(timerKey, burn);
-//    }
+    public void createAndAddBurnedInfo(MapleCharacter chr, Skill skill) {
+        int charId = chr.getId();
+        SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
+        int slv = skill.getCurrentLevel();
+        Tuple<Integer, Integer> timerKey = new Tuple<>(charId, skill.getSkillId());
+        BurnedInfo bi = getBurnBySkillAndOwner(skill.getSkillId(), chr.getId());
+        int time = si.getValue(dotTime, slv) * 1000;
+        if (bi == null) {
+            // create a new burned info, as one didn't exist yet (taking skill + char id combination as key)
+            bi = new BurnedInfo();
+            bi.setCharacterId(charId);
+            bi.setChr(chr);
+            bi.setSkillId(skill.getSkillId());
+            bi.setDamage((int) chr.getDamageCalc().calcPDamageForPvM(skill.getSkillId(), (byte) skill.getCurrentLevel()));
+            bi.setInterval(si.getValue(dotInterval, slv) * 1000);
+            bi.setDotCount(time / bi.getInterval());
+            bi.setSuperPos(si.getValue(dotSuperpos, slv));
+            bi.setAttackDelay(0);
+            bi.setDotTickIdx(0);
+            bi.setDotTickDamR(0); //damage added for every tick
+            bi.setDotAnimation(bi.getAttackDelay() + bi.getInterval() + time);
+            synchronized (burnedInfos) {
+                getBurnedInfos().add(bi);
+            }
+        } else {
+            // extend the timer if it does exist
+            getBurnCancelSchedules().get(timerKey).cancel(true);
+            getBurnSchedules().get(timerKey).cancel(true);
+        }
+        long damage = bi.getDamage();
+        bi.setStartTime(Util.getCurrentTime());
+        bi.setLastUpdate(Util.getCurrentTime());
+        bi.setEnd((int) (System.currentTimeMillis() + time));
+        Option o = new Option();
+        o.nOption = 0;
+        o.rOption = skill.getSkillId();
+        addStatOptionsAndBroadcast(MobStat.BurnedInfo, o);
+        ScheduledFuture sf = EventManager.addEvent(() -> removeBurnedInfo(chr, true), time);
+        ScheduledFuture burn = EventManager.addFixedRateEvent(
+                () -> getMob().damage(chr, damage), bi.getAttackDelay() + bi.getInterval(), bi.getInterval(), bi.getDotCount());
+        getBurnCancelSchedules().put(timerKey, sf);
+        getBurnSchedules().put(timerKey, burn);
+    }
 
     public Map<Tuple<Integer, Integer>, ScheduledFuture> getBurnCancelSchedules() {
         return burnCancelSchedules;
@@ -639,13 +650,13 @@ public class MobTemporaryStat {
         if (hasCurrentMobStat(EVA) && getCurrentOptionsByMobStat(EVA).nOption > 0) {
             removeMobStat(EVA, false);
         }
-//        getMob().getField().broadcastPacket(MobPool.statReset(getMob(), (byte) 0, false));
+        getMob().getMap().broadcastMessage(MobPacket.statReset(getMob(), (byte) 0, false));
     }
 
     public void removeEverything() {
         Set<MobStat> mobStats = new HashSet<>(getCurrentStatVals().keySet());
         mobStats.stream().filter(ms -> ms != MobStat.BurnedInfo).forEach(ms -> removeMobStat(ms, false));
-//        Set<BurnedInfo> burnedInfos = new HashSet<>(getBurnedInfos());
-//        burnedInfos.forEach(bi -> removeBurnedInfo(bi.getChr(), false));
+        Set<BurnedInfo> burnedInfos = new HashSet<>(getBurnedInfos());
+        burnedInfos.forEach(bi -> removeBurnedInfo(bi.getChr(), false));
     }
 }

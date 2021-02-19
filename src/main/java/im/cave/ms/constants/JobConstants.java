@@ -210,6 +210,10 @@ public class JobConstants {
         return id == JobType.SUPER_GM.getJob();
     }
 
+    public static byte getJobDefaultGender(short job) {
+        return 0;
+    }
+
     public enum LoginJob {
         RESISTANCE(0, JobFlag.DISABLED, JobType.CITIZEN),
         EXPLORER(1, JobFlag.ENABLED, JobType.BEGINNER, 4000010),

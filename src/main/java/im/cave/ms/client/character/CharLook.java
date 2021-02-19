@@ -110,11 +110,13 @@ public class CharLook {
         totems = new LinkedHashMap<>();
     }
 
-    //todo
+    //fallback
     public static CharLook defaultLook(short job) {
         CharLook charLook = new CharLook();
-        charLook.setHair(23333);
-        charLook.setFace(30000);
+        byte gender = JobConstants.getJobDefaultGender(job);
+        charLook.setGender(gender);
+        charLook.setHair(gender == 0 ? 35180 : 38430);
+        charLook.setFace(gender == 0 ? 20038 : 21036);
         return charLook;
     }
 

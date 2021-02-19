@@ -523,11 +523,10 @@ public abstract class MapleJob {
             sp *= 2; // double sp on levels ending in 3/6/9
         }
 
-        if (level >= 10) {
+        if (level >= 10 && sp != 0) {
             chr.addSpToJobByCurrentLevel(sp);
             stats.put(Stat.AVAILABLESP, (long) 1);
         }
-
 
         //todo 需要去偷一下 ...
 //        byte linkSkillLevel = (byte) SkillConstants.getLinkSkillLevelByMapleCharacterLevel(level);
@@ -554,7 +553,10 @@ public abstract class MapleJob {
         chr.heal(chr.getMaxHP());
         chr.healMP(chr.getMaxMP());
 
+        //特殊等级处理
         switch (level) {
+            case 10:
+                break;
             case 30:
                 chr.getPotentialMan().addPotential(new CharacterPotential((byte) 0, 7000000, (byte) 1, (byte) 1));
                 break;
