@@ -50,7 +50,6 @@ public class QuestActionManager extends NpcConversationManager {
         forceCompleteQuest();
     }
 
-
     @Override
     public String getScript() {
         return script;

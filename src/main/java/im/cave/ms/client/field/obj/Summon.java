@@ -2,10 +2,14 @@ package im.cave.ms.client.field.obj;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.job.adventurer.Beginner;
 import im.cave.ms.client.character.job.adventurer.Warrior;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.field.Effect;
 import im.cave.ms.connection.packet.SummonPacket;
+import im.cave.ms.connection.packet.UserPacket;
+import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.enums.AssistType;
 import im.cave.ms.enums.EnterType;
 import im.cave.ms.enums.MoveAbility;
@@ -301,6 +305,11 @@ public class Summon extends MapleMapObj {
             case Warrior.KNIGHT_HEX_OF_THE_EVIL_EYE:
                 ((Warrior) chr.getJobHandler()).giveHexOfTheEvilEyeBuffs();
                 break;
+            case Beginner.ARES_BLESSING:
+                chr.getJobHandler().giveAresBlessing();
+                break;
         }
+        chr.announce(UserPacket.effect(Effect.skillAffected(skillId, slv, 0)));
+        chr.getMap().broadcastMessage(chr, UserRemote.effect(chr.getId(), Effect.skillAffected(skillId, slv, 0)));
     }
 }

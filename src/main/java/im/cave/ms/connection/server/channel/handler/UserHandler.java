@@ -1290,4 +1290,11 @@ public class UserHandler {
             }
         }
     }
+
+    public static void handleUserStatChangeItemCancelRequest(InPacket in, MapleClient c) {
+        int itemId = in.readInt();
+        MapleCharacter chr = c.getPlayer();
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        tsm.removeStatsBySkill(itemId);
+    }
 }

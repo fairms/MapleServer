@@ -144,13 +144,15 @@ public class BurnedInfo {
         out.writeLong(getDamage());
         out.writeInt(getInterval());
         out.writeInt(getEnd());
-        out.writeInt(getDotAnimation());
+        out.writeInt(getDotAnimation()); //6000?
         out.writeInt(getDotCount());
-        out.writeInt(getSuperPos());
+        out.writeInt(getSuperPos()); //1
         out.writeInt(getAttackDelay());
         out.writeInt(getDotTickIdx());
         out.writeInt(getDotTickDamR());
         out.writeInt(getLastUpdate());
+        out.writeInt(300);
+        out.writeInt(30);
         out.writeInt(getStartTime());
     }
 

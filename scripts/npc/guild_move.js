@@ -1,3 +1,9 @@
+/*
+    @npc:
+    @map:
+    @desc:
+ */
+
 const map = 200000301;
 
 function start() {

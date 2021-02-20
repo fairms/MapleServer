@@ -151,6 +151,7 @@ public class MobPacket {
         mts.encode(out);
         out.writeShort(delay);
         out.write(1); // nCalcDamageStatIndex
+        out.write(0);
         if (hasMovementStat) {
             out.write(0); // ?
         }

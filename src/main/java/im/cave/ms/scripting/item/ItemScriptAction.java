@@ -52,12 +52,9 @@ public class ItemScriptAction extends AbstractPlayerInteraction {
         c.getPlayer().consumeItem(itemId, 1);
     }
 
-
-    public void addHonerPoint() {
-        if (itemId == 2431174) {
-            c.getPlayer().addHonerPoint(Randomizer.rand(20, 120));
-            c.getPlayer().announce(UserPacket.inventoryRefresh(true));
-        }
+    public void addHonerPoint(int amount) {
+        c.getPlayer().addHonerPoint(amount);
+        c.getPlayer().announce(UserPacket.inventoryRefresh(true));
     }
 
     public int getNpcId() {

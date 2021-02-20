@@ -136,12 +136,11 @@ public class ForcedMobStat {
         out.writeInt(Util.maxInt(getExp()));
         out.writeInt(getPad());
         out.writeInt(getMad());
-        out.writeInt(getPdr());
+        out.writeInt(getPdr()); //防御%
         out.writeInt(getMdr());
         out.writeInt(getAcc());
         out.writeInt(getEva());
         out.writeLong(getPushed());
-//        out.writeInt(getSpeed() > 0 ? -getSpeed() : getSpeed());
         out.writeInt(getLevel());
         out.writeInt(getUserCount());
         out.write(1);

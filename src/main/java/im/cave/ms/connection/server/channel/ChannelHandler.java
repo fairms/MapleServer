@@ -154,6 +154,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_STAT_CHANGE_ITEM_USE_REQUEST:
                 InventoryHandler.handleUseItem(in, c);
                 break;
+            case USER_STAT_CHANGE_ITEM_CANCEL_REQUEST:
+                UserHandler.handleUserStatChangeItemCancelRequest(in, c);
+                break;
             case USER_PET_FOOD_ITEM_USE_REQUEST:
                 PetHandler.handleUserPetFoodItemUseRequest(in, c);
                 break;

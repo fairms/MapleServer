@@ -40,11 +40,11 @@ public class Test {
 //        System.out.println(DateUtil.FT_OFFSET);
 //        long timestamp = DateUtil.getTimestamp(132571759860000000L);
 //        System.out.println(DateUtil.getTimeFromTimestamp(timestamp));
-        //        try {
-//            scriptTest();
-//        } catch (FileNotFoundException | ScriptException | NoSuchMethodException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            scriptTest();
+        } catch (FileNotFoundException | ScriptException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
     }
 
 

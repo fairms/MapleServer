@@ -120,11 +120,11 @@ public class MobTemporaryStat {
         return getRemovedStatVals().getOrDefault(mobStat, null);
     }
 
-    public void encode(OutPacket outPacket) {
+    public void encode(OutPacket out) {
         synchronized (currentStatVals) {
             int[] mask = getNewMask();
             for (int j : mask) {
-                outPacket.writeInt(j);
+                out.writeInt(j);
             }
 
             for (Map.Entry<MobStat, Option> entry : getNewStatVals().entrySet()) {
@@ -171,6 +171,7 @@ public class MobTemporaryStat {
                     case Fatality:
                     case Lifting:
                     case DeadlyCharge:
+                    case LucidNightmare:
                     case Smite:
                     case AddDamSkill:
                     case Incizing:
@@ -206,153 +207,154 @@ public class MobTemporaryStat {
                     case Invincible:
                     case Explosion:
                     case HangOver:
-                        outPacket.writeInt(getNewOptionsByMobStat(mobStat).nOption);
-                        outPacket.writeInt(getNewOptionsByMobStat(mobStat).rOption);
-                        outPacket.writeShort(getNewOptionsByMobStat(mobStat).tOption / 500);
+                        out.writeInt(getNewOptionsByMobStat(mobStat).nOption);
+                        out.writeInt(getNewOptionsByMobStat(mobStat).rOption);
+                        out.writeShort(getNewOptionsByMobStat(mobStat).tOption / 500);
                 }
             }
             if (hasNewMobStat(PDR)) {
-                outPacket.writeInt(getNewOptionsByMobStat(PDR).cOption);
+                out.writeInt(getNewOptionsByMobStat(PDR).cOption);
             }
             if (hasNewMobStat(MDR)) {
-                outPacket.writeInt(getNewOptionsByMobStat(MDR).cOption);
+                out.writeInt(getNewOptionsByMobStat(MDR).cOption);
             }
             if (hasNewMobStat(PCounter)) {
-                outPacket.writeInt(getNewOptionsByMobStat(PCounter).wOption);
+                out.writeInt(getNewOptionsByMobStat(PCounter).wOption);
             }
             if (hasNewMobStat(MCounter)) {
-                outPacket.writeInt(getNewOptionsByMobStat(MCounter).wOption);
+                out.writeInt(getNewOptionsByMobStat(MCounter).wOption);
             }
             if (hasNewMobStat(PCounter)) {
-                outPacket.writeInt(getNewOptionsByMobStat(PCounter).mOption); // nCounterProb
-                outPacket.write(getNewOptionsByMobStat(PCounter).bOption); // bCounterDelay
-                outPacket.writeInt(getNewOptionsByMobStat(PCounter).nReason); // nAggroRank
+                out.writeInt(getNewOptionsByMobStat(PCounter).mOption); // nCounterProb
+                out.write(getNewOptionsByMobStat(PCounter).bOption); // bCounterDelay
+                out.writeInt(getNewOptionsByMobStat(PCounter).nReason); // nAggroRank
             } else if (hasNewMobStat(MCounter)) {
-                outPacket.writeInt(getNewOptionsByMobStat(MCounter).mOption); // nCounterProb
-                outPacket.write(getNewOptionsByMobStat(MCounter).bOption); // bCounterDelay
-                outPacket.writeInt(getNewOptionsByMobStat(MCounter).nReason); // nAggroRank
+                out.writeInt(getNewOptionsByMobStat(MCounter).mOption); // nCounterProb
+                out.write(getNewOptionsByMobStat(MCounter).bOption); // bCounterDelay
+                out.writeInt(getNewOptionsByMobStat(MCounter).nReason); // nAggroRank
             }
             if (hasNewMobStat(Fatality)) {
-                outPacket.writeInt(getNewOptionsByMobStat(Fatality).wOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Fatality).uOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Fatality).pOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Fatality).yOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Fatality).mOption);
+                out.writeInt(getNewOptionsByMobStat(Fatality).wOption);
+                out.writeInt(getNewOptionsByMobStat(Fatality).uOption);
+                out.writeInt(getNewOptionsByMobStat(Fatality).pOption);
+                out.writeInt(getNewOptionsByMobStat(Fatality).yOption);
+                out.writeInt(getNewOptionsByMobStat(Fatality).mOption);
             }
             if (hasNewMobStat(Explosion)) {
-                outPacket.writeInt(getNewOptionsByMobStat(Explosion).wOption);
+                out.writeInt(getNewOptionsByMobStat(Explosion).wOption);
             }
             if (hasNewMobStat(ExtraBuffStat)) {
                 List<Option> values = getNewOptionsByMobStat(ExtraBuffStat).extraOpts;
-                outPacket.writeBool(values.size() > 0);
+                out.writeBool(values.size() > 0);
                 if (values.size() > 0) {
-                    outPacket.writeInt(getNewOptionsByMobStat(ExtraBuffStat).extraOpts.get(0).nOption); // nPAD
-                    outPacket.writeInt(getNewOptionsByMobStat(ExtraBuffStat).extraOpts.get(0).mOption); // nMAD
-                    outPacket.writeInt(getNewOptionsByMobStat(ExtraBuffStat).extraOpts.get(0).xOption); // nPDR
-                    outPacket.writeInt(getNewOptionsByMobStat(ExtraBuffStat).extraOpts.get(0).yOption); // nMDR
+                    out.writeInt(getNewOptionsByMobStat(ExtraBuffStat).extraOpts.get(0).nOption); // nPAD
+                    out.writeInt(getNewOptionsByMobStat(ExtraBuffStat).extraOpts.get(0).mOption); // nMAD
+                    out.writeInt(getNewOptionsByMobStat(ExtraBuffStat).extraOpts.get(0).xOption); // nPDR
+                    out.writeInt(getNewOptionsByMobStat(ExtraBuffStat).extraOpts.get(0).yOption); // nMDR
                 }
             }
             if (hasNewMobStat(DeadlyCharge)) {
-                outPacket.writeInt(getNewOptionsByMobStat(DeadlyCharge).pOption);
-                outPacket.writeInt(getNewOptionsByMobStat(DeadlyCharge).pOption);
+                out.writeInt(getNewOptionsByMobStat(DeadlyCharge).pOption);
+                out.writeInt(getNewOptionsByMobStat(DeadlyCharge).pOption);
             }
             if (hasNewMobStat(Incizing)) {
-                outPacket.writeInt(getNewOptionsByMobStat(Incizing).wOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Incizing).uOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Incizing).pOption);
+                out.writeInt(getNewOptionsByMobStat(Incizing).wOption);
+                out.writeInt(getNewOptionsByMobStat(Incizing).uOption);
+                out.writeInt(getNewOptionsByMobStat(Incizing).pOption);
             }
             if (hasNewMobStat(Speed)) {
-                outPacket.write(getNewOptionsByMobStat(Speed).mOption);
+                out.write(getNewOptionsByMobStat(Speed).mOption);
             }
             if (hasNewMobStat(BMageDebuff)) {
-                outPacket.writeInt(getNewOptionsByMobStat(BMageDebuff).cOption);
+                out.writeInt(getNewOptionsByMobStat(BMageDebuff).cOption);
             }
             if (hasNewMobStat(DarkLightning)) {
-                outPacket.writeInt(getNewOptionsByMobStat(DarkLightning).cOption);
+                out.writeInt(getNewOptionsByMobStat(DarkLightning).cOption);
             }
             if (hasNewMobStat(BattlePvPHelenaMark)) {
-                outPacket.writeInt(getNewOptionsByMobStat(BattlePvPHelenaMark).cOption);
+                out.writeInt(getNewOptionsByMobStat(BattlePvPHelenaMark).cOption);
             }
             if (hasNewMobStat(MultiPMDR)) {
-                outPacket.writeInt(getNewOptionsByMobStat(MultiPMDR).cOption);
+                out.writeInt(getNewOptionsByMobStat(MultiPMDR).cOption);
             }
             if (hasNewMobStat(Freeze)) {
-                outPacket.writeInt(getNewOptionsByMobStat(Freeze).cOption);
+                out.writeInt(getNewOptionsByMobStat(Freeze).cOption);
             }
             if (hasNewMobStat(MobStat.BurnedInfo)) {
-                outPacket.write(getBurnedInfos().size());
+                out.write(getBurnedInfos().size());
                 for (BurnedInfo bi : getBurnedInfos()) {
-                    bi.encode(outPacket);
+                    out.writeInt(0);
+                    bi.encode(out);
                 }
             }
             if (hasNewMobStat(InvincibleBalog)) {
-                outPacket.write(getNewOptionsByMobStat(InvincibleBalog).nOption);
-                outPacket.write(getNewOptionsByMobStat(InvincibleBalog).bOption);
+                out.write(getNewOptionsByMobStat(InvincibleBalog).nOption);
+                out.write(getNewOptionsByMobStat(InvincibleBalog).bOption);
             }
             if (hasNewMobStat(ExchangeAttack)) {
-                outPacket.write(getNewOptionsByMobStat(ExchangeAttack).bOption);
+                out.write(getNewOptionsByMobStat(ExchangeAttack).bOption);
             }
             if (hasNewMobStat(AddDamParty)) {
-                outPacket.writeInt(getNewOptionsByMobStat(AddDamParty).wOption);
-                outPacket.writeInt(getNewOptionsByMobStat(AddDamParty).pOption);
-                outPacket.writeInt(getNewOptionsByMobStat(AddDamParty).cOption);
+                out.writeInt(getNewOptionsByMobStat(AddDamParty).wOption);
+                out.writeInt(getNewOptionsByMobStat(AddDamParty).pOption);
+                out.writeInt(getNewOptionsByMobStat(AddDamParty).cOption);
             }
             if (hasNewMobStat(LinkTeam)) {
-                outPacket.writeMapleAsciiString(getLinkTeam());
+                out.writeMapleAsciiString(getLinkTeam());
             }
             if (hasNewMobStat(SoulExplosion)) {
-                outPacket.writeInt(getNewOptionsByMobStat(SoulExplosion).nOption);
-                outPacket.writeInt(getNewOptionsByMobStat(SoulExplosion).rOption);
-                outPacket.writeInt(getNewOptionsByMobStat(SoulExplosion).wOption);
+                out.writeInt(getNewOptionsByMobStat(SoulExplosion).nOption);
+                out.writeInt(getNewOptionsByMobStat(SoulExplosion).rOption);
+                out.writeInt(getNewOptionsByMobStat(SoulExplosion).wOption);
             }
             if (hasNewMobStat(SeperateSoulP)) {
-                outPacket.writeInt(getNewOptionsByMobStat(SeperateSoulP).nOption);
-                outPacket.writeInt(getNewOptionsByMobStat(SeperateSoulP).rOption);
-                outPacket.writeShort(getNewOptionsByMobStat(SeperateSoulP).tOption / 500);
-                outPacket.writeInt(getNewOptionsByMobStat(SeperateSoulP).wOption);
-                outPacket.writeInt(getNewOptionsByMobStat(SeperateSoulP).uOption);
+                out.writeInt(getNewOptionsByMobStat(SeperateSoulP).nOption);
+                out.writeInt(getNewOptionsByMobStat(SeperateSoulP).rOption);
+                out.writeShort(getNewOptionsByMobStat(SeperateSoulP).tOption / 500);
+                out.writeInt(getNewOptionsByMobStat(SeperateSoulP).wOption);
+                out.writeInt(getNewOptionsByMobStat(SeperateSoulP).uOption);
             }
             if (hasNewMobStat(SeperateSoulC)) {
-                outPacket.writeInt(getNewOptionsByMobStat(SeperateSoulC).nOption);
-                outPacket.writeInt(getNewOptionsByMobStat(SeperateSoulC).rOption);
-                outPacket.writeShort(getNewOptionsByMobStat(SeperateSoulC).tOption / 500);
-                outPacket.writeInt(getNewOptionsByMobStat(SeperateSoulC).wOption);
+                out.writeInt(getNewOptionsByMobStat(SeperateSoulC).nOption);
+                out.writeInt(getNewOptionsByMobStat(SeperateSoulC).rOption);
+                out.writeShort(getNewOptionsByMobStat(SeperateSoulC).tOption / 500);
+                out.writeInt(getNewOptionsByMobStat(SeperateSoulC).wOption);
             }
             if (hasNewMobStat(Ember)) {
-                outPacket.writeInt(getNewOptionsByMobStat(Ember).nOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Ember).rOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Ember).wOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Ember).tOption / 500);
-                outPacket.writeInt(getNewOptionsByMobStat(Ember).uOption);
+                out.writeInt(getNewOptionsByMobStat(Ember).nOption);
+                out.writeInt(getNewOptionsByMobStat(Ember).rOption);
+                out.writeInt(getNewOptionsByMobStat(Ember).wOption);
+                out.writeInt(getNewOptionsByMobStat(Ember).tOption / 500);
+                out.writeInt(getNewOptionsByMobStat(Ember).uOption);
             }
             if (hasNewMobStat(TrueSight)) {
-                outPacket.writeInt(getNewOptionsByMobStat(TrueSight).nOption);
-                outPacket.writeInt(getNewOptionsByMobStat(TrueSight).rOption);
-                outPacket.writeInt(getNewOptionsByMobStat(TrueSight).tOption / 500);
-                outPacket.writeInt(getNewOptionsByMobStat(TrueSight).cOption);
-                outPacket.writeInt(getNewOptionsByMobStat(TrueSight).pOption);
-                outPacket.writeInt(getNewOptionsByMobStat(TrueSight).uOption);
-                outPacket.writeInt(getNewOptionsByMobStat(TrueSight).wOption);
+                out.writeInt(getNewOptionsByMobStat(TrueSight).nOption);
+                out.writeInt(getNewOptionsByMobStat(TrueSight).rOption);
+                out.writeInt(getNewOptionsByMobStat(TrueSight).tOption / 500);
+                out.writeInt(getNewOptionsByMobStat(TrueSight).cOption);
+                out.writeInt(getNewOptionsByMobStat(TrueSight).pOption);
+                out.writeInt(getNewOptionsByMobStat(TrueSight).uOption);
+                out.writeInt(getNewOptionsByMobStat(TrueSight).wOption);
             }
             if (hasNewMobStat(MultiDamSkill)) {
-                outPacket.writeInt(getNewOptionsByMobStat(MultiDamSkill).cOption);
+                out.writeInt(getNewOptionsByMobStat(MultiDamSkill).cOption);
             }
             if (hasNewMobStat(Laser)) {
-                outPacket.writeInt(getNewOptionsByMobStat(Laser).nOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Laser).rOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Laser).tOption / 500);
-                outPacket.writeInt(getNewOptionsByMobStat(Laser).wOption);
-                outPacket.writeInt(getNewOptionsByMobStat(Laser).uOption);
+                out.writeInt(getNewOptionsByMobStat(Laser).nOption);
+                out.writeInt(getNewOptionsByMobStat(Laser).rOption);
+                out.writeInt(getNewOptionsByMobStat(Laser).tOption / 500);
+                out.writeInt(getNewOptionsByMobStat(Laser).wOption);
+                out.writeInt(getNewOptionsByMobStat(Laser).uOption);
             }
             if (hasNewMobStat(ElementResetBySummon)) {
-                outPacket.writeInt(getNewOptionsByMobStat(ElementResetBySummon).cOption);
-                outPacket.writeInt(getNewOptionsByMobStat(ElementResetBySummon).pOption);
-                outPacket.writeInt(getNewOptionsByMobStat(ElementResetBySummon).uOption);
-                outPacket.writeInt(getNewOptionsByMobStat(ElementResetBySummon).wOption);
+                out.writeInt(getNewOptionsByMobStat(ElementResetBySummon).cOption);
+                out.writeInt(getNewOptionsByMobStat(ElementResetBySummon).pOption);
+                out.writeInt(getNewOptionsByMobStat(ElementResetBySummon).uOption);
+                out.writeInt(getNewOptionsByMobStat(ElementResetBySummon).wOption);
             }
             if (hasNewMobStat(BahamutLightElemAddDam)) {
-                outPacket.writeInt(getNewOptionsByMobStat(BahamutLightElemAddDam).pOption);
-                outPacket.writeInt(getNewOptionsByMobStat(BahamutLightElemAddDam).cOption);
+                out.writeInt(getNewOptionsByMobStat(BahamutLightElemAddDam).pOption);
+                out.writeInt(getNewOptionsByMobStat(BahamutLightElemAddDam).cOption);
             }
             getNewStatVals().clear();
         }
@@ -363,9 +365,9 @@ public class MobTemporaryStat {
         for (MobStat mobStat : map.keySet()) {
             res[mobStat.getPos()] |= mobStat.getVal();
         }
-        OutPacket outPacket = new OutPacket();
+        OutPacket out = new OutPacket();
         for (int re : res) {
-            outPacket.writeInt(re);
+            out.writeInt(re);
         }
         return res;
     }

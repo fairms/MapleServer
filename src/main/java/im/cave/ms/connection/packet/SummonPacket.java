@@ -27,7 +27,7 @@ public class SummonPacket {
         out.write(summon.getMoveAbility().getVal()); // 1
         out.write(summon.getAssistType().getVal());  // 2
         out.write(summon.getEnterType().getVal());  // 1
-        out.writeInt(summon.getObjectId()); // 00 00 00 00
+        out.writeInt(0); // 00 00 00 00
         out.writeBool(summon.isFlyMob()); // 0
         out.writeBool(summon.isBeforeFirstAttack()); //0
         out.writeInt(summon.getTemplateId()); // 00 00 00 00
@@ -36,7 +36,8 @@ public class SummonPacket {
         out.writeBool(summon.isJaguarActive());
         out.writeInt(summon.getSummonTerm());
         out.writeBool(summon.isAttackActive());
-        out.writeZeroBytes(13);
+        out.writeBool(true);
+        out.writeZeroBytes(12);
         return out;
 
     }

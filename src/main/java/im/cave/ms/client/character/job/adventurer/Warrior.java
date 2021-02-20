@@ -344,17 +344,16 @@ public class Warrior extends Beginner {
                         oo.nOption = -si.getValue(x, slv); // minus?
                         oo.rOption = skill.getSkillId();
                         oo.tOption = si.getValue(time, slv);
-                        mts.addStatOptions(MobStat.ACC, oo);
+                        mts.addStatOptions(MobStat.Blind, oo);
                     }
                     c.write(MobPacket.statSet(mob, (short) 0));
                 }
                 break;
             case HERO_SHOUT:
-                if (hasHitMobs) {
-                    removeCombo(chr, 1);
-                }
+                removeCombo(chr, 1);
                 break;
             case HERO_PUNCTURE:
+                removeCombo(chr, 1);
                 for (MobAttackInfo mobAttackInfo : attackInfo.mobAttackInfo) {
                     int objectId = mobAttackInfo.objectId;
                     MapleMap map = chr.getMap();
@@ -363,17 +362,14 @@ public class Warrior extends Beginner {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    o.nOption = si.getValue(z, slv);
-                    o.rOption = skill.getSkillId();
-                    o.tOption = 0;
+                    o.nOption = si.getValue(y, slv);
+                    o.rOption = skillId;
+                    o.tOption = si.getValue(time, slv);
                     mts.addStatOptions(MobStat.AddDamParty, o);
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         mts.createAndAddBurnedInfo(chr, skill);
                     }
                     c.write(MobPacket.statSet(mob, (short) 0));
-                }
-                if (hasHitMobs) {
-                    removeCombo(chr, 1);
                 }
                 break;
             case PALADIN_FLAME_CHARGE:
@@ -479,7 +475,7 @@ public class Warrior extends Beginner {
                 tsm.putCharacterStatValue(ComboCounter, o);
                 break;
             case HERO_ENRAGE:
-                o.nOption = 1;
+                o.nOption = 2501; //todo 可能是Mask
                 o.rOption = skillId;
                 tsm.putCharacterStatValue(Enrage, o);
                 oo.nOption = si.getValue(y, slv);
@@ -751,8 +747,6 @@ public class Warrior extends Beginner {
             chr.heal(healHp);
             chr.announce(UserPacket.effect(Effect.hpRecovery(healHp)));
             chr.getMap().broadcastMessage(SummonPacket.summonedSkill(evilEye, skill.getSkillId()));
-            chr.announce(UserPacket.effect(Effect.skillAffected(KNIGHT_EVIL_EYE, slv, 0)));
-            chr.getMap().broadcastMessage(chr, UserRemote.effect(chr.getId(), Effect.skillAffected(KNIGHT_EVIL_EYE, slv, 0)));
         }
     }
 

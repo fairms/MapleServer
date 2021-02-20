@@ -6,7 +6,9 @@ import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.skill.AttackInfo;
+import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.field.Effect;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.server.service.EventManager;
@@ -23,6 +25,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static im.cave.ms.constants.ItemConstants.ARES_BLESSING_RING;
 
 public abstract class MapleJob {
     protected MapleCharacter chr;
@@ -59,6 +63,7 @@ public abstract class MapleJob {
     public static final int DEVIL_SYLPH_2 = 80001726;
     public static final int ANGEL_SYLPH_2 = 80001727;
 
+    public static final int ARES_BLESSING = 80000086;//战神的祝福
     public static final int WHITE_ANGELIC_BLESSING = 80000155;
     public static final int WHITE_ANGELIC_BLESSING_2 = 80001154;
     public static final int LIGHTNING_GOD_RING = 80001262;
@@ -573,4 +578,21 @@ public abstract class MapleJob {
         return Arrays.stream(buffs).anyMatch(b -> b == skillId);
     }
 
+    public void giveAresBlessing() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (tsm.hasStatBySkillId(-ARES_BLESSING_RING)) {
+            tsm.removeStatsBySkill(-ARES_BLESSING_RING);
+        }
+        SkillInfo si = SkillData.getSkillInfo(ARES_BLESSING);
+        Option o = new Option();
+        Option oo = new Option();
+        o.nOption = si.getValue(SkillStat.indiePad, 1);
+        o.rOption = -ARES_BLESSING_RING;
+        o.tOption = si.getValue(SkillStat.time, 1);
+        tsm.putCharacterStatValue(CharacterTemporaryStat.PAD, o);
+        o.nOption = si.getValue(SkillStat.indieMad, 1);
+        o.rOption = -ARES_BLESSING_RING;
+        o.tOption = si.getValue(SkillStat.time, 1);
+        tsm.putCharacterStatValue(CharacterTemporaryStat.MAD, o);
+    }
 }

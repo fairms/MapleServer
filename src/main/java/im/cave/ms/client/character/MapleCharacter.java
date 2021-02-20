@@ -13,6 +13,7 @@ import im.cave.ms.client.character.items.PotionPot;
 import im.cave.ms.client.character.items.WishedItem;
 import im.cave.ms.client.character.job.JobManager;
 import im.cave.ms.client.character.job.MapleJob;
+import im.cave.ms.client.character.job.adventurer.Beginner;
 import im.cave.ms.client.character.job.adventurer.Warrior;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
@@ -26,6 +27,7 @@ import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Pet;
+import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
@@ -65,6 +67,7 @@ import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
+import im.cave.ms.enums.MoveAbility;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.enums.SpecStat;
 import im.cave.ms.enums.MessageType;
@@ -734,6 +737,10 @@ public class MapleCharacter implements Serializable {
                 }
                 setAndroid(android);
             }
+        }
+        if (item.getItemId() == ItemConstants.ARES_BLESSING_RING) {
+            Summon summon = Summon.getSummonBy(this, Beginner.ARES_BLESSING, (byte) 1);
+            getMap().spawnSummon(summon);
         }
         return true;
     }

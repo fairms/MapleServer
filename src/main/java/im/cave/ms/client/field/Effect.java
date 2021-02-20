@@ -2,6 +2,7 @@ package im.cave.ms.client.field;
 
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.job.adventurer.Beginner;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.UserRemote;
@@ -78,9 +79,9 @@ public class Effect {
                 int skillID = getArg1();
                 out.writeInt(getArg1()); // skill id
                 out.write(getArg2()); // slv
-//                if (skillID == Demon.RAVEN_STORM || skillID == Shade.DEATH_MARK) {
-//                    out.writeInt(getArg3()); // nDelta
-//                }
+                if (skillID == Beginner.ARES_BLESSING) {
+                    out.writeLong(0);
+                }
                 break;
             case SkillAffected_Select:
                 out.writeInt(getArg1());

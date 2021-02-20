@@ -8,7 +8,7 @@ function enter(pm) {
         pm.warp(returnMap, sp);
         return true;
     } else {
-        pm.warp(100000000, 0);//回射手咯
+        pm.warp(100000000, 0);
         pm.getChar().enableAction();
         return false;
     }
