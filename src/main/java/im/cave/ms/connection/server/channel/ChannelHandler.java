@@ -1,6 +1,7 @@
 package im.cave.ms.connection.server.channel;
 
 import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
@@ -201,6 +202,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_ITEM_OPTION_UPGRADE_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserItemOptionUpgradeItemUseRequest(in, c);
                 break;
+            case USER_ITEM_SKILL_SOCKET_UPGRADE_ITEM_USE_REQUEST:
+                InventoryHandler.handleUserItemSkillSocketUpgradeItemUseRequest(in, c);
+                break;
             case USER_ITEM_SKILL_OPTION_UPGRADE_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserItemSkillOptionUpgradeItemUseRequest(in, c);
                 break;
@@ -228,6 +232,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case EXPRESS_REQUEST:
                 WorldHandler.handleMapleExpressRequest(in, c);
+                break;
+            case TELEPORT_SKILL:
+                UserHandler.handleUserTeleportSkillRequest(in, c);
                 break;
             case AUCTION:
                 WorldHandler.handleAuctionRequest(in, c);
@@ -274,7 +281,10 @@ public class ChannelHandler extends AbstractServerHandler {
                 }
                 break;
             case USER_SKILL_CANCEL_REQUEST:
-                UserHandler.handleCancelBuff(in, c);
+                UserHandler.handleUserSkillCancel(in, c);
+                break;
+            case USER_SKILL_PREPARE_REQUEST:
+                UserHandler.handleUserSkillPrepareRequest(in, c);
                 break;
             case USER_ADD_FAME_REQUEST:
                 UserHandler.handleUserAddFameRequest(in, c);
@@ -375,6 +385,10 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case CHECK_TRICK_OR_TREAT_REQUEST:
                 WorldHandler.handleCheckTrickOrTreatRequest(in, c);
+                break;
+            case HOWLING_GALE_PREPARE:
+                //todo 呼啸风暴
+//                ((Beginner) c.getPlayer().getJobHandler()).handleHowlingGalePrepare();
                 break;
             case ANDROID_SHOP_REQUEST:
                 UserHandler.handleAndroidShopRequest(in, c);

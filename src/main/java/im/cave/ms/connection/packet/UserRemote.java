@@ -379,9 +379,21 @@ public class UserRemote {
 
     public static OutPacket showItemSkillSocketUpgradeEffect(int charId, boolean success) {
         OutPacket out = new OutPacket(SendOpcode.SHOW_ITEM_SKILL_SOCKET_UPGRADE_EFFECT);
+
         out.writeInt(charId);
         out.writeBool(success);
-        out.write(0);
+        out.write(0); //boom
+
+        return out;
+    }
+
+    public static OutPacket showItemSkillOptionUpgradeEffect(int charId, boolean success, boolean boom) {
+        OutPacket out = new OutPacket(SendOpcode.SHOW_ITEM_SKILL_OPTION_UPGRADE_EFFECT);
+
+        out.writeInt(charId);
+        out.writeBool(success);
+        out.writeBool(boom);
+
         return out;
     }
 }

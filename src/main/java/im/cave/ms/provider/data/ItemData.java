@@ -22,12 +22,14 @@ import im.cave.ms.provider.info.FamiliarInfo;
 import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.provider.info.ItemRewardInfo;
 import im.cave.ms.provider.info.PetInfo;
+import im.cave.ms.provider.info.SkillOption;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataDirectoryEntry;
 import im.cave.ms.provider.wz.MapleDataFileEntry;
 import im.cave.ms.provider.wz.MapleDataProvider;
 import im.cave.ms.provider.wz.MapleDataProviderFactory;
 import im.cave.ms.provider.wz.MapleDataTool;
+import im.cave.ms.tools.Pair;
 import im.cave.ms.tools.StringUtil;
 import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
@@ -103,7 +105,9 @@ public class ItemData {
     private static final Map<Integer, Integer> snLookUp = new HashMap<>();
     private static final Map<Integer, AndroidInfo> androids = new HashMap<>();
     private static final Map<Integer, PetInfo> pets = new HashMap<>();
+    private static final Map<Integer, SkillOption> skillOptions = new HashMap<>();
 
+    // ***，一堆**
     public static void init() {
         loadStartItems();
         loadItemOptions();
@@ -112,6 +116,27 @@ public class ItemData {
         loadCashShopItems();
         loadAndroidsInfo();
         loadPetsInfo();
+        loadSkillOptions();
+    }
+
+    public static void loadSkillOptions() {
+        MapleData skillOptionData = itemData.getData("SkillOption.img");
+        for (MapleData skillOptionInfo : skillOptionData.getChildByPath("skill").getChildren()) {
+            String id = skillOptionInfo.getName();
+            SkillOption skillOption = new SkillOption();
+            skillOption.setId(Integer.parseInt(id));
+            skillOption.setSkillId(MapleDataTool.getInt("skillId", skillOptionInfo, 0));
+            skillOption.setReqLevel(MapleDataTool.getInt("reqLevel", skillOptionInfo, 0));
+            MapleData tempOption = skillOptionInfo.getChildByPath("tempOption");
+            if (tempOption == null) {
+                continue;
+            }
+            for (MapleData mapleData : tempOption.getChildren()) {
+                skillOption.addTempOption(new Pair<>(MapleDataTool.getInt("id", mapleData, 0)
+                        , MapleDataTool.getInt("prob", mapleData, 0)));
+            }
+            skillOptions.put(Integer.valueOf(id), skillOption);
+        }
     }
 
     private static void loadCashShopItems() {
@@ -1643,5 +1668,9 @@ public class ItemData {
 
     private static PetInfo getPetInfo(int itemId) {
         return pets.getOrDefault(itemId, null);
+    }
+
+    public static SkillOption getSkillOptionByOptionId(int optionId) {
+        return skillOptions.get(optionId);
     }
 }

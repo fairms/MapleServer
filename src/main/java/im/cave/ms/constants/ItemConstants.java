@@ -17,6 +17,8 @@ import im.cave.ms.enums.ScrollStat;
 import im.cave.ms.enums.SpellTraceScrollType;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.info.ItemInfo;
+import im.cave.ms.provider.info.SkillOption;
+import im.cave.ms.tools.Pair;
 import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -1542,31 +1545,13 @@ public class ItemConstants {
         return itemID / 1000 == 2591;
     }
 
-    public static short getSoulOptionFromSoul(int itemId) {
-        short id = 0;
-        switch (itemId) {
-
-        }
-        return id;
-    }
-
     public static int getRandomSoulOption() {
         return Util.getRandomFromCollection(soulPotList);
     }
 
     public static int getSoulSkillFromSoulID(int soulID) {
-        switch (soulID) {
-            case 256:
-            case 257:
-            case 258:
-            case 259:
-            case 260:
-            case 261:
-            case 262:
-            case 263:
-                return 80001340; // Advance of Magnus
-        }
-        return 0;
+        SkillOption skillOption = ItemData.getSkillOptionByOptionId(soulID);
+        return skillOption.getSkillId();
     }
 
     public static boolean isMobCard(int itemID) {
@@ -1854,5 +1839,10 @@ public class ItemConstants {
         return consumableDropsPerLevel.getOrDefault(level, new HashSet<>());
     }
 
+    public static short getSoulOptionFromSoul(short soulOptionId) {
+        SkillOption skillOption = ItemData.getSkillOptionByOptionId(soulOptionId);
+        List<Pair<Integer, Integer>> tempOptions = skillOption.getTempOptions();
+        return Util.randomPick(tempOptions).shortValue();
+    }
 }
 

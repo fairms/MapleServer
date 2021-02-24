@@ -64,6 +64,7 @@ import im.cave.ms.provider.info.AndroidInfo;
 import im.cave.ms.provider.info.CashItemInfo;
 import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.DateUtil;
+import im.cave.ms.tools.Pair;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Util;
@@ -519,10 +520,16 @@ public class UserHandler {
         }
     }
 
-    public static void handleCancelBuff(InPacket in, MapleClient c) {
+    //取消技能
+    public static void handleUserSkillCancel(InPacket in, MapleClient c) {
         int skillId = in.readInt();
-        in.readByte();
         MapleCharacter player = c.getPlayer();
+        Pair<Integer, Integer> prepareSkill = player.getPrepareSkill();
+        if (prepareSkill != null && skillId == prepareSkill.getLeft()) {
+            player.setSkillCooltime(skillId, prepareSkill.getRight());
+            return;
+        }
+        in.readByte();
         TemporaryStatManager tsm = player.getTemporaryStatManager();
         tsm.removeStatsBySkill(skillId);
     }
@@ -1274,6 +1281,7 @@ public class UserHandler {
         Skill skill = chr.getSkill(skillId);
         int slv = skill == null ? 0 : skill.getCurrentLevel();
         if (slv == 0) {
+            chr.chatMessage(ChatType.GameDesc, "无法使用技能");
             return;
         } else {
             boolean success = true;
@@ -1298,4 +1306,25 @@ public class UserHandler {
         tsm.removeStatsBySkill(itemId);
     }
 
+    //todo
+    public static void handleUserSkillPrepareRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        int skillId = in.readInt();
+        int slv = in.readInt();
+        in.readByte();
+        in.readInt();
+        in.readInt();
+        int tick = in.readInt();
+        if (!player.hasSkill(skillId)) {
+            return;
+        }
+        player.setPrepareSkill(skillId, skillId);
+    }
+
+    public static void handleUserTeleportSkillRequest(InPacket in, MapleClient c) {
+        int skillId = in.readInt();
+        short slv = in.readShort();
+        Position from = in.readPositionInt();
+        Position to = in.readPositionInt();
+    }
 }

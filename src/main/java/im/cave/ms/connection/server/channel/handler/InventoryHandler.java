@@ -821,7 +821,7 @@ public class InventoryHandler {
         player.announce(potionPot.showPotionPotMsg(2, 0));
     }
 
-    public static void handleUserItemSkillOptionUpgradeItemUseRequest(InPacket in, MapleClient c) {
+    public static void handleUserItemSkillSocketUpgradeItemUseRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         player.setTick(in.readInt());
         short uPos = in.readShort();
@@ -841,5 +841,30 @@ public class InventoryHandler {
         }
         player.getMap().broadcastMessage(UserRemote.showItemSkillSocketUpgradeEffect(player.getId(), success));
         player.consumeItem(item);
+
+    }
+
+
+    //todo 添加技能？
+    public static void handleUserItemSkillOptionUpgradeItemUseRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        player.setTick(in.readInt());
+        short uPos = in.readShort();
+        short ePos = (short) Math.abs(in.readShort());
+        Item item = player.getConsumeInventory().getItem(uPos);
+        Equip equip = (Equip) player.getEquippedInventory().getItem(ePos);
+        if (item == null || equip == null || !ItemConstants.isWeapon(equip.getItemId()) ||
+                !ItemConstants.isSoulEnchanter(item.getItemId()) || equip.getRLevel() + equip.getIIncReq() < ItemConstants.MIN_LEVEL_FOR_SOUL_SOCKET) {
+            player.enableAction();
+            return;
+        }
+        equip.setSoulOptionId((short) (1 + item.getItemId() % ItemConstants.SOUL_ITEM_BASE_ID));
+        short option = ItemConstants.getSoulOptionFromSoul(equip.getSoulOptionId());
+        int skillId = ItemConstants.getSoulSkillFromSoulID(equip.getSoulOptionId());
+        equip.setSoulOption(option);
+        equip.updateToChar(player);
+        player.consumeItem(item);
+        player.addSkill(skillId, 1, 1);
+        player.getMap().broadcastMessage(UserRemote.showItemSkillOptionUpgradeEffect(player.getId(), true, false));
     }
 }
