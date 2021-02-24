@@ -30,8 +30,9 @@ import java.util.Set;
  * @Package im.cave.ms.connection.server.channel.handler
  * @date 1/19 19:36
  */
+//todo
 public class CashItemActuator {
-
+    //怪怪卡包
     public static void familiarPack(MapleCharacter chr) {
         Map<Integer, FamiliarInfo> familiars = ItemData.getFamiliars();
         List<Familiar> familiarList = new ArrayList<>();
@@ -45,10 +46,12 @@ public class CashItemActuator {
         chr.announce(FamiliarPacket.familiarResult(chr, (byte) 5, FamiliarPacket.revealFamiliars(familiarList), null));
     }
 
+    //理发、美容卡
     public static void avatarCoupon() {
 
     }
 
+    //兑换类/随机 道具
     public static boolean rewardItem(Item item, MapleCharacter chr) {
         ItemInfo ii = ItemData.getItemInfoById(item.getItemId());
         Set<ItemRewardInfo> itemRewardInfos = ii.getItemRewardInfos();
@@ -59,7 +62,7 @@ public class CashItemActuator {
         for (ItemRewardInfo itemRewardInfo : itemRewardInfos) {
             list.add(new Pair<>(itemRewardInfo.getProb(), itemRewardInfo));
         }
-        ItemRewardInfo itemRewardInfo = Util.random(list);
+        ItemRewardInfo itemRewardInfo = Util.randomPick(list);
         if (itemRewardInfo == null) {
             return false;
         }
@@ -84,7 +87,7 @@ public class CashItemActuator {
     }
 
 
-    //todo
+    //附加魔方
     public static boolean additionalCube(Item item, MapleCharacter chr, InPacket in) {
         short ePos = in.readShort();
         Equip equip = (Equip) chr.getEquipInventory().getItem(ePos);
@@ -95,6 +98,7 @@ public class CashItemActuator {
         return true;
     }
 
+    //附加记忆魔方
     public static boolean additionalMemorialCube(Item item, MapleCharacter chr, InPacket in) {
         short ePos = in.readShort();
         Equip equip = (Equip) chr.getEquipInventory().getItem(ePos);

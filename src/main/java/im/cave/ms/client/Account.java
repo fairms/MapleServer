@@ -24,6 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.HashMap;
@@ -79,6 +80,11 @@ public class Account {
     private MapleCharacter onlineChar;
     @Transient
     private RecordManager recordManager;
+
+    @PrePersist
+    public void doSome() {
+        records.removeIf(record -> record.getType().isTransition());
+    }
 
     public static Account createAccount(String name, String password) {
         Account acc = new Account();

@@ -485,7 +485,7 @@ public class Util {
      * @param <V> item
      * @return rand Item
      */
-    public static <K extends Number, V> V random(List<Pair<K, V>> list) {
+    public static <K extends Number, V> V randomPick(List<Pair<K, V>> list) {
         if (list == null || list.size() == 0) {
             return null;
         }

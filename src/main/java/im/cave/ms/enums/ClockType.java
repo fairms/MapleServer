@@ -13,7 +13,7 @@ public enum ClockType {
     TimerInfoEx(8),
     WithoutField(9);
 
-    private byte val;
+    private final byte val;
 
     ClockType(int val) {
         this.val = (byte) val;

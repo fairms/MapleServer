@@ -379,7 +379,6 @@ public class NpcScriptInfo {
     public void setRequireCard(int requireCard) {
         this.requireCard = requireCard;
     }
-
     public enum Param {
         NotCancellable(0x1),
         PlayerAsSpeaker(0x2),
@@ -401,7 +400,7 @@ public class NpcScriptInfo {
         FlipBoxChatAsPlayerNoEscape(0x31),
         ;
 
-        private int val;
+        private final int val;
 
         Param(int val) {
             this.val = val;

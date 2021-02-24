@@ -1297,4 +1297,5 @@ public class UserHandler {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         tsm.removeStatsBySkill(itemId);
     }
+
 }

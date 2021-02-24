@@ -4,22 +4,28 @@ package im.cave.ms.scripting;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.Record;
 import im.cave.ms.client.RecordManager;
+import im.cave.ms.client.character.Clock;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.FieldEffect;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.Portal;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.multiplayer.guilds.Guild;
-import im.cave.ms.connection.packet.MessagePacket;
+import im.cave.ms.client.multiplayer.party.Party;
+import im.cave.ms.client.multiplayer.party.PartyMember;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.ChatType;
+import im.cave.ms.enums.ClockType;
 import im.cave.ms.enums.JobType;
 import im.cave.ms.enums.RecordType;
 import im.cave.ms.scripting.npc.NpcScriptManager;
+import im.cave.ms.tools.Pair;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Set;
 
 public class AbstractPlayerInteraction {
@@ -129,10 +135,15 @@ public class AbstractPlayerInteraction {
         if (type == null) {
             throw new ScriptException("记录类型名称错误.");
         }
+        return getRecordValue(type, key);
+    }
+
+    public int getRecordValue(RecordType type, int key) {
         RecordManager recordManager = getChar().getRecordManager();
         Record record = recordManager.getRecord(type, key);
         return record != null ? record.getValue() : 0;
     }
+
 
     public void openUI() {
         MapleCharacter player = getChar();
@@ -176,5 +187,71 @@ public class AbstractPlayerInteraction {
         Guild guild = chr.getGuild();
         guild.incMaxMembers(amount);
         guild.broadcast(WorldPacket.guildResult(GuildResult.incMaxMemberNum(guild)));
+    }
+
+
+    /**
+     * @param minMembers 要求最低人数
+     * @param maxMembers 要求最大人数
+     * @param minLevel   最低等级
+     * @param maxLevel   最高等级
+     * @param sameMap    是否需要在同一地图
+     * @return 返回结果
+     */
+    public Pair<Boolean, String> partyRequireCheck(int minMembers, int maxMembers, int minLevel, int maxLevel, boolean sameMap) {
+        MapleCharacter chr = getChar();
+        Party party = chr.getParty();
+        MapleMap map = chr.getMap();
+        boolean success = true;
+        String msg = null;
+        if (party == null) {
+            success = false;
+            msg = String.format("你需要一个%d~%d人的组队,并且等级在%d~%d范围,那么请让你的队长和我对话吧!", minMembers, maxMembers, minLevel, maxLevel);
+            return new Pair<>(false, msg);
+        }
+        if (party.getPartyLeaderId() != chr.getId()) {
+            success = false;
+            msg = "请让你的队长和我对话.";
+        }
+        if (success && party.getMembers().size() < minMembers || party.getMembers().size() > maxMembers) {
+            success = false;
+            msg = String.format("你需要一个%d~%d人的组队,请检查队伍人数.", minMembers, maxMembers);
+        }
+        if (success) {
+            for (PartyMember member : party.getMembers()) {
+                if (member.getLevel() < minLevel) {
+                    success = false;
+                    msg = String.format("%s,等级不足.", member.getCharName());
+                } else if (member.getLevel() > maxLevel) {
+                    success = false;
+                    msg = String.format("%s,等级超过限制.", member.getCharName());
+                }
+            }
+        }
+        if (success && party.getOnlineMembers().size() != party.getMembers().size()) {
+            success = false;
+            msg = "你有队友不在身边,请集合后在和我对话.";
+        }
+        if (success && sameMap) {
+            for (MapleCharacter mc : party.getOnlineChar()) {
+                if (!mc.getMap().equals(map)) {
+                    success = false;
+                    msg = "你有队友不在身边,请集合后在和我对话.";
+                }
+            }
+        }
+        return new Pair<>(success, msg);
+    }
+
+    public void setClock(int seconds) {
+        Clock.startTimer(getChar(), ClockType.SecondsClock, seconds);
+    }
+
+    public void fieldEffect(FieldEffect effect) {
+        getChar().getMap().broadcastMessage(WorldPacket.fieldEffect(effect));
+    }
+
+    public void sendPQProgressInMaps(int progress, List<Integer> maps) {
+
     }
 }

@@ -466,6 +466,10 @@ public class MapleMap {
         return getPortals().stream().filter(portal -> portal.getName().equalsIgnoreCase("sp")).collect(Collectors.toList());
     }
 
+    public Portal getSpawnPortal() {
+        return Util.findWithPred(getPortals(), portal -> portal.getName().equalsIgnoreCase("sp"));
+    }
+
     public void spawnSummon(Summon summon) {
         Summon oldSummon = (Summon) getObjs().values().stream()
                 .filter(s -> s instanceof Summon &&

@@ -386,6 +386,16 @@ public class FieldEffect {
         return fieldEffect;
     }
 
+    public static FieldEffect screen(String layer) {
+        FieldEffect fieldEffect = new FieldEffect();
+        fieldEffect.setFieldEffectType(FieldEffectType.Screen);
+
+        fieldEffect.setString(layer);
+
+        return fieldEffect;
+
+    }
+
     public static FieldEffect offSpineScreenImmediate(String layer) {
         FieldEffect fieldEffect = new FieldEffect();
         fieldEffect.setFieldEffectType(FieldEffectType.OffSpineScreen);

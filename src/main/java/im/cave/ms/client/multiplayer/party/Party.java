@@ -256,7 +256,7 @@ public class Party {
         this.world = world;
     }
 
-    public MapleCharacter getapplyingChar() {
+    public MapleCharacter getApplyingChar() {
         return applyingChar;
     }
 
@@ -272,8 +272,15 @@ public class Party {
         getMaps().put(field.getId(), field);
     }
 
+    public void warp(MapleMap map) {
+        for (MapleCharacter chr : getOnlineChar()) {
+            chr.changeMap(map, 0);
+        }
+    }
+
+
     /**
-     * Clears the current Fields. Will return any MapleCharacteracter that is currently on any of the Fields to the Field's return field.
+     * Clears the current Fields. Will return any MapleCharacter that is currently on any of the Fields to the Field's return field.
      *
      * @param warpToId the field id that all MapleCharacters should be warped to
      */
@@ -307,6 +314,7 @@ public class Party {
         }
     }
 
+
     public boolean isPartyMember(MapleCharacter chr) {
         return getPartyMemberByID(chr.getId()) != null;
     }
@@ -335,7 +343,7 @@ public class Party {
      * Gets a list of party members in the same Field instance as the given MapleCharacter, excluding the given MapleCharacter.
      *
      * @param chr the given MapleCharacter
-     * @return a set of MapleCharacteracters that are in the same field as the given MapleCharacter
+     * @return a set of MapleCharacters that are in the same field as the given MapleCharacter
      */
     public Set<MapleCharacter> getPartyMembersInSameField(MapleCharacter chr) {
         return getOnlineMembers().stream()
@@ -359,6 +367,15 @@ public class Party {
                 .filter(p -> p.getTownPortal() != null)
                 .findFirst().orElse(null);
         return pm != null ? pm.getTownPortal() : new TownPortal();
+    }
+
+
+    public void giveExpInMaps(int exp, List<Integer> maps) {
+        for (MapleCharacter chr : getOnlineChar()) {
+            if (maps.contains(chr.getMapId())) {
+                chr.addExp(exp, null);
+            }
+        }
     }
 
 }

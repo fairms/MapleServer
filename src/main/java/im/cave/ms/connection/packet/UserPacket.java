@@ -27,6 +27,7 @@ import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.RecordType;
 import im.cave.ms.tools.DateUtil;
+import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Randomizer;
 
 import java.util.ArrayList;
@@ -245,27 +246,38 @@ public class UserPacket {
         return out;
     }
 
-    public static OutPacket skillCoolTimeSet(int skillId, int cdMS) {
+    public static OutPacket setSkillCoolTime(int skillId, int cdMS) {
         Map<Integer, Integer> cds = new HashMap<>();
         cds.put(skillId, cdMS);
-        return skillCoolTimeSet(cds);
+        return setSkillCoolTime(cds);
     }
 
-    public static OutPacket skillCoolTimeSet(Map<Integer, Integer> cooltimes) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SKILL_COOLTIME_SET.getValue());
+    public static OutPacket setSkillCoolTime(MapleCharacter chr) {
+        Map<Integer, Long> skillCooltimes = chr.getSkillCooltimes();
+        long now = System.currentTimeMillis();
+        HashMap<Integer, Integer> cds = new HashMap<>();
+        skillCooltimes.forEach((skillId, time) ->
+                cds.put(skillId, Math.min((int) (time - now), 0))
+        );
+        return setSkillCoolTime(cds);
+    }
+
+    public static OutPacket setSkillCoolTime(Map<Integer, Integer> cooltimes) {
+        OutPacket out = new OutPacket(SendOpcode.SKILL_COOLTIME_SET);
+
         out.writeInt(cooltimes.size());
         cooltimes.forEach((id, cooltime) -> {
             out.writeInt(id);
             out.writeInt(cooltime);
         });
+
         return out;
     }
 
     public static OutPacket skillCoolDown(int skillId) {
         HashMap<Integer, Integer> skills = new HashMap<>();
         skills.put(skillId, 0);
-        return skillCoolTimeSet(skills);
+        return setSkillCoolTime(skills);
     }
 
     public static OutPacket removeBuff(TemporaryStatManager tsm, boolean demount) {
@@ -295,6 +307,26 @@ public class UserPacket {
     public static OutPacket effect(Effect effect) {
         OutPacket out = new OutPacket(SendOpcode.EFFECT);
         effect.encode(out);
+        return out;
+    }
+
+    public static OutPacket teleport(Position position, MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.TELEPORT);
+        out.writeBool(false);// excl request
+        out.write(0);// calling type
+        /*
+        TODO: import the enum
+        enum USER_TELEPORT_CALLING_TYPE
+        {
+          TELEPORT_CALLING_TYPE_DEFAULT = 0x0,
+          TELEPORT_CALLING_TYPE_GUILD = 0x1,
+          TELEPORT_CALLING_TYPE_FLAMEWIZARD_FLAREBLINK = 0x2,
+          TELEPORT_CALLING_TYPE_BYSCRIPT = 0x3,
+        };
+         */
+        out.writeInt(chr.getId());
+        out.write(0);
+
         return out;
     }
 
@@ -475,6 +507,14 @@ public class UserPacket {
                 out.writeInt(key);
             }
         }
+        return out;
+    }
+
+    public static OutPacket progress(int progress) {
+        OutPacket out = new OutPacket(SendOpcode.PROGRESS);
+
+        out.writeInt(progress);
+
         return out;
     }
 

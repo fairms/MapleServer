@@ -107,6 +107,9 @@ public class CommandExecutor {
                 }
                 String itemId = params[1];
                 Item item = ItemData.getItemCopy(Integer.parseInt(itemId), false);
+                if (paramsSize == 2) {
+                    item.setQuantity(Integer.parseInt(params[2]));
+                }
                 Drop drop = new Drop(item.getItemId(), item);
                 MapleMap map = player.getMap();
                 Position position = player.getPosition();

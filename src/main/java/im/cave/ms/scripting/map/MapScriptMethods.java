@@ -18,7 +18,6 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         super(c);
     }
 
-
     public void setMobCapacity(int capacity) {
         c.getPlayer().getMap().setFixedMobCapacity(capacity);
     }

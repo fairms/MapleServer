@@ -16,6 +16,7 @@ import java.util.List;
  * @date 1/1 22:15
  */
 public class PetPacket {
+    //remove
     public static OutPacket petActivateChange(Pet pet, boolean active, byte removedReason) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.PET_ACTIVATED.getValue());
@@ -43,11 +44,12 @@ public class PetPacket {
     }
 
     public static OutPacket petMove(int charId, int index, MovementInfo movementInfo) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.PET_MOVE.getValue());
+        OutPacket out = new OutPacket(SendOpcode.PET_MOVE);
+
         out.writeInt(charId);
         out.writeInt(index);
         movementInfo.encode(out);
+
         return out;
     }
 

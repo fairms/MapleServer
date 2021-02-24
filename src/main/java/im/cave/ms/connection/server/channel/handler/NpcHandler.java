@@ -93,9 +93,7 @@ public class NpcHandler {
                 script = String.valueOf(npcId);
             }
         }
-        String finalScript = script;
         NpcScriptManager.getInstance().start(chr.getClient(), npcId, script);
-//        EventManager.addEvent(() -> NpcScriptManager.getInstance().start(chr.getClient(), npcId, finalScript), 0);
     }
 
     public static void handleUserScriptMessageAnswer(InPacket in, MapleClient c) {
@@ -128,7 +126,7 @@ public class NpcHandler {
             case AskMenu:
                 int select;
                 if (action == 0) {
-                    select = -1;
+                    select = -1;//没有选择
                 } else {
                     select = in.readInt();
                 }

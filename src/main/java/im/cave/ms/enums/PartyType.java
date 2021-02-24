@@ -18,16 +18,16 @@ public enum PartyType {
     PartyReq_PartySetting(13),
     PartyReq_LoadStarPlanetPoint(14),
 
-    PartyRes_LoadParty_Done(19),// v202.3
-    PartyRes_CreateNewParty_Done(20),// v202.3
-    PartyRes_CreateNewParty_AlreayJoined(21),// v202.3
-    PartyRes_CreateNewParty_Beginner(22),// v202.3
-    PartyRes_CreateNewParty_Unknown(19),
-    PartyRes_CreateNewParty_byNonBoss(20),
+    PartyRes_LoadParty_Done(18),// v202.3
+    PartyRes_CreateNewParty_Done(19),// v202.3
+    PartyRes_CreateNewParty_AlreadyJoined(20),// v202.3
+    PartyRes_CreateNewParty_Beginner(21),// v202.3
+    PartyRes_CreateNewParty_Unknown(22),
+    PartyRes_CreateNewParty_byNonBoss(23),
 
-    PartyRes_WithdrawParty_Done(25),// v202.3
-    PartyRes_WithdrawParty_NotJoined(26),// v202.3
-    PartyRes_WithdrawParty_Unknown(23),
+    PartyRes_WithdrawParty_Done(24),// v202.3
+    PartyRes_WithdrawParty_NotJoined(25),// v202.3
+    PartyRes_WithdrawParty_Unknown(26),
 
     PartyRes_JoinParty_Done(28),// v202.3
     PartyRes_JoinParty_Done2(29),// v202.3 // join msg

@@ -80,7 +80,7 @@ public class GameConstants {
     public static final int DROP_DIFF = 25;
     public static final int MIN_MONEY_MULT = 6;
     public static final int MAX_MONEY_MULT = 9;
-    public static final int MAX_DROP_CHANCE = 10000;
+    public static final int MAX_DROP_CHANCE = 1000;
     public static final int MESO_DROP_CHANCE = MAX_DROP_CHANCE / 5;
 
 

@@ -28,6 +28,7 @@ public class MapScriptManager extends AbstractScriptManager {
         super();
     }
 
+
     public void reloadScripts() {
         scripts.clear();
     }

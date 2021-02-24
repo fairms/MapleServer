@@ -27,7 +27,7 @@ public enum MobStat {
     HardSkin(23),
     Ambush(24),
     Venom(25),
-    Blind(26),//checked 致盲
+    Blind(26),// 致盲
     SealSkill(27),
 
     Dazzle(28),

@@ -67,7 +67,6 @@ import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
-import im.cave.ms.enums.MoveAbility;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.enums.SpecStat;
 import im.cave.ms.enums.MessageType;
@@ -100,6 +99,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.transaction.Transactional;
@@ -116,6 +116,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static im.cave.ms.connection.packet.UserPacket.enableActions;
 import static im.cave.ms.constants.GameConstants.DEFAULT_BUDDY_CAPACITY;
 import static im.cave.ms.constants.GameConstants.DEFAULT_CASH_INVENTORY_SLOTS;
 import static im.cave.ms.constants.GameConstants.DEFAULT_CONSUME_INVENTORY_SLOTS;
@@ -389,6 +390,11 @@ public class MapleCharacter implements Serializable {
 
     public static MapleCharacter getCharByName(String name) {
         return (MapleCharacter) DataBaseManager.getObjFromDB(MapleCharacter.class, "name", name);
+    }
+
+    @PrePersist
+    public void doSome() {
+        records.removeIf(record -> record.getType().isTransition());
     }
 
     /*
@@ -676,6 +682,9 @@ public class MapleCharacter implements Serializable {
     }
 
     public MapleMap getMap() {
+        if (map != null) {
+            return map;
+        }
         World curWorld = Server.getInstance().getWorldById(world);
         MapleChannel curChannel = curWorld.getChannel(channel);
         return curChannel.getMap(mapId);
@@ -933,7 +942,7 @@ public class MapleCharacter implements Serializable {
                 isRunOnPickUp = ii.getSpecStats().getOrDefault(SpecStat.runOnPickup, 0) != 0;
             }
             if (isConsume) {
-                announce(UserPacket.enableActions());
+                announce(enableActions());
                 return true;
             } else if (isRunOnPickUp) {
                 String script = String.valueOf(itemId);
@@ -1014,6 +1023,15 @@ public class MapleCharacter implements Serializable {
 
     private void setExp(long newExp) {
         stats.setExp(newExp);
+    }
+
+    public boolean haveItem(int itemId, int quantity) {
+        ItemInfo ii = ItemData.getItemInfoById(itemId);
+        Item item = getInventory(ii.getInvType()).getItemByItemID(ii.getItemId());
+        if (item != null) {
+            return item.getQuantity() >= quantity;
+        }
+        return false;
     }
 
     public void consumeItem(int itemId, int quantity, boolean excl) {
@@ -1110,17 +1128,19 @@ public class MapleCharacter implements Serializable {
     public void changeMap(int mapId, boolean load) {
         MapleChannel channel = Server.getInstance().getWorldById(world).getChannel(this.channel);
         MapleMap map = channel.getMap(mapId);
-        if (map != null) {
-            if (map == getMap() && !load) {
-                announce(WorldPacket.mapTransferResult(MapTransferType.AlreadyInMap, (byte) 0, null));
-                enableAction();
-                return;
-            }
-            changeMap(map, getSpawnPoint(), load);
-        } else if (!load) {
-            announce(WorldPacket.mapTransferResult(MapTransferType.TargetNotExist, (byte) 0, null));
-            announce(UserPacket.enableActions());
+        if (map == null && load) {
+            map = channel.getMap(mapId);
         }
+        if (map == null) {
+            announce(WorldPacket.mapTransferResult(MapTransferType.TargetNotExist, (byte) 0, null));
+            enableActions();
+            return;
+        } else if (map == getMap() && !load) {
+            announce(WorldPacket.mapTransferResult(MapTransferType.AlreadyInMap, (byte) 0, null));
+            enableAction();
+            return;
+        }
+        changeMap(map, map.getSpawnPortal().getId(), load);
     }
 
     public void changeMap(int mapId) {
@@ -1429,7 +1449,7 @@ public class MapleCharacter implements Serializable {
             int cdInMillis = cdInSec > 0 ? cdInSec * 1000 : si.getValue(SkillStat.cooltimeMS, slv);
             if (cdInMillis > 0) {
                 addSkillCoolTime(skillId, System.currentTimeMillis() + cdInMillis);
-                write(UserPacket.skillCoolTimeSet(skillId, cdInMillis));
+                write(UserPacket.setSkillCoolTime(skillId, cdInMillis));
             }
         }
     }
@@ -1824,7 +1844,7 @@ public class MapleCharacter implements Serializable {
     }
 
     public void enableAction() {
-        announce(UserPacket.enableActions());
+        announce(enableActions());
     }
 
 
@@ -2046,4 +2066,13 @@ public class MapleCharacter implements Serializable {
     public void setDamageCalc(DamageCalc damageCalc) {
         this.damageCalc = damageCalc;
     }
+
+
+    public void setClock(Clock clock) {
+        if (getClock() != null) {
+            getClock().stopClock();
+        }
+        this.clock = clock;
+    }
+
 }

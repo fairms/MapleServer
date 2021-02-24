@@ -51,4 +51,5 @@ public class RecordManager {
     public Record getRecord(RecordType type) {
         return Util.findWithPred(getRecords(), record -> record.getType() == type);
     }
+
 }

@@ -75,6 +75,14 @@ public class Server {
 
     public static void main(String[] args) {
         getInstance().init();
+        Runtime rt = Runtime.getRuntime();
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            try {
+                rt.exec("gsudo netsh int i add addr 1 221.231.130.70");
+            } catch (IOException ignored) {
+
+            }
+        }
     }
 
     private void initDataProvider() {

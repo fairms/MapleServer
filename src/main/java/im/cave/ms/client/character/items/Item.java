@@ -76,7 +76,6 @@ public class Item implements Serializable {
     private Android android;
     private String owner = "";
 
-
     @PostPersist
     public void initializeRelateId() {
         if (familiar != null) {

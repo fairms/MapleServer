@@ -167,7 +167,7 @@ public class PetHandler {
         player.announce(PetPacket.cashPetPickUpOnOffResult(true, on));
     }
 
-    public static void handlePetSetExceptionList(InPacket in, MapleClient c) {
+    public static void handlePetUpdateExceptionList(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         int idx = in.readInt();
         Pet pet = player.getPetByIdx(idx);

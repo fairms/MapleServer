@@ -276,4 +276,9 @@ public class Guild {
     public void incMaxMembers(int amount) {
         setMaxMembers(getMaxMembers() + amount);
     }
+
+
+    public int getLeaderId() {
+        return leaderId;
+    }
 }

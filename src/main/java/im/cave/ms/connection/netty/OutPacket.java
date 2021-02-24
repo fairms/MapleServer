@@ -24,7 +24,7 @@ public class OutPacket extends Packet {
     private static final Logger log = LoggerFactory.getLogger(OutPacket.class);
     private static final Charset ASCII = Charset.forName("GBK");
 
-    private ByteBuf byteBuf;
+    private final ByteBuf byteBuf;
     private short opcode;
 
     public OutPacket() {
@@ -178,5 +178,13 @@ public class OutPacket extends Packet {
     @Override
     public Packet clone() {
         return new OutPacket(getData());
+    }
+
+    public short getOpcode() {
+        return opcode;
+    }
+
+    public void setOpcode(short opcode) {
+        this.opcode = opcode;
     }
 }

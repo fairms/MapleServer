@@ -1,4 +1,4 @@
 function start() {
-    cm.startQeust();
+    qm.startQuest();
     qm.dispose();
 }

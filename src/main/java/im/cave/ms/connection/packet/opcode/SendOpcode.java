@@ -126,7 +126,8 @@ public enum SendOpcode {
     FIELD_MESSAGE(0x23A), //
     CLOCK(0x23F),//
     QUICKSLOT_INIT(0x24D),  //258 -B
-    nnnnn(0x252),
+    UNK252(0x252),
+    PROGRESS(0x25F),
     QUICK_MOVE(0x260),//26b - b
     //28e user_stand_up
     USER_SIT(0x28F), //29B-C
@@ -195,6 +196,7 @@ public enum SendOpcode {
     REMOTE_GUILD_NAME_CHANGED(0x357),
     REMOTE_GUILD_MARK_CHANGED(0x358),
     EFFECT(0x37C), //0x383 - 7
+    TELEPORT(0x37D),
     QUEST_RESULT(0x381),//
     PET_SKILL_CHANGED(0x383),//38A-7
     OPEN_UI(0x389),//-7 1121 服装回收

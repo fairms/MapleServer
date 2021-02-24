@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -248,7 +247,7 @@ public class ChannelHandler extends AbstractServerHandler {
             case CLOSE_RANGE_ATTACK:
             case RANGED_ATTACK:
             case MAGIC_ATTACK:
-//            case SUMMON_ATTACK:
+            case SUMMON_ATTACK:
 //            case TOUCH_MONSTER_ATTACK:
                 UserHandler.handleAttack(in, c, opcode);
                 break;
@@ -310,8 +309,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case PET_DROP_PICK_UP_REQUEST:
                 PetHandler.handlePetPickUpRequest(in, c);
                 break;
-            case PET_SET_EXCEPTION_LIST:
-                PetHandler.handlePetSetExceptionList(in, c);
+            case PET_UPDATE_EXCEPTION_LIST:
+                PetHandler.handlePetUpdateExceptionList(in, c);
                 break;
             case PET_FOOD_ITEM_USE_REQUEST:
                 PetHandler.handlePetFoodItemUse(in, c);

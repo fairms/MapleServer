@@ -181,7 +181,7 @@ public class UserRemote {
         out.write(chr.getStats().getSenseLevel());
         out.write(chr.getStats().getCharmLevel());
         out.writeLong(0);
-        out.writeBool(false); //是否有小屋
+        out.writeBool(false); //是否开启小屋系统
         //if(有小屋){
         //  out.writeInt(myHome.getId());
         //  剩余336位
@@ -226,6 +226,7 @@ public class UserRemote {
     }
 
     public static OutPacket remoteSetActivePortableChair(int charId, int chairId, int unk1, short unk2, int unk3, byte unk4) {
+        //todo [变长]
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.REMOTE_SET_ACTIVE_PORTABLE_CHAIR.getValue());
         out.writeInt(charId);

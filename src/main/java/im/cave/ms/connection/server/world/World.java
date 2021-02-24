@@ -31,7 +31,7 @@ import java.util.Set;
 public class World {
     private int id;
     private List<MapleChannel> channels = new ArrayList<>();
-    private final Map<Integer, Party> parties = new HashMap<>(); //组队
+    private final Map<Integer, Party> parties = new HashMap<>(); //组队 重启服务器会清空
     private final Map<Integer, Guild> guilds = new HashMap<>(); //家族
 
     private Integer partyCounter = 1;

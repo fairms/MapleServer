@@ -57,7 +57,7 @@ public class LoginServerHandler extends AbstractServerHandler {
                 c.announce(LoginPacket.sendStart());
                 break;
             case CLIENT_ERROR:
-                c.close();
+                log.error("Error");
                 break;
             case AFTER_CREATE_CHAR:
                 CharOperationHandler.handleAfterCreateChar(in, c);
@@ -70,6 +70,8 @@ public class LoginServerHandler extends AbstractServerHandler {
                 break;
             case CHARLIST_REQUEST:
                 CharlistRequestHandler.handlePacket(in, c);
+                break;
+            case CLIENT_LOAD_DONE:
                 break;
             case CHAR_SELECTED:
                 CharOperationHandler.handleSelectChar(in, c);

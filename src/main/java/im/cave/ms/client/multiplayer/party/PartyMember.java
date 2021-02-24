@@ -15,6 +15,7 @@ public class PartyMember {
     private int channel;
     private int mapId;
     private TownPortal townPortal;
+    private PartyQuest partyQuest;
 
     public PartyMember(MapleCharacter chr) {
         this.chr = chr;
@@ -102,6 +103,7 @@ public class PartyMember {
         this.subJob = subJob;
     }
 
+    //todo 目前只有重新登录的时候会重置 setPartyQuest
     public void updateInfoByChar(MapleCharacter chr) {
         if (chr != null) {
             setChr(chr);
@@ -112,6 +114,7 @@ public class PartyMember {
             setLevel(chr.getLevel());
             setChannel(chr.getClient().getChannelId());
             setMapId(chr.getMapId());
+            setPartyQuest(null);
         } else {
             setMapId(0);
         }
@@ -119,5 +122,13 @@ public class PartyMember {
 
     public TownPortal getTownPortal() {
         return townPortal;
+    }
+
+    public PartyQuest getPartyQuest() {
+        return partyQuest;
+    }
+
+    public void setPartyQuest(PartyQuest partyQuest) {
+        this.partyQuest = partyQuest;
     }
 }

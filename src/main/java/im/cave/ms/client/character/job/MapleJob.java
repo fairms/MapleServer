@@ -8,7 +8,7 @@ import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
-import im.cave.ms.client.field.Effect;
+import im.cave.ms.client.multiplayer.party.Party;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.server.service.EventManager;
@@ -178,7 +178,7 @@ public abstract class MapleJob {
         if (cooltime > 0) {
             //处理冷却时间减少
             chr.addSkillCoolTime(skillId, System.currentTimeMillis() + cooltime * 1000);
-            c.announce(UserPacket.skillCoolTimeSet(skillId, cooltime * 1000));
+            c.announce(UserPacket.setSkillCoolTime(skillId, cooltime * 1000));
             EventManager.addEvent(() -> c.announce(UserPacket.skillCoolDown(skillId)), cooltime, TimeUnit.SECONDS);
         }
         if (in != null && isBuff(skillId)) {

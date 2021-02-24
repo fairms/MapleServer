@@ -110,6 +110,7 @@ public class PartyResult {
                 out.writeMapleAsciiString(str);
                 break;
             case PartyRes_LoadParty_Done:
+            case PartyRes_UserMigration:
                 out.writeInt(party.getId());
                 party.encode(out);
                 break;
@@ -158,10 +159,6 @@ public class PartyResult {
                 out.write(0);// unknown
                 out.writeInt(0);// unknown
                 party.encode(out);
-                break;
-            case PartyRes_UserMigration:
-                out.writeInt(party.getId());
-//                party.encode(out);
                 break;
             case PartyRes_ChangeLevelOrJob:
                 out.writeInt(chr.getId());

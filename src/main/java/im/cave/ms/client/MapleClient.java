@@ -10,6 +10,7 @@ import im.cave.ms.connection.server.world.World;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.LoginType;
 import im.cave.ms.enums.ServerType;
+import im.cave.ms.scripting.map.MapScriptManager;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 import org.mindrot.jbcrypt.BCrypt;
@@ -240,5 +241,6 @@ public class MapleClient {
 
     public void resetScripts() {
         engines.clear();
+        MapScriptManager.getInstance().reloadScripts();
     }
 }

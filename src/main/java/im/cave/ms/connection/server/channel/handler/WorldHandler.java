@@ -408,14 +408,14 @@ public class WorldHandler {
                 mapleChannel.addPlayer(player);
                 player.setJobHandler(JobManager.getJobById(player.getJob(), player));
                 c.announce(UserPacket.updateEventNameTag()); //updateEventNameTag
+                c.announce(UserPacket.setSkillCoolTime(player));
+                //todo init guild
+
                 if (player.getHp() <= 0) {
                     player.setMapId(player.getMap().getReturnMap());
                     player.heal(50);
                 }
-                Party party = player.getMapleWorld().getPartyById(player.getPartyId());
-                if (party != null) {
-                    player.setParty(party);
-                }
+
                 player.initBaseStats();
                 player.buildQuestEx();
                 //todo 分散到之后的请求中
@@ -427,16 +427,32 @@ public class WorldHandler {
                 c.announce(UserPacket.macroSysDataInit(player));
                 c.announce(UserPacket.updateMaplePoint(player));
                 c.getAccount().buildSharedQuestEx();
+
                 c.announce(MapleSignIn.signinInit());
+
+                Party party = player.getMapleWorld().getPartyById(player.getPartyId());
+                if (party != null) {
+                    player.setParty(party);
+                    party.updatePartyMemberInfoByChr(player);
+                } else {
+                    player.setPartyId(0);
+                    //todo 这里应该发送一个空的组队消息包
+                }
+                //todo init friend
                 c.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Inbox, player.getInBox(), 0));
                 c.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Outbox, player.getOutbox(), 0));
                 c.announce(MessagePacket.broadcastMsg(Config.worldConfig.getWorldInfo(player.getWorld()).server_message, BroadcastMsgType.SLIDE));
                 c.announce(WorldPacket.onlineRewardResult(OnlineRewardResult.onlineRewardsList(player)));
+
                 player.announce(UserPacket.remainingMapTransferCoupon(player));
+
                 if (player.getExpresses().size() > 0) {
                     c.announce(WorldPacket.expressResult(ExpressResult.haveNewExpress(player.getNewExpress())));
                 }
+
                 player.initPotionPot();
+
+
                 break;
             }
             case CASHSHOP:
@@ -696,6 +712,9 @@ public class WorldHandler {
                 break;
             }
             case PartyReq_PartySetting: {
+                if (party == null) {
+                    return;
+                }
                 boolean appliable = in.readByte() != 0;
                 String name = in.readMapleAsciiString();
                 party.broadcast(WorldPacket.partyResult(PartyResult.partySetting(appliable, name)));
