@@ -23,7 +23,11 @@ public class PortalPlayerInteraction extends AbstractPlayerInteraction {
 
     public void runMapScript() {
         MapScriptManager msm = MapScriptManager.getInstance();
-        msm.runMapScript(c, "onUserEnter/" + portal.getScript(), false);
+        msm.runMapScript(c, "onUserEnter/" + portal.getScript());
+    }
+
+    public String getPortalName() {
+        return portal.getName();
     }
 
 }

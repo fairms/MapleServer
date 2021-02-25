@@ -13,6 +13,7 @@ import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
+import im.cave.ms.client.field.Portal;
 import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.connection.crypto.TripleDESCipher;
 import im.cave.ms.connection.netty.OutPacket;
@@ -310,7 +311,7 @@ public class UserPacket {
         return out;
     }
 
-    public static OutPacket teleport(Position position, MapleCharacter chr) {
+    public static OutPacket teleport(Position position, Portal portal) {
         OutPacket out = new OutPacket(SendOpcode.TELEPORT);
         out.writeBool(false);// excl request
         out.write(0);// calling type
@@ -324,7 +325,7 @@ public class UserPacket {
           TELEPORT_CALLING_TYPE_BYSCRIPT = 0x3,
         };
          */
-        out.writeInt(chr.getId());
+        out.writeInt(portal.getId());
         out.write(0);
 
         return out;

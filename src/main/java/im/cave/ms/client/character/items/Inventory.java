@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * @author fair
@@ -131,6 +132,10 @@ public class Inventory {
 
     public Item getItemByItemID(int itemId) {
         return getItems().stream().filter(item -> item.getItemId() == itemId).findFirst().orElse(null);
+    }
+
+    public int getItemQuantity(int itemId) {
+        return getItems().stream().filter(item -> item.getItemId() == itemId).mapToInt(Item::getQuantity).sum();
     }
 
     public Item getItemByItemIDAndStackable(int itemId) {

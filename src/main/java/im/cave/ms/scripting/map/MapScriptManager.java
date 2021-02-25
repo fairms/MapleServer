@@ -1,7 +1,6 @@
 package im.cave.ms.scripting.map;
 
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.scripting.AbstractScriptManager;
 
 import javax.script.Invocable;
@@ -33,16 +32,7 @@ public class MapScriptManager extends AbstractScriptManager {
         scripts.clear();
     }
 
-    public boolean runMapScript(MapleClient c, String mapScriptPath, boolean firstUser) {
-        if (firstUser) {
-            MapleCharacter player = c.getPlayer();
-            int mapId = player.getMapId();
-            if (player.hasEntered(mapScriptPath, mapId)) {
-                return false;
-            } else {
-                player.enteredScript(mapScriptPath, mapId);
-            }
-        }
+    public boolean runMapScript(MapleClient c, String mapScriptPath) {
         Invocable iv = scripts.get(mapScriptPath);
 
         if (iv != null) {
@@ -64,6 +54,7 @@ public class MapScriptManager extends AbstractScriptManager {
             iv.invokeFunction("start");
             return true;
         } catch (ScriptException | NoSuchMethodException e) {
+            log.error("{} 发生错误", mapScriptPath);
             e.printStackTrace();
         }
         return false;

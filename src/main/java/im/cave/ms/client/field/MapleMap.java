@@ -86,8 +86,8 @@ public class MapleMap {
                   2.角色
      */
     private Clock clock;
-    private List<Portal> disabledPortals; //禁用的传送门
-    private Set<FieldEffect> fieldEffects;
+    private List<Portal> disabledPortals = new ArrayList<>(); //禁用的传送门
+    private Set<FieldEffect> fieldEffects = new HashSet<>();
 
     public MapleMap(int id, int world, int channel) {
         this.id = id;
@@ -118,18 +118,24 @@ public class MapleMap {
             characters.add(chr);
             chr.setMapId(id);
             MapScriptManager msm = MapScriptManager.getInstance();
-            int charSize = characters.size();
-            if (charSize == 1) {
-                if (onFirstUserEnter.length() != 0) {
-                    msm.runMapScript(chr.getClient(), "onFirstUserEnter/" + onFirstUserEnter, true);
+            if (!isUserFirstEnter()) {
+                if (hasUserFirstEnterScript()) {
+                    chr.chatMessage("First enter script!");
+                    msm.runMapScript(chr.getClient(), "onFirstUserEnter/" + onFirstUserEnter);
+                    setUserFirstEnter(true);
                 }
             }
             if (onUserEnter.length() != 0) {
-                msm.runMapScript(chr.getClient(), "onUserEnter/" + onUserEnter, false);
+                msm.runMapScript(chr.getClient(), "onUserEnter/" + onUserEnter);
             }
             broadcastMessage(chr, WorldPacket.userEnterMap(chr), false);
         }
     }
+
+    private boolean hasUserFirstEnterScript() {
+        return getOnFirstUserEnter() != null && !getOnFirstUserEnter().equalsIgnoreCase("");
+    }
+
 
     public void sendMapObject() {
         for (MapleCharacter character : characters) {
@@ -540,5 +546,20 @@ public class MapleMap {
 
     public Npc getNpcById(int npcId) {
         return Util.findWithPred(getNpcs(), npc -> npc.getTemplateId() == npcId);
+    }
+
+    public void disablePortal(String portalName) {
+        Portal portal = getPortal(portalName);
+        disabledPortals.add(portal);
+    }
+
+    public void enablePortal(String portalName) {
+        Portal portal = getPortal(portalName);
+        disabledPortals.remove(portal);
+    }
+
+    public void addEffectAndBroadcast(FieldEffect effect) {
+        fieldEffects.add(effect);
+        broadcastMessage(WorldPacket.fieldEffect(effect));
     }
 }

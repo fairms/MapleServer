@@ -3,6 +3,8 @@ package im.cave.ms.connection.server.world;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.client.multiplayer.party.Party;
+import im.cave.ms.client.multiplayer.party.PartyMember;
+import im.cave.ms.client.multiplayer.party.PartyQuest;
 import im.cave.ms.configs.Config;
 import im.cave.ms.configs.WorldConfig;
 import im.cave.ms.connection.db.DataBaseManager;
@@ -10,6 +12,7 @@ import im.cave.ms.connection.server.AbstractServer;
 import im.cave.ms.connection.server.auction.Auction;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
 import im.cave.ms.connection.server.channel.MapleChannel;
+import im.cave.ms.enums.PartyQuestType;
 import im.cave.ms.tools.StringUtil;
 import im.cave.ms.tools.Util;
 
@@ -21,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author fair
@@ -33,6 +37,7 @@ public class World {
     private List<MapleChannel> channels = new ArrayList<>();
     private final Map<Integer, Party> parties = new HashMap<>(); //组队 重启服务器会清空
     private final Map<Integer, Guild> guilds = new HashMap<>(); //家族
+    private final Set<PartyQuest> partyQuests = new HashSet<>();
 
     private Integer partyCounter = 1;
     private CashShopServer cashShopServer; //商城
@@ -191,5 +196,24 @@ public class World {
 
     public Auction getAuction() {
         return auction;
+    }
+
+    public void addPartyQuest(PartyQuest partyQuest) {
+        partyQuests.add(partyQuest);
+    }
+
+    public boolean hasInProgress(int channel, PartyQuestType type) {
+        for (PartyQuest partyQuest : partyQuests) {
+            if (partyQuest.getChannel() == channel &&
+                    partyQuest.getType() == type) {
+                List<PartyMember> memberInProgress = partyQuest.getParty().getOnlineMembers().stream().filter(m -> m.getPartyQuest() != null).collect(Collectors.toList());
+                return memberInProgress.size() != 0;
+            }
+        }
+        return false;
+    }
+
+    public void removePQ(PartyQuest partyQuest) {
+        partyQuests.remove(partyQuest);
     }
 }

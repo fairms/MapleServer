@@ -6,11 +6,15 @@ import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.server.service.EventManager;
 import im.cave.ms.enums.ClockType;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 
 public class Clock {
+    private static final Set<Clock> clocks = new HashSet<>();
     private ClockType clockType;
     private MapleCharacter chr;
     private MapleMap map;
@@ -39,6 +43,7 @@ public class Clock {
         clock.setChr(chr);
         clock.setClockRemovalTimer(EventManager.addEvent(clock::timeout, seconds, TimeUnit.SECONDS));
         chr.setClock(clock);
+        clocks.add(clock);
     }
 
     //封包
@@ -80,6 +85,7 @@ public class Clock {
         chr.announce(Clock.cancelClock());
         clockRemovalTimer.cancel(true);
         chr.setClock(null);
+        clocks.remove(this);
     }
 
     //获取剩余时间
@@ -94,6 +100,7 @@ public class Clock {
             chr.setClock(null);
             clockRemovalTimer.cancel(true);
             chr.changeMap(map.getReturnMap());
+            clocks.remove(this);
         }
     }
 

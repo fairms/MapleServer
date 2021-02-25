@@ -81,8 +81,7 @@ public class Account {
     @Transient
     private RecordManager recordManager;
 
-    @PrePersist
-    public void doSome() {
+    public void cleanTemp() {
         records.removeIf(record -> record.getType().isTransition());
     }
 
@@ -108,6 +107,7 @@ public class Account {
     }
 
     public void save() {
+        cleanTemp();
         buildQuestExStorage();
         DataBaseManager.saveToDB(this);
     }

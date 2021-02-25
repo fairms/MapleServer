@@ -15,7 +15,7 @@ public class PartyMember {
     private int channel;
     private int mapId;
     private TownPortal townPortal;
-    private PartyQuest partyQuest;
+    private PartyQuest partyQuest; //当前进行的组队任务
 
     public PartyMember(MapleCharacter chr) {
         this.chr = chr;

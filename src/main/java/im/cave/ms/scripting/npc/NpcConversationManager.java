@@ -99,6 +99,7 @@ public class NpcConversationManager extends AbstractPlayerInteraction {
 
 
     public int sendGeneralSay(String text, NpcMessageType type) {
+        text = text.replaceAll("<<", "<");
         npcScriptInfo.setText(text);
         npcScriptInfo.setMessageType(type);
         if (text.contains("#L")) {

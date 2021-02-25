@@ -28,8 +28,9 @@ public class PortalScriptManager extends AbstractScriptManager {
     }
 
     public boolean executePortalScript(Portal portal, MapleClient client) {
+        String scriptPath = null;
         try {
-            String scriptPath = String.format("portal/%s.js", portal.getScript());
+            scriptPath = String.format("portal/%s.js", portal.getScript());
             Invocable iv = getInvocable(scriptPath, client);
             if (iv != null) {
                 return (boolean) iv.invokeFunction("enter", new PortalPlayerInteraction(client, portal));
@@ -38,7 +39,9 @@ public class PortalScriptManager extends AbstractScriptManager {
                 client.getPlayer().dropMessage("地图:" + player.getMapId() + " 传送口:" + portal.getScript());
             }
         } catch (NoSuchMethodException | ScriptException e) {
+            log.error(scriptPath);
             client.announce(MessagePacket.broadcastMsg("脚本执行错误", BroadcastMsgType.ALERT));
+            client.removeScriptEngine(scriptPath);
             client.getPlayer().enableAction();
             e.printStackTrace();
         }

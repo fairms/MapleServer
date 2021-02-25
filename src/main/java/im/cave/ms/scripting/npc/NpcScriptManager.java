@@ -49,6 +49,7 @@ public class NpcScriptManager extends AbstractScriptManager {
         } catch (Exception e) {
             e.printStackTrace();
             c.announce(MessagePacket.broadcastMsg("脚本执行错误", BroadcastMsgType.ALERT));
+            log.error(script);
             dispose(c);
         }
     }

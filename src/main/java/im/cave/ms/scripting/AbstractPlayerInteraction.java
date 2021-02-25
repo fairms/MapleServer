@@ -20,12 +20,12 @@ import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.ClockType;
 import im.cave.ms.enums.JobType;
+import im.cave.ms.enums.PartyQuestType;
 import im.cave.ms.enums.RecordType;
 import im.cave.ms.scripting.npc.NpcScriptManager;
 import im.cave.ms.tools.Pair;
 
 import java.util.Calendar;
-import java.util.List;
 import java.util.Set;
 
 public class AbstractPlayerInteraction {
@@ -84,6 +84,10 @@ public class AbstractPlayerInteraction {
 
     public void openUnityPortal() {
         c.announce(WorldPacket.unityPortal());
+    }
+
+    public void warp(MapleMap map) {
+        getChar().changeMap(map, 0);
     }
 
     public void warp(int mapId) {
@@ -243,7 +247,7 @@ public class AbstractPlayerInteraction {
         return new Pair<>(success, msg);
     }
 
-    public void setClock(int seconds) {
+    public void beginClock(int seconds) {
         Clock.startTimer(getChar(), ClockType.SecondsClock, seconds);
     }
 
@@ -251,7 +255,13 @@ public class AbstractPlayerInteraction {
         getChar().getMap().broadcastMessage(WorldPacket.fieldEffect(effect));
     }
 
-    public void sendPQProgressInMaps(int progress, List<Integer> maps) {
+    public boolean hasInProgress(PartyQuestType type) {
+        Party party = getChar().getParty();
+        int channel = party.getPartyLeader().getChannel();
+        return party.getWorld().hasInProgress(channel, type);
+    }
 
+    public void disablePortal(String portalName) {
+        getChar().getMap().disablePortal(portalName);
     }
 }

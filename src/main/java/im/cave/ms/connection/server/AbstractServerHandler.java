@@ -3,6 +3,7 @@ package im.cave.ms.connection.server;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.configs.Config;
 import im.cave.ms.connection.crypto.AESCipher;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.LoginPacket;
@@ -68,9 +69,11 @@ public abstract class AbstractServerHandler extends SimpleChannelInboundHandler<
     }
 
     protected void handleUnknown(InPacket in, short op) {
-        log.warn("Unhandled opcode {}, packet {}",
-                Integer.toHexString(op & 0xFFFF),
-                in);
+        if (Config.serverConfig.SHOW_UNKNOWN_PACKET) {
+            log.warn("Unhandled opcode {}, packet {}",
+                    Integer.toHexString(op & 0xFFFF),
+                    in);
+        }
     }
 
 }

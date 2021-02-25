@@ -1,13 +1,18 @@
 package im.cave.ms.client.multiplayer.party;
 
+import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.GameConstants;
+import im.cave.ms.enums.PartyQuestType;
 import im.cave.ms.provider.data.MapData;
 import im.cave.ms.tools.Pair;
+import im.cave.ms.tools.Util;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class Party {
     private final PartyMember[] partyMembers = new PartyMember[6];
-    private final Map<Integer, MapleMap> maps = new HashMap<>();
+    private final Map<Integer, MapleMap> maps = new HashMap<>(); //组队地图
     private int id;
     private boolean appliable;
     private String name;
@@ -30,6 +35,7 @@ public class Party {
     private World world;
     private MapleCharacter applyingChar;
     private List<Pair<MapleCharacter, Long>> invitedChars; //邀请的角色-邀请时间 防止重复邀请
+    private PartyQuest partyQuest; //当前组队进行的组队任务/BOSS
 
     public static Party createNewParty(boolean appliable, String name, World world) {
         Party party = new Party();
@@ -276,11 +282,13 @@ public class Party {
     }
 
     public void warp(MapleMap map) {
-        for (MapleCharacter chr : getOnlineChar()) {
-            chr.changeMap(map, 0);
+        for (PartyMember member : getOnlineMembers()) {
+            if (member.getPartyQuest() != null && !member.getPartyQuest().getMaps().contains(map)) {
+                member.setPartyQuest(null);
+            }
+            member.getChr().changeMap(map, 0);
         }
     }
-
 
     /**
      * Clears the current Fields. Will return any MapleCharacter that is currently on any of the Fields to the Field's return field.
@@ -404,5 +412,52 @@ public class Party {
 
     public void removeInvited(MapleCharacter player) {
         invitedChars.removeIf(ic -> ic.getLeft().equals(player));
+    }
+
+
+    public PartyQuest startPQ(PartyQuestType type) {
+        if (partyQuest != null) {
+            partyQuest.dispose();
+        }
+        PartyQuest partyQuest = new PartyQuest(type, this);
+        this.partyQuest = partyQuest;
+        for (PartyMember onlineMember : getOnlineMembers()) {
+            onlineMember.setPartyQuest(partyQuest);
+            onlineMember.getChr().cleanTemp();
+        }
+        getWorld().addPartyQuest(partyQuest);
+        return partyQuest;
+    }
+
+    public PartyQuest getPartyQuest() {
+        return partyQuest;
+    }
+
+    public void setPartyQuest(PartyQuest partyQuest) {
+        this.partyQuest = partyQuest;
+    }
+
+    public void giveExpInProgress(long amount) {
+        if (partyQuest == null) {
+            return;
+        }
+        for (PartyMember charInProgress : partyQuest.getCharInProgress()) {
+            ExpIncreaseInfo eii = new ExpIncreaseInfo();
+            eii.setLastHit(false);
+            eii.setIncEXP((int) amount);
+            eii.setOnQuest(false);
+            charInProgress.getChr().addExp(amount, eii);
+        }
+    }
+
+    public void setPQProgress(int progress) {
+        partyQuest.setProgress(progress);
+        for (PartyMember charInProgress : partyQuest.getCharInProgress()) {
+            charInProgress.getChr().announce(UserPacket.progress(progress));
+        }
+    }
+
+    public void removeMap(MapleMap map) {
+        maps.remove(map.getId(), map);
     }
 }

@@ -38,6 +38,8 @@ import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.client.multiplayer.miniroom.MiniRoom;
 import im.cave.ms.client.multiplayer.miniroom.TradeRoom;
 import im.cave.ms.client.multiplayer.party.Party;
+import im.cave.ms.client.multiplayer.party.PartyMember;
+import im.cave.ms.client.multiplayer.party.PartyQuest;
 import im.cave.ms.client.multiplayer.party.PartyResult;
 import im.cave.ms.client.quest.Quest;
 import im.cave.ms.client.quest.QuestManager;
@@ -395,8 +397,7 @@ public class MapleCharacter implements Serializable {
         return (MapleCharacter) DataBaseManager.getObjFromDB(MapleCharacter.class, "name", name);
     }
 
-    @PrePersist
-    public void doSome() {
+    public void cleanTemp() {
         records.removeIf(record -> record.getType().isTransition());
     }
 
@@ -559,6 +560,7 @@ public class MapleCharacter implements Serializable {
     }
 
     public void save() {
+        cleanTemp();
         buildQuestExStorage();
         getAccount().save();
     }
@@ -1031,31 +1033,36 @@ public class MapleCharacter implements Serializable {
     public boolean haveItem(int itemId, int quantity) {
         ItemInfo ii = ItemData.getItemInfoById(itemId);
         Item item = getInventory(ii.getInvType()).getItemByItemID(ii.getItemId());
+
         if (item != null) {
-            return item.getQuantity() >= quantity;
+            return getInventory(ii.getInvType()).getItemQuantity(ii.getItemId()) >= quantity;
         }
         return false;
+    }
+
+    public int getItemQuantity(int itemId) {
+        ItemInfo ii = ItemData.getItemInfoById(itemId);
+        return getInventory(ii.getInvType()).getItemQuantity(ii.getItemId());
     }
 
     public void consumeItem(int itemId, int quantity, boolean excl) {
         Item checkItem = ItemData.getItemCopy(itemId, false);
         Item item = getInventory(checkItem.getInvType()).getItemByItemID(itemId);
         if (item != null) {
+
             int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
+            int remain = quantity - item.getQuantity();
             item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
             consumeItem(item, excl);
+            if (remain > 0) {
+                consumeItem(itemId, remain);
+            }
         }
     }
 
 
     public void consumeItem(int itemId, int quantity) {
-        Item checkItem = ItemData.getItemCopy(itemId, false);
-        Item item = getInventory(checkItem.getInvType()).getItemByItemID(itemId);
-        if (item != null) {
-            int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
-            item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
-            consumeItem(item, true);
-        }
+        consumeItem(itemId, quantity, true);
     }
 
     public void consumeItem(Item item) {
@@ -1160,6 +1167,7 @@ public class MapleCharacter implements Serializable {
         changeMap(map, (byte) portal, false);
     }
 
+    //传送门的走这里
     public void changeMap(int mapId, byte portal) {
         MapleChannel channel = Server.getInstance().getWorldById(world).getChannel(this.channel);
         MapleMap map = channel.getMap(mapId);
@@ -1173,7 +1181,14 @@ public class MapleCharacter implements Serializable {
         }
     }
 
+    //切换地图
     private void changeMap(MapleMap map, byte portal, boolean load) {
+        if (party != null && party.getPartyQuest() != null) { //处理组队地图
+            int pMap = map.getId();
+            MapleMap temp = Util.findWithPred(party.getPartyQuest().getMaps(), m -> m.getId() == pMap);
+            if (temp != null)
+                map = temp;
+        }
         getVisibleMapObjs().clear();
         getVisibleChars().clear();
         if (getMap() != null) {
@@ -1195,12 +1210,17 @@ public class MapleCharacter implements Serializable {
         announce(WorldPacket.quickMove(map.isTown() && (map.getId() % 1000000) == 0));
         if (getParty() != null) {
             announce(WorldPacket.partyResult(PartyResult.loadParty(getParty())));
+            PartyMember partyMember = getParty().getPartyMemberByID(getId());
+            PartyQuest partyQuest = partyMember.getPartyQuest();
+            if (partyQuest != null && !partyQuest.getMaps().contains(map)) {
+                partyMember.setPartyQuest(null);
+                getClock().stopClock();
+            }
         }
         if (getClock() != null) {
             getClock().showClock();
         }
     }
-
     /*
         地图切换 结束
      */
@@ -2092,9 +2112,6 @@ public class MapleCharacter implements Serializable {
 
 
     public void setClock(Clock clock) {
-        if (getClock() != null) {
-            getClock().stopClock();
-        }
         this.clock = clock;
     }
 
@@ -2125,5 +2142,10 @@ public class MapleCharacter implements Serializable {
                 member.announce(WorldPacket.receiveHP(this));
             }
         }
+    }
+
+    public void teleport(String portalName) {
+        Portal portal = getMap().getPortal(portalName);
+        announce(UserPacket.teleport(position, portal));
     }
 }

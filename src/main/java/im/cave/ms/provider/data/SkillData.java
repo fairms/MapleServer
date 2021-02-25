@@ -242,7 +242,7 @@ public class SkillData {
                         }
                         break;
                     default:
-                        log.warn("unknown skill attr : {} of skill:{}", name, skillId);
+//                        log.warn("unknown skill attr : {} of skill:{}", name, skillId);
                 }
             }
             SkillData.skills.put(skillId, skill);
