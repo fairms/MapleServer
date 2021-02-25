@@ -116,6 +116,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.SoulMP;
 import static im.cave.ms.connection.packet.UserPacket.enableActions;
 import static im.cave.ms.constants.GameConstants.DEFAULT_BUDDY_CAPACITY;
 import static im.cave.ms.constants.GameConstants.DEFAULT_CASH_INVENTORY_SLOTS;
@@ -373,6 +374,8 @@ public class MapleCharacter implements Serializable {
     private boolean battleRecordOn; //是否开启战斗分析
     @Transient
     private DamageCalc damageCalc;
+    @Transient
+    private Pair<Integer, Integer> prepareSkill; //按压技能 skillId,skillLevel
 
     public MapleCharacter() {
         temporaryStatManager = new TemporaryStatManager(this);
@@ -1090,6 +1093,9 @@ public class MapleCharacter implements Serializable {
             setStat(Stat.MP, newMP);
             stats.put(Stat.MP, (long) newMP);
         }
+        if (getParty() != null) {
+            updatePartyHpBar();
+        }
         announce(UserPacket.updatePlayerStats(stats, this));
     }
 
@@ -1140,6 +1146,9 @@ public class MapleCharacter implements Serializable {
             enableAction();
             return;
         }
+        if (load) {
+            initSoulMP();
+        }
         changeMap(map, map.getSpawnPortal().getId(), load);
     }
 
@@ -1186,6 +1195,9 @@ public class MapleCharacter implements Serializable {
         announce(WorldPacket.quickMove(map.isTown() && (map.getId() % 1000000) == 0));
         if (getParty() != null) {
             announce(WorldPacket.partyResult(PartyResult.loadParty(getParty())));
+        }
+        if (getClock() != null) {
+            getClock().showClock();
         }
     }
 
@@ -1255,9 +1267,20 @@ public class MapleCharacter implements Serializable {
         }
     }
 
-    public void addSkill(int linkSkillID, byte linkSkillLevel, int i) {
-
+    public void addSkill(int skillId, int currentLevel, int masterLevel) {
+        Skill skill = SkillData.getSkill(skillId);
+        if (skill == null) {
+            log.error("No such skill found.");
+            return;
+        }
+        skill.setCurrentLevel(currentLevel);
+        skill.setMasterLevel(masterLevel);
+        List<Skill> list = new ArrayList<>();
+        list.add(skill);
+        addSkill(skill);
+        announce(UserPacket.changeSkillRecordResult(list, true, false, false, false));
     }
+
 
     public void addToBaseStatCache(Skill skill) {
         SkillInfo si = SkillData.getSkillInfo(skill.getSkillId());
@@ -2075,4 +2098,32 @@ public class MapleCharacter implements Serializable {
         this.clock = clock;
     }
 
+    public void setPrepareSkill(int skill, int slv) {
+        this.prepareSkill = new Pair<>(skill, slv);
+    }
+
+    public Pair<Integer, Integer> getPrepareSkill() {
+        return prepareSkill;
+    }
+
+    public void initSoulMP() {
+        Equip weapon = getEquippedEquip(BodyPart.Weapon);
+        TemporaryStatManager tsm = getTemporaryStatManager();
+        if (weapon != null && weapon.getSoulSocketId() != 0 && !tsm.hasStat(SoulMP)) {
+            Option o = new Option();
+            o.rOption = ItemConstants.getSoulSkillFromSoulID(weapon.getSoulOptionId());
+            o.tOption = Integer.MAX_VALUE;
+            o.xOption = ItemConstants.MAX_SOUL_CAPACITY;
+            tsm.putCharacterStatValue(SoulMP, o);
+            tsm.sendSetStatPacket();
+        }
+    }
+
+    public void updatePartyHpBar() {
+        for (MapleCharacter member : getParty().getOnlineChar()) {
+            if (member.getMap().equals(getMap())) {
+                member.announce(WorldPacket.receiveHP(this));
+            }
+        }
+    }
 }

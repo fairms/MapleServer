@@ -7,6 +7,7 @@ import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.provider.data.MapData;
+import im.cave.ms.tools.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +29,7 @@ public class Party {
     private int partyLeaderId;
     private World world;
     private MapleCharacter applyingChar;
+    private List<Pair<MapleCharacter, Long>> invitedChars; //邀请的角色-邀请时间 防止重复邀请
 
     public static Party createNewParty(boolean appliable, String name, World world) {
         Party party = new Party();
@@ -149,10 +151,10 @@ public class Party {
                 != partyLeaderId) {
             broadcast(WorldPacket.partyResult(PartyResult.joinParty(this, chr.getName())));
         }
-        updateHp();
+        updateAllMembersHp();
     }
 
-    private void updateHp() {
+    public void updateAllMembersHp() {
         List<MapleCharacter> onlineChar = getOnlineChar();
         for (MapleCharacter chr : onlineChar) {
             Set<MapleCharacter> membersInSameField = getPartyMembersInSameField(chr);
@@ -186,6 +188,7 @@ public class Party {
         Arrays.fill(getPartyMembers(), null);
         getWorld().removeParty(this);
         setWorld(null);
+        setInvitedChars(null);
     }
 
     public List<MapleCharacter> getOnlineChar() {
@@ -378,4 +381,28 @@ public class Party {
         }
     }
 
+    public void addInvitedChar(MapleCharacter chr) {
+        invitedChars.add(new Pair<>(chr, System.currentTimeMillis()));
+    }
+
+    public void setInvitedChars(List<Pair<MapleCharacter, Long>> invitedChars) {
+        this.invitedChars = invitedChars;
+    }
+
+    public List<Pair<MapleCharacter, Long>> getInvitedChars() {
+        return invitedChars;
+    }
+
+    public boolean hasInvited(MapleCharacter chr) {
+        for (Pair<MapleCharacter, Long> invitedChar : invitedChars) {
+            if (invitedChar.getLeft().equals(chr) && System.currentTimeMillis() - invitedChar.getRight() < 30000) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void removeInvited(MapleCharacter player) {
+        invitedChars.removeIf(ic -> ic.getLeft().equals(player));
+    }
 }

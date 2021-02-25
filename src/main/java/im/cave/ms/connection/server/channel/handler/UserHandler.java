@@ -133,6 +133,9 @@ public class UserHandler {
         player.setStat(Stat.HP, newHp);
         stats.put(Stat.HP, (long) newHp);
         c.announce(UserPacket.updatePlayerStats(stats, player));
+        if (player.getParty() != null) {
+            player.updatePartyHpBar();
+        }
         player.getMap().broadcastMessage(player, UserRemote.hit(player, hitInfo), false);
 
     }

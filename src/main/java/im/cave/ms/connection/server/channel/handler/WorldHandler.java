@@ -693,14 +693,18 @@ public class WorldHandler {
                     party.broadcast(WorldPacket.partyResult(PartyResult.createNewParty(party)));
                 }
                 String name = in.readMapleAsciiString();
-                MapleCharacter chr = Server.getInstance().findCharByName(name, player.getWorld());
-                if (chr == null) {
+                MapleCharacter other = Server.getInstance().findCharByName(name, player.getWorld());
+                if (other == null) {
                     player.chatMessage("Can't find this player");
                     player.enableAction();
                     return;
                 }
-                chr.announce(WorldPacket.partyResult(PartyResult.inviteIntrusion(party, player)));
-                party.broadcast(WorldPacket.partyResult(PartyResult.inviteSent(name)));
+                if (party.hasInvited(other)) {
+                    player.announce(MessagePacket.broadcastMsg(String.format("已向'%s'玩家发送过邀请，请耐心等待。", other.getName()), BroadcastMsgType.EVENT));
+                } else {
+                    other.announce(WorldPacket.partyResult(PartyResult.inviteIntrusion(party, player)));
+                    player.announce(WorldPacket.partyResult(PartyResult.inviteSent(name)));
+                }
                 break;
             }
             case PartyReq_KickParty: {
@@ -732,14 +736,19 @@ public class WorldHandler {
         }
         switch (type) {
             case PartyRes_InviteParty_Sent: { //收到组队邀请
-                in.readInt(); //party ID
+                int partyId = in.readInt(); //party ID
+                party = player.getMapleWorld().getPartyById(partyId);
+                if (party != null) {
+                    party.addInvitedChar(player);
+                }
                 break;
             }
             case PartyRes_InviteParty_Rejected: { //拒绝组队邀请
                 int partyId = in.readInt();
                 party = player.getMapleWorld().getPartyById(partyId);
-                if (party != null) {
+                if (party != null) { //队长才能邀请人是吧
                     party.getPartyLeader().getChr().chatMessage(String.format("'%s'玩家拒绝了组队招待.", player.getName()));
+                    party.removeInvited(player);
                 }
                 break;
             }
@@ -748,6 +757,7 @@ public class WorldHandler {
                 party = player.getMapleWorld().getPartyById(partyId);
                 if (party != null) {
                     party.addPartyMember(player);
+                    party.removeInvited(player);
                 }
                 break;
             }
