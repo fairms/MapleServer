@@ -64,6 +64,8 @@ public class ItemConstants {
     public static final short MIN_LEVEL_FOR_SOUL_SOCKET = 75;
     public static final int SOUL_ENCHANTER_BASE_ID = 2590000;
     public static final int SOUL_ITEM_BASE_ID = 2591000;
+    public static final int SOUL_CRYSTAL = 4001536;
+    public static final int SOUL_SKILL_PREPARED = 250;
     public static final int MAX_SOUL_CAPACITY = 1000;
     public static final int MOB_DEATH_SOUL_MP_COUNT = 150;
     public static final int MOB_CARD_BASE_ID = 2380000;

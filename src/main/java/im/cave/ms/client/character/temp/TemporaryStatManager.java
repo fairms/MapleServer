@@ -2,13 +2,16 @@ package im.cave.ms.client.character.temp;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
+import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.server.service.EventManager;
 import im.cave.ms.constants.GameConstants;
+import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.BaseStat;
+import im.cave.ms.enums.BodyPart;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.TSIndex;
 import im.cave.ms.provider.data.SkillData;
@@ -33,11 +36,13 @@ import java.util.stream.Collectors;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.CombatOrders;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ComboCounter;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ElementalCharge;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.FullSoulMP;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOver;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOverR;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.LifeTidal;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicle;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicleExpire;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.SoulMP;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Speed;
 
 
@@ -311,6 +316,11 @@ public class TemporaryStatManager {
                 out.writeInt(o.tOption);
             }
         }
+        if (hasNewStat(SoulMP)) {
+            out.writeInt(getOption(SoulMP).xOption);
+            out.writeInt(getOption(SoulMP).rOption);
+        }
+
         out.writeZeroBytes(9);
         if (hasNewStat(ElementalCharge)) {
             out.write(getOption(ElementalCharge).mOption);
@@ -324,7 +334,12 @@ public class TemporaryStatManager {
             out.writeInt(getOption(ComboCounter).bOption);
         }
         encodeIndieTempStat(out);
-
+        if (hasNewStat(SoulMP) || hasNewStat(FullSoulMP)) {
+            //暂时处理
+            out.writeZeroBytes(13);
+            getNewStats().clear();
+            return;
+        }
         out.write(1);
         out.write(1);
         out.write(1);
@@ -742,23 +757,22 @@ public class TemporaryStatManager {
     }
 
     public void addSoulMPFromMobDeath() {
-//        if (hasStat(SoulMP)) {
-//            Option o = getOption(SoulMP);
-//            o.nOption = Math.min(ItemConstants.MAX_SOUL_CAPACITY, o.nOption + ItemConstants.MOB_DEATH_SOUL_MP_COUNT);
-//            putCharacterStatValue(SoulMP, o);
-//            if (o.nOption >= ItemConstants.MAX_SOUL_CAPACITY && !hasStat(FullSoulMP)) {
-//                Option o2 = new Option();
-//                o2.rOption = ItemConstants.getSoulSkillFromSoulID(((Equip) chr.getEquippedItemByBodyPart(BodyPart.Weapon)).getSoulOptionId());
-//                if (o2.rOption == 0) {
-//                    chr.chatMessage(String.format("Unknown corresponding skill for soul socket id %d!",
-//                            ((Equip) chr.getEquippedItemByBodyPart(BodyPart.Weapon)).getSoulOptionId()));
-//                }
-//                o2.nOption = ItemConstants.MAX_SOUL_CAPACITY;
-//                o2.xOption = ItemConstants.MAX_SOUL_CAPACITY;
-//                putCharacterStatValue(FullSoulMP, o2);
-//            }
-//            sendSetStatPacket();
-//        }
+        if (hasStat(SoulMP)) {
+            Option o = getOption(SoulMP);
+            o.nOption = Math.min(ItemConstants.MAX_SOUL_CAPACITY, o.nOption + ItemConstants.MOB_DEATH_SOUL_MP_COUNT);
+            putCharacterStatValue(SoulMP, o);
+            if (o.nOption >= ItemConstants.SOUL_SKILL_PREPARED && !hasStat(FullSoulMP)) {
+                Option o2 = new Option();
+                o2.rOption = ItemConstants.getSoulSkillFromSoulID(chr.getEquippedEquip(BodyPart.Weapon).getSoulOptionId());
+                if (o2.rOption == 0) {
+                    chr.chatMessage(String.format("Unknown corresponding skill for soul socket id %d!",
+                            chr.getEquippedEquip(BodyPart.Weapon).getSoulOptionId()));
+                }
+                o2.tOption = 640000;
+                putCharacterStatValue(FullSoulMP, o2);
+            }
+            sendSetStatPacket();
+        }
     }
 
     public void putCharacterStatValueFromMobSkill(CharacterTemporaryStat cts, Option o) {

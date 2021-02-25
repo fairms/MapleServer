@@ -402,9 +402,9 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     GlimmeringTime(347),//
     TrueSight(348),//
     SoulExplosion(349),//
-    SoulMP(350),//
+    SoulMP(349),//
 
-    FullSoulMP(351),//
+    FullSoulMP(350),//
     SoulSkillDamageUp(352),//
     Restoration(353),// Checked 元气恢复
     ElementalCharge(356),// 元素冲击
@@ -416,7 +416,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     ChillingStep(357),// 寒冰步
     DotBasedBuff(354),// 元素爆破?
     BlessEnsenble(355),// 祈祷众生
-    ComboCostInc(356), //需要检查
+    ComboCostInc(356), //todo check
     ExtremeArchery(357),// 极限射箭
     NaviFlying(358),//
     QuiverCatridge(359),// 三彩箭矢
