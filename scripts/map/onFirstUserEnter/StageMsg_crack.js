@@ -29,7 +29,7 @@ function start() {
             for (let i = 0; i < 10; i++) {
                 answerOptions.push(randomNum(0, 2))
             }
-            partyQuest.setPram1(answerOptions.toString());
+            partyQuest.setParam1(answerOptions.toString());
             break
         case stage4MapId: //战甲吹泡泡鱼
             break;

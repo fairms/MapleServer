@@ -11,8 +11,6 @@ const stage3MapId = 922010600;
 const stage4MapId = 922010700;
 const stage5MapId = 922010800;
 const stage6MapId = 922010900;
-const allMaps = Array.of(stage1MapId, stage2MapId, stage3MapId, stage4MapId, stage5MapId, stage6MapId);
-allMaps.concat(stage2Inner);
 
 const stage1Npc = 2040036;
 const stage2Npc = 2040039;
@@ -26,6 +24,10 @@ const stage1ReqItem = 4001022;
 const stage1ReqItemCount = 20;
 const stage2ReqItem = 4001022;
 const stage2ReqItemCount = 14;
+const stage4ReqItem = 4001022;
+const stage4ReqItemCount = 4;
+const stage6ReqItem = 4001022;
+const stage6ReqItemCount = 1;
 
 /** 入口 **/
 function start() {
@@ -38,7 +40,6 @@ function start() {
             stage2();
             break
         case stage3MapId:
-            stage3();
             break
         case stage4MapId:
             stage4();
@@ -87,7 +88,6 @@ function stage2() {
     const partyQuest = party.getPartyQuest();
     let talkCount = cm.getRecordValue(RecordType.NPC_TALK_COUNT, stage2Npc);
     if (talkCount < 1) {
-        console.log(talkCount);
         cm.sendNext("欢迎来到第2阶段，让你的队员在次元洞内杀死所有的怪物并且收集14张通行证在来与我谈话。")
         cm.updateRecord(RecordType.NPC_TALK_COUNT, stage2Npc, talkCount + 1);
     } else if (partyQuest.hasPassed(2)) {
@@ -112,12 +112,35 @@ function stage2() {
     }
 }
 
-function stage3() {
-
-}
 
 function stage4() {
-
+    const chr = cm.getChar();
+    const party = chr.getParty();
+    const partyQuest = party.getPartyQuest();
+    let talkCount = cm.getRecordValue(RecordType.NPC_TALK_COUNT, stage4Npc);
+    if (talkCount < 1) {
+        cm.sendNext("欢迎来到第4阶段，让你的队员在次元洞内杀死所有的怪物并且收集14张通行证在来与我谈话。")
+        cm.updateRecord(RecordType.NPC_TALK_COUNT, stage4Npc, talkCount + 1);
+    } else if (partyQuest.hasPassed(4)) {
+        cm.sendSayOkay("恭喜你们完成第二阶段。时间已经不多了,赶快进入下一阶段吧。");
+    } else {
+        if (chr.getId() !== party.getPartyLeaderId()) {
+            cm.sendNext("请让你的队长和我对话.");
+        } else {
+            if (chr.haveItem(stage4ReqItem, stage4ReqItemCount) && chr.getMap().getMobs().size() === 0) {
+                chr.consumeItem(stage4ReqItem, stage4ReqItemCount)
+                cm.fieldEffect(FieldEffect.screen("quest/party/clear"));
+                cm.fieldEffect(FieldEffect.playSound("Party1/Clear", 100));
+                cm.fieldEffect(FieldEffect.objectStateByString("gate"));
+                party.giveExpInProgress(400);
+                partyQuest.pass(4);
+                party.setPQProgress(Math.floor(100 / (6 * 4)));
+                cm.sendNext("你们成功收集了#b14#k通行证。 已经成功完成了第二阶段。好了，我将开启通往下一个关卡的结界，时间不多了，你们赶快到那里进行第三阶段的挑战吧。")
+            } else {
+                cm.sendNext("次元洞内的怪物没有清理完毕，赶快抓紧时间。");
+            }
+        }
+    }
 }
 
 function stage5() {

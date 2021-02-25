@@ -93,4 +93,12 @@ public class PartyQuest {
     public MapleMap getMap(int mapId) {
         return Util.findWithPred(maps, map -> map.getId() == mapId);
     }
+
+    public void setParam1(String param) {
+        param1 = param;
+    }
+
+    public String getParam1() {
+        return param1;
+    }
 }

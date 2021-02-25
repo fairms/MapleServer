@@ -313,21 +313,22 @@ public class Warrior extends Beginner {
         switch (attackInfo.skillId) {
             case HERO_PANIC:
                 if (tsm.hasStat(ComboCostInc)) {
-                    int amount = tsm.getOption(ComboCostInc).nOption;
-                    removeCombo(chr, 1 + amount);
-                    ooo.nOption = amount + 1;
-                    ooo.rOption = HERO_PANIC;
-                    ooo.tOption = si.getValue(subTime, slv);
-                    tsm.putCharacterStatValue(ComboCostInc, ooo);
-                    tsm.sendSetStatPacket();
+//                    int amount = tsm.getOption(ComboCostInc).nOption;
+//                    removeCombo(chr, 1 + amount);
+//                    ooo.nOption = amount + 1;
+//                    ooo.rOption = HERO_PANIC;
+//                    ooo.tOption = si.getValue(subTime, slv);
+//                    tsm.putCharacterStatValue(ComboCostInc, ooo);
+//                    tsm.sendSetStatPacket();
                 } else {
-                    ooo.nOption = 1;
-                    ooo.rOption = HERO_PANIC;
-                    ooo.tOption = si.getValue(subTime, slv);
-                    tsm.putCharacterStatValue(ComboCostInc, ooo);
-                    tsm.sendSetStatPacket();
-                    removeCombo(chr, 1);
+//                    ooo.nOption = 1;
+//                    ooo.rOption = HERO_PANIC;
+//                    ooo.tOption = si.getValue(subTime, slv);
+//                    tsm.putCharacterStatValue(ComboCostInc, ooo);
+//                    tsm.sendSetStatPacket();
+//                    removeCombo(chr, 1);
                 }
+                //todo 有问题
                 for (MobAttackInfo mobAttackInfo : attackInfo.mobAttackInfo) {
                     int objectId = mobAttackInfo.objectId;
                     MapleMap map = chr.getMap();
@@ -419,6 +420,7 @@ public class Warrior extends Beginner {
         } else {
             o.nOption = 0;
         }
+        comboCount.set(o.nOption);
         o.rOption = HERO_COMBO_ATTACK;
         tsm.putCharacterStatValue(ComboCounter, o);
         tsm.sendSetStatPacket();

@@ -83,7 +83,7 @@ public class ChannelHandler extends AbstractServerHandler {
                 ErrorPacketHandler.handlePacket(in);
                 break;
             case GENERAL_CHAT:
-                ChatHandler.handleUserGeneralChat(in, c);
+                workerThreadService.execute(() -> ChatHandler.handleUserGeneralChat(in, c));
                 break;
             case CHAR_EMOTION:
                 UserHandler.handleCharEmotion(in, c);
@@ -219,7 +219,6 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case USER_SELECT_NPC:
                 workerThreadService.execute(() -> NpcHandler.handleUserSelectNPC(in, c));
-//                NpcHandler.handleUserSelectNPC(in, c);
                 break;
             case USER_SCRIPT_MESSAGE_ANSWER:
                 NpcHandler.handleUserScriptMessageAnswer(in, c);
