@@ -86,7 +86,7 @@ public class MapleMap {
                   2.角色
      */
     private Clock clock;
-
+    private List<Portal> disabledPortals; //禁用的传送门
     private Set<FieldEffect> fieldEffects;
 
     public MapleMap(int id, int world, int channel) {

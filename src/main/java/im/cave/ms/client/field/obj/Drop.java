@@ -27,6 +27,7 @@ public class Drop extends MapleMapObj {
     private boolean canBePickedUpByPet;
     private long expireTime;
     private int questId;
+    private byte timeoutStrategy;
 
     public Drop(int templateId, Item item) {
         super(templateId);

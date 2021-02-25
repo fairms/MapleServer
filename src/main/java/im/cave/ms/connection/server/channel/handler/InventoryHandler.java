@@ -21,6 +21,7 @@ import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.enums.BroadcastMsgType;
+import im.cave.ms.enums.DropTimeoutStrategy;
 import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.EquipSpecialAttribute;
@@ -36,13 +37,10 @@ import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.scripting.item.ItemScriptManager;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Util;
-import org.graalvm.nativeimage.c.struct.CField;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import static im.cave.ms.constants.ItemConstants.Item_Tag;
@@ -104,6 +102,7 @@ public class InventoryHandler {
             Position position = player.getPosition();
             Foothold fh = map.findFootHoldBelow(new Position(position.getX(), position.getY() - GameConstants.DROP_HEIGHT));
             drop.setCanBePickedUpByPet(false);
+            drop.setTimeoutStrategy(DropTimeoutStrategy.FFA.getVal());
             map.drop(drop, position, new Position(position.getX(), fh.getYFromX(position.getX())));
             if (fullDrop) {
                 c.announce(UserPacket.inventoryOperation(true, REMOVE, oldPos, newPos, 0, item));
@@ -709,6 +708,7 @@ public class InventoryHandler {
         c.announce(potionPot.showPotionPotMsg(1, 3));
     }
 
+    //todo
     public static void handlePotionPotUseRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         player.setTick(in.readInt());

@@ -322,9 +322,10 @@ public class WorldPacket {
         return dropEnterField(drop, dropEnterType, posFrom, posTo, 0, false);
     }
 
-    public static OutPacket dropEnterField(Drop drop, DropEnterType dropEnterType, Position posFrom, Position posTo, int delay, boolean canBePickByPet) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.DROP_ENTER_FIELD.getValue());
+    public static OutPacket dropEnterField(Drop drop, DropEnterType dropEnterType,
+                                           Position posFrom, Position posTo, int delay, boolean canBePickByPet) {
+        OutPacket out = new OutPacket(SendOpcode.DROP_ENTER_FIELD);
+
         out.writeBool(false);
         out.write(dropEnterType.getVal());
         out.writeInt(drop.getObjectId());
@@ -334,7 +335,7 @@ public class WorldPacket {
         out.writeInt(0);  //rand?
         out.writeInt(!drop.isMoney() ? drop.getItem().getItemId() : drop.getMoney());
         out.writeInt(drop.getOwnerId());
-        out.write(2); // 0 = timeout for non-owner, 1 = timeout for non-owner's party, 2 = FFA, 3 = explosive/FFA
+        out.write(drop.getTimeoutStrategy()); // 0 = timeout for non-owner, 1 = timeout for non-owner's party, 2 = FFA, 3 = explosive/FFA
         out.writePosition(posTo);
         out.writeInt(0); // drop from id
         out.writeZeroBytes(42);
@@ -348,6 +349,7 @@ public class WorldPacket {
         }
         out.writeBool(drop.isCanBePickedUpByPet() && canBePickByPet);
         out.writeZeroBytes(14); //unk
+
         return out;
     }
 
@@ -837,9 +839,11 @@ public class WorldPacket {
 
     public static OutPacket receiveHP(MapleCharacter chr) {
         OutPacket out = new OutPacket(SendOpcode.REMOTE_RECEIVE_HP);
+
         out.writeInt(chr.getId());
         out.writeInt(chr.getHp());
         out.writeInt(chr.getMaxHP());
+        
         return out;
     }
 
