@@ -178,6 +178,8 @@ public class MovementInfo {
                 case 95:
                     res.add(new MovementAngle(in, type)); // probably not a good name
                     break;
+                case 99:
+                    System.out.println(in);
                 default:
                     log.warn(String.format("Unhandled move path attribute %s.", type));
                     break;

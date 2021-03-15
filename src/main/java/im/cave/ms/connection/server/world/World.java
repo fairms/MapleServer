@@ -35,13 +35,13 @@ import java.util.stream.Collectors;
 public class World {
     private int id;
     private List<MapleChannel> channels = new ArrayList<>();
-    private final Map<Integer, Party> parties = new HashMap<>(); //组队 重启服务器会清空
-    private final Map<Integer, Guild> guilds = new HashMap<>(); //家族
+    private final Map<Integer, Party> parties = new HashMap<>();
+    private final Map<Integer, Guild> guilds = new HashMap<>();
     private final Set<PartyQuest> partyQuests = new HashSet<>();
 
     private Integer partyCounter = 1;
-    private CashShopServer cashShopServer; //商城
-    private Auction auction; //拍卖行
+    private CashShopServer cashShopServer;
+    private Auction auction;
     private String eventMessage;
 
     public World(int id, String eventMessage) {

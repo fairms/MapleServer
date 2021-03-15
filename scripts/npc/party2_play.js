@@ -40,12 +40,15 @@ function start() {
             stage2();
             break
         case stage3MapId:
+            stage3();
             break
         case stage4MapId:
             stage4();
             break
         case stage5MapId:
             stage5();
+        case stage6MapId:
+            stage6();
     }
     cm.dispose();
 }
@@ -60,10 +63,14 @@ function stage1() {
         cm.sendNext("欢迎来到第1阶段,看看周围,是不是有很多#r老鼠#k请消灭它们并且带来20张#b通行证给我#k,如果你成功拿到了1张通行证，请交给你们的组长，然后再转交给我。")
         cm.updateRecord(RecordType.NPC_TALK_COUNT, stage1Npc, talkCount + 1);
     } else if (partyQuest.hasPassed(1)) {
-        cm.sendSayOkay("你们已经成功完成了第一阶段,赶快向第二阶段前进吧。");
+        if (chr.getId() !== party.getPartyLeaderId()) {
+            cm.sendSayOkay("传送口已经打开,快点进入下一个阶段吧...")
+        } else {
+            cm.sendSayOkay("你们已经成功完成了第一阶段,赶快向第二阶段前进吧。");
+        }
     } else {
         if (chr.getId() !== party.getPartyLeaderId()) {
-            cm.sendNext("请让队长和我对话.");
+            cm.sendNext("快点消灭所有的怪物并收集通行证，然后交给组队长！");
         } else {
             if (chr.haveItem(stage1ReqItem, stage1ReqItemCount)) {
                 cm.fieldEffect(FieldEffect.screen("quest/party/clear"));
@@ -91,10 +98,14 @@ function stage2() {
         cm.sendNext("欢迎来到第2阶段，让你的队员在次元洞内杀死所有的怪物并且收集14张通行证在来与我谈话。")
         cm.updateRecord(RecordType.NPC_TALK_COUNT, stage2Npc, talkCount + 1);
     } else if (partyQuest.hasPassed(2)) {
-        cm.sendSayOkay("恭喜你们完成第二阶段。时间已经不多了,赶快进入下一阶段吧。");
+        if (chr.getId() !== party.getPartyLeaderId()) {
+            cm.sendSayOkay("传送口已经打开,快点进入下一个阶段吧...")
+        } else {
+            cm.sendSayOkay("恭喜你们完成第二阶段。时间已经不多了,赶快进入下一阶段吧。");
+        }
     } else {
         if (chr.getId() !== party.getPartyLeaderId()) {
-            cm.sendNext("请让你的队长和我对话.");
+            cm.sendNext("快点消灭所有的怪物并收集通行证，然后交给组队长！");
         } else {
             if (chr.haveItem(stage2ReqItem, stage2ReqItemCount) && stage2isCleared()) {
                 chr.consumeItem(stage2ReqItem, stage2ReqItemCount)
@@ -112,6 +123,10 @@ function stage2() {
     }
 }
 
+function stage3() {
+    cm.sendSayOkay("你好!欢迎来到第三阶段!看看这里,你会看到很多数字盒子,如果你想通过这里到达下一个阶段,你必须找到正确的数字盒子。但是，如果你选择了错误的箱子，你将从原地重新开始!祝你好运。");
+}
+
 
 function stage4() {
     const chr = cm.getChar();
@@ -119,13 +134,17 @@ function stage4() {
     const partyQuest = party.getPartyQuest();
     let talkCount = cm.getRecordValue(RecordType.NPC_TALK_COUNT, stage4Npc);
     if (talkCount < 1) {
-        cm.sendNext("欢迎来到第4阶段，让你的队员在次元洞内杀死所有的怪物并且收集14张通行证在来与我谈话。")
+        cm.sendNext("欢迎来到第四阶段,请和你的队友消灭地图上所有的怪物并且收集4张通行证,获取通行证,你们把通行证全部交给组队长。组队长再和我讲话，就可以顺利通关了·那么祝你—切顺利.")
         cm.updateRecord(RecordType.NPC_TALK_COUNT, stage4Npc, talkCount + 1);
     } else if (partyQuest.hasPassed(4)) {
-        cm.sendSayOkay("恭喜你们完成第二阶段。时间已经不多了,赶快进入下一阶段吧。");
+        if (chr.getId() !== party.getPartyLeaderId()) {
+            cm.sendSayOkay("传送口已经打开,快点进入下一个阶段吧...")
+        } else {
+            cm.sendSayOkay("恭喜你们完成第四阶段。时间已经不多了,赶快进入下一阶段吧。");
+        }
     } else {
         if (chr.getId() !== party.getPartyLeaderId()) {
-            cm.sendNext("请让你的队长和我对话.");
+            cm.sendNext("快点消灭所有的怪物并收集通行证，然后交给组队长！");
         } else {
             if (chr.haveItem(stage4ReqItem, stage4ReqItemCount) && chr.getMap().getMobs().size() === 0) {
                 chr.consumeItem(stage4ReqItem, stage4ReqItemCount)
@@ -144,6 +163,11 @@ function stage4() {
 }
 
 function stage5() {
+
+}
+
+
+function stage6() {
 
 }
 

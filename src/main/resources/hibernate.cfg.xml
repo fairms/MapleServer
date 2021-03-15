@@ -20,7 +20,7 @@
         </property>
 
         <property name="hibernate.connection.provider_class">
-            com.zaxxer.hikari.hibernate.HikariConnectionProvider
+            org.hibernate.hikaricp.internal.HikariCPConnectionProvider
         </property>
 
         <property name="hibernate.connection.password">

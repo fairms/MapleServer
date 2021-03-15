@@ -31,11 +31,13 @@ function start() {
             }
             partyQuest.setParam1(answerOptions.toString());
             break
-        case stage4MapId: //战甲吹泡泡鱼
+        case stage4MapId:
             break;
         case stage5MapId: //计算题
             break;
-        case stage6MapId: //
+        case stage6MapId: //召唤阿莉莎
+            let map = chr.getMap();
+            map.spawnMob(mob, x, y);
             break;
     }
 }

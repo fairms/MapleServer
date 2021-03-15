@@ -78,11 +78,6 @@
             <artifactId>hibernate-hikaricp</artifactId>
             <version>5.4.10.Final</version>
         </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>3.4.5</version>
-        </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>

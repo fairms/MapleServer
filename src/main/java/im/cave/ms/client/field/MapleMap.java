@@ -6,6 +6,7 @@ import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.connection.netty.Packet;
+import im.cave.ms.provider.data.MobData;
 import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
@@ -561,5 +562,12 @@ public class MapleMap {
     public void addEffectAndBroadcast(FieldEffect effect) {
         fieldEffects.add(effect);
         broadcastMessage(WorldPacket.fieldEffect(effect));
+    }
+
+    public void spawnMob(int mobId, int x, int y) {
+        Mob mob = MobData.getMobDeepCopyById(mobId);
+        mob.setX(x);
+        mob.setY(y);
+        addObj(mob);
     }
 }

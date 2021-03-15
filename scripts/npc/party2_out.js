@@ -12,7 +12,7 @@ function start() {
     if (chr.getMapId() === outMap) {
         out(enterMap);
     } else {
-        if (cm.sendAskYesNo("你要退出吗?") === 1) {
+        if (cm.sendAskYesNo("你确放弃任务,从这里出去重新开始吗?") === 1) {
             out(outMap);
         }
     }
