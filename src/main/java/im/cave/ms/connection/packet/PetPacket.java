@@ -53,6 +53,18 @@ public class PetPacket {
         return out;
     }
 
+    public static OutPacket petAction(int charId, Pet pet, int action, int status) {
+        OutPacket out = new OutPacket(SendOpcode.PET_ACTION);
+
+        out.writeInt(charId);
+        out.writeInt(pet.getIdx());
+        out.write(action);
+        out.write(status);
+        pet.encode(out);
+
+        return out;
+    }
+
     public static OutPacket petActionCommand(int charId, int index, int action, int status, int param) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.PET_ACTION_COMMAND.getValue());
