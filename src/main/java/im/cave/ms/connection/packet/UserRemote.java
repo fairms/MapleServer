@@ -1,6 +1,7 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.PortableChair;
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.items.PetItem;
@@ -14,6 +15,7 @@ import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.enums.BodyPart;
+import im.cave.ms.tools.Rect;
 
 import java.util.List;
 import java.util.Map;
@@ -393,6 +395,22 @@ public class UserRemote {
         out.writeInt(charId);
         out.writeBool(success);
         out.writeBool(boom);
+
+        return out;
+    }
+
+    //00 00 00 00
+    // 00 00 00 00
+    // 01 00 00 00
+    // 00 00 00 00
+    public static OutPacket multiPersonChairAreaSet(PortableChair chair, Rect rect) {
+        OutPacket out = new OutPacket(SendOpcode.MULTI_PERSON_CHAIR_AREA);
+
+        out.writeInt(0); //未知
+        out.writeInt(2);
+        out.writeInt(chair.getItemId());
+        out.writeInt(1);
+        out.writeInt(chair.getItemId());
 
         return out;
     }

@@ -136,8 +136,20 @@ public class ChannelHandler extends AbstractServerHandler {
             case MOB_MOVE:
                 MobHandler.handleMobMove(in, c);
                 break;
+            case MOB_APPLY_CTRL:
+                MobHandler.handleMobApplyCtrl(in, c);
+                break;
+            case MOB_ATTACK_MOB:
+                MobHandler.handleMobAttackMob(in, c);
+                break;
             case MOB_SKILL_DELAY_END:
                 MobHandler.handleMobSkillDelayEnd(in, c);
+                break;
+            case MOB_REQUEST_ESCORT_INFO:
+                MobHandler.handleRequestEscortInfo(in, c);
+                break;
+            case MOB_ESCORT_STOP_END_REQUEST:
+                MobHandler.handleMobEscortStopEndRequest(in, c);
                 break;
             case NPC_ANIMATION:
                 NpcHandler.handleNpcAnimation(in, c);

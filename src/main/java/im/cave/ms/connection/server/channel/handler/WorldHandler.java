@@ -777,6 +777,11 @@ public class WorldHandler {
         player.getMap().broadcastMessage(player, AndroidPacket.move(android, mi), false);
     }
 
+    public static void handleAndroidActionSet(InPacket in, MapleClient c) {
+        byte b = in.readByte();
+        byte b1 = in.readByte();
+    }
+
     public static void handleFriendRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         byte val = in.readByte();

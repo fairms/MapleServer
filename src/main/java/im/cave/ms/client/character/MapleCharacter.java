@@ -378,6 +378,8 @@ public class MapleCharacter implements Serializable {
     private DamageCalc damageCalc;
     @Transient
     private Pair<Integer, Integer> prepareSkill; //按压技能 skillId,skillLevel
+    @Transient
+    private String portableChairMsg;
 
     public MapleCharacter() {
         temporaryStatManager = new TemporaryStatManager(this);
@@ -1183,6 +1185,8 @@ public class MapleCharacter implements Serializable {
 
     //切换地图
     private void changeMap(MapleMap map, byte portal, boolean load) {
+        announce(UserPacket.effect(Effect.playPortalSE()));
+
         if (party != null && party.getPartyQuest() != null) { //处理组队地图
             int pMap = map.getId();
             MapleMap temp = Util.findWithPred(party.getPartyQuest().getMaps(), m -> m.getId() == pMap);

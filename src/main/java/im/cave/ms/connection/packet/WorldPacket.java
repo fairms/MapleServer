@@ -21,6 +21,7 @@ import im.cave.ms.client.multiplayer.party.PartyResult;
 import im.cave.ms.client.storage.Trunk;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.netty.Packet;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
@@ -618,10 +619,27 @@ public class WorldPacket {
             out.write(-1); // unk
         }
         out.writeZeroBytes(14); //椅子
+        //charId int
+        //0 int
+        //10 byte
+        //01 byte
+        // CE 9D E1 00 int
+        // C7 44 97 00
         out.writePosition(chr.getPosition());
         out.write(chr.getMoveAction());
         out.writeShort(chr.getFoothold());
-        out.write(0);
+        boolean hasPortableChairMsg = chr.getPortableChairMsg() != null;
+        out.writeBool(hasPortableChairMsg); //hasPortableChairMsg
+        if(hasPortableChairMsg){
+            out.writeMapleAsciiString(chr.getPortableChairMsg());
+            out.writeMapleAsciiString(chr.getName());
+            out.writeMapleAsciiString(chr.getPortableChairMsg());
+        }
+        /*
+            string:msg
+            string:name
+            string:msg
+         */
         for (Pet pet : chr.getPets()) {
             if (pet.getId() == 0) {
                 continue;
@@ -630,6 +648,7 @@ public class WorldPacket {
             out.writeInt(pet.getIdx());
             pet.encode(out);
         }
+
         out.write(0);
         out.write(0);
         out.write(1);
@@ -843,7 +862,7 @@ public class WorldPacket {
         out.writeInt(chr.getId());
         out.writeInt(chr.getHp());
         out.writeInt(chr.getMaxHP());
-        
+
         return out;
     }
 
@@ -977,5 +996,10 @@ public class WorldPacket {
         }
 
         return out;
+    }
+
+    //todo move to CField
+    private static Packet blowWeather(int itemId, String message) {
+        return null;
     }
 }

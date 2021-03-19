@@ -31,6 +31,7 @@ import static im.cave.ms.enums.UserEffectType.LeftMonsterNumber;
 import static im.cave.ms.enums.UserEffectType.LevelUp;
 import static im.cave.ms.enums.UserEffectType.PetBuff;
 import static im.cave.ms.enums.UserEffectType.PlayExclSoundWithDownBGM;
+import static im.cave.ms.enums.UserEffectType.PlayPortalSE;
 import static im.cave.ms.enums.UserEffectType.Quest;
 import static im.cave.ms.enums.UserEffectType.QuestComplete;
 import static im.cave.ms.enums.UserEffectType.ReservedEffect;
@@ -163,6 +164,7 @@ public class Effect {
             case BuffItemEffect:
             case Resist:
             case LevelUp:
+            case PlayPortalSE:
                 break;
             case EffectUOL:
                 out.writeMapleAsciiString(getString());
@@ -260,6 +262,12 @@ public class Effect {
         effect.setArg9(enterType);
         effect.setArg10(leaveType);
 
+        return effect;
+    }
+
+    public static Effect playPortalSE() {
+        Effect effect = new Effect();
+        effect.setUserEffectType(PlayPortalSE);
         return effect;
     }
 

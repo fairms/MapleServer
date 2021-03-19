@@ -43,6 +43,9 @@ public class World {
     private CashShopServer cashShopServer;
     private Auction auction;
     private String eventMessage;
+    private int dropRate;
+    private int mesoRate;
+    private int expRate;
 
     public World(int id, String eventMessage) {
         this.id = id;
@@ -93,6 +96,10 @@ public class World {
     public boolean init() {
         try {
             WorldConfig.WorldInfo info = Config.worldConfig.getWorldInfo(id);
+            setDropRate(info.drop_rate);
+            setExpRate(info.exp_rate);
+            setMesoRate(info.meso_rate);
+            setEventMessage(info.event_message);
             for (int i = 0; i < info.channels; i++) {
                 MapleChannel channel = new MapleChannel(id, i);
                 channels.add(channel);
@@ -215,5 +222,29 @@ public class World {
 
     public void removePQ(PartyQuest partyQuest) {
         partyQuests.remove(partyQuest);
+    }
+
+    public int getDropRate() {
+        return dropRate;
+    }
+
+    public void setDropRate(int dropRate) {
+        this.dropRate = dropRate;
+    }
+
+    public int getMesoRate() {
+        return mesoRate;
+    }
+
+    public void setMesoRate(int mesoRate) {
+        this.mesoRate = mesoRate;
+    }
+
+    public int getExpRate() {
+        return expRate;
+    }
+
+    public void setExpRate(int expRate) {
+        this.expRate = expRate;
     }
 }

@@ -362,7 +362,7 @@ public class UserHandler {
         c.announce(UserRemote.charInfo(chr));
     }
 
-    //取消椅子
+    // cancel portableChair / sit townChair
     public static void handleUserSitRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
@@ -375,11 +375,14 @@ public class UserHandler {
     }
 
     public static void handleUserPortableChairSitRequest(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
         int mapId = in.readInt();
+        //todo check map limit
         int chairId = in.readInt();
-        int pos = in.readByte();
-        boolean textChair = in.readInt() != 0;
+        int emotion = in.readByte();
+        in.readInt();
         Position position = in.readPositionInt();
+        String msg = in.readMapleAsciiString();
         in.readInt();
         int unk1 = in.readInt();
         short unk2 = in.readShort();
@@ -388,8 +391,7 @@ public class UserHandler {
         byte unk4 = in.readByte();
         c.announce(UserPacket.enableActions());
         c.announce(UserPacket.userSit());
-        MapleCharacter player = c.getPlayer();
-        player.getMap().broadcastMessage(player, UserRemote.remoteSetActivePortableChair(player.getId(), chairId, unk1, unk2, unk3, unk4), false);
+        chr.getMap().broadcastMessage(chr, UserRemote.remoteSetActivePortableChair(chr.getId(), chairId, unk1, unk2, unk3, unk4), false);
     }
 
     /*

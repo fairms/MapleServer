@@ -950,7 +950,7 @@ public class Equip extends Item {
             out.writeLong(getFlame());
         }
         if (hasStat(EquipBaseStat.itemState)) {
-            out.writeInt(getItemState());
+            out.writeInt(getItemState()); //256
         }
 
         out.writeMapleAsciiString(getOwner());

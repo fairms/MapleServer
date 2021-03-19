@@ -38,4 +38,12 @@ public class ReactorPacket {
 
         return out;
     }
+
+    public static OutPacket remove(Reactor reactor) {
+        OutPacket out = new OutPacket(SendOpcode.REACTOR_REMOVE);
+
+        out.writeInt(reactor.getObjectId());
+
+        return out;
+    }
 }

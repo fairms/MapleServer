@@ -137,7 +137,7 @@ public class Mob extends MapleMapObj {
     private String banMsg = "";
     private List<Tuple<Integer, String>> banMaps = new ArrayList<>();// field, portal name
     private boolean isEscortMob = false;
-    //    private List<EscortDest> escortDest = new ArrayList<>();
+    private List<EscortDest> escortDest = new ArrayList<>();
     private int currentDestIndex = 0;
     private int escortStopDuration = 0;
 
@@ -465,6 +465,7 @@ public class Mob extends MapleMapObj {
         }
         int totalMesoRate = 0;
         int totalDropRate = 0;
+
         getMap().drop(getDrops(), getMap().getFoothold(fh), getPosition(), ownerId, totalMesoRate, totalDropRate, false);
         if (chr != null) {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -503,5 +504,17 @@ public class Mob extends MapleMapObj {
             // 01 00 00 00 // 类型normal, 3 elite boss probably
         }
         out.writeZeroBytes(42);
+    }
+
+    public void addEscortDest(int destPosX, int destPosY, int attr) {
+        addEscortDest(destPosX, destPosY, attr, 0, 0);
+    }
+
+    private void addEscortDest(int destPosX, int destPosY, int attr, int mass, int stopDuration) {
+        escortDest.add(new EscortDest(destPosX, destPosY, attr, mass, stopDuration));
+    }
+
+    public void escortFullPath(int oldAttr) {
+        getMap().broadcastMessage(MobPacket.escortFullPath(this, oldAttr, false));
     }
 }
