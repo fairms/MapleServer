@@ -69,6 +69,7 @@ public enum SendOpcode {
     CASH_PET_PICK_UP_ON_OFF_RESULT(0xB0),//b9 - 9
     PET_AUTO_EAT_MSG(0xB1),//
     LIMITED_NPC_DISABLE_INFO(0xB9), //hide?
+    UNK_BD(0xBD), // 01
     //c1  0A 00 6B 69 6C 6C 5F 63 6F 75 6E 74 01 00 30 ..kill_count..0
     //c5
     EVENT_MESSAGE(0xD1),//
@@ -230,7 +231,7 @@ public enum SendOpcode {
     ADDITIONAL_ATTACK(0x424),//
     DAMAGE_SKIN_SAVE_RESULT(0x427),//42D-6
     OPEN_WORLDMAP(0x48F), //没变
-    UNK498(0x498),
+    MULTI_PERSON_CHAIR_AREA(0x498),
     SPAWN_SUMMON(0x4BA),//+3
     REMOVE_SUMMON(0x4BB), //03 00 00 00 01 00 00 00 01
     SUMMON_MOVE(0x4BC),//+3
@@ -251,6 +252,10 @@ public enum SendOpcode {
     MOB_DAMAGED(0x4E8),//
     HP_INDICATOR(0x4EF), //4ec+3
     MOB_SKILL_DELAY(0x4F5),
+    ESCORT_FULL_PATH(0x4F6),
+    ESCORT_STOP_END_PERMISSION(0x4F7),
+    ESCORT_STOP_BY_SCRIPT(0x4F8),
+    ESCORT_STOP_SAY(0x4F9),
     SPAWN_NPC(0x54B), //542 + 9
     REMOVE_NPC(0x54C),//543+9
     //54D    544+9
