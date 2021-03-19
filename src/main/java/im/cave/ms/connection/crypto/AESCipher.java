@@ -7,15 +7,16 @@ public class AESCipher {
 
     public static final short nVersion = ServerConstants.VERSION;
     private static final byte[] aKey = new byte[]{
-            (byte) 0x5E, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x4C, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0xB4, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0xCD, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x23, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x87, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x5A, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x99, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+            (byte) 0x60, (byte) 0x00, (byte) 0x00, (byte) 0x00,
             (byte) 0xAD, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0xCA, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x9D, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x79, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-            (byte) 0x7C, (byte) 0x00, (byte) 0x00, (byte) 0x00
+            (byte) 0x67, (byte) 0x00, (byte) 0x00, (byte) 0x00
     };
+
 
     public AESCipher() {
         pCipher = new AES();
