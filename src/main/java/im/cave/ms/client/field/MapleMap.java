@@ -1,6 +1,6 @@
 package im.cave.ms.client.field;
 
-import im.cave.ms.client.character.Clock;
+import im.cave.ms.client.Clock;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.field.obj.Drop;

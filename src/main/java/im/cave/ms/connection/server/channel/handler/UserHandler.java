@@ -39,6 +39,7 @@ import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
+import im.cave.ms.connection.packet.result.FameResult;
 import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
 import im.cave.ms.connection.server.channel.MapleChannel;
@@ -847,8 +848,8 @@ public class UserHandler {
         byte mode = in.readByte();
         int fameChange = mode == 0 ? -1 : 1;
         other.addStatAndSendPacket(Stat.FAME, fameChange);
-        player.announce(UserPacket.addFameResponse(other, mode, other.getFame()));
-        other.announce(UserPacket.receiveFame(mode, player.getName()));
+        player.announce(UserPacket.fameResponse(FameResult.addFame(other.getName(), mode, other.getFame())));
+        other.announce(UserPacket.fameResponse(FameResult.receiveFame(player.getName(), mode)));
     }
 
     //角色表情

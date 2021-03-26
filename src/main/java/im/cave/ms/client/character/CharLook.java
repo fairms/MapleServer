@@ -51,7 +51,7 @@ public class CharLook {
     private byte hairColorBase;
     private byte hairColorMixed;
     private byte hairColorProb;
-    private boolean zero;
+    private boolean zero; //isZero
     private int ears;
     private int tail;
     @Transient

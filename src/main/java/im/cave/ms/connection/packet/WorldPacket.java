@@ -42,6 +42,7 @@ import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Randomizer;
 import im.cave.ms.tools.StringUtil;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -115,7 +116,7 @@ public class WorldPacket {
         //过图加载怪怪信息
         if (!load) {
             out.writeInt(360);
-            addUnkData(out, chr);
+            addUnkData(out, chr); //怪怪
         } else {
             out.writeLong(4);
         }
@@ -141,77 +142,6 @@ public class WorldPacket {
         return out;
     }
 
-    public static OutPacket initFamiliar(MapleCharacter chr) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.FAMILIAR.getValue());
-        out.write(7);
-        out.writeInt(chr.getId());
-        out.writeInt(1);
-        out.writeInt(0x9947A4C2);
-        out.writeInt(chr.getAccId());
-        out.writeInt(chr.getId());
-        out.write(1);
-        out.write(1);
-        out.writeZeroBytes(21);
-        out.writeShort(2);
-        out.writeInt(chr.getAccId());
-        out.writeInt(chr.getId());
-        out.writeShort(3);
-        out.writeInt(1);
-        out.writeInt(4);
-        out.writeShort(0);
-        out.writeShort(5);
-        out.writeInt(0);
-        out.writeInt(7);
-        out.writeShort(8);
-        out.writeShort(3);
-        out.writeInt(1);
-        out.writeInt(2);
-        out.writeInt(3);
-        out.writeShort(0);
-        out.writeShort(0x0b);
-        out.writeInt(0x44f9930f);
-        out.write(0x0c);
-        out.writeLong(0);
-        out.writeInt(2);
-        out.writeInt(0x825ad512);
-        out.writeInt(chr.getAccId());
-        out.writeInt(chr.getId());
-        out.write(1);
-        out.write(1);
-        out.writeZeroBytes(21);
-        out.writeShort(2);
-        out.writeInt(chr.getAccId());
-        out.writeInt(chr.getId());
-        out.writeShort(3);
-        out.writeInt(1);
-        out.writeShort(0);
-        out.write(0);
-        out.writeInt(3);
-        out.writeInt(0xb529d96e);
-        out.writeInt(chr.getAccId());
-        out.writeInt(chr.getId());
-        out.write(1);
-        out.write(1);
-        out.writeZeroBytes(21);
-        out.writeShort(2);
-        out.writeInt(chr.getAccId());
-        out.writeInt(chr.getId());
-        out.writeShort(3);
-        out.writeInt(1);
-        byte[] bytes = new byte[]{0x4, 0x5, 0x6, 0x7, 0x8, 0x9,
-                0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x19, 0x1E,
-                0x1F, 0x20, 0x21, 0x24, 0x26, 0x27, 0x28, 0x29};
-        for (byte b : bytes) {
-            out.writeShort(b);
-            if (b == 0x20) {
-                out.writeInt(0);
-            }
-            out.writeInt(0);
-        }
-        out.writeZeroBytes(3);
-        return out;
-    }
 
     public static void addUnkData(OutPacket out, MapleCharacter chr) {
         out.writeInt(1);
@@ -282,8 +212,10 @@ public class WorldPacket {
 
     public static OutPacket chatMessage(String content, ChatType type) {
         OutPacket out = new OutPacket(SendOpcode.CHAT_MSG);
+
         out.writeShort(type.getVal());
         out.writeMapleAsciiString(content);
+
         return out;
     }
 
@@ -307,6 +239,7 @@ public class WorldPacket {
         return out;
     }
 
+    //todo Opcode忘记了
     public static OutPacket fullscreenMessage(String content) {
         OutPacket out = new OutPacket();
         out.write(0x0c);
@@ -630,7 +563,7 @@ public class WorldPacket {
         out.writeShort(chr.getFoothold());
         boolean hasPortableChairMsg = chr.getPortableChairMsg() != null;
         out.writeBool(hasPortableChairMsg); //hasPortableChairMsg
-        if(hasPortableChairMsg){
+        if (hasPortableChairMsg) {
             out.writeMapleAsciiString(chr.getPortableChairMsg());
             out.writeMapleAsciiString(chr.getName());
             out.writeMapleAsciiString(chr.getPortableChairMsg());
@@ -730,6 +663,7 @@ public class WorldPacket {
         return out;
     }
 
+    //组队推荐玩家
     public static OutPacket recommendPlayers(List<MapleCharacter> players) {
         OutPacket out = new OutPacket(SendOpcode.RECOMMEND_PLAYER);
         out.write(players.size());
@@ -999,7 +933,16 @@ public class WorldPacket {
     }
 
     //todo move to CField
-    private static Packet blowWeather(int itemId, String message) {
+    public static OutPacket blowWeather(int itemId, String message) {
         return null;
+    }
+
+    public static OutPacket hourChange() {
+        OutPacket out = new OutPacket(SendOpcode.HOUR_CHANGE);
+
+        out.writeShort(5); //unk
+        out.writeShort(DateUtil.now().getHour());
+
+        return out;
     }
 }

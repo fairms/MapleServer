@@ -71,9 +71,7 @@ public class ItemBuffs {
         Map<SpecStat, Integer> specStats = ItemData.getItemInfoById(itemID).getSpecStats();
         long time = specStats.getOrDefault(SpecStat.time, 0) / 1000;
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        for (Map.Entry<SpecStat, Integer> entry : specStats.entrySet()) {
-            SpecStat ss = entry.getKey();
-            int value = entry.getValue();
+        specStats.forEach((ss, value) -> {
             Option o = new Option(-itemID, time);
             o.nOption = value;
             o.nValue = value;
@@ -265,7 +263,7 @@ public class ItemBuffs {
                     tsm.putCharacterStatValue(RepeatEffect, o);
                     break;
             }
-        }
+        });
         tsm.sendSetStatPacket();
     }
 }

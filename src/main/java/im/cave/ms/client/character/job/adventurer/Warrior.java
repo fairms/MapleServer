@@ -201,10 +201,11 @@ public class Warrior extends Beginner {
     //  超级技能
     public static final int KNIGHT_DARK_THIRST = 1321054; //黑暗饥渴
 
-    public final AtomicInteger comboCount = new AtomicInteger(1);
+    private final AtomicInteger comboCount = new AtomicInteger(1);
     private Summon evilEye;
     private int lastCharge;
-    private static final int[] buffs = new int[]{
+
+    public static final int[] buffs = new int[]{
             HERO_WEAPON_BOOSTER,
             HERO_RAGE,
             HERO_COMBO_ATTACK,
@@ -227,7 +228,7 @@ public class Warrior extends Beginner {
             KNIGHT_SACRIFICE
     };
 
-    private static final int[] passive = new int[]{
+    public static final int[] passive = new int[]{
             IRON_BODY,
             WARRIOR_MASTERY,
             HERO_PHYSICAL_TRAINING
@@ -790,5 +791,14 @@ public class Warrior extends Beginner {
         Set<JobType> jobs = JobType.getAllAdvancedJobs(JobType.WARRIOR.getJob());
         JobType job = JobType.getJobById(id);
         return job == JobType.WARRIOR || jobs.contains(job);
+    }
+
+    @Override
+    public int getFinalAttackSkill() {
+        return super.getFinalAttackSkill();
+    }
+
+    public AtomicInteger getComboCount() {
+        return comboCount;
     }
 }

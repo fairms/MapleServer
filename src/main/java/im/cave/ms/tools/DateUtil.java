@@ -119,4 +119,8 @@ public class DateUtil {
     public static LocalDate getFirstDayOfNextMonth(LocalDate date) {
         return date.with(TemporalAdjusters.firstDayOfMonth());
     }
+
+    public static LocalDateTime now() {
+        return LocalDateTime.now();
+    }
 }

@@ -19,6 +19,7 @@ import im.cave.ms.connection.crypto.TripleDESCipher;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
+import im.cave.ms.connection.packet.result.FameResult;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.CharMask;
@@ -169,10 +170,11 @@ public class UserPacket {
     }
 
     public static OutPacket updateMaplePoint(MapleCharacter chr) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.UPDATE_MAPLE_POINT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.UPDATE_MAPLE_POINT);
+
         out.writeInt(chr.getId());
         out.writeInt(chr.getAccount().getPoint());
+
         return out;
     }
 
@@ -573,23 +575,24 @@ public class UserPacket {
         return out;
     }
 
-    public static OutPacket addFameResponse(MapleCharacter other, int mode, int newFame) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.FAME_RESPONSE.getValue());
-        out.write(0);
-        out.writeMapleAsciiString(other.getName());
-        out.write(mode);
-        out.writeInt(newFame);
-        return out;
-    }
+    public static OutPacket fameResponse(FameResult fameResult) {
+        OutPacket out = new OutPacket(SendOpcode.FAME_RESPONSE);
 
-    public static OutPacket receiveFame(int mode, String charName) {
+        out.write(fameResult.getAction().getVal());
+        switch (fameResult.getAction()) {
+            case Add:
+                out.writeMapleAsciiString(fameResult.getStr());
+                out.write(fameResult.getArg1());
+                out.writeInt(fameResult.getArg2());
+                break;
+            case Receive:
+                out.writeMapleAsciiString(fameResult.getStr());
+                out.write(fameResult.getArg1());
+                break;
+            case AlreadyAddInThisMonth:
+                break;
+        }
 
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.FAME_RESPONSE.getValue());
-        out.write(5);
-        out.writeMapleAsciiString(charName);
-        out.write(mode);
         return out;
     }
 

@@ -4,7 +4,7 @@ package im.cave.ms.scripting;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.Record;
 import im.cave.ms.client.RecordManager;
-import im.cave.ms.client.character.Clock;
+import im.cave.ms.client.Clock;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.FieldEffect;
 import im.cave.ms.client.field.MapleMap;

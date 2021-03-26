@@ -129,17 +129,20 @@ public class LoginPacket {
             OutPacket out = new OutPacket();
             out.writeShort(SendOpcode.SERVERLIST.getValue());
             out.writeShort(world.getId());
-            out.writeMapleAsciiString("World-" + world.getId());
+            out.writeMapleAsciiString(world.getTitle());
             out.writeZeroBytes(8);
             out.writeShort(512);
+
             out.writeMapleAsciiString(world.getEventMessage());
             out.write(world.getChannelsSize());
+
             out.writeInt(500);
-            List<MapleChannel> worldChannels = world.getChannels();
-            for (MapleChannel ch : worldChannels) {
-                out.writeMapleAsciiString("World-" + world.getId() + "-" + ch.getChannelId());
+
+            List<MapleChannel> channels = world.getChannels();
+            for (MapleChannel ch : channels) {
+                out.writeMapleAsciiString(String.format("%s-%d", world.getTitle(), ch.getChannelId()));
                 out.writeInt(ch.getChannelCapacity());
-                out.write(world.getId());
+                out.write(0);
                 out.writeShort(ch.getChannelId());
             }
             out.writeZeroBytes(12);
@@ -177,8 +180,8 @@ public class LoginPacket {
     }
 
     public static OutPacket charactersList(MapleClient c, List<MapleCharacter> characters, int status) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.CHARLIST.getValue());
+        OutPacket out = new OutPacket(SendOpcode.CHARLIST);
+
         out.write(status);
         out.writeMapleAsciiString("normal");
         out.writeMapleAsciiString("normal");
@@ -214,12 +217,13 @@ public class LoginPacket {
             out.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJob()) ? 0 : job.getFlag());
             out.writeShort(1);
         }
+
         return out;
     }
 
     public static OutPacket selectCharacterResult(LoginType loginType, byte errorCode, int port, int charId) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SELECT_CHARACTER_RESULT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.SELECT_CHARACTER_RESULT);
+
         out.write(loginType.getValue());
         out.write(errorCode);
         if (loginType.equals(LoginType.Success)) {
@@ -233,6 +237,7 @@ public class LoginPacket {
             out.writeShort(5120);
             out.writeLong(1000);
         }
+
         return out;
     }
 

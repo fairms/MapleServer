@@ -1,7 +1,7 @@
 package im.cave.ms.client.quest.reward;
 
-import im.cave.ms.client.character.ItemBuffs;
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.character.items.ItemBuffs;
 
 public class QuestBuffItemReward implements QuestReward {
     private int buffItemID;
@@ -33,7 +33,7 @@ public class QuestBuffItemReward implements QuestReward {
 
     @Override
     public void giveReward(MapleCharacter chr) {
-        ItemBuffs.giveItemBuffsFromItemID(chr, chr.getTemporaryStatManager(), getBuffItemID());
+        ItemBuffs.giveItemBuffsFromItemID(chr, getBuffItemID());
     }
 
 }

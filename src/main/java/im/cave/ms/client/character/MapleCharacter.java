@@ -1,6 +1,7 @@
 package im.cave.ms.client.character;
 
 import im.cave.ms.client.Account;
+import im.cave.ms.client.Clock;
 import im.cave.ms.client.MapleClient;
 import im.cave.ms.client.OnlineReward;
 import im.cave.ms.client.Record;
@@ -68,10 +69,11 @@ import im.cave.ms.enums.EquipAttribute;
 import im.cave.ms.enums.EquipSpecialAttribute;
 import im.cave.ms.enums.InventoryOperationType;
 import im.cave.ms.enums.InventoryType;
+import im.cave.ms.enums.JobType;
 import im.cave.ms.enums.MapTransferType;
+import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.SkillStat;
 import im.cave.ms.enums.SpecStat;
-import im.cave.ms.enums.MessageType;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.ItemInfo;
@@ -101,7 +103,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.transaction.Transactional;
@@ -145,8 +146,6 @@ import static im.cave.ms.enums.InventoryType.EQUIP;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
 import static im.cave.ms.enums.InventoryType.ETC;
 import static im.cave.ms.enums.InventoryType.INSTALL;
-
-import im.cave.ms.enums.JobType;
 
 /**
  * @author fair
@@ -1543,7 +1542,7 @@ public class MapleCharacter implements Serializable {
         }
         addQuestExAndSendPacket(QUEST_EX_SKILL_STATE, value);
         if (skillId == Warrior.HERO_COMBO_ATTACK) {
-            ((Warrior) getJobHandler()).comboCount.decrementAndGet();
+            ((Warrior) getJobHandler()).getComboCount().decrementAndGet();
             ((Warrior) getJobHandler()).incCombo();
         }
     }

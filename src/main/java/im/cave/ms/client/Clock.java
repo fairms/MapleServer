@@ -1,12 +1,12 @@
-package im.cave.ms.client.character;
+package im.cave.ms.client;
 
+import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.server.service.EventManager;
 import im.cave.ms.enums.ClockType;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;

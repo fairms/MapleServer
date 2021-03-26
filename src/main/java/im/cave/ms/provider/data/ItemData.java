@@ -11,6 +11,7 @@ import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.BaseStat;
+import im.cave.ms.enums.EquipBaseStat;
 import im.cave.ms.enums.Gender;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.ItemGrade;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -118,6 +120,35 @@ public class ItemData {
         loadPetsInfo();
         loadSkillOptions();
     }
+
+    public static void loadEquipsFromWZ() {
+        List<String> equipTypes = Arrays.asList("Accessory",
+                "Android", "ArcaneForce",
+                "Bits", "Cap", "Cape", "Coat", "Dragon",
+                "Glove", "Longcoat", "Mechanic",
+                "Pants", "Ring", "PetEquip", "Shield",
+                "Shoes", "Totem", "Weapon");
+        for (String type : equipTypes) {
+            MapleDataDirectoryEntry mde = (MapleDataDirectoryEntry) chrData.getRoot().getEntry(type);
+            for (MapleDataFileEntry file : mde.getFiles()) {
+                String s = file.getName().replaceAll(".img", "");
+                if (StringUtil.isNumber(s)) {
+                    int i = Integer.parseInt(s);
+                    Equip equip = getEquipFromWz(i);
+//                    if (equip == null || !equip.isCash()) {
+//                        continue;
+//                    }
+//                    if (equip.hasStat(EquipBaseStat.iStr) || equip.hasStat(EquipBaseStat.iPAD)) {
+//                        System.out.println(equip);
+//                        System.out.println(equip.getBaseStat(EquipBaseStat.iStr));
+//                        System.out.println(equip.getBaseStat(EquipBaseStat.iDex));
+//                        System.out.println(equip.getBaseStat(EquipBaseStat.iPAD));
+//                    }
+                }
+            }
+        }
+    }
+
 
     public static void loadSkillOptions() {
         MapleData skillOptionData = itemData.getData("SkillOption.img");
@@ -476,8 +507,8 @@ public class ItemData {
                     for (MapleData whichOption : attr.getChildren()) {
                         int index = Integer.parseInt(whichOption.getName());
                         MapleData option = whichOption.getChildByPath("option");
-                        MapleData id = option.getChildByPath("attr");
-                        options.set(index, MapleDataTool.getInt(id));
+//                        MapleData id = whichOption.getChildByPath("level");
+                        options.set(index, MapleDataTool.getInt(option));
                     }
                     break;
                 case "effectItemID":

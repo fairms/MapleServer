@@ -38,7 +38,7 @@ public class World {
     private final Map<Integer, Party> parties = new HashMap<>();
     private final Map<Integer, Guild> guilds = new HashMap<>();
     private final Set<PartyQuest> partyQuests = new HashSet<>();
-
+    private String title;
     private Integer partyCounter = 1;
     private CashShopServer cashShopServer;
     private Auction auction;
@@ -50,6 +50,13 @@ public class World {
     public World(int id, String eventMessage) {
         this.id = id;
         this.eventMessage = eventMessage;
+        this.title = String.format("World-%d", id);
+    }
+
+    public World(int id, String eventMessage, String title) {
+        this.id = id;
+        this.eventMessage = eventMessage;
+        this.title = title;
     }
 
     public void setEventMessage(String eventMessage) {
@@ -246,5 +253,13 @@ public class World {
 
     public void setExpRate(int expRate) {
         this.expRate = expRate;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

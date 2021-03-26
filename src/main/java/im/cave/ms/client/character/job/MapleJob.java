@@ -8,7 +8,6 @@ import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
-import im.cave.ms.client.multiplayer.party.Party;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.server.service.EventManager;
@@ -80,24 +79,21 @@ public abstract class MapleJob {
     public static final int UNDETERRED = 91001023;
     public static final int FOR_THE_GUILD = 91001024;
 
-    public static final int REBOOT = 80000186;
-    public static final int REBOOT2 = 80000187;
-
-    public static final int MAPLERUNNER_DASH = 80001965;
+    public static final int MAPLE_RUNNER_DASH = 80001965;
 
     public static final int[] REMOVE_ON_STOP = new int[]{
-            MAPLERUNNER_DASH
+            MAPLE_RUNNER_DASH
     };
 
     public static final int[] REMOVE_ON_WARP = new int[]{
-            MAPLERUNNER_DASH
+            MAPLE_RUNNER_DASH
     };
 
     private final int[] buffs = new int[]{
             BOSS_SLAYERS,
             UNDETERRED,
             FOR_THE_GUILD,
-            MAPLERUNNER_DASH
+            MAPLE_RUNNER_DASH
     };
 
     public MapleJob(MapleCharacter chr) {
@@ -280,7 +276,7 @@ public abstract class MapleJob {
 //                o1.tTerm = si.getValue(time, slv);
 //                tsm.putMapleCharacteracterStatValue(IndieDamR, o1);
 //                break;
-//            case MAPLERUNNER_DASH:
+//            case MAPLE_RUNNER_DASH:
 //                o1.nReason = o2.nReason = skillID;
 //                o1.tStart = o2.tStart = curTime;
 //                o1.tTerm = o2.tTerm = si.getValue(time, slv);

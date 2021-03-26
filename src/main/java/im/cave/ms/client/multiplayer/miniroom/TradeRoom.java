@@ -106,7 +106,7 @@ public class TradeRoom implements MiniRoom {
         MapleCharacter chr = getChr();
         MapleCharacter other = getOther();
         // Ugly, but eh
-        // Check if the MapleCharacteracters have enough space for all the items
+        // Check if the MapleChar have enough space for all the items
         List<Item> items = new ArrayList<>();
         for (Tuple<Integer, Item> entry : getOfferedItems().get(other)) {
             items.add(entry.getRight());
