@@ -117,4 +117,15 @@ public class QuestHandler {
             player.announce(QuestPacket.questResult(QuestType.QuestRes_Act_Success, questId, npcTemplateId, 0, false));
         }
     }
+
+
+    public static void handleQuestRequirementUpdate() {
+        //todo
+    }
+
+    public static void handleQuestComplete(){
+
+
+    }
+
 }

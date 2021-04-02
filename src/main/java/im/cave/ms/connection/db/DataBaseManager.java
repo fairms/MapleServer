@@ -70,7 +70,7 @@ public class DataBaseManager {
     public static void init() {
         Configuration configuration = new Configuration().configure();
         configuration.setProperty("autoReconnect", "true");
-        Class[] dbClasses = new Class[]{
+        Class<?>[] dbClasses = new Class[]{
                 Android.class,
                 PetItem.class,
                 FlameStats.class,

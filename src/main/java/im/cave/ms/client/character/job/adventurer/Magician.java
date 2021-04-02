@@ -73,8 +73,8 @@ public class Magician extends Beginner {
             IL_MAPLE_WARRIOR
     };
 
-    private int infinityStack;
-    private ScheduledFuture infinityTimer;
+    private int infinityStack; //终极无限计数
+    private ScheduledFuture infinityTimer; //终极无限定时
 
     public Magician(MapleCharacter chr) {
         super(chr);

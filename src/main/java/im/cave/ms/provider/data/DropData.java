@@ -1,12 +1,13 @@
 package im.cave.ms.provider.data;
 
-import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.connection.db.DataBaseManager;
+import im.cave.ms.provider.info.DropInfo;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
