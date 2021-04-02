@@ -1466,4 +1466,14 @@ public class WorldHandler {
             map.broadcastMessage(FieldAttackObjPacket.setAttack(fao.getObjectId(), 0));
         }
     }
+
+    //肯定有点用的
+    public static void handleObstacleAtomCollision(InPacket in, MapleClient c) {
+        int count = in.readInt();
+        for (int i = 0; i < count; i++) {
+            int id = in.readInt();
+            int type = in.readInt();
+            Position pos = in.readPositionInt();
+        }
+    }
 }

@@ -450,6 +450,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case QUICK_MOVE_SELECT:
                 WorldHandler.handleQuickMove(in.readInt(), c);
                 break;
+            case OBSTACLE_ATOM_COLLISION:
+                WorldHandler.handleObstacleAtomCollision(in, c);
+                break;
             case BATTLE_ANALYSIS:
                 WorldHandler.handleBattleAnalysis(in, c);
                 break;
