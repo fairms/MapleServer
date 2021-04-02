@@ -292,8 +292,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_SKILL_CANCEL_REQUEST:
                 UserHandler.handleUserSkillCancel(in, c);
                 break;
-            case USER_SKILL_PREPARE_REQUEST:
-                UserHandler.handleUserSkillPrepareRequest(in, c);
+            case USER_SKILL_HOLD_DOWN_REQUEST:
+                UserHandler.handleUserSkillHoldDownRequest(in, c);
                 break;
             case USER_ADD_FAME_REQUEST:
                 UserHandler.handleUserAddFameRequest(in, c);

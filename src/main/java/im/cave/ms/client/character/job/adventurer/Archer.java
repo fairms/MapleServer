@@ -15,7 +15,6 @@ import static im.cave.ms.client.character.temp.CharacterTemporaryStat.EPAD;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.NoBulletConsume;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.SharpEyes;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.SoulArrow;
-import static im.cave.ms.enums.SkillStat.delay;
 import static im.cave.ms.enums.SkillStat.epad;
 import static im.cave.ms.enums.SkillStat.time;
 import static im.cave.ms.enums.SkillStat.x;
@@ -29,7 +28,7 @@ import static im.cave.ms.enums.SkillStat.y;
  */
 public class Archer extends Beginner {
     public static final int BOW_SOUL_ARROW = 3101004;
-
+    public static final int BOW_HURRICANE = 3121020;
     public static final int BOW_ILLUSION_STEP = 3121007;
     public static final int BOW_SHARP_EYE = 3121002;
 

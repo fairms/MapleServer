@@ -8,6 +8,7 @@ import im.cave.ms.client.character.DamageSkinSaveData;
 import im.cave.ms.client.character.Macro;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.MapleKeyMap;
+import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Inventory;
@@ -49,6 +50,7 @@ import im.cave.ms.constants.ItemConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.constants.QuestConstants;
 import im.cave.ms.constants.SkillConstants;
+import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.CashItemType;
 import im.cave.ms.enums.CashShopCurrencyType;
 import im.cave.ms.enums.CharPotGrade;
@@ -59,7 +61,7 @@ import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MapTransferType;
 import im.cave.ms.enums.RecordType;
-import im.cave.ms.enums.BroadcastMsgType;
+import im.cave.ms.enums.SkillStat;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.AndroidInfo;
@@ -84,6 +86,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.KeyDownMoving;
 import static im.cave.ms.connection.packet.opcode.RecvOpcode.CLOSE_RANGE_ATTACK;
 import static im.cave.ms.connection.packet.opcode.RecvOpcode.MAGIC_ATTACK;
 import static im.cave.ms.connection.packet.opcode.RecvOpcode.RANGED_ATTACK;
@@ -168,6 +171,10 @@ public class UserHandler {
 
         in.readLong(); // 00 00 00 00
         in.readInt(); // 8E B1 05 5F 固定的
+        if (attackInfo.skillId == player.getPrepareSkill().getLeft()) {
+            in.readInt();//如果是按压技能的话
+
+        }
         in.skip(3);
         if (attackInfo.attackHeader == RANGED_ATTACK) {
             in.readInt();
@@ -186,7 +193,7 @@ public class UserHandler {
         if (attackInfo.attackHeader == RANGED_ATTACK) {
             in.readInt(); // 00
             in.readShort(); // 00
-            in.readByte(); // 30
+            in.readByte(); // 1E
             attackInfo.rect = in.readShortRect();
         }
         for (int i = 0; i < attackInfo.mobCount; i++) {
@@ -232,6 +239,7 @@ public class UserHandler {
             in.skip(18); //unk pos
             attackInfo.mobAttackInfo.add(mobAttackInfo);
         }
+        in.readInt();
         player.getJobHandler().handleAttack(c, attackInfo);
         handleAttack(c, attackInfo);
     }
@@ -1289,7 +1297,6 @@ public class UserHandler {
         int slv = skill == null ? 0 : skill.getCurrentLevel();
         if (slv == 0) {
             chr.chatMessage(ChatType.GameDesc, "无法使用技能");
-            return;
         } else {
             boolean success = true;
             if (SkillData.getSkillInfo(skillId).hasCooltime()) {
@@ -1314,16 +1321,29 @@ public class UserHandler {
     }
 
     //todo
-    public static void handleUserSkillPrepareRequest(InPacket in, MapleClient c) {
+    public static void handleUserSkillHoldDownRequest(InPacket in, MapleClient c) {
+        //7C 9F 2F 00 1E 00 00 00 87 6F 2E A3 00 16 80 04 00 01 8A 3D 0D
+        //7C 9F 2F 00 1E 00 00 00 87 6F 2E A3 00 16 00 04 00 7D 69 3C 0D
         MapleCharacter player = c.getPlayer();
         int skillId = in.readInt();
         int slv = in.readInt();
         in.readByte();
         in.readInt();
-        in.readInt();
-        int tick = in.readInt();
+        in.readByte();//attackAction
+        in.readByte();//direction
+        in.readShort();
+        player.setTick(in.readInt());
         if (!player.hasSkill(skillId)) {
             return;
+        }
+        if (SkillConstants.isKeyDownMovingSkill(skillId)) {
+            SkillInfo si = SkillData.getSkillInfo(skillId);
+            Option option = new Option();
+            option.nOption = si.getValue(SkillStat.x, slv);
+            option.rOption = skillId;
+            TemporaryStatManager tsm = player.getTemporaryStatManager();
+            tsm.putCharacterStatValue(KeyDownMoving, option);
+            tsm.sendSetStatPacket();
         }
         player.setPrepareSkill(skillId, skillId);
     }

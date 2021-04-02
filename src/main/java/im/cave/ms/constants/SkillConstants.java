@@ -311,4 +311,23 @@ public class SkillConstants {
     public static boolean isStealableSkill(int skillID) {
         return false;
     }
+
+
+    public static boolean isKeyDownSkill(int skillID) {
+        return skillID == 1311011 || skillID == 2221011 || skillID == 2221052 || skillID == 2321001 || skillID == 3101008 || skillID == 3111013 || skillID == 3121020 || skillID == 4341002 ||
+                skillID == 5081002 || skillID == 5081010 || skillID == 5221004 || skillID == 5311002 || skillID == 5700010 || skillID == 5711021 || skillID == 5721001 || skillID == 5721061 ||
+                skillID == 11121052 || skillID == 11121055 || skillID == 12121054 || skillID == 13111020 || skillID == 13121001 || skillID == 14111006 || skillID == 14121004 || skillID == 20041226 ||
+                skillID == 21120018 || skillID == 22171083 || skillID == 23121000 || skillID == 24121000 || skillID == 24121005 || skillID == 25111005 || skillID == 25121030 || skillID == 27101202 ||
+                skillID == 27111100 || skillID == 30021238 || skillID == 31001000 || skillID == 31101000 || skillID == 31111005 || skillID == 31211001 || skillID == 33121009 || skillID == 33121114 ||
+                skillID == 33121214 || skillID == 35121015 || skillID == 36101001 || skillID == 36121000 || skillID == 37121003 || skillID == 37121052 || skillID == 41121001 || skillID == 42121000 ||
+                skillID == 60011216 || skillID == 64001000 || skillID == 64001007 || skillID == 64001008 || skillID == 64121002 || skillID == 65121003 || skillID == 80001392 || skillID == 80001587 ||
+                skillID == 80001629 || skillID == 80001836 || skillID == 80001887 || skillID == 80002458 || skillID == 80011051 || skillID == 80011362 || skillID == 80011366 || skillID == 80011371 ||
+                skillID == 80011381 || skillID == 80011382 || skillID == 80011387 || skillID == 95001001 || skillID == 101110101 || skillID == 101110102 || skillID == 112001008 || skillID == 112110003 ||
+                skillID == 112111016 || skillID == 131001004 || skillID == 131001008 || skillID == 131001020 || skillID == 142111010 || skillID == 155121341;
+    }
+
+    //todo 更多的
+    public static boolean isKeyDownMovingSkill(int skillId) {
+        return skillId == 3121020;
+    }
 }

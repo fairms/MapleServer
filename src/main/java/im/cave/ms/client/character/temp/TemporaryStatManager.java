@@ -2,7 +2,6 @@ package im.cave.ms.client.character.temp;
 
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
-import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.UserPacket;
@@ -39,6 +38,7 @@ import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ElementalC
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.FullSoulMP;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOver;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOverR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.KeyDownMoving;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.LifeTidal;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicle;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicleExpire;
@@ -333,6 +333,11 @@ public class TemporaryStatManager {
         if (hasNewStat(ComboCounter)) { //todo
             out.writeInt(getOption(ComboCounter).bOption);
         }
+
+        if (hasNewStat(KeyDownMoving)) {
+            out.writeInt(getOption(KeyDownMoving).tOption); //0
+        }
+
         encodeIndieTempStat(out);
         if (hasNewStat(SoulMP) || hasNewStat(FullSoulMP)) {
             //暂时处理
@@ -340,11 +345,14 @@ public class TemporaryStatManager {
             getNewStats().clear();
             return;
         }
+
         out.write(1);
         out.write(1);
         out.write(1);
         out.writeInt(0);
-        out.write(0);  //sometimes
+        if (hasNewMovingEffectingStat()) {
+            out.write(0);
+        }
         getNewStats().clear();
     }
 
