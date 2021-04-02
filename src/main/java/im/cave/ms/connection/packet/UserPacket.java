@@ -849,4 +849,12 @@ public class UserPacket {
 
         return out;
     }
+
+    public OutPacket lifeCount(int count) {
+        OutPacket out = new OutPacket(SendOpcode.LIFE_COUNT);
+
+        out.writeInt(count);
+
+        return out;
+    }
 }

@@ -15,6 +15,9 @@ import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.Pet;
+import im.cave.ms.client.field.obstacleatom.ObstacleAtomInfo;
+import im.cave.ms.client.field.obstacleatom.ObstacleInRowInfo;
+import im.cave.ms.client.field.obstacleatom.ObstacleRadianInfo;
 import im.cave.ms.client.multiplayer.Express;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.guilds.Guild;
@@ -34,6 +37,7 @@ import im.cave.ms.enums.ForceAtomEnum;
 import im.cave.ms.enums.FriendType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
+import im.cave.ms.enums.ObstacleAtomCreateType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.enums.UIType;
 import im.cave.ms.tools.DateUtil;
@@ -46,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static im.cave.ms.constants.ServerConstants.NEXON_IP;
 import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
@@ -971,6 +976,28 @@ public class WorldPacket {
     public static OutPacket createForceAtom(ForceAtom fa) {
         OutPacket out = new OutPacket(SendOpcode.CREATE_FORCE_ATOM);
         fa.encode(out);
+        return out;
+    }
+
+    public static OutPacket createObstacle(ObstacleAtomCreateType oact, ObstacleInRowInfo oiri, ObstacleRadianInfo ori,
+                                           Set<ObstacleAtomInfo> atomInfos) {
+        OutPacket out = new OutPacket(SendOpcode.CREATE_OBSTACLE);
+        out.writeInt(0); // ? gets used in 1 function, which forwards it to another, which does nothing with it
+        out.writeInt(atomInfos.size());
+        out.write(oact.getVal());
+        if (oact == ObstacleAtomCreateType.IN_ROW) {
+            oiri.encode(out);
+        } else if (oact == ObstacleAtomCreateType.RADIAL) {
+            ori.encode(out);
+        }
+        for (ObstacleAtomInfo atomInfo : atomInfos) {
+            out.writeBool(true); // false -> no encode
+            atomInfo.encode(out);
+            if (oact == ObstacleAtomCreateType.DIAGONAL) {
+                atomInfo.getObtacleDiagonalInfo().encode(out);
+            }
+        }
+
         return out;
     }
 }

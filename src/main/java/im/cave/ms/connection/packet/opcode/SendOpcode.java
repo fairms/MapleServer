@@ -133,6 +133,7 @@ public enum SendOpcode {
     CREATE_FORCE_ATOM(0x25B),
     PROGRESS(0x25F),
     QUICK_MOVE(0x260),//26b - b
+    CREATE_OBSTACLE(0x261),
     //28e user_stand_up
     USER_SIT(0x28F), //29B-C
     USER_ENTER_FIELD(0x2AB), //2b5 -a
@@ -215,7 +216,7 @@ public enum SendOpcode {
     BAG_ITEM_USE_RESULT(0x3A9),// //BAG_ITEM_USE_RESULT
     DODGE_SKILL_READY(0x3AE),//闪避技能准备
     IN_GAME_DIRECTION_EVENT(0x3B2),
-    DEATH_COUNT(0x3BA),
+    LIFE_COUNT(0x3BA),
     CHECK_TRICK_OR_TREAT_RESULT(0x3C1),
     USER_B2_BODY(0x3C4),
     SET_DEAD(0x3C5),//
