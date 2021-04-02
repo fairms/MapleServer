@@ -1,12 +1,13 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.Account;
-import im.cave.ms.client.MapleClient;
+import im.cave.ms.client.ForceAtom;
 import im.cave.ms.client.OnlineReward;
 import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.skill.ForceAtomInfo;
 import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.FieldEffect;
@@ -19,19 +20,17 @@ import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.client.multiplayer.party.PartyResult;
 import im.cave.ms.client.storage.Trunk;
-import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.netty.OutPacket;
-import im.cave.ms.connection.netty.Packet;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.connection.packet.result.OnlineRewardResult;
-import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.ChatType;
 import im.cave.ms.enums.DimensionalMirror;
 import im.cave.ms.enums.DropEnterType;
 import im.cave.ms.enums.DropLeaveType;
+import im.cave.ms.enums.ForceAtomEnum;
 import im.cave.ms.enums.FriendType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.MapTransferType;
@@ -40,21 +39,19 @@ import im.cave.ms.enums.UIType;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Randomizer;
+import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.StringUtil;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static im.cave.ms.constants.ServerConstants.NEXON_IP;
 import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
+import static im.cave.ms.enums.DropEnterType.Instant;
 import static im.cave.ms.enums.MessageType.DROP_PICKUP_MESSAGE;
 import static im.cave.ms.enums.MessageType.INC_EXP_MESSAGE;
-import static im.cave.ms.enums.DropEnterType.Instant;
 
 /**
  * @author fair
@@ -943,6 +940,37 @@ public class WorldPacket {
         out.writeShort(5); //unk
         out.writeShort(DateUtil.now().getHour());
 
+        return out;
+    }
+
+    public static OutPacket createForceAtom(boolean byMob, int userOwner, int targetID, int forceAtomType,
+                                            boolean toMob, int targets, int skillID,
+                                            ForceAtomInfo fai, Rect rect, int arriveDir, int arriveRange,
+                                            Position forcedTargetPos, int bulletID, Position pos) {
+
+        return createForceAtom(byMob, userOwner, targetID, ForceAtomEnum.getByVal(forceAtomType), toMob, targets, skillID, fai, rect, arriveDir, arriveRange, forcedTargetPos, bulletID, pos);
+    }
+
+    public static OutPacket createForceAtom(boolean byMob, int userOwner, int targetID, ForceAtomEnum forceAtomType, boolean toMob,
+                                            int targets, int skillID, ForceAtomInfo fai, Rect rect, int arriveDir, int arriveRange,
+                                            Position forcedTargetPos, int bulletID, Position pos) {
+        List<Integer> integers = new ArrayList<>();
+        integers.add(targets);
+        List<ForceAtomInfo> forceAtomInfos = new ArrayList<>();
+        forceAtomInfos.add(fai);
+        return createForceAtom(byMob, userOwner, targetID, forceAtomType, toMob, integers, skillID, forceAtomInfos,
+                rect, arriveDir, arriveRange, forcedTargetPos, bulletID, pos);
+    }
+
+    public static OutPacket createForceAtom(boolean byMob, int userOwner, int charID, ForceAtomEnum forceAtomType, boolean toMob,
+                                            List<Integer> targets, int skillID, List<ForceAtomInfo> faiList, Rect rect, int arriveDir, int arriveRange,
+                                            Position forcedTargetPos, int bulletID, Position pos) {
+        return createForceAtom(new ForceAtom(byMob, userOwner, charID, forceAtomType, toMob, targets, skillID, faiList, rect, arriveDir, arriveRange, forcedTargetPos, bulletID, pos));
+    }
+
+    public static OutPacket createForceAtom(ForceAtom fa) {
+        OutPacket out = new OutPacket(SendOpcode.CREATE_FORCE_ATOM);
+        fa.encode(out);
         return out;
     }
 }

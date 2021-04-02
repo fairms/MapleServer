@@ -130,6 +130,7 @@ public enum SendOpcode {
     CLOCK(0x23F),//
     QUICKSLOT_INIT(0x24D),  //258 -B
     UNK252(0x252),
+    CREATE_FORCE_ATOM(0x25B),
     PROGRESS(0x25F),
     QUICK_MOVE(0x260),//26b - b
     //28e user_stand_up
