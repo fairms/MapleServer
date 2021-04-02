@@ -355,6 +355,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case SEND_MAPLE_NOTES:
                 WorldHandler.handleSendMapleNotes(in, c);
                 break;
+            case REQUEST_ARROW_PLATTER_OBJ:
+                WorldHandler.handleRequestArrowPlatterObj(in, c);
+                break;
             case CHAT_ROOM:
                 WorldHandler.handleChatRoom(in, c);
                 break;

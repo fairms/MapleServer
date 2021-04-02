@@ -7,8 +7,11 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.job.JobManager;
+import im.cave.ms.client.character.job.adventurer.Archer;
 import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.skill.MobAttackInfo;
+import im.cave.ms.client.character.skill.Skill;
+import im.cave.ms.client.field.FieldAttackObj;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.movement.MovementInfo;
@@ -35,6 +38,7 @@ import im.cave.ms.connection.packet.AndroidPacket;
 import im.cave.ms.connection.packet.AuctionPacket;
 import im.cave.ms.connection.packet.CashShopPacket;
 import im.cave.ms.connection.packet.FamiliarPacket;
+import im.cave.ms.connection.packet.FieldAttackObjPacket;
 import im.cave.ms.connection.packet.LoginPacket;
 import im.cave.ms.connection.packet.MessagePacket;
 import im.cave.ms.connection.packet.MiniRoomPacket;
@@ -51,6 +55,7 @@ import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.auction.Auction;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
 import im.cave.ms.connection.server.channel.MapleChannel;
+import im.cave.ms.connection.server.service.EventManager;
 import im.cave.ms.connection.server.world.World;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
@@ -72,6 +77,7 @@ import im.cave.ms.enums.MapleNotesType;
 import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.PartyType;
 import im.cave.ms.enums.ServerType;
+import im.cave.ms.enums.SkillStat;
 import im.cave.ms.enums.TradeRoomType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.provider.data.ItemData;
@@ -93,6 +99,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_COMBO_KILL;
@@ -1431,5 +1440,30 @@ public class WorldHandler {
         }
         in.readInt();
         UserHandler.handleAttack(c, ai);
+    }
+
+    public static void handleRequestArrowPlatterObj(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        boolean flip = in.readByte() != 0;
+        Position position = in.readPositionInt();
+        int skillID = Archer.BOW_ARROW_PLATTER;
+        Skill skill = chr.getSkill(skillID);
+        if (skill != null && skill.getCurrentLevel() > 0) {
+            MapleMap map = chr.getMap();
+            Set<FieldAttackObj> currentFaos = map.getFieldAttackObjects();
+            // remove the old arrow platter
+            currentFaos.stream()
+                    .filter(fao -> fao.getOwnerID() == chr.getId() && fao.getTemplateId() == 1)
+                    .findAny().ifPresent(map::removeObj);
+            SkillInfo si = SkillData.getSkillInfo(skillID);
+            int slv = skill.getCurrentLevel();
+            FieldAttackObj fao = new FieldAttackObj(1, chr.getId(), chr.getPosition().deepCopy(), flip);
+            map.spawnObj(fao, chr);
+            map.broadcastMessage(FieldAttackObjPacket.objCreate(fao));
+            ScheduledFuture sf = EventManager.addEvent(() -> map.removeObj(fao.getObjectId(), true),
+                    si.getValue(SkillStat.u, slv), TimeUnit.SECONDS);
+            map.addObjScheduledFuture(fao, sf);
+            map.broadcastMessage(FieldAttackObjPacket.setAttack(fao.getObjectId(), 0));
+        }
     }
 }

@@ -29,6 +29,7 @@ import static im.cave.ms.enums.SkillStat.y;
 public class Archer extends Beginner {
     public static final int BOW_SOUL_ARROW = 3101004;
     public static final int BOW_HURRICANE = 3121020;
+    public static final int BOW_ARROW_PLATTER = 3111013;
     public static final int BOW_ILLUSION_STEP = 3121007;
     public static final int BOW_SHARP_EYE = 3121002;
 

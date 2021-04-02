@@ -288,6 +288,11 @@ public class MapleMap {
         removeSchedule(obj, schedule);
     }
 
+    public void removeObj(MapleMapObj obj) {
+        removeObj(obj.getObjectId(), false);
+    }
+
+
     private void removeSchedule(MapleMapObj obj, boolean schedule) {
         if (!getObjScheduledFutures().containsKey(obj)) {
             return;
@@ -569,5 +574,9 @@ public class MapleMap {
         mob.setX(x);
         mob.setY(y);
         addObj(mob);
+    }
+
+    public Set<FieldAttackObj> getFieldAttackObjects() {
+        return getLifesByClass(FieldAttackObj.class);
     }
 }
