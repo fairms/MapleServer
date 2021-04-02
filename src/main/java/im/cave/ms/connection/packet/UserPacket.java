@@ -17,6 +17,7 @@ import im.cave.ms.client.field.Portal;
 import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.connection.crypto.TripleDESCipher;
 import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.netty.Packet;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.packet.result.FameResult;
@@ -834,7 +835,18 @@ public class UserPacket {
 
     public static OutPacket memorialCubeModified() {
         OutPacket out = new OutPacket(SendOpcode.MEMORIAL_CUBE_MODIFIED);
+
         out.writeBool(false);
+
+        return out;
+    }
+
+    public static Packet userB2Body(short type, int bodyIdCounter) {
+        OutPacket out = new OutPacket(SendOpcode.USER_B2_BODY);
+
+        out.writeInt(type);
+        out.writeInt(bodyIdCounter);
+
         return out;
     }
 }

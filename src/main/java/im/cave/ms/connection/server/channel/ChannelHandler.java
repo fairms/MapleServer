@@ -105,6 +105,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_QUEST_REQUEST:
                 QuestHandler.handleQuestRequest(in, c);
                 break;
+            case USER_B2_BODY_REQUEST:
+                UserHandler.handleUserB2BodyRequest(in, c);
+                break;
             case USER_THROW_GRENADE:
                 UserHandler.handleUserThrowGrenade(in, c);
                 break;

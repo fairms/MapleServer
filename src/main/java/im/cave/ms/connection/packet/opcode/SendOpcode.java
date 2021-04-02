@@ -216,6 +216,7 @@ public enum SendOpcode {
     IN_GAME_DIRECTION_EVENT(0x3B2),
     DEATH_COUNT(0x3BA),
     CHECK_TRICK_OR_TREAT_RESULT(0x3C1),
+    USER_B2_BODY(0x3C4),
     SET_DEAD(0x3C5),//
     OPEN_DEAD_UI(0x3C6),//
     //

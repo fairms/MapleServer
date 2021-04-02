@@ -1354,4 +1354,23 @@ public class UserHandler {
         Position from = in.readPositionInt();
         Position to = in.readPositionInt();
     }
+
+    //有啥用呢
+    public static void handleUserB2BodyRequest(InPacket in, MapleClient c) {
+        short type = in.readShort();
+        int ownerCID = in.readInt();
+        int bodyIdCounter = in.readInt();
+        Position pos1 = in.readPosition();
+        Position pos2 = in.readPosition();
+        int skillID = in.readInt();
+        boolean isLeft = in.readByte() != 0;
+        in.skip(10);
+        in.readInt();
+        in.readByte();
+        in.readShort();
+        in.readShort();
+        in.readShort();
+        Position forcedPos = in.readPositionInt();
+        c.announce(UserPacket.userB2Body(type, bodyIdCounter));
+    }
 }
