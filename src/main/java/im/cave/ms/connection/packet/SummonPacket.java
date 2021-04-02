@@ -1,5 +1,6 @@
 package im.cave.ms.connection.packet;
 
+import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.connection.netty.OutPacket;
@@ -69,6 +70,15 @@ public class SummonPacket {
         out.writeInt(summon.getChr().getId());
         out.writeInt(summon.getObjectId());
         out.write(levelType);
+
+        return out;
+    }
+
+    //todo
+    public static OutPacket summonAttack(int charId, AttackInfo ai, boolean counter) {
+        OutPacket out = new OutPacket(SendOpcode.SUMMONED_ATTACK);
+
+        out.writeInt(charId);
 
         return out;
     }

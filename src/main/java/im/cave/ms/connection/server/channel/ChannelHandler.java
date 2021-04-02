@@ -1,7 +1,6 @@
 package im.cave.ms.connection.server.channel;
 
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.WorldPacket;
@@ -265,7 +264,6 @@ public class ChannelHandler extends AbstractServerHandler {
             case CLOSE_RANGE_ATTACK:
             case RANGED_ATTACK:
             case MAGIC_ATTACK:
-            case SUMMON_ATTACK:
 //            case TOUCH_MONSTER_ATTACK:
                 UserHandler.handleAttack(in, c, opcode);
                 break;
@@ -338,6 +336,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case SUMMON_MOVE:
                 WorldHandler.handleSummonMove(in, c);
+                break;
+            case SUMMON_ATTACK:
+                WorldHandler.handleSummonAttack(in, c);
                 break;
             case SUMMON_SKILL:
                 WorldHandler.handleSummonSkill(in, c);

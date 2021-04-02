@@ -1,5 +1,6 @@
 package im.cave.ms.client.character.skill;
 
+import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Rect;
@@ -67,7 +68,7 @@ public class AttackInfo {
     public int wt;
     public int ar01Mad;
     public Position pos3;
-    //    public Summon summon;
+    public Summon summon;
     public int updateTime;
     public int bulletID;
     public short mobMove;

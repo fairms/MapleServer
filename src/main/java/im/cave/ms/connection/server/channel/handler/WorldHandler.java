@@ -7,6 +7,8 @@ import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.job.JobManager;
+import im.cave.ms.client.character.skill.AttackInfo;
+import im.cave.ms.client.character.skill.MobAttackInfo;
 import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.QuickMoveInfo;
 import im.cave.ms.client.field.movement.MovementInfo;
@@ -41,6 +43,7 @@ import im.cave.ms.connection.packet.SummonPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.connection.packet.result.OnlineRewardResult;
@@ -66,9 +69,9 @@ import im.cave.ms.enums.InstanceTableType;
 import im.cave.ms.enums.InventoryType;
 import im.cave.ms.enums.LoginStatus;
 import im.cave.ms.enums.MapleNotesType;
+import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.PartyType;
 import im.cave.ms.enums.ServerType;
-import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.TradeRoomType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.provider.data.ItemData;
@@ -76,6 +79,8 @@ import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Pair;
+import im.cave.ms.tools.Position;
+import im.cave.ms.tools.Rect;
 import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1371,5 +1376,60 @@ public class WorldHandler {
                 in.readInt();
                 break;
         }
+    }
+
+    public static void handleSummonAttack(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        MapleMap map = chr.getMap();
+        AttackInfo ai = new AttackInfo();
+        int objId = in.readInt();
+        ai.attackHeader = RecvOpcode.SUMMON_ATTACK;
+        ai.summon = (Summon) map.getObj(objId);
+        in.readInt();
+        ai.updateTime = in.readInt();
+        ai.skillId = in.readInt();
+        in.readInt();
+        in.readByte();
+        byte leftAndAction = in.readByte();
+        ai.attackActionType = (byte) (leftAndAction & 0x7F);
+        ai.left = (byte) (leftAndAction >>> 7) != 0;
+        byte mask = in.readByte();
+        ai.hits = (byte) (mask & 0xF);
+        ai.mobCount = (mask >>> 4) & 0xF;
+        in.readByte();
+        ai.pos = in.readPosition();
+        ai.pos3 = in.readPosition();
+        in.readByte();
+        in.readInt();
+        in.skip(10);
+        for (int i = 0; i < ai.mobCount; i++) {
+            MobAttackInfo mai = new MobAttackInfo();
+            mai.objectId = in.readInt();
+            mai.templateID = in.readInt();
+            mai.byteIdk1 = in.readByte();
+            mai.byteIdk2 = in.readByte();
+            mai.byteIdk3 = in.readByte();
+            mai.byteIdk4 = in.readByte();
+            mai.byteIdk5 = in.readByte();
+            in.readInt(); //template Id;
+            byte byteIdk6 = in.readByte();
+            mai.rect = in.readShortRect();
+            in.readInt();//100
+            in.readInt();//900
+            in.skip(6);
+            long[] damages = new long[ai.hits];
+            for (int j = 0; j < ai.hits; j++) {
+                damages[j] = in.readLong();
+            }
+            mai.damages = damages;
+            mai.mobUpDownYRange = in.readInt();
+            in.readByte();
+            in.readByte();
+            Rect rect = in.readShortRect();
+            Position pos = in.readPosition();
+            in.skip(5);
+        }
+        in.readInt();
+        UserHandler.handleAttack(c, ai);
     }
 }

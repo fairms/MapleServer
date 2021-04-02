@@ -35,6 +35,7 @@ import im.cave.ms.client.storage.Locker;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.CashShopPacket;
 import im.cave.ms.connection.packet.MessagePacket;
+import im.cave.ms.connection.packet.SummonPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.connection.packet.WorldPacket;
@@ -248,9 +249,9 @@ public class UserHandler {
         }
         if (attackInfo.attackHeader != null) {
             switch (attackInfo.attackHeader) {
-//                case SUMMONED_ATTACK:
-//                    chr.getField().broadcastPacket(Summoned.summonedAttack(chr.getId(), attackInfo, false), chr);
-//                    break;
+                case SUMMON_ATTACK:
+                    player.getMap().broadcastMessage(player, SummonPacket.summonAttack(player.getId(), attackInfo, false), false);
+                    break;
 //                case FAMILIAR_ATTACK:
 //                    chr.getField().broadcastPacket(CFamiliar.familiarAttack(chr.getId(), attackInfo), chr);
 //                    break;
