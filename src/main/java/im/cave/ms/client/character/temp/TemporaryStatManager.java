@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.CombatOrders;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ComboCounter;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ElementalCharge;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ExtremeArchery;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.FullSoulMP;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOver;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOverR;
@@ -336,6 +337,11 @@ public class TemporaryStatManager {
 
         if (hasNewStat(KeyDownMoving)) {
             out.writeInt(getOption(KeyDownMoving).tOption); //0
+        }
+
+        if (hasNewStat(ExtremeArchery)) {
+            out.writeInt(getOption(ExtremeArchery).bOption);
+            out.writeInt(getOption(ExtremeArchery).xOption);
         }
 
         encodeIndieTempStat(out);

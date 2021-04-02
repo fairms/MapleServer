@@ -417,7 +417,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     DotBasedBuff(354),
     BlessEnsenble(355),
     ComboCostInc(356),
-    ExtremeArchery(357),
+    ExtremeArchery(363),
     NaviFlying(358),
     QuiverCatridge(359),
     AdvancedQuiver(360),

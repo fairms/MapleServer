@@ -44,7 +44,7 @@ IndieCrDamR 41 400000 1
 IndieEVAR 42 200000 1
 IndieMDDR -1 1 0
 IndieDrainHP 43 100000 1
-IndiePMdR 43 100000 1
+IndiePMdR 43 100000 1 //最终伤害
 IndieMaxDamageOverR -1 1 0
 IndieForceJump 44 80000 1
 IndieForceSpeed 45 40000 1

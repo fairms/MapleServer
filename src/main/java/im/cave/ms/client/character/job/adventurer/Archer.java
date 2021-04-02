@@ -12,10 +12,14 @@ import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.SkillInfo;
 
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.EPAD;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ExtremeArchery;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePDDR;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePMdR;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.NoBulletConsume;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.SharpEyes;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.SoulArrow;
 import static im.cave.ms.enums.SkillStat.epad;
+import static im.cave.ms.enums.SkillStat.indiePMdR;
 import static im.cave.ms.enums.SkillStat.time;
 import static im.cave.ms.enums.SkillStat.x;
 import static im.cave.ms.enums.SkillStat.y;
@@ -29,6 +33,7 @@ import static im.cave.ms.enums.SkillStat.y;
 public class Archer extends Beginner {
     public static final int BOW_SOUL_ARROW = 3101004;
     public static final int BOW_HURRICANE = 3121020;
+    public static final int BOW_RECKLESS_HUNT = 3111011;
     public static final int BOW_ARROW_PLATTER = 3111013;
     public static final int BOW_ILLUSION_STEP = 3121007;
     public static final int BOW_SHARP_EYE = 3121002;
@@ -97,6 +102,25 @@ public class Archer extends Beginner {
                 o.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(SharpEyes, oo);
                 //todo deal hyper passive
+                break;
+            case BOW_RECKLESS_HUNT: //todo 加的攻击力去哪了？
+                if (tsm.hasStatBySkillId(skillId)) {
+                    tsm.removeStatsBySkill(skillId);
+                    tsm.sendResetStatPacket();
+                } else {
+                    o.nOption = si.getValue(x, slv);
+                    o.rOption = skillId;
+                    tsm.putCharacterStatValue(ExtremeArchery, o);
+                    oo.nReason = skillId;
+                    oo.nValue = -1 * si.getValue(x, slv);
+                    int tStart = (int) System.currentTimeMillis();
+                    oo.tStart = tStart;
+                    tsm.putCharacterStatValue(IndiePDDR, oo);
+                    ooo.nReason = skillId;
+                    ooo.nValue = si.getValue(indiePMdR, slv);
+                    ooo.tStart = tStart;
+                    tsm.putCharacterStatValue(IndiePMdR, ooo);
+                }
                 break;
             default:
                 sendStat = false;
