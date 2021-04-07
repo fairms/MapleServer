@@ -1158,6 +1158,19 @@ public class WorldHandler {
                 guildCol = world.getGuildsByString(searchType, exact, searchTerm);
                 player.announce(WorldPacket.guildSearchResult(searchType, exact, searchTerm, guildCol));
                 break;
+            case Req_Skill_Use: {
+                if (guild == null) {
+                    return;
+                }
+                int skillId = in.readInt();
+                GuildSkill skill = guild.getSkillById(skillId);
+                if (skill == null) {
+                    //ban
+                    return;
+                }
+                //todo
+                break;
+            }
             case Req_SkillLevelSetUp:
                 if (guild == null) {
                     return;
@@ -1231,7 +1244,7 @@ public class WorldHandler {
                 guild.setTrendAges(in.readInt());
                 guild.broadcast(WorldPacket.guildResult(GuildResult.updateSetting(guild)));
                 break;
-            case Req_Signin:
+            case Req_SignIn:
                 if (guild == null) {
                     return;
                 }

@@ -50,8 +50,18 @@ public class ChatHandler {
                     return;
                 } else if (dest.getChannel() != player.getChannel()) {
                     player.announce(MessagePacket.whisper(WhisperType.Res_Find_Friend, destName, 3, dest.getChannel()));
+                    break;
                 }
                 player.announce(MessagePacket.whisper(WhisperType.Res_Find_Friend, destName, 1, dest.getMapId()));
+                break;
+            case Req_Find_GuildMember:
+                if (dest == null) {
+                    return;
+                } else if (dest.getChannel() != player.getChannel()) {
+                    player.announce(MessagePacket.whisper(WhisperType.Res_Find_GuildMember, destName, 3, dest.getChannel()));
+                    break;
+                }
+                player.announce(MessagePacket.whisper(WhisperType.Res_Find_GuildMember, destName, 1, dest.getMapId()));
                 break;
             case Req_Whisper:
                 String msg = in.readMapleAsciiString();

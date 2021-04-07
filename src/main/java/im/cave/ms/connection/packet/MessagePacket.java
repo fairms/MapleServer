@@ -41,6 +41,7 @@ public class MessagePacket {
         out.write(type.getVal());
         switch (type) {
             case Res_Find_Friend:
+            case Res_Find_GuildMember:
                 out.writeMapleAsciiString(destName);
                 out.write(status);
                 out.writeInt(param);

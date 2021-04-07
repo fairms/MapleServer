@@ -9,8 +9,11 @@ import im.cave.ms.tools.Util;
  * @date 1/9 23:20
  */
 public enum WhisperType {
+    Req_Find_GuildMember(5),
     Req_Whisper(6),
+    Res_Find_GuildMember(9),
     Res_Whisper(10),
+
     Req_Find_Friend(68),
     Res_Find_Friend(72),
     ;
