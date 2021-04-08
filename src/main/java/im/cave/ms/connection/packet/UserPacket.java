@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static im.cave.ms.constants.ServerConstants.DES_KEY;
+import static im.cave.ms.constants.ServerConstants.DESKEY;
 import static im.cave.ms.constants.ServerConstants.MAX_TIME;
 import static im.cave.ms.enums.InventoryType.EQUIPPED;
 
@@ -549,7 +549,7 @@ public class UserPacket {
         }
         used.clear();
 
-        TripleDESCipher tripleDESCipher = new TripleDESCipher(DES_KEY);
+        TripleDESCipher tripleDESCipher = new TripleDESCipher(DESKEY);
         try {
             byte[] buffer = new byte[Short.MAX_VALUE + 1];
             byte[] encrypt = tripleDESCipher.Encrypt(sOpcodes.toString().getBytes());
