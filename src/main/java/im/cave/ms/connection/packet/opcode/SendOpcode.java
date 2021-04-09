@@ -89,12 +89,26 @@ public enum SendOpcode {
     BLACK_CUBE_RESULT(0x11C),
     MEMORIAL_CUBE_MODIFIED(0x11E),
     CHANGE_CHAR_KEY(0x125),// - 9
-    GUILD_RANK(0x129),
+    ACTION_BAR_RESULT(0x128),
+    GUILD_CONTENT_RESULT(0x129),
     GUILD_SEARCH_RESULT(0x12A),
-    SCAN_RUNNING_PROCESS(0x130),  //maybe  01 bool
+    //
+    //
+    //
+    //
+    //
+    CHECK_PROCESS_RESULT(0x130),  //maybe  01 bool
+    //
     UPDATE_QUEST_EX(0x132),// - 9
     SET_ACCOUNT_INFO(0x133), //13C - 9
+    //
+    //
     SET_AVATAR_MEGAPHONE(0x136), //-9
+    //
+    //
+    //
+    //
+    //
     CANCEL_TITLE_EFFECT(0x13C), //-9
     //
     //

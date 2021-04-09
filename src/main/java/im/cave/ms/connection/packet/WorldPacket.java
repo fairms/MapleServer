@@ -903,8 +903,8 @@ public class WorldPacket {
         return out;
     }
 
-    public static OutPacket guildRank(List<Guild> ggpWeaklyRank, List<Guild> captureTheFlagGameRank, List<Guild> undergroundWaterwayRank) {
-        OutPacket out = new OutPacket(SendOpcode.GUILD_RANK);
+    public static OutPacket guildContentResult(List<Guild> ggpWeaklyRank, List<Guild> captureTheFlagGameRank, List<Guild> undergroundWaterwayRank) {
+        OutPacket out = new OutPacket(SendOpcode.GUILD_CONTENT_RESULT);
 
         out.writeBool(true);
         out.writeInt(ggpWeaklyRank.size());

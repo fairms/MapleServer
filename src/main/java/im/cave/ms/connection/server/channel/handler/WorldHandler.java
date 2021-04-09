@@ -1363,7 +1363,7 @@ public class WorldHandler {
         List<Guild> captureTheFlagGameRank = new ArrayList<>();
         List<Guild> undergroundWaterwayRank = new ArrayList<>();
         List<Guild> ggpWeaklyRank = guilds.values().stream().sorted(Comparator.comparingInt(Guild::getGgp)).collect(Collectors.toList());
-        player.announce(WorldPacket.guildRank(ggpWeaklyRank, captureTheFlagGameRank, undergroundWaterwayRank));
+        player.announce(WorldPacket.guildContentResult(ggpWeaklyRank, captureTheFlagGameRank, undergroundWaterwayRank));
     }
 
     public static void handleMigrateToAuctionRequest(InPacket in, MapleClient c) {
