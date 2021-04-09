@@ -137,7 +137,7 @@ public class UserHandler {
         }
         player.setStat(Stat.HP, newHp);
         stats.put(Stat.HP, (long) newHp);
-        c.announce(UserPacket.updatePlayerStats(stats, player));
+        c.announce(UserPacket.statChanged(stats, player));
         if (player.getParty() != null) {
             player.updatePartyHpBar();
         }
@@ -487,7 +487,7 @@ public class UserHandler {
             }
         }
 
-        c.announce(UserPacket.updatePlayerStats(stats, player));
+        c.announce(UserPacket.statChanged(stats, player));
         player.addSkill(skill);
         c.announce(UserPacket.changeSkillRecordResult(skill));
 
@@ -659,7 +659,7 @@ public class UserHandler {
         Map<Stat, Long> stats = new HashMap<>();
         stats.put(charStat, player.getStat(charStat));
         stats.put(Stat.AVAILABLEAP, player.getStat(Stat.AVAILABLEAP));
-        c.announce(UserPacket.updatePlayerStats(stats, true, player));
+        c.announce(UserPacket.statChanged(stats, true, player));
     }
 
     public static void handleAPMassUpdateRequest(InPacket in, MapleClient c) {
@@ -695,7 +695,7 @@ public class UserHandler {
         Map<Stat, Long> stats = new HashMap<>();
         stats.put(charStat, player.getStat(charStat));
         stats.put(Stat.AVAILABLEAP, player.getStat(Stat.AVAILABLEAP));
-        c.announce(UserPacket.updatePlayerStats(stats, true, player));
+        c.announce(UserPacket.statChanged(stats, true, player));
     }
 
     //内在能力

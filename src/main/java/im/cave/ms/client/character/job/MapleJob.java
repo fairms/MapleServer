@@ -550,7 +550,7 @@ public abstract class MapleJob {
         } else {
             chr.chatMessage(ChatType.Notice, "Unhandled HP/MP job " + chr.getJob());
         }
-        chr.announce(UserPacket.updatePlayerStats(stats, chr));
+        chr.announce(UserPacket.statChanged(stats, chr));
         chr.heal(chr.getMaxHP());
         chr.healMP(chr.getMaxMP());
 

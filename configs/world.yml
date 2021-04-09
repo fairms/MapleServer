@@ -8,7 +8,7 @@ worlds:
     meso_rate: 10
     drop_rate: 10
 
-signin:
+dailyBonus:
   - rank: 1
     itemId: 2049116
     quantity: 10

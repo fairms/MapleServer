@@ -414,8 +414,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case UPDATE_TICK:
                 c.getPlayer().setTick(in.readInt());
                 break;
-            case SIGN_IN:
-                WorldHandler.handleSignIn(in, c);
+            case DAILY_BONUS_CHECK_IN:
+                WorldHandler.handleDailyBonusCheckIn(in, c);
                 break;
             case UNITY_PORTAL_REQUEST:
                 WorldHandler.handleUnityPortalSelect(in, c);
