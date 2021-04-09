@@ -29,28 +29,10 @@ import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
 import im.cave.ms.connection.packet.result.OnlineRewardResult;
 import im.cave.ms.constants.GameConstants;
-import im.cave.ms.enums.ChatType;
-import im.cave.ms.enums.DimensionalMirror;
-import im.cave.ms.enums.DropEnterType;
-import im.cave.ms.enums.DropLeaveType;
-import im.cave.ms.enums.ForceAtomEnum;
-import im.cave.ms.enums.FriendType;
-import im.cave.ms.enums.InventoryType;
-import im.cave.ms.enums.MapTransferType;
-import im.cave.ms.enums.ObstacleAtomCreateType;
-import im.cave.ms.enums.TrunkOpType;
-import im.cave.ms.enums.UIType;
-import im.cave.ms.tools.DateUtil;
-import im.cave.ms.tools.Position;
-import im.cave.ms.tools.Randomizer;
-import im.cave.ms.tools.Rect;
-import im.cave.ms.tools.StringUtil;
+import im.cave.ms.enums.*;
+import im.cave.ms.tools.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static im.cave.ms.constants.ServerConstants.NEXON_IP;
 import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
@@ -221,20 +203,21 @@ public class WorldPacket {
         return out;
     }
 
-    public static OutPacket debugMsg(String content) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.DEBUG_MSG.getValue());
-        out.writeInt(3); //unk
-        out.writeInt(14); //unk
-        out.writeInt(14); //unk
-        out.writeInt(0); //unk
+    public static OutPacket progressMessageFont(int fontNameType, int fontSize, int fontColorType, int fadeOutDelay, String message) {
+        OutPacket out = new OutPacket(SendOpcode.PROGRESS_MESSAGE_FONT);
+
+        out.writeInt(fontNameType);
+        out.writeInt(fontSize);
+        out.writeInt(fontColorType);
+        out.writeInt(fadeOutDelay);
         out.write(0); //unk
-        out.writeMapleAsciiString(content);
+        out.writeMapleAsciiString(message);
+
         return out;
     }
 
-    public static OutPacket serverNotice(String content) {
-        OutPacket out = new OutPacket(SendOpcode.SERVER_NOTICE);
+    public static OutPacket scriptProgressMessage(String content) {
+        OutPacket out = new OutPacket(SendOpcode.SCRIPT_PROGRESS_MESSAGE);
 
         out.writeMapleAsciiString(content);
 
@@ -388,8 +371,8 @@ public class WorldPacket {
     }
 
     //todo 未完成
-    public static OutPacket dojoRank(MapleCharacter chr) {
-        OutPacket out = new OutPacket(SendOpcode.DOJO_RANK);
+    public static OutPacket dojoRankResult(MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.DOJO_RANK_RESULT);
         out.write(0);
         out.writeInt(chr.getJob());
         return out;
@@ -503,13 +486,14 @@ public class WorldPacket {
      */
 
 
-    public static OutPacket eventMessage(String msg, int type, int duration) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.EVENT_MESSAGE.getValue());
-        out.writeMapleAsciiString(msg);
-        out.writeInt(type); //type
+    public static OutPacket weatherEffectNotice(WeatherEffNoticeType type, String text, int duration) {
+        OutPacket out = new OutPacket(SendOpcode.WEATHER_EFFECT_NOTICE);
+
+        out.writeMapleAsciiString(text);
+        out.writeInt(type.getVal()); //type
         out.writeInt(duration); //duration
-        out.write(1); //unk  !=
+        out.write(1); //Forced Notice
+
         return out;
     }
 
@@ -666,8 +650,8 @@ public class WorldPacket {
     }
 
     //组队推荐玩家
-    public static OutPacket recommendPlayers(List<MapleCharacter> players) {
-        OutPacket out = new OutPacket(SendOpcode.RECOMMEND_PLAYER);
+    public static OutPacket partyMemberCandidateResult(List<MapleCharacter> players) {
+        OutPacket out = new OutPacket(SendOpcode.PARTY_MEMBER_CANDIDATE_RESULT);
         out.write(players.size());
         for (MapleCharacter player : players) {
             out.writeInt(player.getId());

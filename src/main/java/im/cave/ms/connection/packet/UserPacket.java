@@ -55,16 +55,16 @@ public class UserPacket {
     public static final Map<Stat, Long> EMPTY_STATUS = Collections.emptyMap();
 
     public static OutPacket enableActions() {
-        return updatePlayerStats(EMPTY_STATUS, true, null);
+        return statChanged(EMPTY_STATUS, true, null);
     }
 
-    public static OutPacket updatePlayerStats(Map<Stat, Long> stats, MapleCharacter chr) {
-        return updatePlayerStats(stats, false, chr);
+    public static OutPacket statChanged(Map<Stat, Long> stats, MapleCharacter chr) {
+        return statChanged(stats, false, chr);
     }
 
-    public static OutPacket updatePlayerStats(Map<Stat, Long> stats, boolean enableActions, MapleCharacter chr) {
+    public static OutPacket statChanged(Map<Stat, Long> stats, boolean enableActions, MapleCharacter chr) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.UPDATE_STATS.getValue());
+        out.writeShort(SendOpcode.STAT_CHANGED.getValue());
         out.write(enableActions ? 1 : 0);
         out.write(0); //unk
         long mask = 0;
@@ -233,7 +233,7 @@ public class UserPacket {
 
     public static OutPacket changeSkillRecordResult(List<Skill> skills, boolean exclRequestSent, boolean showResult
             , boolean removeLinkSkill, boolean sn) {
-        OutPacket out = new OutPacket(SendOpcode.CHANGE_SKILL_RESULT);
+        OutPacket out = new OutPacket(SendOpcode.CHANGE_SKILL_RECORD_RESULT);
 
         out.writeBool(exclRequestSent);
         out.writeBool(showResult);

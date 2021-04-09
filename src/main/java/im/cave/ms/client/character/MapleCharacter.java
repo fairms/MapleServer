@@ -988,7 +988,7 @@ public class MapleCharacter implements Serializable {
             Map<Stat, Long> stats = new HashMap<>();
             setMeso(newMeso);
             stats.put(Stat.MESO, newMeso);
-            announce(UserPacket.updatePlayerStats(stats, false, this));
+            announce(UserPacket.statChanged(stats, false, this));
         }
     }
 
@@ -1024,7 +1024,7 @@ public class MapleCharacter implements Serializable {
             expIncreaseInfo.setIndieBonusExp(expFromR);
             announce(WorldPacket.incExpMessage(expIncreaseInfo));
         }
-        announce(UserPacket.updatePlayerStats(stats, this));
+        announce(UserPacket.statChanged(stats, this));
     }
 
     private void setExp(long newExp) {
@@ -1104,7 +1104,7 @@ public class MapleCharacter implements Serializable {
         if (getParty() != null) {
             updatePartyHpBar();
         }
-        announce(UserPacket.updatePlayerStats(stats, this));
+        announce(UserPacket.statChanged(stats, this));
     }
 
     public void healMP(int amount) {
@@ -1114,7 +1114,7 @@ public class MapleCharacter implements Serializable {
         Map<Stat, Long> stats = new HashMap<>();
         setStat(Stat.MP, newMP);
         stats.put(Stat.MP, (long) newMP);
-        announce(UserPacket.updatePlayerStats(stats, this));
+        announce(UserPacket.statChanged(stats, this));
     }
 
     public void addSpToJobByCurrentLevel(int amount) {
@@ -1403,11 +1403,11 @@ public class MapleCharacter implements Serializable {
         addStat(stat, amount);
         HashMap<Stat, Long> stats = new HashMap<>();
         stats.put(stat, getStat(stat));
-        announce(UserPacket.updatePlayerStats(stats, true, this));
+        announce(UserPacket.statChanged(stats, true, this));
     }
 
     public void dropMessage(String message) {
-        announce(WorldPacket.serverNotice(message));
+        announce(WorldPacket.scriptProgressMessage(message));
     }
 
     public boolean isSkillInCd(int skillId) {
@@ -1479,7 +1479,7 @@ public class MapleCharacter implements Serializable {
         setJobHandler(JobManager.getJobById(getJob(), this));
         HashMap<Stat, Long> stats = new HashMap<>();
         stats.put(Stat.JOB, (long) getJob());
-        announce(UserPacket.updatePlayerStats(stats, this));
+        announce(UserPacket.statChanged(stats, this));
         return true;
     }
 

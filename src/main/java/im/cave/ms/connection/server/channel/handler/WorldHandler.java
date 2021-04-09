@@ -886,7 +886,7 @@ public class WorldHandler {
                 players.sort(Comparator.comparingInt(MapleCharacter::getLevel));
             }
         }
-        player.announce(WorldPacket.recommendPlayers(players));
+        player.announce(WorldPacket.partyMemberCandidateResult(players));
     }
 
     public static void handleChatRoom(InPacket in, MapleClient c) {
