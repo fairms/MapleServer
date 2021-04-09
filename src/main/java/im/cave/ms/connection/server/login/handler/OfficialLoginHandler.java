@@ -38,20 +38,20 @@ public class OfficialLoginHandler {
         if (loginResult == LoginType.Success) {
             c.announce(LoginPacket.loginResult(c, loginResult));
             c.announce(LoginPacket.serverListBg());
-            for (OutPacket serverInfo : LoginPacket.serverList()) {
+            for (OutPacket serverInfo : LoginPacket.worldInformation()) {
                 c.announce(serverInfo);
             }
-            c.announce(LoginPacket.serverListEnd());
+            c.announce(LoginPacket.worldInformationEnd());
         } else if (loginResult == LoginType.NotRegistered && Config.serverConfig.AUTOMATIC_REGISTER) {
             Account account = Account.createAccount(username, BCrypt.hashpw(password, BCrypt.gensalt(ServerConstants.BCRYPT_ITERATIONS)));
             account.save();
             account.setLastLogin(DateUtil.getFileTime(System.currentTimeMillis()));
             c.announce(LoginPacket.loginResult(c, LoginType.Success));
             c.announce(LoginPacket.serverListBg());
-            for (OutPacket serverInfo : LoginPacket.serverList()) {
+            for (OutPacket serverInfo : LoginPacket.worldInformation()) {
                 c.announce(serverInfo);
             }
-            c.announce(LoginPacket.serverListEnd());
+            c.announce(LoginPacket.worldInformationEnd());
         } else {
             c.announce(LoginPacket.loginResult(c, loginResult));
         }

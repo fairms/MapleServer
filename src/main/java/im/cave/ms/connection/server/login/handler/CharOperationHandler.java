@@ -52,7 +52,7 @@ public class CharOperationHandler {
         MapleCharacter character = c.getAccount().getCharacter(charId);
         long deleteTime = LocalDateTime.now().plusDays(3).toInstant(ZoneOffset.of("+8")).toEpochMilli();
         character.setDeleteTime(DateUtil.getFileTime(deleteTime));
-        c.announce(LoginPacket.deleteTime(charId));
+        c.announce(LoginPacket.reservedDeleteCharacterResult(charId));
     }
 
     public static void handleUserConfirmDeleteChar(InPacket in, MapleClient c) {
@@ -63,7 +63,7 @@ public class CharOperationHandler {
         character.setDeleted(true);
         character.saveToDB();
         c.getAccount().removeChar(charId);
-        c.announce(LoginPacket.deleteTime(charId));
+        c.announce(LoginPacket.reservedDeleteCharacterResult(charId));
         c.announce(MessagePacket.broadcastMsg("删除角色成功，请回到首页重新进入。", BroadcastMsgType.ALERT));
     }
 
@@ -71,7 +71,7 @@ public class CharOperationHandler {
         int charId = in.readInt();
         MapleCharacter character = c.getAccount().getCharacter(charId);
         character.setDeleteTime(0L);
-        c.announce(LoginPacket.cancelDeleteChar(charId));
+        c.announce(LoginPacket.reservedDeleteCharacterCancelResult(charId));
     }
 
     public static void handleAccountCharSlotsExpand(InPacket in, MapleClient c) {

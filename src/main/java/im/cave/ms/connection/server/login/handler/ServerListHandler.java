@@ -14,18 +14,19 @@ import static im.cave.ms.enums.LoginStatus.LOGGEDIN;
  * @date 11/20 21:50
  */
 public class ServerListHandler {
+
     public static void serverStatus(InPacket in, MapleClient c) {
         validate(c);
         in.skip(1);
         int worldId = in.readInt();
-        c.announce(LoginPacket.serverStatus(worldId));
+        c.announce(LoginPacket.sendSelectWorld(worldId));
     }
 
     public static void serverList(MapleClient c) {
-        for (OutPacket server : LoginPacket.serverList()) {
+        for (OutPacket server : LoginPacket.worldInformation()) {
             c.announce(server);
         }
-        c.announce(LoginPacket.serverListEnd());
+        c.announce(LoginPacket.worldInformationEnd());
     }
 
     private static void validate(MapleClient c) {
