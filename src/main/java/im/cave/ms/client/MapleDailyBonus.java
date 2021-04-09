@@ -17,23 +17,23 @@ import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
  * @Package im.cave.ms.client
  * @date 12/12 23:16
  */
-public class MapleSignIn {
+public class MapleDailyBonus {
     public static final int MIN_LEVEL = 33;
-    private static List<SignInRewardInfo> signRewards = new ArrayList<>();
+    private static List<CheckInRewardInfo> rewards = new ArrayList<>();
 
     static {
-        initSignRewards();
+        initRewards();
     }
 
 
-    public static SignInRewardInfo getSignRewardInfo(int day) {
-        return signRewards.get(day);
+    public static CheckInRewardInfo getDailyRewardInfo(int day) {
+        return rewards.get(day);
     }
 
 
-    public static OutPacket signinInit() {
+    public static OutPacket init() {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SIGNIN_INIT.getValue());
+        out.writeShort(SendOpcode.DAILY_BONUS_INIT.getValue());
         out.write(0);
         out.write(1);
         out.writeLong(ZERO_TIME);
@@ -41,8 +41,8 @@ public class MapleSignIn {
         out.writeLong(31);
         out.writeInt(QuestConstants.QUEST_EX_MOB_KILL_COUNT);
         out.writeInt(QuestConstants.MOB_KILL_COUNT_MAX);
-        out.writeInt(signRewards.size());
-        for (SignInRewardInfo signReward : signRewards) {
+        out.writeInt(rewards.size());
+        for (CheckInRewardInfo signReward : rewards) {
             out.writeInt(signReward.getRank());
             out.writeInt(signReward.getItemId());
             out.writeInt(signReward.getQuantity());
@@ -60,11 +60,11 @@ public class MapleSignIn {
         return out;
     }
 
-    public static void initSignRewards() {
-        signRewards = Config.worldConfig.getSignInRewards();
+    public static void initRewards() {
+        rewards = Config.worldConfig.getDailyBonusRewards();
     }
 
-    public static OutPacket getSignInRewardPacket(int type, int itemId) {
+    public static OutPacket getCheckInRewardPacket(int type, int itemId) {
         OutPacket out = new OutPacket();
         out.write(2);
         out.writeInt(type);
@@ -72,11 +72,11 @@ public class MapleSignIn {
         return out;
     }
 
-    public static class SignInRewardInfo {
+    public static class CheckInRewardInfo {
 
         public int rank, itemId, quantity, expiredTime, isCash;
 
-        SignInRewardInfo() {
+        CheckInRewardInfo() {
 
         }
 
