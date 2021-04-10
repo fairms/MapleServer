@@ -6,13 +6,13 @@ package im.cave.ms.enums;
  * @Package im.cave.ms.enums
  * @date 1/20 11:15
  */
-public enum OnlineRewardResultType {
+public enum HotTimeRewardResultType {
     LIST(0xD5),
     GET_MAPLE_POINT(0xD7),
     GET_ITEM(0xD8);
     private final byte val;
 
-    OnlineRewardResultType(int val) {
+    HotTimeRewardResultType(int val) {
         this.val = (byte) val;
     }
 

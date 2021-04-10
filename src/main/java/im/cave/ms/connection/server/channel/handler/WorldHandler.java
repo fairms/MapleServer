@@ -50,7 +50,7 @@ import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
-import im.cave.ms.connection.packet.result.OnlineRewardResult;
+import im.cave.ms.connection.packet.result.HotTimeRewardResult;
 import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.auction.Auction;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
@@ -456,7 +456,7 @@ public class WorldHandler {
                 c.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Inbox, player.getInBox(), 0));
                 c.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Outbox, player.getOutbox(), 0));
                 c.announce(MessagePacket.broadcastMsg(Config.worldConfig.getWorldInfo(player.getWorld()).server_message, BroadcastMsgType.SLIDE));
-                c.announce(WorldPacket.onlineRewardResult(OnlineRewardResult.onlineRewardsList(player)));
+                c.announce(WorldPacket.hotTimeRewardResult(HotTimeRewardResult.hotTimeRewardsList(player)));
 
                 player.announce(UserPacket.remainingMapTransferCoupon(player));
 
@@ -465,8 +465,6 @@ public class WorldHandler {
                 }
 
                 player.initPotionPot();
-
-
                 break;
             }
             case CASHSHOP:

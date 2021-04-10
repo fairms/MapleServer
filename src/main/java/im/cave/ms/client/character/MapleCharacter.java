@@ -3,7 +3,7 @@ package im.cave.ms.client.character;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.Clock;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.OnlineReward;
+import im.cave.ms.client.HotTimeReward;
 import im.cave.ms.client.Record;
 import im.cave.ms.client.RecordManager;
 import im.cave.ms.client.character.items.Equip;
@@ -278,7 +278,7 @@ public class MapleCharacter implements Serializable {
     //未领取的在线奖励
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "charId")
-    private List<OnlineReward> onlineRewards;
+    private List<HotTimeReward> hotTimeRewards;
     @JoinColumn(name = "guild")
     @OneToOne(cascade = CascadeType.ALL)
     private Guild guild;
@@ -399,9 +399,7 @@ public class MapleCharacter implements Serializable {
     }
 
     public void cleanTemp() {
-        if (records != null) {
-            records.removeIf(record -> record.getType().isTransition());
-        }
+        records.removeIf(record -> record.getType().isTransition());
     }
 
     /*
@@ -420,21 +418,22 @@ public class MapleCharacter implements Serializable {
 
 
     public static MapleCharacter getDefault(int jobId) {
-        MapleCharacter chr = new MapleCharacter();
-        chr.setEquippedInventory(new Inventory(EQUIPPED, INVENTORY_MAX_SLOTS));
-        chr.setEquipInventory(new Inventory(EQUIP, DEFAULT_EQUIP_INVENTORY_SLOTS));
-        chr.setConsumeInventory(new Inventory(CONSUME, DEFAULT_CONSUME_INVENTORY_SLOTS));
-        chr.setInstallInventory(new Inventory(INSTALL, DEFAULT_INSTALL_INVENTORY_SLOTS));
-        chr.setEtcInventory(new Inventory(ETC, DEFAULT_ETC_INVENTORY_SLOTS));
-        chr.setCashInventory(new Inventory(CASH, DEFAULT_CASH_INVENTORY_SLOTS));
-        chr.setCashEquipInventory(new Inventory(CASH_EQUIP, INVENTORY_MAX_SLOTS));
-        chr.setStats(CharStats.getDefaultStats(jobId));
-        chr.setKeyMap(new MapleKeyMap());
-        chr.addCharLook(new CharLook(chr));
-        if (!chr.setJob(jobId)) {
+        MapleCharacter character = new MapleCharacter();
+        character.setEquippedInventory(new Inventory(EQUIPPED, INVENTORY_MAX_SLOTS));
+        character.setEquipInventory(new Inventory(EQUIP, DEFAULT_EQUIP_INVENTORY_SLOTS));
+        character.setConsumeInventory(new Inventory(CONSUME, DEFAULT_CONSUME_INVENTORY_SLOTS));
+        character.setInstallInventory(new Inventory(INSTALL, DEFAULT_INSTALL_INVENTORY_SLOTS));
+        character.setEtcInventory(new Inventory(ETC, DEFAULT_ETC_INVENTORY_SLOTS));
+        character.setCashInventory(new Inventory(CASH, DEFAULT_CASH_INVENTORY_SLOTS));
+        character.setCashEquipInventory(new Inventory(CASH_EQUIP, INVENTORY_MAX_SLOTS));
+        character.setStats(CharStats.getDefaultStats(jobId));
+        character.setKeyMap(new MapleKeyMap());
+        character.addCharLook(new CharLook());
+//        character.setCharLook(Collections.singleton(new CharLook()));
+        if (!character.setJob(jobId)) {
             return null;
         }
-        return chr;
+        return character;
     }
 
     private void addCharLook(CharLook cl) {

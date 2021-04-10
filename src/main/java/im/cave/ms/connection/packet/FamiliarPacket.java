@@ -1,6 +1,7 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.character.MapleCharacter;
+import im.cave.ms.client.field.movement.Movement;
 import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.connection.netty.OutPacket;
@@ -10,6 +11,7 @@ import im.cave.ms.tools.Position;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -192,7 +194,7 @@ public class FamiliarPacket {
         }
 
         out.writeInt(1);
-        out.writeInt(-1723358014);
+        out.write(-1723358014);
         out.writeInt(chr.getAccId());
         out.writeInt(chr.getId());
         out.write(1);

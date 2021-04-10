@@ -57,7 +57,7 @@ public class Guild {
     private int markColor;
     private int maxMembers;
     private String notice;
-    private int points;
+    private int points; //声望
     @Transient
     private int seasonPoints;
     @Transient

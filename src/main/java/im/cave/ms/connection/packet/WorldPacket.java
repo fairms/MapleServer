@@ -2,7 +2,7 @@ package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.ForceAtom;
-import im.cave.ms.client.OnlineReward;
+import im.cave.ms.client.HotTimeReward;
 import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
@@ -27,7 +27,7 @@ import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
-import im.cave.ms.connection.packet.result.OnlineRewardResult;
+import im.cave.ms.connection.packet.result.HotTimeRewardResult;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.enums.*;
 import im.cave.ms.tools.*;
@@ -820,19 +820,19 @@ public class WorldPacket {
         return out;
     }
 
-    public static OutPacket onlineRewardResult(OnlineRewardResult result) {
+    public static OutPacket hotTimeRewardResult(HotTimeRewardResult result) {
         OutPacket out = new OutPacket(SendOpcode.ONLINE_REWARD_RESULT);
         out.write(result.getType().getVal());
         switch (result.getType()) {
             case LIST:
-                List<OnlineReward> rewards = result.getRewards();
+                List<HotTimeReward> rewards = result.getRewards();
                 out.writeInt(rewards.size());
-                for (OnlineReward reward : rewards) {
+                for (HotTimeReward reward : rewards) {
                     reward.encode(out);
                 }
                 break;
             case GET_MAPLE_POINT:
-                OnlineReward reward = result.getReward();
+                HotTimeReward reward = result.getReward();
                 out.writeInt(reward.getSort());
                 out.writeInt(reward.getMaplePoint());
                 out.writeInt(0);
@@ -918,11 +918,7 @@ public class WorldPacket {
         return out;
     }
 
-
-    public static OutPacket removeBlowWeather() {
-        return blowWeather(0, null);
-    }
-
+    //todo move to CField
     public static OutPacket blowWeather(int itemId, String message) {
         return null;
     }
@@ -985,20 +981,6 @@ public class WorldPacket {
                 atomInfo.getObtacleDiagonalInfo().encode(out);
             }
         }
-
-        return out;
-    }
-
-    //Flag Race Action Bar
-    public static OutPacket actionBarResult(int op, int type, int itemId, int amount) {
-        OutPacket out = new OutPacket(SendOpcode.ACTION_BAR_RESULT);
-
-        out.writeInt(op);
-        out.writeInt(type);
-        out.writeInt(itemId);
-        out.writeInt(10 - amount);
-        out.writeInt(0);
-        out.writeInt(0);
 
         return out;
     }

@@ -10,10 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author fair
@@ -92,16 +89,11 @@ public class CharLook {
         }
     }
 
-    public CharLook(MapleCharacter chr) {
+    public CharLook() {
         hairColorBase = -1;
         hairEquips = new LinkedHashMap<>();
         unseenEquips = new LinkedHashMap<>();
         totems = new LinkedHashMap<>();
-        this.chr = chr;
-    }
-
-    public CharLook() {
-        new CharLook(null);
     }
 
     //fallback
@@ -145,7 +137,7 @@ public class CharLook {
         out.writeLong(0);
         out.write(0); // 0或1
         for (int i = 0; i < GameConstants.MAX_PET_AMOUNT; i++) {
-            if (chr.getPets() != null && chr.getPets().size() > i) {
+            if (chr.getPets().size() > i) {
                 out.writeInt(chr.getPets().get(i).getTemplateId());
             } else {
                 out.writeInt(0);
