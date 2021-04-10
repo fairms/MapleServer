@@ -6,7 +6,6 @@ import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.QuickMoveType;
 import im.cave.ms.provider.data.ItemData;
-import im.cave.ms.tools.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +107,7 @@ public class GameConstants {
     public static final byte DEFAULT_CASH_INVENTORY_SLOTS = 64;
     public static final byte DEFAULT_TRUNK_SLOTS = 4;
     public static final byte DEFAULT_CHARACTER_SLOTS = 6;
-    public static final byte INVENTORY_MAX_SLOTS = (byte) 128;
+    public static final byte INVENTORY_MAX_SLOTS = (byte) 127;
 
     // Inner Ability
     public static final int CHAR_POT_BASE_ID = 70000000;

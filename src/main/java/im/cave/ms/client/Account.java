@@ -13,20 +13,7 @@ import im.cave.ms.enums.PrivateStatusIDFlag;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -82,7 +69,9 @@ public class Account {
     private RecordManager recordManager;
 
     public void cleanTemp() {
-        records.removeIf(record -> record.getType().isTransition());
+        if (records != null) {
+            records.removeIf(record -> record.getType().isTransition());
+        }
     }
 
     public static Account createAccount(String name, String password) {

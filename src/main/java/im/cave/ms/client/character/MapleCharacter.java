@@ -399,7 +399,9 @@ public class MapleCharacter implements Serializable {
     }
 
     public void cleanTemp() {
-        records.removeIf(record -> record.getType().isTransition());
+        if (records != null) {
+            records.removeIf(record -> record.getType().isTransition());
+        }
     }
 
     /*
@@ -418,22 +420,21 @@ public class MapleCharacter implements Serializable {
 
 
     public static MapleCharacter getDefault(int jobId) {
-        MapleCharacter character = new MapleCharacter();
-        character.setEquippedInventory(new Inventory(EQUIPPED, INVENTORY_MAX_SLOTS));
-        character.setEquipInventory(new Inventory(EQUIP, DEFAULT_EQUIP_INVENTORY_SLOTS));
-        character.setConsumeInventory(new Inventory(CONSUME, DEFAULT_CONSUME_INVENTORY_SLOTS));
-        character.setInstallInventory(new Inventory(INSTALL, DEFAULT_INSTALL_INVENTORY_SLOTS));
-        character.setEtcInventory(new Inventory(ETC, DEFAULT_ETC_INVENTORY_SLOTS));
-        character.setCashInventory(new Inventory(CASH, DEFAULT_CASH_INVENTORY_SLOTS));
-        character.setCashInventory(new Inventory(CASH_EQUIP, INVENTORY_MAX_SLOTS));
-        character.setStats(CharStats.getDefaultStats(jobId));
-        character.setKeyMap(new MapleKeyMap());
-        character.addCharLook(new CharLook());
-//        character.setCharLook(Collections.singleton(new CharLook()));
-        if (!character.setJob(jobId)) {
+        MapleCharacter chr = new MapleCharacter();
+        chr.setEquippedInventory(new Inventory(EQUIPPED, INVENTORY_MAX_SLOTS));
+        chr.setEquipInventory(new Inventory(EQUIP, DEFAULT_EQUIP_INVENTORY_SLOTS));
+        chr.setConsumeInventory(new Inventory(CONSUME, DEFAULT_CONSUME_INVENTORY_SLOTS));
+        chr.setInstallInventory(new Inventory(INSTALL, DEFAULT_INSTALL_INVENTORY_SLOTS));
+        chr.setEtcInventory(new Inventory(ETC, DEFAULT_ETC_INVENTORY_SLOTS));
+        chr.setCashInventory(new Inventory(CASH, DEFAULT_CASH_INVENTORY_SLOTS));
+        chr.setCashEquipInventory(new Inventory(CASH_EQUIP, INVENTORY_MAX_SLOTS));
+        chr.setStats(CharStats.getDefaultStats(jobId));
+        chr.setKeyMap(new MapleKeyMap());
+        chr.addCharLook(new CharLook(chr));
+        if (!chr.setJob(jobId)) {
             return null;
         }
-        return character;
+        return chr;
     }
 
     private void addCharLook(CharLook cl) {

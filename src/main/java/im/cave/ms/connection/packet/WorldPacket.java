@@ -918,7 +918,11 @@ public class WorldPacket {
         return out;
     }
 
-    //todo move to CField
+
+    public static OutPacket removeBlowWeather() {
+        return blowWeather(0, null);
+    }
+
     public static OutPacket blowWeather(int itemId, String message) {
         return null;
     }
@@ -981,6 +985,20 @@ public class WorldPacket {
                 atomInfo.getObtacleDiagonalInfo().encode(out);
             }
         }
+
+        return out;
+    }
+
+    //Flag Race Action Bar
+    public static OutPacket actionBarResult(int op, int type, int itemId, int amount) {
+        OutPacket out = new OutPacket(SendOpcode.ACTION_BAR_RESULT);
+
+        out.writeInt(op);
+        out.writeInt(type);
+        out.writeInt(itemId);
+        out.writeInt(10 - amount);
+        out.writeInt(0);
+        out.writeInt(0);
 
         return out;
     }

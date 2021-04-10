@@ -2,25 +2,14 @@ package im.cave.ms.client.character;
 
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
-import im.cave.ms.client.field.obj.Pet;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.JobConstants;
 import im.cave.ms.enums.BodyPart;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.PostLoad;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -103,11 +92,16 @@ public class CharLook {
         }
     }
 
-    public CharLook() {
+    public CharLook(MapleCharacter chr) {
         hairColorBase = -1;
         hairEquips = new LinkedHashMap<>();
         unseenEquips = new LinkedHashMap<>();
         totems = new LinkedHashMap<>();
+        this.chr = chr;
+    }
+
+    public CharLook() {
+        new CharLook(null);
     }
 
     //fallback
@@ -151,7 +145,7 @@ public class CharLook {
         out.writeLong(0);
         out.write(0); // 0或1
         for (int i = 0; i < GameConstants.MAX_PET_AMOUNT; i++) {
-            if (chr.getPets().size() > i) {
+            if (chr.getPets() != null && chr.getPets().size() > i) {
                 out.writeInt(chr.getPets().get(i).getTemplateId());
             } else {
                 out.writeInt(0);

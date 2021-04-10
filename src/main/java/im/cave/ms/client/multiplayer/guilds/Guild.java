@@ -57,9 +57,10 @@ public class Guild {
     private int markColor;
     private int maxMembers;
     private String notice;
-    private int points; //声望
+    private int points;
     @Transient
     private int seasonPoints;
+    @Transient
     private int allianceID; //联盟ID
     private int level;
     private int rank; // 似乎没用
