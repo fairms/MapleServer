@@ -1,6 +1,6 @@
 /*
-SQLyog Ultimate v13.1.1 (64 bit)
-MySQL - 8.0.20 : Database - maple
+SQLyog Community v13.1.7 (64 bit)
+MySQL - 8.0.23 : Database - maple
 *********************************************************************
 */
 
@@ -35,6 +35,7 @@ CREATE TABLE `account` (
   `gm` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '账号等级 0:普通用户',
   `trunkId` int unsigned DEFAULT NULL,
   `cashTrunk` int unsigned DEFAULT NULL,
+  `flag` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `account` (`account`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -139,6 +140,8 @@ CREATE TABLE `character` (
   `lastLogout` bigint unsigned NOT NULL DEFAULT '0',
   `extendedPendant` bigint unsigned NOT NULL DEFAULT '0',
   `createdTime` bigint unsigned NOT NULL,
+  `cashEquipInventory` int unsigned NOT NULL,
+  `guild` int DEFAULT NULL,
   PRIMARY KEY (`id`,`cashInventory`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -358,6 +361,25 @@ CREATE TABLE `error_packet_log` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+/*Table structure for table `express` */
+
+DROP TABLE IF EXISTS `express`;
+
+CREATE TABLE `express` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `fromId` int DEFAULT NULL,
+  `fromChar` varchar(20) DEFAULT NULL,
+  `toId` int DEFAULT NULL,
+  `toChar` varchar(20) DEFAULT NULL,
+  `expiredDate` bigint DEFAULT NULL,
+  `message` varchar(200) DEFAULT NULL,
+  `status` tinyint DEFAULT NULL,
+  `itemId` int DEFAULT NULL,
+  `meso` int DEFAULT NULL,
+  `createdDate` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 /*Table structure for table `familiar` */
 
 DROP TABLE IF EXISTS `familiar`;
@@ -421,7 +443,7 @@ CREATE TABLE `guild` (
   `markColor` int unsigned NOT NULL DEFAULT '0',
   `maxMembers` int unsigned NOT NULL DEFAULT '10',
   `notice` varchar(255) DEFAULT '',
-  `potints` int unsigned NOT NULL DEFAULT '0',
+  `points` int unsigned NOT NULL DEFAULT '0',
   `level` int unsigned NOT NULL DEFAULT '0',
   `rank` int unsigned NOT NULL DEFAULT '0',
   `ggp` int unsigned NOT NULL DEFAULT '0',
@@ -429,6 +451,22 @@ CREATE TABLE `guild` (
   `joinSetting` int unsigned NOT NULL DEFAULT '0',
   `reqLevel` int unsigned NOT NULL DEFAULT '0',
   `battleSp` int unsigned NOT NULL DEFAULT '0',
+  `trendActive` int DEFAULT NULL,
+  `trendTime` int DEFAULT NULL,
+  `trendAges` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*Table structure for table `guild_grade` */
+
+DROP TABLE IF EXISTS `guild_grade`;
+
+CREATE TABLE `guild_grade` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `grade` int DEFAULT NULL,
+  `name` varchar(20) DEFAULT NULL,
+  `right` int DEFAULT NULL,
+  `guildId` int DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -469,6 +507,26 @@ CREATE TABLE `guild_requestor` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+/*Table structure for table `ht_reward` */
+
+DROP TABLE IF EXISTS `ht_reward`;
+
+CREATE TABLE `ht_reward` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `sort` int DEFAULT NULL,
+  `type` int DEFAULT NULL,
+  `receivedTime` bigint NOT NULL,
+  `expiredTime` bigint NOT NULL,
+  `itemId` int DEFAULT NULL,
+  `quantity` int DEFAULT NULL,
+  `meso` int DEFAULT NULL,
+  `maplePoint` int DEFAULT NULL,
+  `exp` int DEFAULT NULL,
+  `msg` varchar(100) DEFAULT NULL,
+  `charId` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 /*Table structure for table `inventory` */
 
 DROP TABLE IF EXISTS `inventory`;
@@ -479,7 +537,7 @@ CREATE TABLE `inventory` (
   `slots` smallint DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `id` (`id`,`type`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `item` */
 
@@ -500,7 +558,7 @@ CREATE TABLE `item` (
   `sn` bigint unsigned DEFAULT '0' COMMENT 'CashItem Only',
   `storage` int unsigned DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `item_log` */
 
@@ -538,7 +596,7 @@ CREATE TABLE `key_binding` (
   `type` tinyint DEFAULT NULL,
   `action` int DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `key_map` */
 
@@ -609,6 +667,22 @@ CREATE TABLE `non_combat_stat_day_limit` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+/*Table structure for table `notes` */
+
+DROP TABLE IF EXISTS `notes`;
+
+CREATE TABLE `notes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `status` tinyint DEFAULT NULL,
+  `fromId` int NOT NULL,
+  `fromChr` varchar(20) DEFAULT NULL,
+  `toId` int NOT NULL,
+  `toChr` varchar(20) NOT NULL,
+  `msg` varchar(200) NOT NULL,
+  `createdTime` bigint NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 /*Table structure for table `npc_shop` */
 
 DROP TABLE IF EXISTS `npc_shop`;
@@ -618,7 +692,7 @@ CREATE TABLE `npc_shop` (
   `npcId` int unsigned NOT NULL,
   `shopId` int unsigned NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `pet` */
 
@@ -664,7 +738,7 @@ CREATE TABLE `quest` (
   `qrKey` int DEFAULT NULL,
   `qrValue` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `quest_ex` */
 
@@ -676,7 +750,7 @@ CREATE TABLE `quest_ex` (
   `questId` int NOT NULL,
   `qrValue` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `quest_ex_shared` */
 
@@ -699,7 +773,7 @@ CREATE TABLE `quest_list` (
   `questmanager_id` int unsigned DEFAULT NULL,
   `questId` int unsigned DEFAULT NULL,
   PRIMARY KEY (`questlist_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `quest_manager` */
 
@@ -723,7 +797,7 @@ CREATE TABLE `quest_progressrequirement` (
   `requiredCount` int DEFAULT NULL,
   `currentCount` int DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `record` */
 
@@ -775,7 +849,7 @@ CREATE TABLE `shop_item` (
   `maxPerSlot` smallint NOT NULL DEFAULT '1',
   `discountPerc` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `skill` */
 
@@ -829,7 +903,7 @@ CREATE TABLE `trunk` (
   `type` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `slots` tinyint unsigned DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Table structure for table `wished_item` */
 
