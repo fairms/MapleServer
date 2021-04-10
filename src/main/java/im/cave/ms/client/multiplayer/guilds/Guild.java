@@ -60,6 +60,7 @@ public class Guild {
     private int points; //声望
     @Transient
     private int seasonPoints;
+    @Transient
     private int allianceID; //联盟ID
     private int level;
     private int rank; // 似乎没用

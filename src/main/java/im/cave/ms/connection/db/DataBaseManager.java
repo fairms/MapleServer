@@ -1,7 +1,7 @@
 package im.cave.ms.connection.db;
 
 import im.cave.ms.client.Account;
-import im.cave.ms.client.OnlineReward;
+import im.cave.ms.client.HotTimeReward;
 import im.cave.ms.client.Record;
 import im.cave.ms.client.character.CharLook;
 import im.cave.ms.client.character.CharStats;
@@ -115,7 +115,7 @@ public class DataBaseManager {
                 MapleNotes.class,
                 WishedItem.class,
                 ExceptionItem.class,
-                OnlineReward.class,
+                HotTimeReward.class,
                 Express.class,
 
         };

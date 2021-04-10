@@ -19,8 +19,8 @@ import static im.cave.ms.constants.ServerConstants.MAX_TIME;
  */
 @Data
 @Entity
-@Table(name = "online_reward")
-public class OnlineReward {
+@Table(name = "ht_reward")
+public class HotTimeReward {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int sort; //? 未知的
