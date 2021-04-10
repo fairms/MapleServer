@@ -1373,4 +1373,13 @@ public class UserHandler {
         Position forcedPos = in.readPositionInt();
         c.announce(UserPacket.userB2Body(type, bodyIdCounter));
     }
+
+    public static void handleCheckProcess(InPacket in, MapleClient c) {
+        int sum = in.readShort();
+        for (int i = 0; i < sum; i++) {
+            String process = in.readMapleAsciiString();
+            int i1 = in.readInt();
+            String hash = in.readMapleAsciiString();
+        }
+    }
 }

@@ -3,7 +3,7 @@ package im.cave.ms.connection.packet.opcode;
 public enum RecvOpcode {
     CUSTOM_LOGIN(0x7777),
 
-    UNK1(0x66),
+    UNK66(0x66),
     PERMISSION_REQUEST(0x67),
     SDO_LOGIN_REQUEST(0x69),
     SERVERSTATUS_REQUEST(0x6A),
@@ -20,7 +20,7 @@ public enum RecvOpcode {
     CANCEL_DELETE_CHAR(0x84), //86 - 2
     TOS_ACCEPT_RESULT(0xB9), //todo check
     PONG(0x99), //9C - 3
-    CPONG(0x9A), //9D-3
+    C_PONG(0x9A), //9D-3
     ERROR_PACKET(0x9C),//
     SHARE_INFORMATION_RESULT(0x9E), // 00 or 01 bool
     CLIENT_START(0x9F),//
@@ -105,6 +105,8 @@ public enum RecvOpcode {
     USER_REGISTER_PET_AUTO_BUFF_REQUEST(0x15E),
     PORTAL_SPECIAL(0x160),
     USER_QUEST_REQUEST(0x169),
+    //16A
+    //16B
     USER_B2_BODY_REQUEST(0x16C),
     USER_THROW_GRENADE(0x16D),
     USER_DESTROY_GRENADE(0x16E),
@@ -170,11 +172,12 @@ public enum RecvOpcode {
     ANDROID_MOVE(0x2A3),//-4
     ANDROID_ACTION_SET(0x2A4),//
 
-    CHANGE_QUICKSLOT(0x2AA), // 2AE-4
+    CHANGE_QUICKSLOT(0x2AA),
     AFTER_INV_OP(0x2AB), //C9 07 00 00 | tick : C4 2D 68 01 | 00 00 15 00 00 00
     CHECK_PROCESS(0x2B2), //CHECK_PROCESS_RESULT
     SEND_MAPLE_NOTES(0x2B7),
     REQUEST_ARROW_PLATTER_OBJ(0x2C2),
+    TICK(0x321),
     UPDATE_TICK(0x330), //330 - 10
     DAILY_BONUS_CHECK_IN(0x340), // ?
     SKILL_COMMAND_LOCK(0x33B), //34d-12
@@ -211,7 +214,7 @@ public enum RecvOpcode {
     UNK5E0(0x5E0), //01 00 00 00 00 00 00 00 01
     BEAST_TAMER_HIDE_EAR(0x5E7),
     EQUIP_EFFECT_OPT(0x600), //60A-A
-
+    UNK60B(0x60B),
     // OPCODE ENCRYPT BEGIN
     BEGIN(0xCA),
     //OPCODE ENCRYPT END

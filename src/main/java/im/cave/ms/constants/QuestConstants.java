@@ -50,9 +50,12 @@ public class QuestConstants {
     public static final int QUEST_EX_BEAST_TAMER_LOOK = 59300;
     //五转核心碎片
     public static final int QUEST_EX_5TH_CORE_CHIPS_COUNT = 1477;//count=20300
-
     public static final int QUEST_EX_GUILD = 26011; //GuildID=91 创建家族还是其他的?
-
     //npc商店组队积分
     public static final int QUEST_EX_NPC_SHOP_QUEST_ID_PQ_POINT = 7907;
+    //rank=404
+    public static final int SHARE_QUEST_EX_RANK = 18771;
+    //7=1;3=1;managerXpos=100;managerYpos=100
+    public static final int QUEST_EX_MANAGER = 500767;
+
 }

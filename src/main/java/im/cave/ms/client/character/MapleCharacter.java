@@ -1232,12 +1232,19 @@ public class MapleCharacter implements Serializable {
         for (PetItem petItem : getCashInventory().getItems().stream().filter(i -> i instanceof PetItem && ((PetItem) i).getActiveState() > 0)
                 .map(i -> ((PetItem) i)).collect(Collectors.toList())) {
             Pet p = getPets().stream().filter(pet -> pet.getPetItem().equals(petItem)).findAny().orElse(null);
+            boolean load = false;
             if (p == null) {
                 // only create a new pet if the active state is > 0 (active), but isn't added to our own list yet
                 p = petItem.createPet(this);
                 addPet(p);
+                load == true;
             }
             getMap().broadcastMessage(PetPacket.petActivateChange(p, true, (byte) 0));
+            if (load) {
+                if (petItem.getExceptionList() != null) {
+                    player.announce(PetPacket.initPetExceptionList(pet));
+                }
+            }
         }
     }
 

@@ -34,19 +34,7 @@ import im.cave.ms.client.storage.Trunk;
 import im.cave.ms.configs.Config;
 import im.cave.ms.connection.db.DataBaseManager;
 import im.cave.ms.connection.netty.InPacket;
-import im.cave.ms.connection.packet.AndroidPacket;
-import im.cave.ms.connection.packet.AuctionPacket;
-import im.cave.ms.connection.packet.CashShopPacket;
-import im.cave.ms.connection.packet.FamiliarPacket;
-import im.cave.ms.connection.packet.FieldAttackObjPacket;
-import im.cave.ms.connection.packet.LoginPacket;
-import im.cave.ms.connection.packet.MessagePacket;
-import im.cave.ms.connection.packet.MiniRoomPacket;
-import im.cave.ms.connection.packet.QuestPacket;
-import im.cave.ms.connection.packet.SummonPacket;
-import im.cave.ms.connection.packet.UserPacket;
-import im.cave.ms.connection.packet.UserRemote;
-import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.connection.packet.*;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
@@ -415,6 +403,11 @@ public class WorldHandler {
         c.setLoginStatus(LoginStatus.LOGGEDIN);
         Server.getInstance().addAccount(c.getAccount());
         account.setOnlineChar(player);
+
+        c.announce(ServerPacket.securityPacket(5));
+        c.announce(ServerPacket.serverStateResult());
+        c.announce(ServerPacket.serverKeyValue());
+
         c.announce(UserPacket.initOpCodeEncryption(c));
         switch (type) {
             case CHANNEL: {
@@ -422,15 +415,19 @@ public class WorldHandler {
                 mapleChannel.addPlayer(player);
                 player.setJobHandler(JobManager.getJobById(player.getJob(), player));
                 c.announce(UserPacket.updateEventNameTag()); //updateEventNameTag
+
+                //todo Make CD Register
                 c.announce(UserPacket.setSkillCoolTime(player));
+
                 //todo init guild
 
+
+                player.initBaseStats();
                 if (player.getHp() <= 0) {
                     player.setMapId(player.getMap().getReturnMap());
                     player.heal(50);
                 }
 
-                player.initBaseStats();
                 player.buildQuestEx();
                 //todo 分散到之后的请求中
                 player.initMapTransferCoupon();
