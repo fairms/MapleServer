@@ -430,7 +430,6 @@ public class WorldHandler {
 
                 player.buildQuestEx();
                 //todo 分散到之后的请求中
-                player.initMapTransferCoupon();
                 player.changeMap(player.getMapId(), true);
                 c.announce(UserPacket.keymapInit(player));
                 c.announce(LoginPacket.account(player.getAccount()));
@@ -454,8 +453,6 @@ public class WorldHandler {
                 c.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Outbox, player.getOutbox(), 0));
                 c.announce(MessagePacket.broadcastMsg(Config.worldConfig.getWorldInfo(player.getWorld()).server_message, BroadcastMsgType.SLIDE));
                 c.announce(WorldPacket.hotTimeRewardResult(HotTimeRewardResult.hotTimeRewardsList(player)));
-
-                player.announce(UserPacket.remainingMapTransferCoupon(player));
 
                 if (player.getExpresses().size() > 0) {
                     c.announce(WorldPacket.expressResult(ExpressResult.haveNewExpress(player.getNewExpress())));
@@ -1468,7 +1465,7 @@ public class WorldHandler {
             FieldAttackObj fao = new FieldAttackObj(1, chr.getId(), chr.getPosition().deepCopy(), flip);
             map.spawnObj(fao, chr);
             map.broadcastMessage(FieldAttackObjPacket.objCreate(fao));
-            ScheduledFuture sf = EventManager.addEvent(() -> map.removeObj(fao.getObjectId(), true),
+            ScheduledFuture<?> sf = EventManager.addEvent(() -> map.removeObj(fao.getObjectId(), true),
                     si.getValue(SkillStat.u, slv), TimeUnit.SECONDS);
             map.addObjScheduledFuture(fao, sf);
             map.broadcastMessage(FieldAttackObjPacket.setAttack(fao.getObjectId(), 0));
@@ -1483,5 +1480,10 @@ public class WorldHandler {
             int type = in.readInt();
             Position pos = in.readPositionInt();
         }
+    }
+
+    //todo
+    public static void handleExitAuction(InPacket in, MapleClient c) {
+        
     }
 }

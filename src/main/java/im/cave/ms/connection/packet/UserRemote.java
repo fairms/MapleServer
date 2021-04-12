@@ -227,6 +227,16 @@ public class UserRemote {
         return out;
     }
 
+    public static OutPacket remoteUserNickItem(int charId, int itemId) {
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_NICK_ITEM);
+
+        out.writeInt(charId);
+        out.writeInt(itemId);
+        out.write(0);
+
+        return out;
+    }
+
     //todo
     public static OutPacket remoteSetActivePortableChair(int charId, PortableChair chair) {
         OutPacket out = new OutPacket(SendOpcode.REMOTE_SET_ACTIVE_PORTABLE_CHAIR);

@@ -35,12 +35,15 @@ public class CashShopPacket {
 
     public static OutPacket getWrapToCashShop(MapleCharacter player) {
         OutPacket out = new OutPacket(SendOpcode.SET_CASH_SHOP);
+
         PacketHelper.addCharInfo(out, player);
+
         return out;
     }
 
     public static OutPacket setCashShop(CashShopServer cashShopServer) {
         OutPacket out = new OutPacket(SendOpcode.SET_CASH_SHOP_INFO);
+
         out.writeInt(0); // block items
         Map<Integer, CashShopItem> modifiedItems = cashShopServer.getModifiedItems();
         out.writeShort(modifiedItems.size());
@@ -59,11 +62,13 @@ public class CashShopPacket {
         out.writeLong(1);
         out.writeLong(0);
         out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+
         return out;
     }
 
     public static OutPacket buyPackageDone(List<Item> items, Account acc) {
         OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT);
+
         out.write(CashItemType.Res_BuyPackage_Done.getVal());
         out.write(items.size());
         for (Item item : items) {
@@ -81,11 +86,13 @@ public class CashShopPacket {
             out.write(0);
             out.writeLong(0);
         }
+
         return out;
     }
 
     public static OutPacket buyDone(Account acc, Item item) {
         OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT);
+
         out.write(CashItemType.Res_Buy_Done.getVal());
         out.writeLong(item.getCashItemSerialNumber());
         out.writeLong(acc.getId());
@@ -100,14 +107,17 @@ public class CashShopPacket {
         item.encode(out);
         out.write(0);
         out.writeLong(0);
+
         return out;
     }
 
     public static OutPacket buyFailed(CashItemType reason) {
         OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT);
+
         out.write(CashItemType.Res_Buy_Failed.getVal());
         out.write(reason.getVal());
         out.writeInt(0);
+
         return out;
     }
 
@@ -133,6 +143,7 @@ public class CashShopPacket {
 
     public static OutPacket initLockerDone(Account acc) {
         OutPacket out = new OutPacket(SendOpcode.CASH_SHOP_CASH_ITEM_RESULT);
+
         out.write(CashItemType.Res_LoadLocker_Done.getVal());
         out.write(0);
         Locker locker = acc.getLocker();
@@ -155,6 +166,7 @@ public class CashShopPacket {
         out.writeShort(acc.getCharacterSlots());
         out.writeShort(0);
         out.writeShort(acc.getCharacters().size());
+
         return out;
     }
 
@@ -226,7 +238,9 @@ public class CashShopPacket {
 
     public static OutPacket createPotionPotDone(PotionPot pot) {
         OutPacket out = new OutPacket(SendOpcode.POTION_POT_CREATE);
+
         pot.encode(out);
+
         return out;
     }
 

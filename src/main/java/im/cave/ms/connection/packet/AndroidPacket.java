@@ -29,11 +29,12 @@ public class AndroidPacket {
     }
 
     public static OutPacket actionSet(Android android, int action, int emotion) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.ANDROID_ACTION_SET.getValue());
+        OutPacket out = new OutPacket(SendOpcode.ANDROID_ACTION_SET);
+
         out.writeInt(android.getOwner().getId());
         out.write(action);
         out.write(emotion);
+
         return out;
     }
 

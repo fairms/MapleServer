@@ -163,11 +163,12 @@ public class LoginPacket {
     }
 
     public static OutPacket sendSelectWorld(int worldId) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SELECT_WORLD_BUTTON.getValue());
+        OutPacket out = new OutPacket(SendOpcode.SELECT_WORLD_BUTTON);
+
         out.write(0);
         out.writeInt(worldId);
         out.writeInt(worldId);
+
         return out;
     }
 

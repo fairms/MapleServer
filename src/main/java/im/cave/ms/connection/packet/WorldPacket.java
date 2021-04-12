@@ -603,9 +603,10 @@ public class WorldPacket {
     }
 
     public static OutPacket startBattleAnalysis() {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.BATTLE_ANALYSIS.getValue());
+        OutPacket out = new OutPacket(SendOpcode.BATTLE_ANALYSIS);
+
         out.write(1);
+
         return out;
     }
 

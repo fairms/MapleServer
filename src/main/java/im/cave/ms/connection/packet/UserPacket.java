@@ -421,12 +421,13 @@ public class UserPacket {
     }
 
     public static OutPacket scrollUpgradeDisplay(boolean feverTime, List<ScrollUpgradeInfo> scrolls) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.EQUIPMENT_ENCHANT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.EQUIPMENT_ENCHANT);
+
         out.write(EquipmentEnchantType.ScrollUpgradeDisplay.getVal());
         out.writeBool(feverTime);
         out.write(scrolls.size());
         scrolls.forEach(scrollUpgradeInfo -> scrollUpgradeInfo.encode(out));
+
         return out;
     }
 
@@ -444,10 +445,12 @@ public class UserPacket {
 
     public static OutPacket macroSysDataInit(MapleCharacter chr) {
         OutPacket out = new OutPacket(SendOpcode.MACRO_SYS_DATA_INIT);
+
         out.write(chr.getMacros().size());
         for (Macro macro : chr.getMacros()) {
             macro.encode(out);
         }
+
         return out;
     }
 
@@ -750,15 +753,6 @@ public class UserPacket {
         out.writeLong(equip.getLimitBreak());
         out.writeLong(incALB);
         equip.encode(out);
-        return out;
-    }
-
-    public static OutPacket remainingMapTransferCoupon(MapleCharacter chr) {
-        OutPacket out = new OutPacket(SendOpcode.REMAINING_MAP_TRANSFER_COUPON);
-        Record cash = chr.getRecordManager().getRecord(RecordType.MAP_TRANSFER_COUPON_CASH);
-        Record free = chr.getRecordManager().getRecord(RecordType.MAP_TRANSFER_COUPON_FREE);
-        out.writeInt(free != null ? free.getValue() : 0);
-        out.writeInt(cash != null ? cash.getValue() : 0);
         return out;
     }
 

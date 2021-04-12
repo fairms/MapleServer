@@ -117,6 +117,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_LOTTERY_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserLotteryItemUseRequest(in, c);
                 break;
+            case USER_SET_GAME_RESOLUTION:
+                UserHandler.handleUserSetGameResolution(in, c);
+                break;
             case USER_TRANSFER_FIELD_REQUEST:
                 UserHandler.handleChangeMapRequest(in, c);
                 break;
@@ -246,11 +249,14 @@ public class ChannelHandler extends AbstractServerHandler {
             case EXPRESS_REQUEST:
                 WorldHandler.handleMapleExpressRequest(in, c);
                 break;
-            case TELEPORT_SKILL:
-                UserHandler.handleUserTeleportSkillRequest(in, c);
+            case MOVE_SKILL:
+                UserHandler.handleUserMoveSkillRequest(in, c);
                 break;
             case AUCTION:
                 WorldHandler.handleAuctionRequest(in, c);
+                break;
+            case EXIT_AUCTION:
+                WorldHandler.handleExitAuction(in, c);
                 break;
             case CHAR_HIT:
                 UserHandler.handleHit(in, c);

@@ -9,8 +9,6 @@ import im.cave.ms.tools.Util;
  * @date 1/7 17:04
  */
 public enum RecordType {
-    MAP_TRANSFER_COUPON_FREE,
-    MAP_TRANSFER_COUPON_CASH,
     PARTY_QUEST_LOG,
     BOSS_LOG,
     RETURN_MAP,

@@ -35,7 +35,7 @@ public class CharOperationHandler {
         byte invisible = in.readByte();
         if (c.getLoginStatus().equals(LoginStatus.LOGGEDIN) && c.getAccount().getCharacter(charId) != null) {
             MapleCharacter player = c.getAccount().getCharacter(charId);
-//            c.setPlayer(player);
+            c.setPlayer(player);
             c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
             Server.getInstance().addClientInTransfer(c.getChannelId(), charId, c);
             int port = Server.getInstance().getChannel(c.getWorldId(), c.getChannelId()).getPort();
@@ -174,6 +174,23 @@ public class CharOperationHandler {
 //            c.setPlayer(chr);
             Server.getInstance().addClientInTransfer(c.getChannelId(), charId, c);
             c.announce(LoginPacket.selectCharacterResult(LoginType.Success, (byte) 0, c.getMapleChannel().getPort(), chr.getId()));
+        }
+    }
+
+    public static void handleOrderCharacter(InPacket in, MapleClient c) {
+        int accId = in.readInt();
+        byte type = in.readByte();
+        int charCount = in.readInt();
+        Account account = c.getAccount();
+        if (accId != account.getId()) {
+            return;
+        }
+        for (int i = 0; i < charCount; i++) {
+            int charId = in.readInt();
+            MapleCharacter character = account.getCharacter(charId);
+            if (character != null) {
+                character.setOrder(i);
+            }
         }
     }
 }
