@@ -1185,7 +1185,6 @@ public class MapleCharacter implements Serializable {
     //切换地图
     private void changeMap(MapleMap map, byte portal, boolean load) {
         announce(UserPacket.effect(Effect.playPortalSE()));
-
         if (party != null && party.getPartyQuest() != null) { //处理组队地图
             int pMap = map.getId();
             MapleMap temp = Util.findWithPred(party.getPartyQuest().getMaps(), m -> m.getId() == pMap);
@@ -1206,6 +1205,7 @@ public class MapleCharacter implements Serializable {
             announce(WorldPacket.getWarpToMap(this, map, portal));
         }
         map.addPlayer(this);
+        addVisitedMap(map);
         initPets();
         map.sendMapObjectPackets(this);
         map.broadcastMessage(UserRemote.hiddenEffectEquips(this));
@@ -1237,13 +1237,11 @@ public class MapleCharacter implements Serializable {
                 // only create a new pet if the active state is > 0 (active), but isn't added to our own list yet
                 p = petItem.createPet(this);
                 addPet(p);
-                load == true;
+                load = true;
             }
             getMap().broadcastMessage(PetPacket.petActivateChange(p, true, (byte) 0));
-            if (load) {
-                if (petItem.getExceptionList() != null) {
-                    player.announce(PetPacket.initPetExceptionList(pet));
-                }
+            if (load && petItem.getExceptionList() != null) {
+                announce(PetPacket.initPetExceptionList(p));
             }
         }
     }
@@ -2157,5 +2155,9 @@ public class MapleCharacter implements Serializable {
     public void teleport(String portalName) {
         Portal portal = getMap().getPortal(portalName);
         announce(UserPacket.teleport(position, portal));
+    }
+
+    public void addVisitedMap(MapleMap map) {
+        visitedMaps.add(map.getId());
     }
 }

@@ -27,7 +27,7 @@ public class ServerPacket {
         out.writeInt(1);
         out.writeMapleAsciiString("all");
         out.writeInt(3);
-        out.writeInt(24);
+        out.writeInt(0x24);
         out.writeInt(1);
         out.writeMapleAsciiString("all");
 
@@ -43,6 +43,25 @@ public class ServerPacket {
 
         out.writeMapleAsciiString(String.format("version=v%d_%s;pointUpdateBlock=0", ServerConstants.VERSION, ServerConstants.PATH));
         out.writeMapleAsciiString("all");
+
+        return out;
+    }
+
+    public static OutPacket authenCodeChanged() {
+        OutPacket out = new OutPacket(SendOpcode.AUTHEN_CODE_CHANGED);
+
+        out.write(0);
+        out.writeInt(0);
+
+        return out;
+    }
+
+
+    public static OutPacket authenMessage() {
+        OutPacket out = new OutPacket(SendOpcode.AUTHEN_MESSAGE);
+
+        out.write(0);
+        out.writeInt(0);
 
         return out;
     }
