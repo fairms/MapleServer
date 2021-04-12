@@ -82,9 +82,11 @@ public class MobPacket {
 
     public static OutPacket hpIndicator(int objectId, byte percentage) {
         OutPacket out = new OutPacket(SendOpcode.HP_INDICATOR);
+
         out.writeInt(objectId);
         out.writeInt(percentage);
         out.write(0);
+
         return out;
     }
 
@@ -107,8 +109,10 @@ public class MobPacket {
 
     public static OutPacket removeMob(int objectId, RemoveMobType type) {
         OutPacket out = new OutPacket(SendOpcode.REMOVE_MOB);
+
         out.writeInt(objectId);
         out.write(type.getVal());
+
         out.writeZeroBytes(8);
         return out;
     }

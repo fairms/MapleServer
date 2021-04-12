@@ -144,10 +144,11 @@ public class UserPacket {
     }
 
     public static OutPacket move(MapleCharacter player, MovementInfo movementInfo) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.REMOTE_MOVE.getValue());
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_MOVE);
+
         out.writeInt(player.getId());
         movementInfo.encode(out);
+
         return out;
     }
 
@@ -179,9 +180,12 @@ public class UserPacket {
         return out;
     }
 
+    /*
+        角色乘坐地图固定椅子或者起身离开移动椅子时
+     */
     public static OutPacket sitResult(int charId, short id) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SIT_RESULT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.SIT_RESULT);
+
         out.writeInt(charId);
         if (id != -1) {
             out.write(1);
@@ -189,13 +193,15 @@ public class UserPacket {
         } else {
             out.write(0);
         }
+
         return out;
     }
 
     public static OutPacket userSit() {
-        OutPacket out = new OutPacket();
-        out.writeInt(SendOpcode.USER_SIT.getValue());
+        OutPacket out = new OutPacket(SendOpcode.USER_SIT);
+
         out.writeInt(0);
+
         return out;
     }
 
@@ -526,9 +532,10 @@ public class UserPacket {
     }
 
     public static OutPacket openWorldMap() {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.OPEN_WORLDMAP.getValue());
+        OutPacket out = new OutPacket(SendOpcode.OPEN_WORLDMAP);
+
         out.writeInt(0);
+
         return out;
     }
 

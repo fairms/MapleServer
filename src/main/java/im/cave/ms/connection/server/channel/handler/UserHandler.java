@@ -316,6 +316,7 @@ public class UserHandler {
         player.getMap().broadcastMessage(player, UserPacket.move(player, movementInfo), false);
     }
 
+    @Deprecated
     public static void handleWorldMapTransfer(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {

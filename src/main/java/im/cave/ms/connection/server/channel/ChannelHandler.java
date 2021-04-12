@@ -270,9 +270,6 @@ public class ChannelHandler extends AbstractServerHandler {
 //            case TOUCH_MONSTER_ATTACK:
                 UserHandler.handleAttack(in, c, opcode);
                 break;
-            case WORLD_MAP_TRANSFER:
-                UserHandler.handleWorldMapTransfer(in, c);
-                break;
             case CHANGE_STAT_REQUEST:
                 UserHandler.handleChangeStatRequest(in, c);
                 break;
