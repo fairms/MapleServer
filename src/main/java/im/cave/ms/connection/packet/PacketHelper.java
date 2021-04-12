@@ -118,6 +118,11 @@ public class PacketHelper {
         out.writeLong(MAX_TIME);
         out.writeLong(ZERO_TIME);
         out.writeZeroBytes(14);
+        //斗燃
+        //begin level
+        //end level
+        //00 00 00 00
+        //02 00 level added
         out.writeInt(-1);
         out.writeInt(0); //bBurning
     }

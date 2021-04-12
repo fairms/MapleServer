@@ -258,11 +258,14 @@ public class UserPacket {
 
     public static OutPacket setSkillCoolTime(MapleCharacter chr) {
         Map<Integer, Long> skillCooltimes = chr.getSkillCooltimes();
+
         long now = System.currentTimeMillis();
         HashMap<Integer, Integer> cds = new HashMap<>();
+
         skillCooltimes.forEach((skillId, time) ->
                 cds.put(skillId, Math.min((int) (time - now), 0))
         );
+
         return setSkillCoolTime(cds);
     }
 

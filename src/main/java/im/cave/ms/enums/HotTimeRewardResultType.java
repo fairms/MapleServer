@@ -10,6 +10,7 @@ public enum HotTimeRewardResultType {
     LIST(0xD5),
     GET_MAPLE_POINT(0xD7),
     GET_ITEM(0xD8);
+
     private final byte val;
 
     HotTimeRewardResultType(int val) {

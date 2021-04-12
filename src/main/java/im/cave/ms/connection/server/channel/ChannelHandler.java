@@ -352,6 +352,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case CHANGE_QUICKSLOT:
                 UserHandler.handleChangeQuickSlot(in, c);
                 break;
+            case CHECK_PROCESS:
+                UserHandler.handleCheckProcess(in, c);
+                break;
             case SEND_MAPLE_NOTES:
                 WorldHandler.handleSendMapleNotes(in, c);
                 break;
@@ -462,7 +465,7 @@ public class ChannelHandler extends AbstractServerHandler {
             case EQUIP_EFFECT_OPT:
                 UserHandler.handleEquipEffectOpt(in.readInt(), c);
                 break;
-            case CPONG:
+            case C_PONG:
                 c.pongReceived();
                 break;
         }

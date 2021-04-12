@@ -821,7 +821,7 @@ public class WorldPacket {
     }
 
     public static OutPacket hotTimeRewardResult(HotTimeRewardResult result) {
-        OutPacket out = new OutPacket(SendOpcode.ONLINE_REWARD_RESULT);
+        OutPacket out = new OutPacket(SendOpcode.HOTTIME_REWARD_RESULT);
         out.write(result.getType().getVal());
         switch (result.getType()) {
             case LIST:
@@ -930,6 +930,15 @@ public class WorldPacket {
         out.writeShort(DateUtil.now().getHour());
 
         return out;
+    }
+
+    public static OutPacket miniMapOnOff(boolean opt) {
+        OutPacket out = new OutPacket(SendOpcode.MINIMAP_ON_OFF);
+
+        out.writeBool(opt);
+
+        return out;
+
     }
 
     public static OutPacket createForceAtom(boolean byMob, int userOwner, int targetID, int forceAtomType,
