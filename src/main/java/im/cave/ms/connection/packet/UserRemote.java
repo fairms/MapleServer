@@ -281,6 +281,7 @@ public class UserRemote {
 
     public static OutPacket hiddenEffectEquips(MapleCharacter player) {
         OutPacket out = new OutPacket(SendOpcode.HIDDEN_EFFECT_EQUIP);
+
         out.writeInt(player.getId());
         List<Item> items = player.getEquippedInventory().getItems();
         List<Item> equips = items.stream().filter(item -> !((Equip) item).isShowEffect()).collect(Collectors.toList());
@@ -289,6 +290,7 @@ public class UserRemote {
             out.writeInt(equip.getPos());
         }
         out.writeBool(false);
+
         return out;
     }
 

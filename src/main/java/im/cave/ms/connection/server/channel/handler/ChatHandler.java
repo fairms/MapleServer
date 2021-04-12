@@ -24,7 +24,7 @@ public class ChatHandler {
         }
         player.setTick(tick);
         String content = in.readMapleAsciiString();
-
+        byte type = in.readByte();
         if (content.startsWith("@") || content.startsWith("!")) {
             CommandExecutor.handle(c, content);
             return;
