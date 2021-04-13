@@ -986,6 +986,14 @@ public class MapleCharacter implements Serializable {
         }
     }
 
+    /*
+        使用前必须检查item是否数量大于等消耗量amount
+        只会减少指定的某个Item的数量
+     */
+    public void consumeItem(Item item, int amount) {
+        item.setQuantity(item.getQuantity() - amount);
+        announce(UserPacket.inventoryOperation(true, UPDATE_QUANTITY, (short) item.getPos(), (short) -1, 0, item));
+    }
 
     public void consumeItem(int itemId, int quantity) {
         consumeItem(itemId, quantity, true);
@@ -1931,16 +1939,23 @@ public class MapleCharacter implements Serializable {
             out.write(10); //pvp grade
             out.writeInt(0); // pvp maplePoint
             out.write(5); // unk
-            out.write(5); // pvp mode type
+            out.write(5); // pvp mode type 5或者6
             out.writeInt(0); //event maplePoint
 
             out.writeReversedLong(getLastLogout());
             out.writeLong(MAX_TIME);
-            out.writeLong(ZERO_TIME);
+            out.writeLong(ZERO_TIME); //这几个时间都不对
+            //Burning::encode
+            //begin level
+            //end level
+            //00 00 00 00
+            //02 00 level added
             out.writeZeroBytes(14);
+
             out.writeInt(-1);
             out.writeInt(0); //bBurning
             out.write(getBuddyCapacity()); //friend
+
             boolean hasBlessingOfFairy = getBlessOfFairyOrigin() != null;
             out.writeBool(hasBlessingOfFairy);
             if (hasBlessingOfFairy) {
@@ -1953,10 +1968,47 @@ public class MapleCharacter implements Serializable {
             }
             out.writeBool(false); //ultimate explorer
         }
+
         out.writeInt(0);
         out.write(-1);
         out.writeInt(0);
         out.write(-1);
+
+        if (mask.isInMask(CharMask.Money)) {
+            out.writeLong(getMeso());
+            out.writeInt(getId());
+            out.writeInt(0); //打豆豆.豆子
+            out.writeInt(0);
+            out.writeInt(0);
+        }
+
+        if (mask.isInMask(CharMask.ItemPot)) { //可能是假的
+            out.writeInt(getPotionPot() != null);
+            if (getPotionPot() != null) {
+                getPotionPot().encode(out);
+            }
+        }
+
+        if (mask.isInMask(CharMask.InventorySize)) {
+            out.writeInt(getInventory(InventoryType.EQUIP).getSlots());
+            out.writeInt(getInventory(InventoryType.CONSUME).getSlots());
+            out.writeInt(getInventory(InventoryType.INSTALL).getSlots());
+            out.writeInt(getInventory(InventoryType.ETC).getSlots());
+            out.writeInt(getInventory(InventoryType.CASH).getSlots());
+            out.writeInt(getInventory(InventoryType.CASH_EQUIP).getSlots());
+        }
+
+        //装备吊坠栏扩充
+        if (mask.isInMask(CharMask.EquipExt)) {
+            if (getExtendedPendant() > 0 && getExtendedPendant() > DateUtil.getFileTime(System.currentTimeMillis())) {
+                out.writeLong(getExtendedPendant());
+            } else {
+                out.writeLong(ZERO_TIME);
+
+            }
+            out.write(0);
+        }
+
 
         Account account = getAccount();
         Map<Integer, String> sharedQuestExStorage = account.getSharedQuestExStorage();

@@ -32,13 +32,13 @@ public class Pet extends MapleMapObj {
 
     public void encode(OutPacket out) {
         out.writeInt(getTemplateId());
-        out.writeMapleAsciiString(name);
+        out.writeMapleAsciiString(getName());
         out.writeLong(getPetItem().getCashItemSerialNumber());
         out.writePosition(getPosition());
         out.write(getMoveAction());
         out.writeShort(getFh());
-        out.writeInt(hue);
-        out.writeShort(giantRate);
+        out.writeInt(getHue());
+        out.writeShort(getGiantRate());
         out.writeInt(0);
     }
 }

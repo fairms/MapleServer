@@ -435,6 +435,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case POTION_POT_ADD_REQUEST:
                 InventoryHandler.handlePotionPotAddRequest(in, c);
                 break;
+            case POTION_POT_OPTION_SET_REQUEST:
+                InventoryHandler.handlePotionOptionSetRequest(in, c);
+                break;
             case POTION_POT_INC_REQUEST:
                 InventoryHandler.handlePotionPotIncRequest(in, c);
                 break;
@@ -482,6 +485,8 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case C_PONG:
                 c.pongReceived();
+                break;
+            default:
                 break;
         }
 

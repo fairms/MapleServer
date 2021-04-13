@@ -38,5 +38,4 @@ public class GuildSkill {
         out.writeMapleAsciiString(getExtendCharName());
     }
 
-
 }

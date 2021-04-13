@@ -173,12 +173,12 @@ public class PacketHelper {
             chr.getPotionPot().encode(out);
         }
         //背包容量
-        out.write(chr.getInventory(InventoryType.EQUIP).getSlots());
-        out.write(chr.getInventory(InventoryType.CONSUME).getSlots());
-        out.write(chr.getInventory(InventoryType.INSTALL).getSlots());
-        out.write(chr.getInventory(InventoryType.ETC).getSlots());
-        out.write(chr.getInventory(InventoryType.CASH).getSlots());
-        out.write(chr.getInventory(InventoryType.CASH_EQUIP).getSlots());
+        out.writeInt(chr.getInventory(InventoryType.EQUIP).getSlots());
+        out.writeInt(chr.getInventory(InventoryType.CONSUME).getSlots());
+        out.writeInt(chr.getInventory(InventoryType.INSTALL).getSlots());
+        out.writeInt(chr.getInventory(InventoryType.ETC).getSlots());
+        out.writeInt(chr.getInventory(InventoryType.CASH).getSlots());
+        out.writeInt(chr.getInventory(InventoryType.CASH_EQUIP).getSlots());
 
         if (chr.getExtendedPendant() > 0 && chr.getExtendedPendant() > DateUtil.getFileTime(System.currentTimeMillis())) {
             out.writeLong(chr.getExtendedPendant());
@@ -207,23 +207,37 @@ public class PacketHelper {
         out.writeInt(1);
         out.writeInt(chr.getAccId());
         out.writeInt(-1);
-        out.writeInt(0);
-        for (int i = 0; i < 20; i++) {
+
+
+        out.writeShort(0);// ShopBuyLimit
+        //01 00
+        //03 00
+        //9010109
+            //9010109
+            //06 00
+            //2023660
+            //03 00
+            //time
+
+        out.writeShort(0);//Unk5
+
+
+        for (int i = 0; i < 20; i++) { //StolenSkills and ChosenSkills
             out.writeInt(0);
         }
         //内在能力
-        out.writeShort(chr.getPotentials().size());
+        out.writeShort(chr.getPotentials().size()); //CharacterPotentialSkill
         for (CharacterPotential characterPotential : chr.getPotentials()) {
             characterPotential.encode(out);
         }
 
-        out.writeShort(0);
+        out.writeShort(0); //Character
         out.writeInt(1); //荣耀等级
         out.writeInt(chr.getStats().getHonerPoint()); // 声望
         out.write(1);
         out.writeShort(0);
         out.write(0);
-        // 天使变身外观
+        // 天使变身外观//DressUpInfo
         out.writeInt(0);
         out.writeInt(0);
         out.writeInt(0);
@@ -243,6 +257,7 @@ public class PacketHelper {
         out.writeInt(chr.getId());
         out.writeZeroBytes(12);
         out.writeLong(ZERO_TIME);
+
         out.writeInt(0x0A); // xxx size
         out.writeZeroBytes(20); // xxx
 
@@ -255,12 +270,25 @@ public class PacketHelper {
             out.writeMapleAsciiString(qrValue);
         });
 
-        out.writeShort(0); //unk size
+        out.writeShort(0); //未知Quest数据
+        //100000
+        //0=800004000000000000000000000000000000000000000000
 
         out.writeZeroBytes(7);
         out.writeInt(0); //五转核心数目
+        //idx
+        //201327833
+        //sn
+        //level
+        //0
+        //2
+        //skillId
+        //8个0
+        //位置序号
+        //max_TIme
 
-        //未知
+
+        //未知 可能和五转的强化有关
         int ffff = 20;
         out.writeInt(ffff);
         for (int i = 0; i < ffff; i++) {
@@ -275,8 +303,9 @@ public class PacketHelper {
         out.writeLong(ZERO_TIME);
         //todo
         out.writeZeroBytes(82); //幻影窃取的技能
-        //00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00 00 00 00 00 00 00 00 00 00
-
+        //00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        // 08 00 00 00 00 00 00 00 00 00 00 00 00
+        //还有个8？
 
         out.writeShort(ItemConstants.COMMODITY.length);
         long time = DateUtil.getFileTime(System.currentTimeMillis());
@@ -303,7 +332,7 @@ public class PacketHelper {
 
         out.write(0);
         out.write(0);
-        out.write(1);
+        out.write(1); //也可能是0
     }
 
     private static void addTRocksInfo(OutPacket out, MapleCharacter chr) {

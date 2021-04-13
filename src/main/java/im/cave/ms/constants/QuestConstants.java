@@ -52,9 +52,11 @@ public class QuestConstants {
     //rank=404
     public static final int SHARE_QUEST_EX_RANK = 18771;
     //7=1;3=1;managerXpos=100;managerYpos=100
-    public static final int QUEST_EX_MANAGER = 500767;
+    public static final int SHARE_QUEST_EX_MANAGER = 500767;
 
     //V
     public static final int QUEST_V = 1465;
+    //小屋：
+    public static final int SHARE_QUEST_EX_MY_HOME = 500763;//name=冒险岛真好玩'我的小屋
 
 }

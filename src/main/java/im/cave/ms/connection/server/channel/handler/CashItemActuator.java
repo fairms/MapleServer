@@ -33,7 +33,6 @@ import static im.cave.ms.enums.EquipBaseStat.tuc;
  * @Package im.cave.ms.connection.server.channel.handler
  * @date 1/19 19:36
  */
-//todo
 public class CashItemActuator {
 
     public static boolean mapleAnyDoor(Item item, MapleCharacter chr, InPacket in) {

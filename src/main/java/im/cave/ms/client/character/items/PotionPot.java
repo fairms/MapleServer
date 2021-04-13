@@ -36,6 +36,8 @@ public class PotionPot extends Item {
     private int mp;
     private long startTime;
     private long endTime;
+    private boolean autoAddPotion;
+    private boolean autoAddAlchemyPotion;
 
     public PotionPot() {
 

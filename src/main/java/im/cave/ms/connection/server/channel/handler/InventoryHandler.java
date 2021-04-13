@@ -810,6 +810,7 @@ public class InventoryHandler {
         player.announce(NpcPacket.avatarChangeSelector(uPos, itemId, options));
     }
 
+
     public static void handlePotionPotAddRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         player.setTick(in.readInt());
@@ -821,7 +822,46 @@ public class InventoryHandler {
             player.chatMessage("物品不存在");
             return;
         }
+        int playerMaxMP = player.getMaxMP();
+        int playerMaxHP = player.getMaxHP();
         PotionPot potionPot = player.getPotionPot();
+        int max = potionPot.getMax();
+        int hp = potionPot.getHp();
+        int mp = potionPot.getMp();
+        ItemInfo ii = ItemData.getItemInfoById(item.getItemId());
+        Map<SpecStat, Integer> specStats = ii.getSpecStats();
+        int addHp = 0, addMp = 0;
+        for (SpecStat stat : specStats.keySet()) {
+            Integer i = specStats.getOrDefault(stat, 0);
+            switch (stat) {
+                case hpR:
+                    addHp = addHp + i * playerMaxHP;
+                    break;
+                case mpR:
+                    addMp = addMp + i * playerMaxMP;
+                    break;
+                case hp:
+                    addHp += i;
+                    break;
+                case mp:
+                    addMp += i;
+                    break;
+            }
+        }
+        addHp *= 1.2;
+        addMp *= 1.2;
+
+
+        int hpNeedConsume = hp == 0 ? 0 : (max - hp) / addHp;
+        int mpNeedConsume = mp == 0 ? 0 : (max - mp) / addMp;
+        int need = Math.max(hpNeedConsume, mpNeedConsume);
+        int quantity = item.getQuantity();
+        int consume = Math.min(need, quantity);
+        player.consumeItem(item, consume);
+        potionPot.setHp(Math.min(max, (hp + consume * addHp)));
+        potionPot.setMp(Math.min(max, (mp + consume + addMp)));
+
+        player.announce(potionPot.updatePotionPot());
         player.announce(potionPot.showPotionPotMsg(2, 0));
     }
 
@@ -925,5 +965,17 @@ public class InventoryHandler {
         }
         chr.consumeItem(item);
         chr.announce(UserRemote.showItemUpgradeEffect(chr.getId(), success, false, itemID, equip.getItemId(), false));
+    }
+
+    public static void handlePotionOptionSetRequest(InPacket in, MapleClient c) {
+        MapleCharacter player = c.getPlayer();
+        PotionPot potionPot = player.getPotionPot();
+        boolean autoAddPotion = in.readByte() != 0;
+        boolean autoAddAlchemyPotion = in.readByte() != 0;
+        if (potionPot == null) {
+            return;
+        }
+        potionPot.setAutoAddPotion(autoAddPotion);
+        potionPot.setAutoAddPotion(autoAddAlchemyPotion);
     }
 }

@@ -57,8 +57,8 @@ public class WorldPacket {
     }
 
     public static OutPacket getWarpToMap(MapleCharacter chr, boolean load, MapleMap to, int spawnPoint, boolean firstLoggedIn) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SET_MAP.getValue());
+        OutPacket out = new OutPacket(SendOpcode.SET_MAP);
+
         out.writeShort(1);
         out.writeLong(1);
         out.writeInt(chr.getClient().getChannelId());
@@ -75,6 +75,7 @@ public class WorldPacket {
             for (int i = 0; i < 3; i++) {
                 out.writeInt(Randomizer.nextInt());
             }
+//            chr.encode(out, CharMask.All);
             PacketHelper.addCharInfo(out, chr);
             out.write(1);
             out.write(0);
@@ -83,7 +84,7 @@ public class WorldPacket {
             out.writeLong(ZERO_TIME);
             out.writeZeroBytes(16);
         } else {
-            out.write(0); // usingBuffProtector
+            out.write(0); // todo check usingBuffProtector
             out.writeInt(to.getId()); //地图ID
             out.write(spawnPoint);
             out.writeInt(chr.getStats().getHp()); // 角色HP
@@ -99,7 +100,7 @@ public class WorldPacket {
 
         //过图加载怪怪信息
         if (!load) {
-            out.writeInt(360);
+            out.writeInt(360); //todo 592
             addUnkData(out, chr); //怪怪
         } else {
             out.writeLong(4);
@@ -109,8 +110,8 @@ public class WorldPacket {
         out.write(1);
         out.writeInt(-1);
         out.writeLong(0);
-        out.writeInt(999999999);
-        out.writeInt(999999999);
+        out.writeInt(999999999); //townPortal
+        out.writeInt(999999999); //townPortal
         out.writeInt(0);
         out.writeZeroBytes(3);
         out.write(1);
@@ -140,6 +141,7 @@ public class WorldPacket {
         out.writeInt(chr.getId());
         out.writeShort(3);
         out.writeInt(1);
+        //out.writeShort(4);
         out.writeInt(4);
         out.writeShort(0);
         out.writeShort(5);
@@ -498,9 +500,8 @@ public class WorldPacket {
     }
 
     public static OutPacket userEnterMap(MapleCharacter chr) {
-        OutPacket out = new OutPacket();
+        OutPacket out = new OutPacket(SendOpcode.USER_ENTER_FIELD);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        out.writeShort(SendOpcode.USER_ENTER_FIELD.getValue());
         out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
         out.writeInt(chr.getId());
         out.writeInt(chr.getLevel());
@@ -515,13 +516,16 @@ public class WorldPacket {
         out.write(chr.getGender());
         out.writeInt(chr.getFame());
         out.writeZeroBytes(13); //todo
+
+        //大问题
         Map<CharacterTemporaryStat, List<Option>> spawnBuffs = CharacterTemporaryStat.getSpawnBuffs();
         spawnBuffs.putAll(tsm.getCurrentStats());
         tsm.encodeForRemote(out, spawnBuffs);
+
         out.writeShort(chr.getJob());
         out.writeShort(chr.getSubJob());
         out.writeInt(chr.getTotalChuc()); //星之力
-        out.writeInt(0);
+        out.writeInt(0); //ARC
         chr.getCharLook().encode(out);
         out.writeInt(0); // int or short
         out.write(0xFF);
@@ -576,14 +580,16 @@ public class WorldPacket {
             out.write(-1);
         }
         out.writeInt(0);
-        out.write(0);
-        out.writeZeroBytes(20);
+        out.write(0);//也可能是1
+        out.writeZeroBytes(15);
         out.write(1);
         out.write(1);
         out.write(0);
         out.write(0);
+
         out.writeInt(1051291);
         out.writeZeroBytes(29);
+        //显示不出来
         out.writeMapleAsciiString(chr.getWorld() + "-" + StringUtil.getLeftPaddedStr(String.valueOf(chr.getId()), '0', 6));
         out.writeInt(0); // 如果是5 则有怪怪  应该是MASK
 
