@@ -2,25 +2,11 @@ package im.cave.ms.provider.data;
 
 import im.cave.ms.client.character.Stat;
 import im.cave.ms.client.quest.Quest;
-import im.cave.ms.client.quest.progress.QuestProgressItemRequirement;
-import im.cave.ms.client.quest.progress.QuestProgressLevelRequirement;
-import im.cave.ms.client.quest.progress.QuestProgressMobRequirement;
-import im.cave.ms.client.quest.progress.QuestProgressMoneyRequirement;
-import im.cave.ms.client.quest.progress.QuestProgressRequirement;
-import im.cave.ms.client.quest.requirement.QuestStartCompletionRequirement;
-import im.cave.ms.client.quest.requirement.QuestStartItemRequirement;
-import im.cave.ms.client.quest.requirement.QuestStartJobRequirement;
-import im.cave.ms.client.quest.requirement.QuestStartMarriageRequirement;
-import im.cave.ms.client.quest.requirement.QuestStartMaxLevelRequirement;
-import im.cave.ms.client.quest.requirement.QuestStartMinStatRequirement;
-import im.cave.ms.client.quest.reward.QuestBuffItemReward;
-import im.cave.ms.client.quest.reward.QuestExpReward;
-import im.cave.ms.client.quest.reward.QuestItemReward;
-import im.cave.ms.client.quest.reward.QuestMoneyReward;
-import im.cave.ms.client.quest.reward.QuestPopReward;
+import im.cave.ms.client.quest.progress.*;
+import im.cave.ms.client.quest.requirement.*;
+import im.cave.ms.client.quest.reward.*;
 import im.cave.ms.constants.ServerConstants;
 import im.cave.ms.enums.QuestStatus;
-import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.provider.info.QuestInfo;
 import im.cave.ms.provider.wz.MapleData;
 import im.cave.ms.provider.wz.MapleDataProvider;
@@ -600,7 +586,7 @@ public class QuestData {
         if (qi != null) {
             if (qi.isAutoComplete()) {
                 quest.setStatus(QuestStatus.Started);
-//                quest.completeQuest(); // TODO check what autocomplete actually means
+                quest.completeQuest(); // TODO check what autocomplete actually means
             } else {
                 quest.setStatus(QuestStatus.Started);
             }

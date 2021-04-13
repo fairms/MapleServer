@@ -66,13 +66,14 @@ public class PetPacket {
     }
 
     public static OutPacket petActionCommand(int charId, int index, int action, int status, int param) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.PET_ACTION_COMMAND.getValue());
+        OutPacket out = new OutPacket(SendOpcode.PET_ACTION_COMMAND);
+
         out.writeInt(charId);
         out.writeInt(index);
         out.write(action);
         out.write(status);
         out.writeInt(param);
+        
         return out;
     }
 

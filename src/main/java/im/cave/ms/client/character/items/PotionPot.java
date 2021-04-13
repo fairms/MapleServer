@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -37,6 +36,8 @@ public class PotionPot extends Item {
     private int mp;
     private long startTime;
     private long endTime;
+    private boolean autoAddPotion;
+    private boolean autoAddAlchemyPotion;
 
     public PotionPot() {
 
@@ -57,7 +58,9 @@ public class PotionPot extends Item {
 
     public OutPacket updatePotionPot() {
         OutPacket out = new OutPacket(SendOpcode.POTION_POT_UPDATE);
+
         encode(out);
+
         return out;
     }
 

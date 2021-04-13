@@ -1704,4 +1704,8 @@ public class ItemData {
     public static SkillOption getSkillOptionByOptionId(int optionId) {
         return skillOptions.get(optionId);
     }
+
+    public static ItemOption getItemOptionById(int optionId) {
+        return itemOptions.get(optionId);
+    }
 }

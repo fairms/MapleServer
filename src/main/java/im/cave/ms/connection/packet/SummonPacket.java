@@ -14,8 +14,8 @@ import im.cave.ms.connection.packet.opcode.SendOpcode;
  */
 public class SummonPacket {
     public static OutPacket spawnSummon(int charId, Summon summon) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SPAWN_SUMMON.getValue());
+        OutPacket out = new OutPacket(SendOpcode.SPAWN_SUMMON);
+
         out.writeInt(charId);
         out.writeInt(summon.getObjectId());
         out.writeInt(summon.getSkillID());
@@ -25,9 +25,9 @@ public class SummonPacket {
         out.writePosition(summon.getPosition());
         out.write(summon.getMoveAction());
         out.writeShort(summon.getCurFoothold());
-        out.write(summon.getMoveAbility().getVal()); // 1
-        out.write(summon.getAssistType().getVal());  // 2
-        out.write(summon.getEnterType().getVal());  // 1
+        out.write(summon.getMoveAbility().getVal());
+        out.write(summon.getAssistType().getVal());
+        out.write(summon.getEnterType().getVal());
         out.writeInt(0); // 00 00 00 00
         out.writeBool(summon.isFlyMob()); // 0
         out.writeBool(summon.isBeforeFirstAttack()); //0
@@ -37,8 +37,8 @@ public class SummonPacket {
         out.writeBool(summon.isJaguarActive());
         out.writeInt(summon.getSummonTerm());
         out.writeBool(summon.isAttackActive());
-        out.writeBool(true);
         out.writeZeroBytes(12);
+
         return out;
 
     }

@@ -62,6 +62,9 @@ public class LoginServerHandler extends AbstractServerHandler {
             case AFTER_CREATE_CHAR:
                 CharOperationHandler.handleAfterCreateChar(in, c);
                 break;
+            case ORDER_CHARACTERS:
+                CharOperationHandler.handleOrderCharacter(in, c);
+                break;
             case SDO_LOGIN_REQUEST:
                 OfficialLoginHandler.handlePacket(c, in);
                 break;

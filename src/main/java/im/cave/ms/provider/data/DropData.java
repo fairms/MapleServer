@@ -7,7 +7,6 @@ import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +22,6 @@ public class DropData {
     private static final Logger log = LoggerFactory.getLogger(DropData.class);
 
     private static final HashMap<Integer, Set<DropInfo>> drops = new HashMap<>();
-
 
     public static Set<DropInfo> getDrops(int mobId) {
         Set<DropInfo> mobDrops = drops.getOrDefault(mobId, null);

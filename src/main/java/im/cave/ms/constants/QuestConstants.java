@@ -30,10 +30,6 @@ public class QuestConstants {
     public static final int QUEST_EX_SOUL_EFFECT = 26535;
     //怪物收藏数量
     public static final int QUEST_EX_COLLECTION_COUNT = 18821; //count=27
-    //超时空卷
-    public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_MAX = 16700;
-    public static final int QUEST_EX_MAP_TRANSFER_COUPON_FREE_USED = 999991; //count=0;date=20210112
-    public static final int QUEST_EX_MAP_TRANSFER_COUPON_CASH_HAVE = 999992; //count=40
     //签到月份
     public static final int SHARE_QUEST_EX_DAILY_BONUS_MONTH = 6; //enter=202101
     //账号签到记录
@@ -56,6 +52,11 @@ public class QuestConstants {
     //rank=404
     public static final int SHARE_QUEST_EX_RANK = 18771;
     //7=1;3=1;managerXpos=100;managerYpos=100
-    public static final int QUEST_EX_MANAGER = 500767;
+    public static final int SHARE_QUEST_EX_MANAGER = 500767;
+
+    //V
+    public static final int QUEST_V = 1465;
+    //小屋：
+    public static final int SHARE_QUEST_EX_MY_HOME = 500763;//name=冒险岛真好玩'我的小屋
 
 }

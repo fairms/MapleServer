@@ -29,7 +29,7 @@ public class CharLook {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "charId")
     private MapleCharacter chr;
-    private byte gender;
+    private byte gender; //0:Male 1:Female
     private byte skin;
     private int hair;
     private int face;
@@ -113,29 +113,37 @@ public class CharLook {
         out.writeInt(getJob());
         out.writeBool(isMega());
         out.writeInt(getHair());
+        //显示的装备
         getHairEquips().forEach((pos, itemId) -> {
             out.write(pos);
             out.writeInt(itemId);
         });
         out.write(-1);
+        //被遮挡的装备
         getUnseenEquips().forEach((pos, itemId) -> {
             out.write(pos);
             out.writeInt(itemId);
         });
         out.write(-1);
-        //todo arcane
+
+        //未知
         out.write(-1);
+
+        //图腾开始
         getTotems().forEach((pos, itemId) -> {
             out.write(pos - BodyPart.TotemBase.getVal());
             out.writeInt(itemId);
         });
         out.write(-1);
+
         out.writeInt(getWeaponStickerId());
         out.writeInt(getWeaponId());
         out.writeInt(getSubWeaponId());
 
         out.writeLong(0);
-        out.write(0); // 0或1
+        out.write(0); // 0或1 难道和性别有关？
+
+        //三个宠物的ID
         for (int i = 0; i < GameConstants.MAX_PET_AMOUNT; i++) {
             if (chr.getPets().size() > i) {
                 out.writeInt(chr.getPets().get(i).getTemplateId());

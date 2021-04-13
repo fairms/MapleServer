@@ -227,19 +227,22 @@ public class UserRemote {
         return out;
     }
 
-    public static OutPacket remoteSetActivePortableChair(int charId, int chairId, int unk1, short unk2, int unk3, byte unk4) {
-        //todo [变长]
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.REMOTE_SET_ACTIVE_PORTABLE_CHAIR.getValue());
+    public static OutPacket remoteUserNickItem(int charId, int itemId) {
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_NICK_ITEM);
+
         out.writeInt(charId);
-        out.writeInt(chairId);
-        out.writeInt(0);
-        out.writeInt(unk3);
-        out.write(unk4);
-        out.writeBool(chairId != 0);
-        out.writeInt(0);
-        out.writeInt(unk1);
-        out.writeShort(unk2);
+        out.writeInt(itemId);
+        out.write(0);
+
+        return out;
+    }
+
+    //todo
+    public static OutPacket remoteSetActivePortableChair(int charId, PortableChair chair) {
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_SET_ACTIVE_PORTABLE_CHAIR);
+
+        out.writeInt(charId);
+
         return out;
     }
 
@@ -259,12 +262,14 @@ public class UserRemote {
 
     public static OutPacket showItemUpgradeEffect(int charId, boolean success, boolean enchantDlg, int uItemId, int eItemId, boolean boom) {
         OutPacket out = new OutPacket(SendOpcode.SHOW_ITEM_UPGRADE_EFFECT);
+
         out.writeInt(charId);
         out.write(boom ? 2 : success ? 1 : 0);
         out.writeBool(enchantDlg);
         out.writeInt(uItemId);
         out.writeInt(eItemId);
         out.write(0); // 0 普通 1 消耗祝福
+
         return out;
     }
 
@@ -281,6 +286,7 @@ public class UserRemote {
 
     public static OutPacket hiddenEffectEquips(MapleCharacter player) {
         OutPacket out = new OutPacket(SendOpcode.HIDDEN_EFFECT_EQUIP);
+
         out.writeInt(player.getId());
         List<Item> items = player.getEquippedInventory().getItems();
         List<Item> equips = items.stream().filter(item -> !((Equip) item).isShowEffect()).collect(Collectors.toList());
@@ -289,6 +295,7 @@ public class UserRemote {
             out.writeInt(equip.getPos());
         }
         out.writeBool(false);
+
         return out;
     }
 

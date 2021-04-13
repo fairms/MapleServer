@@ -2,19 +2,8 @@ package im.cave.ms.connection.server.channel.handler;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.Record;
-import im.cave.ms.client.RecordManager;
-import im.cave.ms.client.character.DamageSkinSaveData;
-import im.cave.ms.client.character.Macro;
-import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.character.MapleKeyMap;
-import im.cave.ms.client.character.Option;
-import im.cave.ms.client.character.Stat;
-import im.cave.ms.client.character.items.Equip;
-import im.cave.ms.client.character.items.Inventory;
-import im.cave.ms.client.character.items.Item;
-import im.cave.ms.client.character.items.PotionPot;
-import im.cave.ms.client.character.items.WishedItem;
+import im.cave.ms.client.character.*;
+import im.cave.ms.client.character.items.*;
 import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
@@ -34,62 +23,28 @@ import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.multiplayer.party.PartyMember;
 import im.cave.ms.client.storage.Locker;
 import im.cave.ms.connection.netty.InPacket;
-import im.cave.ms.connection.packet.CashShopPacket;
-import im.cave.ms.connection.packet.MessagePacket;
-import im.cave.ms.connection.packet.SummonPacket;
-import im.cave.ms.connection.packet.UserPacket;
-import im.cave.ms.connection.packet.UserRemote;
-import im.cave.ms.connection.packet.WorldPacket;
+import im.cave.ms.connection.packet.*;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.result.FameResult;
 import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.cashshop.CashShopServer;
-import im.cave.ms.connection.server.channel.MapleChannel;
-import im.cave.ms.constants.GameConstants;
-import im.cave.ms.constants.ItemConstants;
-import im.cave.ms.constants.JobConstants;
-import im.cave.ms.constants.QuestConstants;
-import im.cave.ms.constants.SkillConstants;
-import im.cave.ms.enums.BroadcastMsgType;
-import im.cave.ms.enums.CashItemType;
-import im.cave.ms.enums.CashShopCurrencyType;
-import im.cave.ms.enums.CharPotGrade;
-import im.cave.ms.enums.ChatType;
-import im.cave.ms.enums.DamageSkinType;
-import im.cave.ms.enums.DropLeaveType;
-import im.cave.ms.enums.InventoryType;
-import im.cave.ms.enums.LoginStatus;
-import im.cave.ms.enums.MapTransferType;
-import im.cave.ms.enums.RecordType;
-import im.cave.ms.enums.SkillStat;
+import im.cave.ms.constants.*;
+import im.cave.ms.enums.*;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.AndroidInfo;
 import im.cave.ms.provider.info.CashItemInfo;
 import im.cave.ms.provider.info.SkillInfo;
-import im.cave.ms.tools.DateUtil;
-import im.cave.ms.tools.Pair;
-import im.cave.ms.tools.Position;
-import im.cave.ms.tools.Rect;
-import im.cave.ms.tools.Util;
+import im.cave.ms.tools.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.KeyDownMoving;
-import static im.cave.ms.connection.packet.opcode.RecvOpcode.CLOSE_RANGE_ATTACK;
-import static im.cave.ms.connection.packet.opcode.RecvOpcode.MAGIC_ATTACK;
-import static im.cave.ms.connection.packet.opcode.RecvOpcode.RANGED_ATTACK;
+import static im.cave.ms.connection.packet.opcode.RecvOpcode.*;
 import static im.cave.ms.constants.GameConstants.QUICKSLOT_SIZE;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_NICK_ITEM;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SOUL_EFFECT;
@@ -316,46 +271,6 @@ public class UserHandler {
         player.getMap().broadcastMessage(player, UserPacket.move(player, movementInfo), false);
     }
 
-    public static void handleWorldMapTransfer(InPacket in, MapleClient c) {
-        MapleCharacter player = c.getPlayer();
-        if (player == null) {
-            return;
-        }
-        player.setTick(in.readInt());
-        int mapId = in.readInt();
-        MapleChannel channel = c.getMapleChannel();
-        MapleMap map = channel.getMap(mapId);
-        if (map == null) {
-            player.announce(WorldPacket.mapTransferResult(MapTransferType.TargetNotExist, (byte) 0, null));
-            return;
-        } else if (map == player.getMap()) {
-            player.announce(WorldPacket.mapTransferResult(MapTransferType.AlreadyInMap, (byte) 0, null));
-            return;
-        }
-        RecordManager recordManager = player.getRecordManager();
-        Record cash = recordManager.getRecord(RecordType.MAP_TRANSFER_COUPON_CASH);
-        Record free = recordManager.getRecord(RecordType.MAP_TRANSFER_COUPON_FREE);
-        if (free == null) {
-            free = new Record(RecordType.MAP_TRANSFER_COUPON_FREE, 7);
-            recordManager.addRecord(free);
-        }
-        boolean success = false;
-        if (free.getValue() >= 1) {
-            free.setValue(free.getValue() - 1);
-            success = true;
-        } else if (cash != null && cash.getValue() >= 1) {
-            cash.setValue(cash.getValue() - 1);
-            success = true;
-        }
-        if (success) {
-            player.announce(UserPacket.remainingMapTransferCoupon(player));
-            player.changeMap(map.getId());
-        } else {
-            player.announce(WorldPacket.mapTransferResult(MapTransferType.Unknown, (byte) 0, null));
-            player.enableAction();
-        }
-    }
-
     //打开角色的信息面板
     public static void handleCharInfoReq(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
@@ -381,7 +296,7 @@ public class UserHandler {
         short fieldSeatId = in.readShort();
         player.setChairId(fieldSeatId);
         c.announce(UserPacket.sitResult(player.getId(), fieldSeatId));
-        player.getMap().broadcastMessage(player, UserRemote.remoteSetActivePortableChair(player.getId(), 0, 0, (short) 0, 0, (byte) 0), false);
+        player.getMap().broadcastMessage(player, UserRemote.remoteSetActivePortableChair(player.getId(), new PortableChair()), false);
     }
 
     public static void handleUserPortableChairSitRequest(InPacket in, MapleClient c) {
@@ -401,7 +316,8 @@ public class UserHandler {
         byte unk4 = in.readByte();
         c.announce(UserPacket.enableActions());
         c.announce(UserPacket.userSit());
-        chr.getMap().broadcastMessage(chr, UserRemote.remoteSetActivePortableChair(chr.getId(), chairId, unk1, unk2, unk3, unk4), false);
+        PortableChair portableChair = new PortableChair();
+        chr.getMap().broadcastMessage(chr, UserRemote.remoteSetActivePortableChair(chr.getId(), portableChair), false);
     }
 
     /*
@@ -1212,9 +1128,7 @@ public class UserHandler {
         if (values == null) {
             return;
         }
-        if (chooseBefore) {
-            player.removeQuestEx(QuestConstants.QUEST_EX_MEMORIAL_CUBE);
-        } else {
+        if (!chooseBefore) {
             int ePos = Integer.parseInt(values.getOrDefault("dst", "-1"));
             int pot0 = Integer.parseInt(values.getOrDefault("pot0", "-1"));
             int pot1 = Integer.parseInt(values.getOrDefault("pot1", "-1"));
@@ -1230,6 +1144,7 @@ public class UserHandler {
             equip.setOption(1, pot1 == -1 ? 0 : pot1, add);
             equip.setOption(2, pot2 == -1 ? 0 : pot2, add);
             equip.updateToChar(player);
+            player.removeQuestEx(QuestConstants.QUEST_EX_MEMORIAL_CUBE);
         }
         player.announce(UserPacket.memorialCubeModified());
     }
@@ -1348,7 +1263,8 @@ public class UserHandler {
         player.setPrepareSkill(skillId, skillId);
     }
 
-    public static void handleUserTeleportSkillRequest(InPacket in, MapleClient c) {
+    //移动技能 包括五转钩锁或者法师的瞬移？
+    public static void handleUserMoveSkillRequest(InPacket in, MapleClient c) {
         int skillId = in.readInt();
         short slv = in.readShort();
         Position from = in.readPositionInt();
@@ -1381,5 +1297,23 @@ public class UserHandler {
             int i1 = in.readInt();
             String hash = in.readMapleAsciiString();
         }
+    }
+
+    public static void handleUserSetGameResolution(InPacket in, MapleClient c) {
+        byte resolution = in.readByte();
+        boolean windowed = in.readByte() == 0;
+    }
+
+    public static void handleGoldHammerComplete(InPacket in, MapleClient c) {
+        int i1 = in.readInt();
+        int i2 = in.readInt();
+
+
+
+
+
+
+
+        c.write(UserPacket.goldHammerItemUpgradeResult((byte) 2, i1));
     }
 }
