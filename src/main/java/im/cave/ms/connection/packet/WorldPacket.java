@@ -994,4 +994,18 @@ public class WorldPacket {
 
         return out;
     }
+
+    /*
+        type:2 家族
+     */
+    public static OutPacket notifyLevelUp(int type, int level, String name) {
+        OutPacket out = new OutPacket(SendOpcode.NOTIFY_LEVEL_UP);
+
+        out.write(type);
+        out.writeInt(level);
+        out.writeMapleAsciiString(name);
+
+        return out;
+    }
+
 }

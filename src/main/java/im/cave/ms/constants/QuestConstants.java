@@ -54,4 +54,7 @@ public class QuestConstants {
     //7=1;3=1;managerXpos=100;managerYpos=100
     public static final int QUEST_EX_MANAGER = 500767;
 
+    //V
+    public static final int QUEST_V = 1465;
+
 }

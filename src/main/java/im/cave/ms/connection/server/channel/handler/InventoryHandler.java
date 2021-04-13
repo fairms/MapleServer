@@ -534,27 +534,31 @@ public class InventoryHandler {
     }
 
     public static void handleUserConsumeCashItemUseRequest(InPacket in, MapleClient c) {
-        MapleCharacter player = c.getPlayer();
-        player.setTick(in.readInt());
+        MapleCharacter chr = c.getPlayer();
+        chr.setTick(in.readInt());
+
         short uPos = in.readShort();
         int itemId = in.readInt();
+        //通用检查
         InventoryType inventoryType = ItemConstants.getInvTypeByItemId(itemId);
         if (inventoryType == null) {
             return;
         }
-        Item item = player.getInventory(inventoryType).getItem(uPos);
+        Item item = chr.getInventory(inventoryType).getItem(uPos);
         if (item.getItemId() != itemId) {
             return;
         }
+        CashItemActuator.dispatch(item, chr, in);
+
         if (itemId / 10000 == 515) {
             ItemInfo ii = ItemData.getItemInfoById(itemId);
             int gender = ii.getGender();
             boolean choice = ii.isChoice();
             int incCharmExp = ii.getIncCharmExp();
             String script = String.format("cash_%d", itemId);
-            if (gender != 2 && gender != player.getGender()) {
-                player.announce(MessagePacket.broadcastMsg("性别不符", BroadcastMsgType.ALERT));
-                player.enableAction();
+            if (gender != 2 && gender != chr.getGender()) {
+                chr.announce(MessagePacket.broadcastMsg("性别不符", BroadcastMsgType.ALERT));
+                chr.enableAction();
                 return;
             }
             ItemScriptManager.getInstance().startScript(itemId, script, 0, c);
@@ -577,10 +581,10 @@ public class InventoryHandler {
             case Maple_Any_Door: {
                 in.readByte();
                 int targetId = in.readInt();
-                player.changeMap(targetId);
+                chr.changeMap(targetId);
             }
         }
-        player.consumeItem(itemId, 1, false);
+        chr.consumeItem(itemId, 1, false);
     }
 
     public static void handleUserLotteryItemUseRequest(InPacket in, MapleClient c) {
@@ -866,5 +870,60 @@ public class InventoryHandler {
         player.consumeItem(item);
         player.addSkill(skillId, 1, 1);
         player.getMap().broadcastMessage(UserRemote.showItemSkillOptionUpgradeEffect(player.getId(), true, false));
+    }
+
+
+    public static void handleHexagonalCubeModified(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        chr.setTick(in.readInt());
+        List<Integer> options = new ArrayList<>();
+        int i = in.readInt();
+        for (int i1 = 0; i1 < i; i1++) {
+            options.add(i1);
+        }
+        chr.announce(UserPacket.hexagonalCubeModifiedResult());
+    }
+
+    public static void handleUniqueCubeModified(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        chr.setTick(in.readInt());
+
+        int unk = in.readInt();
+        int line = 0;
+
+        chr.announce(UserPacket.uniqueCubeModifiedResult(line));
+    }
+
+    public static void handleUserItemSlotExtendItemUseRequest(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        chr.setTick(in.readInt());
+
+        short uPos = in.readShort();
+        short ePos = in.readShort();
+        Item item = chr.getConsumeInventory().getItem(uPos);
+        Item equipItem = chr.getEquipInventory().getItem(ePos);
+        if (item == null || equipItem == null) {
+            chr.chatMessage("Could not find either the use item or the equip.");
+            return;
+        }
+
+        int itemID = item.getItemId();
+        Equip equip = (Equip) equipItem;
+        int successChance = ItemData.getItemInfoById(itemID).getScrollStats().getOrDefault(ScrollStat.success, 100);
+        boolean success = Util.succeedProp(successChance);
+        if (success) {
+            switch (itemID) {
+                case 2049505: // Gold Potential Stamp
+                case 2049517:
+                    equip.setOption(2, equip.getRandomOption(false, 2), false);
+                    break;
+                default:
+                    chr.chatMessage("Unhandled slot extend item " + itemID);
+                    return;
+            }
+            equip.updateToChar(chr);
+        }
+        chr.consumeItem(item);
+        chr.announce(UserRemote.showItemUpgradeEffect(chr.getId(), success, false, itemID, equip.getItemId(), false));
     }
 }

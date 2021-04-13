@@ -1128,9 +1128,7 @@ public class UserHandler {
         if (values == null) {
             return;
         }
-        if (chooseBefore) {
-            player.removeQuestEx(QuestConstants.QUEST_EX_MEMORIAL_CUBE);
-        } else {
+        if (!chooseBefore) {
             int ePos = Integer.parseInt(values.getOrDefault("dst", "-1"));
             int pot0 = Integer.parseInt(values.getOrDefault("pot0", "-1"));
             int pot1 = Integer.parseInt(values.getOrDefault("pot1", "-1"));
@@ -1146,6 +1144,7 @@ public class UserHandler {
             equip.setOption(1, pot1 == -1 ? 0 : pot1, add);
             equip.setOption(2, pot2 == -1 ? 0 : pot2, add);
             equip.updateToChar(player);
+            player.removeQuestEx(QuestConstants.QUEST_EX_MEMORIAL_CUBE);
         }
         player.announce(UserPacket.memorialCubeModified());
     }
@@ -1303,5 +1302,18 @@ public class UserHandler {
     public static void handleUserSetGameResolution(InPacket in, MapleClient c) {
         byte resolution = in.readByte();
         boolean windowed = in.readByte() == 0;
+    }
+
+    public static void handleGoldHammerComplete(InPacket in, MapleClient c) {
+        int i1 = in.readInt();
+        int i2 = in.readInt();
+
+
+
+
+
+
+
+        c.write(UserPacket.goldHammerItemUpgradeResult((byte) 2, i1));
     }
 }

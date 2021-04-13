@@ -121,7 +121,7 @@ public class GuildResult {
                 out.writeInt(guild.getId());
                 out.write(1); //控制是否显示？
                 break;
-            case Res_SetMemberStatus_Done:
+            case Res_NotifyLoginOrLogout:
                 out.writeInt(guild.getId());
                 out.writeInt(member.getCharId());
                 out.writeBool(member.isOnline()); //待測試
@@ -229,12 +229,19 @@ public class GuildResult {
         return gri;
     }
 
-    public static GuildResult setMemberStatus(GuildMember member) {
-        GuildResult gri = new GuildResult(Res_SetMemberStatus_Done);
+    public static GuildResult notifyLoginOrLogout(GuildMember member) {
+        GuildResult gri = new GuildResult(Res_NotifyLoginOrLogout);
         gri.guild = member.getChr().getGuild();
         gri.member = member;
         return gri;
-
     }
+
+    public static GuildResult changeLevelOrJob(Guild guild, GuildMember member) {
+        GuildResult gri = new GuildResult(Res_ChangeLevelOrJob);
+        gri.guild = guild;
+        gri.member = member;
+        return gri;
+    }
+
 
 }

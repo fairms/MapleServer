@@ -73,7 +73,6 @@ public class CashShopHandler extends AbstractServerHandler {
             case CASH_SHOP_SAVE_COLLOCATION:
                 c.getPlayer().enableAction();
                 break;
-
         }
     }
 }

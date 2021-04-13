@@ -1,7 +1,6 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.Record;
 import im.cave.ms.client.character.Macro;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Stat;
@@ -21,25 +20,12 @@ import im.cave.ms.connection.netty.Packet;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.packet.result.FameResult;
-import im.cave.ms.enums.EnchantStat;
-import im.cave.ms.enums.MessageType;
-import im.cave.ms.enums.CharMask;
-import im.cave.ms.enums.DamageSkinType;
-import im.cave.ms.enums.EquipmentEnchantType;
-import im.cave.ms.enums.InventoryOperationType;
-import im.cave.ms.enums.InventoryType;
-import im.cave.ms.enums.RecordType;
+import im.cave.ms.enums.*;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Randomizer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static im.cave.ms.constants.ServerConstants.DES_KEY;
 import static im.cave.ms.constants.ServerConstants.MAX_TIME;
@@ -827,6 +813,21 @@ public class UserPacket {
 
     public static OutPacket memorialCubeResult(Item item, Equip equip) {
         OutPacket out = new OutPacket(SendOpcode.MEMORIAL_CUBE_RESULT);
+
+        out.writeLong(equip.getId());
+        out.writeBool(true); //equip!=null
+        equip.encode(out);
+        out.writeInt(item.getItemId());
+        out.writeInt(equip.getPos());
+        out.writeInt(item.getQuantity());
+        out.writeInt(item.getPos());
+
+        return out;
+    }
+
+    public static OutPacket blackCubeResult(Item item, Equip equip) {
+        OutPacket out = new OutPacket(SendOpcode.BLACK_CUBE_RESULT);
+
         out.writeLong(equip.getId());
         out.writeBool(true);
         equip.encode(out);
@@ -834,8 +835,66 @@ public class UserPacket {
         out.writeInt(equip.getPos());
         out.writeInt(item.getQuantity());
         out.writeInt(item.getPos());
+
         return out;
     }
+
+    public static Packet hexagonalCubeModifiedResult() {
+        OutPacket out = new OutPacket(SendOpcode.HEXAGONAL_CUBE_RESULT);
+
+        out.writeShort(1);
+        out.writeInt(0);
+
+        return out;
+    }
+
+    public static Packet reflectionCubeResult(Item item, Equip equip, MapleCharacter chr) {
+        OutPacket out = new OutPacket(SendOpcode.REFLECTION_CUBE_RESULT);
+
+        out.writeInt(chr.getId());
+        out.write(0);
+        out.writeInt(item.getItemId());
+        out.writeInt(equip.getPos());
+        equip.encode(out);
+
+        return out;
+    }
+
+    public static OutPacket hexagonalCubeResult(int level, List<Integer> options) {
+        OutPacket out = new OutPacket(SendOpcode.HEXAGONAL_CUBE_RESULT);
+
+        out.writeShort(0);
+        out.writeInt(0);
+
+        out.writeInt(level);
+        out.writeInt(options.size());
+        for (Integer option : options) {
+            out.writeInt(option);
+        }
+
+        return out;
+    }
+
+    public static OutPacket uniqueCubeResult(int line) {
+        OutPacket out = new OutPacket(SendOpcode.UNIQUE_CUBE_RESULT);
+
+        out.writeShort(0);
+        out.writeInt(0);
+        out.writeInt(line);
+
+        return out;
+    }
+
+    public static OutPacket uniqueCubeModifiedResult(int line) {
+        OutPacket out = new OutPacket(SendOpcode.UNIQUE_CUBE_RESULT);
+
+        out.writeShort(1);
+        out.writeInt(0);
+        out.writeInt(line);
+
+        return out;
+    }
+
 
     public static OutPacket memorialCubeModified() {
         OutPacket out = new OutPacket(SendOpcode.MEMORIAL_CUBE_MODIFIED);
@@ -854,10 +913,24 @@ public class UserPacket {
         return out;
     }
 
-    public OutPacket lifeCount(int count) {
+
+    public static OutPacket lifeCount(int count) {
         OutPacket out = new OutPacket(SendOpcode.LIFE_COUNT);
 
         out.writeInt(count);
+
+        return out;
+    }
+
+
+    public static OutPacket goldHammerItemUpgradeResult(byte returnResult, int msg) {
+        OutPacket out = new OutPacket(SendOpcode.GOLD_HAMMER_RESULT);
+
+        out.write(0);
+        out.write(returnResult);
+        out.writeInt(msg);
+        out.writeInt(0);
+        out.writeInt(0);
 
         return out;
     }

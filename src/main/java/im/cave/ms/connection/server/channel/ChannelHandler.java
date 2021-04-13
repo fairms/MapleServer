@@ -219,6 +219,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_ITEM_OPTION_UPGRADE_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserItemOptionUpgradeItemUseRequest(in, c);
                 break;
+            case USER_ITEM_SLOT_EXTEND_ITEM_USE_REQUEST:
+                InventoryHandler.handleUserItemSlotExtendItemUseRequest(in, c);
+                break;
             case USER_ITEM_SKILL_SOCKET_UPGRADE_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserItemSkillSocketUpgradeItemUseRequest(in, c);
                 break;
@@ -435,6 +438,12 @@ public class ChannelHandler extends AbstractServerHandler {
             case POTION_POT_INC_REQUEST:
                 InventoryHandler.handlePotionPotIncRequest(in, c);
                 break;
+            case HEXAGONAL_CUBE_MODIFIED:
+                InventoryHandler.handleHexagonalCubeModified(in, c);
+                break;
+            case UNIQUE_CUBE_MODIFIED:
+                InventoryHandler.handleUniqueCubeModified(in, c);
+                break;
             case USER_OPEN_MYSTERY_EGG:
                 InventoryHandler.handleUserOpenMysteryEgg(in, c);
                 break;
@@ -458,6 +467,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case OBSTACLE_ATOM_COLLISION:
                 WorldHandler.handleObstacleAtomCollision(in, c);
+                break;
+            case GOLD_HAMMER_COMPLETE:
+                UserHandler.handleGoldHammerComplete(in, c);
                 break;
             case BATTLE_ANALYSIS:
                 WorldHandler.handleBattleAnalysis(in, c);
