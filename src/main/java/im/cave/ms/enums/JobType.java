@@ -2,10 +2,8 @@ package im.cave.ms.enums;
 
 import im.cave.ms.tools.Util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -320,4 +318,8 @@ public enum JobType {
     public boolean isAdvancedJobOf(JobType job) {
         return getJob() >= job.getJob();
     }
+
+
+
+
 }

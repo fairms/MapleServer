@@ -165,10 +165,16 @@ public class MapleClient {
     }
 
     public void announce(Packet out) {
+        if (out == null) {
+            return;
+        }
         ch.writeAndFlush(out);
     }
 
     public void write(Packet out) {
+        if (out == null) {
+            return;
+        }
         ch.writeAndFlush(out);
     }
 

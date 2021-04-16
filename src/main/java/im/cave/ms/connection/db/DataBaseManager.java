@@ -3,14 +3,7 @@ package im.cave.ms.connection.db;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.HotTimeReward;
 import im.cave.ms.client.Record;
-import im.cave.ms.client.character.CharLook;
-import im.cave.ms.client.character.CharStats;
-import im.cave.ms.client.character.DamageSkinSaveData;
-import im.cave.ms.client.character.KeyBind;
-import im.cave.ms.client.character.Macro;
-import im.cave.ms.client.character.MapleCharacter;
-import im.cave.ms.client.character.MapleKeyMap;
-import im.cave.ms.client.character.NonCombatStatDayLimit;
+import im.cave.ms.client.character.*;
 import im.cave.ms.client.character.items.CashShopItem;
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.ExceptionItem;
@@ -117,6 +110,7 @@ public class DataBaseManager {
                 ExceptionItem.class,
                 HotTimeReward.class,
                 Express.class,
+                LinkSkill.class,
 
         };
         for (var clazz : dbClasses) {

@@ -33,6 +33,7 @@ public class StringData {
     private static final Map<Integer, String> familiarSkills = new HashMap<>();
 
     public static void init() {
+        System.out.println("Begin StringData Init");
         loadEquipNames();
         loadConsumeItemNames();
         loadFamiliarSkills();

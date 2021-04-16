@@ -44,7 +44,7 @@ public class LoginPacket {
     public static OutPacket getHello(MapleClient c, ServerType type) {
         OutPacket out = new OutPacket();
         if (type == LOGIN) {
-            out.writeShort(0x1E);
+            out.writeShort(0x1F); //Packet Size
             for (int i = 0; i < 2; i++) {
                 out.writeShort(VERSION);
                 out.writeMapleAsciiString(PATH);
@@ -52,8 +52,9 @@ public class LoginPacket {
                 out.writeInt(c.getSendIv());
                 out.writeShort(4);
             }
+            out.write(0); //179新增
         } else {
-            out.writeShort(0x0E);
+            out.writeShort(0x0E); //Packet Size
             out.writeShort(VERSION);
             out.writeMapleAsciiString(PATH);
             out.writeInt(c.getRecvIv());
@@ -189,10 +190,10 @@ public class LoginPacket {
         out.writeZeroBytes(6);
         List<MapleCharacter> deletedChars = characters.stream().filter(chr -> chr.getDeleteTime() != 0).collect(Collectors.toList());
         out.writeInt(deletedChars.size());
-        out.writeLong(DateUtil.getFileTime(System.currentTimeMillis()));
+        out.writeLong(DateUtil.getFileTime(System.currentTimeMillis())); //当前时间
         for (MapleCharacter deletedChar : deletedChars) {
             out.writeInt(deletedChar.getId());
-            out.writeLong(deletedChar.getDeleteTime());
+            out.writeLong(deletedChar.getDeleteTime()); //被删除的时间
         }
         out.write(0);
         out.writeInt(characters.size());
@@ -208,12 +209,11 @@ public class LoginPacket {
         out.writeInt(0); // buying char slots
         out.writeInt(-1); // nEventNewCharJob
         out.writeReversedLong(DateUtil.getFileTime(System.currentTimeMillis()));
-        out.write(0); //
-        out.write(1);
         out.write(0);
-        out.writeZeroBytes(8);
-        out.writeInt(327680);
-        out.writeInt(553713664); // 00 00 01 21
+        out.write(0);
+        out.write(0);
+        out.writeZeroBytes(16);
+        out.writeInt(-1308557312);
         for (JobConstants.LoginJob job : JobConstants.LoginJob.values()) {
             out.write(Config.serverConfig.CLOSED_JOBS.contains(job.getBeginJob().getJob()) ? 0 : job.getFlag());
             out.writeShort(1);

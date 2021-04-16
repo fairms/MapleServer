@@ -197,7 +197,7 @@ public class MapleMap {
     public Portal getPortal(byte portal) {
         return portals.stream()
                 .filter(p -> p.getId() == portal)
-                .findAny().orElse(null);
+                .findAny().orElse(getSpawnPortal());
     }
 
     public void addObj(MapleMapObj obj) {

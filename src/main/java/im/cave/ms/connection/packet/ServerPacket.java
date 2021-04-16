@@ -42,7 +42,7 @@ public class ServerPacket {
         out.writeInt(10000);
 
         out.writeMapleAsciiString(String.format("version=v%d_%s;pointUpdateBlock=0", ServerConstants.VERSION, ServerConstants.PATH));
-        out.writeMapleAsciiString("all");
+        out.writeMapleAsciiString("All");
 
         return out;
     }

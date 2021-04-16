@@ -736,6 +736,11 @@ public class UserHandler {
             String portalName = in.readMapleAsciiString();
             if (portalName != null && !"".equals(portalName)) {
                 Portal portal = player.getMap().getPortal(portalName);
+                if (portal == null) {
+                    //Hack
+                    player.changeMap(100000000);
+                    return;
+                }
                 portal.enterPortal(c);
             } else if (player.getHp() <= 0) {
                 int returnMap = player.getMap().getReturnMap();
@@ -1307,11 +1312,6 @@ public class UserHandler {
     public static void handleGoldHammerComplete(InPacket in, MapleClient c) {
         int i1 = in.readInt();
         int i2 = in.readInt();
-
-
-
-
-
 
 
         c.write(UserPacket.goldHammerItemUpgradeResult((byte) 2, i1));

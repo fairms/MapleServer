@@ -34,8 +34,6 @@ public class CharOperationHandler {
         int charId = in.readInt();
         byte invisible = in.readByte();
         if (c.getLoginStatus().equals(LoginStatus.LOGGEDIN) && c.getAccount().getCharacter(charId) != null) {
-            MapleCharacter player = c.getAccount().getCharacter(charId);
-            c.setPlayer(player);
             c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
             Server.getInstance().addClientInTransfer(c.getChannelId(), charId, c);
             int port = Server.getInstance().getChannel(c.getWorldId(), c.getChannelId()).getPort();

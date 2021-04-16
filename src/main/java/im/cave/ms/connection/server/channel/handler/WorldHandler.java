@@ -420,8 +420,6 @@ public class WorldHandler {
                 c.announce(UserPacket.setSkillCoolTime(player));
 
                 //todo init guild
-
-
                 player.initBaseStats();
                 if (player.getHp() <= 0) {
                     player.setMapId(player.getMap().getReturnMap());
@@ -431,6 +429,7 @@ public class WorldHandler {
                 player.buildQuestEx();
                 //todo 分散到之后的请求中
                 player.changeMap(player.getMapId(), true);
+                //封装    封包顺序是否影响游戏运行
                 c.announce(UserPacket.keymapInit(player));
                 c.announce(LoginPacket.account(player.getAccount()));
                 c.announce(UserPacket.quickslotInit(player));
@@ -438,7 +437,7 @@ public class WorldHandler {
                 c.announce(UserPacket.updateMaplePoint(player));
                 c.getAccount().buildSharedQuestEx();
 
-                c.announce(MapleDailyBonus.init());
+//                c.announce(MapleDailyBonus.init());
 
                 Party party = player.getMapleWorld().getPartyById(player.getPartyId());
                 if (party != null) {
@@ -1484,6 +1483,6 @@ public class WorldHandler {
 
     //todo
     public static void handleExitAuction(InPacket in, MapleClient c) {
-        
+
     }
 }

@@ -24,10 +24,10 @@ public class MaplePacketEncoder extends MessageToByteEncoder<Packet> {
     private static final int uSeqBase = (short) ((((0xFFFF - VERSION) >> 8) & 0xFF) | (((0xFFFF - VERSION) << 8) & 0xFF00));
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, Packet out, ByteBuf byteBuf) {
-        byte[] data = out.getData();
+    protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) {
+        byte[] data = packet.getData();
         MapleClient client = ctx.channel().attr(CLIENT_KEY).get();
-        AESCipher ac = ctx.channel().attr(MapleClient.AES_CIPHER).get();
+        AESCipher aesCipher = ctx.channel().attr(MapleClient.AES_CIPHER).get();
         if (client != null) {
             int uSeqSend = client.getSendIv();
             short uDataLen = (short) (((data.length << 8) & 0xFF00) | (data.length >>> 8));
@@ -36,7 +36,7 @@ public class MaplePacketEncoder extends MessageToByteEncoder<Packet> {
             try {
                 uDataLen ^= uRawSeq;
                 if (client.getPort() == LOGIN_PORT) {
-                    ac.Crypt(data, uSeqSend);
+                    aesCipher.Crypt(data, uSeqSend);
                 } else {
                     CIGCipher.Crypt(data, uSeqSend);
                 }
@@ -44,13 +44,10 @@ public class MaplePacketEncoder extends MessageToByteEncoder<Packet> {
             } finally {
                 client.releaseEncoderState();
             }
-            byteBuf.writeShort(uRawSeq);
-            byteBuf.writeShort(uDataLen);
-            byteBuf.writeBytes(data);
-        } else {
-            byteBuf.writeBytes(data);
+            out.writeShort(uRawSeq);
+            out.writeShort(uDataLen);
         }
-
-        out.release();
+        out.writeBytes(data);
+        packet.release();
     }
 }

@@ -57,6 +57,9 @@ public class WorldPacket {
     }
 
     public static OutPacket getWarpToMap(MapleCharacter chr, boolean load, MapleMap to, int spawnPoint, boolean firstLoggedIn) {
+//        if (load) {
+//            return OriginPacket.setMap();
+//        }
         OutPacket out = new OutPacket(SendOpcode.SET_MAP);
 
         out.writeShort(1);

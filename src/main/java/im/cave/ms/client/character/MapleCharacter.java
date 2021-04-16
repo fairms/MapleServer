@@ -101,6 +101,7 @@ public class MapleCharacter implements Serializable {
     private boolean isDeleted;
     private long extendedPendant;
     private long createdTime;
+    @Column(name = "`order`")
     private int order;
     //好友
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -302,7 +303,7 @@ public class MapleCharacter implements Serializable {
     @Transient
     private DamageCalc damageCalc;
     @Transient
-    private Pair<Integer, Integer> prepareSkill; //按压技能 skillId,skillLevel
+    private Pair<Integer, Integer> prepareSkill = new Pair<>(0, 0); //按压技能 skillId,skillLevel
     @Transient
     private String portableChairMsg;
 
@@ -462,9 +463,11 @@ public class MapleCharacter implements Serializable {
             this.mapId = getMap().getForcedReturn();
             this.spawnPoint = 0;
         }
-        Portal spawnPortalNearby = map.getSpawnPortalNearby(getPosition());
-        setSpawnPoint(spawnPortalNearby.getId());
-        getMap().removeChar(this);
+        if (getMap() != null) {
+            Portal spawnPortalNearby = getMap().getSpawnPortalNearby(getPosition());
+            setSpawnPoint(spawnPortalNearby.getId());
+            getMap().removeChar(this);
+        }
         if (getMiniRoom() != null) {
             if (getMiniRoom() instanceof TradeRoom) {
                 MapleCharacter other = ((TradeRoom) getMiniRoom()).getOther();
@@ -475,7 +478,9 @@ public class MapleCharacter implements Serializable {
         }
         buildQuestExStorage();
         setOnline(false);
-        getAccount().setOnlineChar(null);
+        if (getAccount() != null) {
+            getAccount().setOnlineChar(null);
+        }
         if (!isChangingChannel()) {
             getAccount().logout();
             getClient().getMapleChannel().removePlayer(this);
@@ -618,7 +623,9 @@ public class MapleCharacter implements Serializable {
         }
         World curWorld = Server.getInstance().getWorldById(world);
         MapleChannel curChannel = curWorld.getChannel(channel);
-        return curChannel.getMap(mapId);
+        MapleMap map = curChannel.getMap(mapId);
+        setMap(map);
+        return map;
     }
 
     public boolean hasItemCount(int itemID, int requiredCount) {
@@ -1117,7 +1124,9 @@ public class MapleCharacter implements Serializable {
 
     //切换地图
     private void changeMap(MapleMap map, byte portal, boolean load) {
-        announce(UserPacket.effect(Effect.playPortalSE()));
+        if (!load) {
+            announce(UserPacket.effect(Effect.playPortalSE()));
+        }
         if (party != null && party.getPartyQuest() != null) { //处理组队地图
             int pMap = map.getId();
             MapleMap temp = Util.findWithPred(party.getPartyQuest().getMaps(), m -> m.getId() == pMap);
@@ -1939,7 +1948,7 @@ public class MapleCharacter implements Serializable {
             out.write(10); //pvp grade
             out.writeInt(0); // pvp maplePoint
             out.write(5); // unk
-            out.write(5); // pvp mode type 5或者6
+            out.write(6); // pvp mode type 5或者6
             out.writeInt(0); //event maplePoint
 
             out.writeReversedLong(getLastLogout());
@@ -2119,5 +2128,14 @@ public class MapleCharacter implements Serializable {
 
     public void addVisitedMap(MapleMap map) {
         visitedMaps.add(map.getId());
+    }
+
+    public Position getPosition() {
+        if (position == null) {
+            byte sp = getSpawnPoint();
+            Portal portal = getMap().getPortal(sp);
+            return portal.getPosition();
+        }
+        return position;
     }
 }

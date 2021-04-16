@@ -3,6 +3,7 @@ package im.cave.ms.connection.packet;
 import im.cave.ms.client.Account;
 import im.cave.ms.client.character.CharLook;
 import im.cave.ms.client.character.CharStats;
+import im.cave.ms.client.character.LinkSkill;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
@@ -91,7 +92,7 @@ public class PacketHelper {
             out.writeInt(charLook.getMark());
         }
         out.write(0);
-        out.writeLong(ZERO_TIME);
+        out.writeLong(chr.getCreatedTime()); //角色创建时间
         out.writeShort(stats.getFatigue());
         out.writeInt(stats.getFatigueUpdated() == 0 ? DateUtil.getTime() : stats.getFatigueUpdated());
         /*
@@ -111,12 +112,12 @@ public class PacketHelper {
         out.write(10); //pvp grade
         out.writeInt(0); // pvp maplePoint
         out.write(5); // unk
-        out.write(5); // pvp mode type
+        out.write(6); // pvp mode type
         out.writeInt(0); //event maplePoint
 
-        out.writeReversedLong(chr.getLastLogout());
-        out.writeLong(MAX_TIME);
-        out.writeLong(ZERO_TIME);
+        out.writeReversedLong(DateUtil.getFileTime(System.currentTimeMillis()));
+        out.writeLong(MAX_TIME); //斗燃开始时间
+        out.writeLong(ZERO_TIME); //陡然结束时间
         out.writeZeroBytes(14);
         //斗燃
         //begin level
@@ -213,11 +214,11 @@ public class PacketHelper {
         //01 00
         //03 00
         //9010109
-            //9010109
-            //06 00
-            //2023660
-            //03 00
-            //time
+        //9010109
+        //06 00
+        //2023660
+        //03 00
+        //time
 
         out.writeShort(0);//Unk5
 
@@ -270,7 +271,7 @@ public class PacketHelper {
             out.writeMapleAsciiString(qrValue);
         });
 
-        out.writeShort(0); //未知Quest数据
+        out.writeShort(0); //未知Quest数据 可能是小屋
         //100000
         //0=800004000000000000000000000000000000000000000000
 
@@ -332,7 +333,7 @@ public class PacketHelper {
 
         out.write(0);
         out.write(0);
-        out.write(1); //也可能是0
+        out.write(0);
     }
 
     private static void addTRocksInfo(OutPacket out, MapleCharacter chr) {
@@ -375,8 +376,8 @@ public class PacketHelper {
     }
 
     private static void addSkillInfo(OutPacket out, MapleCharacter chr) {
-        out.write(1); //mask
-//        out.writeShort(0); // skills size       short size = (short) (getSkills().size() + linkSkills.size());
+        out.write(1);
+        // skills size       short size = (short) (getSkills().size() + linkSkills.size());
         Set<Skill> skills = chr.getSkills();
         out.writeShort(skills.size());
         for (Skill skill : skills) {
@@ -388,11 +389,25 @@ public class PacketHelper {
             }
         }
 
-        out.writeShort(0); //link skill
+        out.writeShort(0); //link skill 获得的LINk技能
 
-        out.writeInt(0); //son of linked skill
-
-        out.writeShort(0); //skills in cd  size
+        Account account = chr.getAccount();
+        Set<LinkSkill> linkSkills = account.getLinkSkills(); //是否要排除自己？
+        out.writeInt(linkSkills.size()); //所有的LINK数量
+        for (LinkSkill linkSkill : linkSkills) {
+            linkSkill.encode(out);
+        }
+        Map<Integer, Long> skillCooltimes = chr.getSkillCooltimes();
+        out.writeShort(skillCooltimes.size());
+        long now = System.currentTimeMillis();
+        for (Integer skillId : skillCooltimes.keySet()) {
+            Long nextUsableTime = skillCooltimes.getOrDefault(skillId, 0L);
+            if (nextUsableTime <= now) {
+                continue;
+            }
+            out.writeInt(skillId);
+            out.writeInt((int) ((nextUsableTime - now) / 1000));
+        }
     }
 
     private static void addInventoryInfo(OutPacket out, MapleCharacter chr) {
@@ -441,53 +456,46 @@ public class PacketHelper {
                 virtualEquip.add(item);
             }
         }
+        //normalEquip
         for (Item item : normalEquip) {
             out.writeShort(item.getPos());
             item.encode(out);
         }
-        out.writeShort(0);  //装备
-
+        out.writeShort(0);
+        //invEquip
         for (Item item : chr.getInventory(InventoryType.EQUIP).getItems()) {
             out.writeShort(item.getPos());
             item.encode(out);
         }
-        out.writeShort(0); //装备栏
-/////////////////////////////////////////////
+        out.writeShort(0);
+        //evanEquip
         for (Item item : evanEquip) {
             out.writeShort(item.getPos());
             item.encode(out);
         }
         out.writeShort(0);
-
-        for (Item item : petConsumeEquip) {
-            out.writeShort(item.getPos());
-            item.encode(out);
-        }
+        //Unknown
+//        for (Item item : petConsumeEquip) {
+//            out.writeShort(item.getPos());
+//            item.encode(out);
+//        }
         out.writeShort(0);
-///////////////////////////////
+        //totemEquip
         for (Item item : totems) {
             out.writeShort(item.getPos());
             item.encode(out);
         }
         out.writeShort(0);
-///////////////////////////////
-        //todo
+        /////////////////////
         out.writeShort(0); //1
-        //todo
         out.writeShort(0); //2
-        //todo
         out.writeShort(0); //3
-        //todo
         out.writeShort(0); //4
-        //todo
         out.writeShort(0); //5
-        //todo
         out.writeShort(0); //6
-        //todo
         out.writeShort(0); //7
         ////////////////////
-        //机器人
-        //todo
+        //todo 机器人
         out.writeInt(0); //背包中机器人的数目...
         //60 C8 8E 26 00 00 00 00 id
         //0a 00 type
@@ -497,12 +505,11 @@ public class PacketHelper {
         // 12个0
         ///////////////////////////
 
-        //todo
         out.writeShort(0); //8
-        //todo
         out.writeShort(0); //9
 
         out.write(0);
+        //包括宠物的装备
         for (Item item : cashEquip) {
             out.writeShort(item.getPos() - 100);
             item.encode(out);
@@ -513,16 +520,14 @@ public class PacketHelper {
             item.encode(out);
         }
         out.writeShort(0);
-        //todo
+        //安卓机器人的装备
         for (Item item : androidEquip) {
             out.writeShort(item.getPos());
             item.encode(out);
         }
         out.writeShort(0);
 
-        //todo
         out.writeShort(0);
-        //todo
         out.writeShort(0);
 
         for (Item item : chr.getConsumeInventory().getItems()) {

@@ -4,13 +4,8 @@ import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.client.field.obj.npc.shop.NpcShop;
 import im.cave.ms.client.field.obj.npc.shop.NpcShopItem;
 import im.cave.ms.connection.db.DataBaseManager;
-import im.cave.ms.connection.server.Server;
 import im.cave.ms.constants.ServerConstants;
-import im.cave.ms.provider.wz.MapleData;
-import im.cave.ms.provider.wz.MapleDataFileEntry;
-import im.cave.ms.provider.wz.MapleDataProvider;
-import im.cave.ms.provider.wz.MapleDataProviderFactory;
-import im.cave.ms.provider.wz.MapleDataTool;
+import im.cave.ms.provider.wz.*;
 import im.cave.ms.tools.StringUtil;
 import im.cave.ms.tools.Util;
 import org.hibernate.Session;
@@ -19,13 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author fair
@@ -111,6 +100,7 @@ public class NpcData {
     }
 
     public static void loadNpcDataFromWz() {
+        System.out.println("Begin NpcData Init");
         for (MapleDataFileEntry file : npcData.getRoot().getFiles()) {
             MapleData data = NpcData.npcData.getData(file.getName());
             if (data == null) {
@@ -125,7 +115,6 @@ public class NpcData {
                 illustrations.add(npc.getTemplateId());
             }
         }
-        Server.getInstance().setOnline(true);
     }
 
     private static void loadNpcData(MapleData data, Npc npc) {

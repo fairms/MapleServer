@@ -251,6 +251,10 @@ public class UserPacket {
     public static OutPacket setSkillCoolTime(MapleCharacter chr) {
         Map<Integer, Long> skillCooltimes = chr.getSkillCooltimes();
 
+        if (skillCooltimes == null || skillCooltimes.size() == 0) {
+            return null;
+        }
+
         long now = System.currentTimeMillis();
         HashMap<Integer, Integer> cds = new HashMap<>();
 

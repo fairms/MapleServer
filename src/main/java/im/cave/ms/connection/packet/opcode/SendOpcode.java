@@ -85,7 +85,7 @@ public enum SendOpcode {
     UNK83(0x83),
     UNK84(0x84),
     CLAIM_RESULT(0x85),
-    SET_CLAIM_SVR_AVAILABLE_TIME(0x86),
+    SET_CLAIM_SVR_AVAILABLE_TIME(0x86), //ClientException
     CLAIM_SVR_STATUS_CHANGED(0x88),
     UNK89(0x89),
     STAR_PLANET_USER_COUNT(0x8A),
@@ -552,7 +552,13 @@ public enum SendOpcode {
     ILLUSTRATION_MSG(0x402),
     //
     LEOPARD_SKILL_USE(0x404),
-
+    //
+    //
+    //
+    //
+    //
+    //
+    //
     SKILL_COOLTIME_SET(0x40C),
 
     ADDITIONAL_ATTACK(0x424),
@@ -701,7 +707,7 @@ public enum SendOpcode {
     UNIQUE_CUBE_RESULT(0x805),
 
     CMS_LIMIT(0x814),
-    KEYMAP_INIT(0x83F), //84A - 19
+    KEYMAP_INIT(0x83F),
     UNK832(0x840), //85 84 1E 00
     UNK833(0x841), //00 00 00 00
     UNK834(0x842), //00 00 00 00

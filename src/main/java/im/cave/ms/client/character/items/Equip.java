@@ -950,7 +950,7 @@ public class Equip extends Item {
             out.writeLong(getFlame());
         }
         if (hasStat(EquipBaseStat.itemState)) {
-            out.writeInt(getItemState()); //256
+            out.writeInt(getItemState()); //256 可能也是mask吧
         }
 
         out.writeMapleAsciiString(getOwner());
@@ -983,17 +983,18 @@ public class Equip extends Item {
             out.writeShort(0); //ARC LEVEL
         }
         out.writeShort(-1);
+
         out.writeLong(MAX_TIME);
         out.writeLong(ZERO_TIME);
         out.writeLong(MAX_TIME);
-        if (getAndroid() != null) {
-            Android android = getAndroid();
+        Android android = getAndroid();
+        if (android != null) {
             out.writeShort(android.getSkin());
             out.writeShort(android.getHair() + 10000);
             out.writeShort(android.getFace());
             out.writeMapleAsciiString(android.getName());
             out.writeInt(0);
-            out.writeLong(MAX_TIME);
+            out.writeLong(ZERO_TIME);
         }
         out.writeLong(getLimitBreak());
     }

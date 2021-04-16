@@ -1,5 +1,6 @@
 package im.cave.ms.client;
 
+import im.cave.ms.client.character.LinkSkill;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.multiplayer.friend.Friend;
 import im.cave.ms.client.storage.Locker;
@@ -13,20 +14,7 @@ import im.cave.ms.enums.PrivateStatusIDFlag;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -74,6 +62,9 @@ public class Account {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "accId")
     private Set<Record> records;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "accId")
+    private Set<LinkSkill> linkSkills;
     @Transient
     private Map<Integer, Map<String, String>> sharedQuestEx;
     @Transient

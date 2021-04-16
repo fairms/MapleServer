@@ -101,14 +101,14 @@ public class GameConstants {
     // Default slots
     public static final int DEFAULT_BUDDY_CAPACITY = 20;
     public static final int DEFAULT_DAMAGE_SLOTS = 1;
-    public static final byte DEFAULT_EQUIP_INVENTORY_SLOTS = 32;
-    public static final byte DEFAULT_CONSUME_INVENTORY_SLOTS = 32;
-    public static final byte DEFAULT_INSTALL_INVENTORY_SLOTS = 32;
-    public static final byte DEFAULT_ETC_INVENTORY_SLOTS = 32;
-    public static final byte DEFAULT_CASH_INVENTORY_SLOTS = 64;
-    public static final byte DEFAULT_TRUNK_SLOTS = 4;
-    public static final byte DEFAULT_CHARACTER_SLOTS = 6;
-    public static final byte INVENTORY_MAX_SLOTS = (byte) 128;
+    public static final short DEFAULT_EQUIP_INVENTORY_SLOTS = 32;
+    public static final short DEFAULT_CONSUME_INVENTORY_SLOTS = 32;
+    public static final short DEFAULT_INSTALL_INVENTORY_SLOTS = 32;
+    public static final short DEFAULT_ETC_INVENTORY_SLOTS = 32;
+    public static final short DEFAULT_CASH_INVENTORY_SLOTS = 64;
+    public static final short DEFAULT_TRUNK_SLOTS = 4;
+    public static final short DEFAULT_CHARACTER_SLOTS = 6;
+    public static final short INVENTORY_MAX_SLOTS = 128;
 
     // Inner Ability
     public static final int CHAR_POT_BASE_ID = 70000000;
