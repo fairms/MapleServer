@@ -243,7 +243,7 @@ public enum RecvOpcode {
     UPDATE_TICK(0x333),
 
 
-    DAILY_BONUS_CHECK_IN(0x33B),
+    DAILY_GIFT_CHECK_IN(0x33B),
     //
     //
     SKILL_COMMAND_LOCK(0x33E),

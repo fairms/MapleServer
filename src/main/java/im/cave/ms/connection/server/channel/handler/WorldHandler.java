@@ -2,7 +2,7 @@ package im.cave.ms.connection.server.channel.handler;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.MapleDailyBonus;
+import im.cave.ms.client.MapleDailyGift;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
@@ -94,7 +94,7 @@ import java.util.stream.Collectors;
 
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_COMBO_KILL;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
-import static im.cave.ms.constants.QuestConstants.SHARE_QUEST_EX_DAILY_BONUS_LOG;
+import static im.cave.ms.constants.QuestConstants.SHARE_QUEST_EX_DAILY_GIFT_LOG;
 
 /**
  * @author fair
@@ -297,26 +297,26 @@ public class WorldHandler {
         c.announce(QuestPacket.updateQuestEx(QUEST_EX_COMBO_KILL));
     }
 
-    public static void handleDailyBonusCheckIn(InPacket in, MapleClient c) {
+    public static void handleDailyGiftCheckIn(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         Account account = player.getAccount();
         int itemId = in.readInt();
-        Map<String, String> log = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_BONUS_LOG);
+        Map<String, String> log = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_GIFT_LOG);
         if (log == null) {
             HashMap<String, String> options = new HashMap<>();
             options.put("count", "0"); //累计签到次数？
             options.put("day", "0");
             options.put("date", String.valueOf(DateUtil.getDate()));
-            account.addSharedQuestEx(SHARE_QUEST_EX_DAILY_BONUS_LOG, options, true);
-            c.announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_DAILY_BONUS_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
+            account.addSharedQuestEx(SHARE_QUEST_EX_DAILY_GIFT_LOG, options, true);
+            c.announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_DAILY_GIFT_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
         }
-        String count = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_BONUS_LOG).get("count");
-        String day = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_BONUS_LOG).get("day");
-        String date = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_BONUS_LOG).get("date");
+        String count = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_GIFT_LOG).get("count");
+        String day = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_GIFT_LOG).get("day");
+        String date = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_GIFT_LOG).get("date");
         if (date.equals(String.valueOf(DateUtil.getDate()))) {
             player.dropMessage("已经签到过了?");
         } else {
-            MapleDailyBonus.CheckInRewardInfo signRewardInfo = MapleDailyBonus.getDailyRewardInfo(Integer.parseInt(day));
+            MapleDailyGift.CheckInRewardInfo signRewardInfo = MapleDailyGift.getDailyRewardInfo(Integer.parseInt(day));
             if (signRewardInfo == null || itemId != signRewardInfo.getItemId()) {
                 player.dropMessage("签到出错,请检查");
                 return;
@@ -328,13 +328,13 @@ public class WorldHandler {
             options.put("count", count);
             options.put("day", day);
             options.put("date", date);
-            account.addSharedQuestEx(SHARE_QUEST_EX_DAILY_BONUS_LOG, options, true);
-            c.announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_DAILY_BONUS_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
+            account.addSharedQuestEx(SHARE_QUEST_EX_DAILY_GIFT_LOG, options, true);
+            c.announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_DAILY_GIFT_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
             Item item = ItemData.getItemCopy(itemId, false);
             item.setQuantity(signRewardInfo.getQuantity());
             player.addItemToInv(item);
-            c.announce(MapleDailyBonus.getCheckInRewardPacket(2, itemId));
-            c.announce(MapleDailyBonus.getCheckInRewardPacket(0, itemId));
+            c.announce(MapleDailyGift.getCheckInRewardPacket(2, itemId));
+            c.announce(MapleDailyGift.getCheckInRewardPacket(0, itemId));
         }
     }
 
@@ -437,7 +437,7 @@ public class WorldHandler {
                 c.announce(UserPacket.updateMaplePoint(player));
                 c.getAccount().buildSharedQuestEx();
 
-//                c.announce(MapleDailyBonus.init());
+//                c.announce(MapleDailyGift.init());
 
                 Party party = player.getMapleWorld().getPartyById(player.getPartyId());
                 if (party != null) {

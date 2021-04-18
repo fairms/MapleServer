@@ -19,7 +19,7 @@ import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
  * @Package im.cave.ms.client
  * @date 12/12 23:16
  */
-public class MapleDailyBonus {
+public class MapleDailyGift {
 
     public static final int MIN_LEVEL = 33;
     private static List<CheckInRewardInfo> rewards = new ArrayList<>();
@@ -37,7 +37,7 @@ public class MapleDailyBonus {
 
 
     public static OutPacket init() {
-        OutPacket out = new OutPacket(SendOpcode.DAILY_BONUS_RESULT);
+        OutPacket out = new OutPacket(SendOpcode.DAILY_GIFT_RESULT);
         out.write(0); //type
         out.write(1);
         out.writeLong(ZERO_TIME);
@@ -60,11 +60,11 @@ public class MapleDailyBonus {
     }
 
     public static void initRewards() {
-        rewards = Config.worldConfig.getDailyBonusRewards();
+        rewards = Config.worldConfig.getDailyGiftsRewards();
     }
 
     public static OutPacket getCheckInRewardPacket(int type, int itemId) {
-        OutPacket out = new OutPacket(SendOpcode.DAILY_BONUS_RESULT);
+        OutPacket out = new OutPacket(SendOpcode.DAILY_GIFT_RESULT);
 
         out.write(2); //type
         out.writeInt(type);

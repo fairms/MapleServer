@@ -697,7 +697,7 @@ public enum SendOpcode {
     AUCTION(0x7D7),
 
 
-    DAILY_BONUS_RESULT(0x7E7),
+    DAILY_GIFT_RESULT(0x7E7),
     //
     //
     //
