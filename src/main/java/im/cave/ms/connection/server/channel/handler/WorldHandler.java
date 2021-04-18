@@ -304,7 +304,7 @@ public class WorldHandler {
         Map<String, String> log = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_BONUS_LOG);
         if (log == null) {
             HashMap<String, String> options = new HashMap<>();
-            options.put("count", "0");
+            options.put("count", "0"); //累计签到次数？
             options.put("day", "0");
             options.put("date", String.valueOf(DateUtil.getDate()));
             account.addSharedQuestEx(SHARE_QUEST_EX_DAILY_BONUS_LOG, options, true);

@@ -183,6 +183,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_CONSUME_CASH_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserConsumeCashItemUseRequest(in, c);
                 break;
+            case USER_ADDITIONAL_SLOT_EXTEND_ITEM_USE_REQUEST:
+                InventoryHandler.handleUserAdditionalSlotExtendItemUseRequest(in, c);
+                break;
             case USER_CASH_PET_PICK_UP_ON_OFF_REQUEST:
                 PetHandler.handleUserCashPetPickUpOnOffRequest(in, c);
                 break;
@@ -321,6 +324,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case FAMILIAR:
                 WorldHandler.handleFamiliarRequest(in, c);
+                break;
+            case STACK_CHAIRS:
+                UserHandler.handleStackChairs(in, c);
                 break;
             case USER_SOUL_EFFECT_REQUEST:
                 UserHandler.handleUserSoulEffectRequest(in, c);

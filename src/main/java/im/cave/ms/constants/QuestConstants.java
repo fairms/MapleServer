@@ -11,6 +11,9 @@ public class QuestConstants {
     public static final String QUEST_COMPLETE_SCRIPT_END_TAG = "e";
 
     public static final int QUEST_POCKET = 6500;
+
+
+    public static final int QUEST_EX_STACK_CHAIRS = 7266;
     //锁定技能
     public static final int QUEST_EX_SKILL_STATE = 1544;
     //每日等级范围内怪物击杀数目统计

@@ -955,7 +955,7 @@ public class Equip extends Item {
 
         out.writeMapleAsciiString(getOwner());
         out.write(getGrade());
-        out.write(getChuc());
+        out.write(getChuc()); //星之力
         for (int i = 0; i < 7; i++) {
             out.writeShort(getOptions().get(i));
         }

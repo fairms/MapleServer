@@ -419,6 +419,11 @@ public class InventoryHandler {
         ItemScriptManager.getInstance().startScript(itemId, script, npcId, c);
     }
 
+    //todo
+    public static void handleUserAdditionalSlotExtendItemUseRequest(InPacket in, MapleClient c) {
+
+    }
+
     public static void handleUserFlameItemUseRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         player.setTick(in.readInt());
@@ -778,6 +783,7 @@ public class InventoryHandler {
         player.consumeItem(scroll);
     }
 
+    //强化卷
     public static void handleUserHyperUpgradeItemUseRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         in.readInt();
@@ -793,6 +799,7 @@ public class InventoryHandler {
         }
         int scrollId = scroll.getItemId();
         Map<ScrollStat, Integer> vals = ItemData.getItemInfoById(scrollId).getScrollStats();
+
     }
 
     //todo

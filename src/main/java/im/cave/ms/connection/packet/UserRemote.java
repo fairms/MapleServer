@@ -363,6 +363,19 @@ public class UserRemote {
         return out;
     }
 
+
+    //toto check
+    public static OutPacket showItemSlotOptionExtendEffect(int charId, int itemId, boolean success, boolean boom) {
+        OutPacket out = new OutPacket(SendOpcode.SHOW_ITEM_SLOT_OPTION_EXTEND_EFFECT);
+
+        out.writeInt(charId);
+        out.write(boom ? 2 : success ? 1 : 0);
+        out.writeInt(itemId);
+        out.write(0);
+
+        return out;
+    }
+
     public static OutPacket guildNameChanged(MapleCharacter chr) {
         OutPacket out = new OutPacket(SendOpcode.REMOTE_GUILD_NAME_CHANGED);
 

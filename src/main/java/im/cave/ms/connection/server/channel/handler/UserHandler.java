@@ -46,8 +46,7 @@ import java.util.*;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.KeyDownMoving;
 import static im.cave.ms.connection.packet.opcode.RecvOpcode.*;
 import static im.cave.ms.constants.GameConstants.QUICKSLOT_SIZE;
-import static im.cave.ms.constants.QuestConstants.QUEST_EX_NICK_ITEM;
-import static im.cave.ms.constants.QuestConstants.QUEST_EX_SOUL_EFFECT;
+import static im.cave.ms.constants.QuestConstants.*;
 import static im.cave.ms.constants.ServerConstants.ONE_DAY_TIMES;
 
 /**
@@ -1315,5 +1314,18 @@ public class UserHandler {
 
 
         c.write(UserPacket.goldHammerItemUpgradeResult((byte) 2, i1));
+    }
+
+
+    public static void handleStackChairs(InPacket in, MapleClient c) {
+        int unk = in.readInt();
+        //7266
+        HashMap<String, String> questEx = new HashMap<>();
+        for (int i = 0; i < 6; i++) {
+            int chairId = in.readInt();
+            questEx.put(String.valueOf(i), String.valueOf(chairId));
+        }
+        MapleCharacter chr = c.getPlayer();
+        chr.addQuestExAndSendPacket(QUEST_EX_STACK_CHAIRS, questEx);
     }
 }

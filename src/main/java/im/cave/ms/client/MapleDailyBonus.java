@@ -5,6 +5,8 @@ import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.constants.QuestConstants;
 
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +20,11 @@ import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
  * @date 12/12 23:16
  */
 public class MapleDailyBonus {
+
     public static final int MIN_LEVEL = 33;
     private static List<CheckInRewardInfo> rewards = new ArrayList<>();
+    public static final LocalDate lastDay = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
+
 
     static {
         initRewards();
@@ -32,28 +37,22 @@ public class MapleDailyBonus {
 
 
     public static OutPacket init() {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.DAILY_BONUS_INIT.getValue());
-        out.write(0);
+        OutPacket out = new OutPacket(SendOpcode.DAILY_BONUS_RESULT);
+        out.write(0); //type
         out.write(1);
         out.writeLong(ZERO_TIME);
         out.writeLong(MAX_TIME);
-        out.writeLong(31);
+        out.writeLong(lastDay.getDayOfMonth());
         out.writeInt(QuestConstants.QUEST_EX_MOB_KILL_COUNT);
         out.writeInt(QuestConstants.MOB_KILL_COUNT_MAX);
-        out.writeInt(rewards.size());
+        out.writeInt(rewards.size()); //最大就是28
         for (CheckInRewardInfo signReward : rewards) {
-            out.writeInt(signReward.getRank());
+            out.writeInt(signReward.getRank()); //idx
             out.writeInt(signReward.getItemId());
             out.writeInt(signReward.getQuantity());
-            if (signReward.getExpiredTime() > 0) {
-                out.writeInt(1);
-                out.writeInt(signReward.getExpiredTime());
-            } else {
-                out.writeLong(0);
-            }
+            out.writeLong(signReward.getExpiredTime());
             out.writeInt(signReward.isCash);
-            out.writeZeroBytes(6);
+            out.writeZeroBytes(4);
         }
         out.writeInt(MIN_LEVEL);
         out.writeZeroBytes(12);
@@ -65,10 +64,12 @@ public class MapleDailyBonus {
     }
 
     public static OutPacket getCheckInRewardPacket(int type, int itemId) {
-        OutPacket out = new OutPacket();
-        out.write(2);
+        OutPacket out = new OutPacket(SendOpcode.DAILY_BONUS_RESULT);
+
+        out.write(2); //type
         out.writeInt(type);
         out.writeInt(itemId);
+
         return out;
     }
 
