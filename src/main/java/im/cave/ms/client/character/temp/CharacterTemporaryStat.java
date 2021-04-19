@@ -97,38 +97,42 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Jump(83),
     MagicGuard(84),
     DarkSight(85),
-    Booster(86),
-    PowerGuard(87),
-    MaxHP(88),
-    MaxMP(89),
-    Invincible(90),
-    SoulArrow(93),
-    Stun(92),
-    Unk82(93),
-    Unk83(94),
-    Unk84(95),
-    Poison(96),
-    ComboCounter(96),
-    Seal(97),
-    Darkness(98),
-    WeaponCharge(100),
-    HolySymbol(101),
-    MesoUp(102),
-    ShadowPartner(103),
-    PickPocket(104),
-    MesoGuard(105),
-    Thaw(106),
-    Weakness(107),
-    Curse(108),
-    Slow(109),
-    Morph(110),
-    Regen(111),
-    BasicStatUp(112),
-    Stance(113),
+    Booster(88),
+    PowerGuard(89),
+    MaxHP(90),
+    MaxMP(91),
+    Invincible(92),
+
+    SoulArrow(93), //无形箭
+
+    Stun(94),
+    Unk82(95),
+    Unk83(96),
+    Unk84(97),
+    Poison(98),
+    ComboCounter(99),
+    Seal(100),
+    Darkness(101),
+    WeaponCharge(102),
+    HolySymbol(103),
+    MesoUp(104),
+    ShadowPartner(105),
+    PickPocket(106),
+    MesoGuard(107),
+    Thaw(108),
+    Weakness(109),
+    Curse(110),
+    Slow(111),
+    Morph(112),
+    Regen(113),
+    BasicStatUp(114),
+    Stance(115),
     SharpEyes(116),
     ManaReflection(117),
-    Attract(118),
-    NoBulletConsume(119),
+    Attract(123),
+
+    NoBulletConsume(124),
+
     Infinity(120),
     AdvancedBless(121),
     IllusionStep(122),
@@ -419,8 +423,9 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     ComboCostInc(356),
     ExtremeArchery(363),
     NaviFlying(358),
+
     QuiverCatridge(365),
-    AdvancedQuiver(360),
+    AdvancedQuiver(366),
 
     UserControlMob(361),
     ImmuneBarrier(362),
@@ -612,7 +617,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk537(537),
     Unk538(538),
     Unk539(539),
-    Unk540(539),
+    Unk540(539),//+5
     Unk541(541),
     SpecterEnergy(542),
     SpecterState(543),
@@ -702,11 +707,15 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     EnergyCharged(627),
     DashSpeed(628),
     DashJump(629),
-    RideVehicle(630),
-    PartyBooster(631),
-    GuidedBullet(632),
-    Undead(633),
-    RideVehicleExpire(634),
+
+    RideVehicle(630), //黄色
+    PartyBooster(631), //红色
+    GuidedBullet(632), //蓝色
+    Undead(633), //黑暗
+    RideVehicleExpire(634), //减益
+    UNK635(635),//结合灵气
+
+
     unk690(690),
     unk691(691),
     unk692(692),
@@ -884,6 +893,8 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
         spawnBuffs.put(Unk583, null);
         spawnBuffs.put(WillowDodge, null);
 
+
+        //twoStat
         spawnBuffs.put(unk695, null);
         spawnBuffs.put(unk696, null);
         spawnBuffs.put(unk697, null);

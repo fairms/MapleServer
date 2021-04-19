@@ -94,21 +94,21 @@ public class GameConstants {
     public static final long HYPER_SKILL_RESET_COST = 1000000;
 
     //Party
-    public static final String DEFAULT_PARTY_NAME = "快去组队游戏吧，GoGo";
+        public static final String DEFAULT_PARTY_NAME = "快去组队游戏吧，GoGo";
 
-    //Friend
-    public static final String DEFAULT_FRIEND_GROUP = "未指定群组";
-    // Default slots
-    public static final int DEFAULT_BUDDY_CAPACITY = 20;
-    public static final int DEFAULT_DAMAGE_SLOTS = 1;
-    public static final short DEFAULT_EQUIP_INVENTORY_SLOTS = 32;
-    public static final short DEFAULT_CONSUME_INVENTORY_SLOTS = 32;
-    public static final short DEFAULT_INSTALL_INVENTORY_SLOTS = 32;
-    public static final short DEFAULT_ETC_INVENTORY_SLOTS = 32;
-    public static final short DEFAULT_CASH_INVENTORY_SLOTS = 64;
-    public static final short DEFAULT_TRUNK_SLOTS = 4;
-    public static final short DEFAULT_CHARACTER_SLOTS = 6;
-    public static final short INVENTORY_MAX_SLOTS = 128;
+        //Friend
+        public static final String DEFAULT_FRIEND_GROUP = "未指定群组";
+        // Default slots
+        public static final int DEFAULT_BUDDY_CAPACITY = 20;
+        public static final int DEFAULT_DAMAGE_SLOTS = 1;
+        public static final short DEFAULT_EQUIP_INVENTORY_SLOTS = 32;
+        public static final short DEFAULT_CONSUME_INVENTORY_SLOTS = 32;
+        public static final short DEFAULT_INSTALL_INVENTORY_SLOTS = 32;
+        public static final short DEFAULT_ETC_INVENTORY_SLOTS = 32;
+        public static final short DEFAULT_CASH_INVENTORY_SLOTS = 64;
+        public static final short DEFAULT_TRUNK_SLOTS = 4;
+        public static final short DEFAULT_CHARACTER_SLOTS = 6;
+        public static final short INVENTORY_MAX_SLOTS = 128;
 
     // Inner Ability
     public static final int CHAR_POT_BASE_ID = 70000000;

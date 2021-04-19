@@ -433,13 +433,15 @@ public class TemporaryStatManager {
         out.write(0); // KillingPoint
 
 
-        out.writeInt(0); // 神圣迅捷
         out.writeInt(0);
-        out.writeInt(0); // 战法灵气
+        out.writeInt(0);
+        out.writeInt(0);
+        //Level:short
+        //Skill:int
 
-        out.writeInt(0); // 激素狂飙
+        out.writeInt(0);
 
-        out.writeInt(0); // 忍耐之盾
+        out.writeInt(0);
 
         out.writeInt(0); // SECONDARY_STAT_UNK476
 
