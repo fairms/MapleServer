@@ -1,7 +1,5 @@
 package im.cave.ms.client.field.obj.mob;
 
-import im.cave.ms.client.character.temp.CharacterTemporaryStat;
-
 public enum MobStat {
     PAD(0),
     PDR(1),
@@ -42,7 +40,7 @@ public enum MobStat {
     DamagedElemAttr(36),
     Dark(37),
     Mystery(38),
-    AddDamParty(39),
+    AddDamParty(37), //增伤
     HitCriDamR(40),
     Fatality(41),
     Lifting(42),

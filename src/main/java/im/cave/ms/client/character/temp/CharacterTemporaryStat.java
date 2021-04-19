@@ -10,24 +10,24 @@ import java.util.Map;
 
 
 public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat> {
-    IndiePAD(0),
+    IndiePAD(0), //攻击力
     IndieMAD(1),
     IndiePDD(2),
     IndieMDD(-1),
-    IndieMHP(3),
+    IndieMHP(3), //最大HP
     IndieMHPR(4),
-    IndieMMP(5),
+    IndieMMP(5), //最大MP
     IndieMMPR(6),
 
-    IndieACC(7),
-    IndieEVA(8),
+    IndieACC(7), //命中
+    IndieEVA(8), //回避
     IndieJump(9),
     IndieSpeed(10),
-    IndieAllStat(11),
+    IndieAllStat(12), //所有冒险岛勇士增加的属性
     IndieDodgeCriticalTime(12),
 
     IndieEXP(14),
-    IndieBooster(15),
+    IndieBooster(15),//攻击速度 绿药
 
     IndieFixedDamageR(16),
     PyramidStunBuff(17),
@@ -40,29 +40,29 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     IndieINT(24),
     IndieLUK(25),
-    IndieDamR(26),
+    IndieDamR(26), //伤害
     IndieScriptBuff(27),
     IndieMDF(28),
     IndieMaxDamageOver(-1),
-    IndieAsrR(29),
-    IndieTerR(30),
+    IndieAsrR(29), //异常抗性
+    IndieTerR(30),//属性抗性
 
-    IndieCr(31),
-    IndiePDDR(32),
-    IndieCrDam(33),
-    IndieBDR(34),
+    IndieCr(31), //暴击率
+    IndiePDDR(32), //防御力百分比
+    IndieCrDam(33), //爆伤
+    IndieBDR(34), //BOSS伤
     IndieStatR(35),
-    IndieStance(36),
-    IndieIgnoreMobpdpR(37),
-    IndieEmpty(47),
+    IndieStance(36), //稳如泰山
+    IndieIgnoreMobpdpR(37), //无视
+    IndieEmpty(49),
 
-    IndiePADR(39),
+    IndiePADR(39), //攻击力百分比
     IndieMADR(40),
     IndieCrDamR(41),
     IndieEVAR(42),
     IndieMDDR(-1),
     IndieDrainHP(43),
-    IndiePMdR(43),
+    IndiePMdR(43),//最终伤害
     IndieMaxDamageOverR(-1),
 
     IndieForceJump(44),
@@ -72,74 +72,72 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieUnk2(48),
     IndieUnk3(49),
     IndieUnk4(50),
-    IndieUnk5(51),
+    IndieUnk5(51), //终极斩的无敌 释放过程中无敌
     IndieUnk6(52),
-    IndieUnk7(53),
+    IndieUnk7(53), //烟幕弹 樱花结界 范围减伤
     IndieUnk8(54),
     IndieUnk9(55),
     IndieUnk10(56),
-    IndieUnk11(57),
+    IndieUnk11(57),//减少受到的伤害?
     IndieUnk12(58),
     IndieUnk13(59),
     IndieUnk14(60),
     IndieUnk15(61),
     IndieUnk16(62),
-    IndieUnk17(63),
+    IndieUnk17(63), //dropRate 神圣祈祷
     IndieStatCount(71),
 
-    PAD(76),
-    PDD(77),
-    MAD(78),
-    ACC(79),
-    EVA(80),
-    Craft(81),
-    Speed(82),
-    Jump(83),
-    MagicGuard(84),
-    DarkSight(85),
-    Booster(88),
-    PowerGuard(89),
+    PAD(78),
+    PDD(79),
+    MAD(80),
+    ACC(81),
+    EVA(82),
+    Craft(83),
+    Speed(84),
+    Jump(85),
+    MagicGuard(86),//魔法盾
+    DarkSight(87), //隐身术
+    Booster(88), //快速武器
+    PowerGuard(89), //愤怒之火减伤
     MaxHP(90),
     MaxMP(91),
     Invincible(92),
-
     SoulArrow(93), //无形箭
-
     Stun(94),
     Unk82(95),
     Unk83(96),
     Unk84(97),
     Poison(98),
-    ComboCounter(99),
-    Seal(100),
+    ComboCounter(98),//斗气集中
+    unk99(99),
+    Seal(100), //祝福之锤
     Darkness(101),
-    WeaponCharge(102),
-    HolySymbol(103),
+    WeaponCharge(102), //武器充能
+    HolySymbol(103), //神圣祈祷
     MesoUp(104),
-    ShadowPartner(105),
-    PickPocket(106),
-    MesoGuard(107),
+    ShadowPartner(105), //影分身
+    PickPocket(106), //敛财术
+    MesoGuard(107), //金钱盾
     Thaw(108),
     Weakness(109),
     Curse(110),
     Slow(111),
     Morph(112),
-    Regen(113),
-    BasicStatUp(114),
-    Stance(115),
-    SharpEyes(116),
+    Regen(113), //团队治疗
+    BasicStatUp(114), //冒险岛勇士
+    Stance(115), //稳如泰山
+    SharpEyes(116), //火眼晶晶
     ManaReflection(117),
-    Attract(123),
-
-    NoBulletConsume(124),
-
-    Infinity(120),
-    AdvancedBless(121),
+    Attract(118),
+    NoBulletConsume(119), //无限子弹
+    Infinity(120),//终极无限
+    AdvancedBless(121), //进阶祝福
+    @Deprecated
     IllusionStep(122),
     Blind(123),
     Concentration(124),
-    BanMap(120),
-    MaxLevelBuff(121),
+    BanMap(125),
+    MaxLevelBuff(126),
     Unk114(122),
     Unk115(123),
     MesoUpByItem(124),
@@ -157,7 +155,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     DojangShield(127),
     SoulMasterFinal(128),
     WindBreakerFinal(129),
-    ElementalReset(141),
+    ElementalReset(143),//自然力重置
     HideAttack(131),
 
     EventRate(132),
@@ -171,7 +169,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     StopMotion(140),
     Fear(141),
-    HiddenPieceOn(142),
+    HiddenPieceOn(142), //隐形剑
     MagicShield(143),
     MagicResistance(144),
     SoulStone(145),
@@ -179,22 +177,31 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Frozen(147),
 
     AssistCharge(148),
-    Enrage(160),
-    DrawBack(161),
-    NotDamaged(162),
-    FinalCut(163),
-    HowlingAttackDamage(164),
-    BeastFormDamageUp(165),
-    Dance(166),
-
-    EMHP(164),
-    EMMP(165),
+    unk149(149),
+    unk150(150),
+    unk151(151), //经验倍率
+    unk152(152),
+    unk153(153),
+    unk154(154),
+    unk155(155),
+    unk156(156),
+    unk157(157),
+    unk158(158),
+    unk159(159),
+    Enrage(162),//葵花宝典
+    DrawBack(163),
+    NotDamaged(164),//无敌 龙神
+    FinalCut(165), //终极斩
+    HowlingAttackDamage(166),
+    BeastFormDamageUp(167),
+    Dance(168),
+    EMHP(169),
+    EMMP(170),
     EPAD(171),
-    EMAD(167),
-    EPDD(172),
+    EMAD(172),
+    EPDD(173),
     EMDD(-1),
-
-    Guard(172),
+    Guard(174),//完美机甲
     Unk162(170),
     Unk163(171),
     Cyclone(172),
@@ -206,22 +213,20 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Conversion(174),
     Revive(175),
     PinkbeanMinibeenMove(176),
-    Sneak(177),
-
-    Mechanic(178),
-    BeastFormMaxHP(179),
-    Dice(180),
-    BlessingArmor(181),
-    DamR(181),
-    TeleportMasteryOn(181),
-    CombatOrders(183),
-    Beholder(184),
-
-    DispelItemOption(186),
-    Inflation(187),
-    OnixDivineProtection(188),
-    Web(189),
-    Bless(190),
+    Sneak(178),//隐匿  \潜入
+    Mechanic(179), //金属机甲
+    BeastFormMaxHP(180),
+    Dice(181), //幸运骰子
+    BlessingArmor(182),
+    DamR(183),
+    TeleportMasteryOn(184),//快速移动精通
+    CombatOrders(185),//战斗命令
+    Beholder(186), //灵魂助力
+    DispelItemOption(187),
+    Inflation(188), //巨人药水
+    OnixDivineProtection(189),
+    Web(190),
+    Bless(191),//祝福
     TimeBomb(191),
     DisOrder(192),
     Thread(193),
@@ -250,24 +255,22 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     InfinityForce(204),
     IncMaxHP(205),
     IncMaxMP(206),
-    HolyMagicShell(207),
-    KeyDownTimeIgnore(208),
-
-    ArcaneAim(209),
-    MasterMagicOn(210),
-    AsrR(218),
-    TerR(219),
-    DamAbsorbShield(213),
-    DevilishPower(214),
-    Roulette(215),
-    SpiritLink(216),
-
-    AsrRByItem(217),
-    Event(218),
-    CriticalBuff(219),
-    DropRate(220),
-    PlusExpRate(221),
-    ItemInvincible(222),
+    HolyMagicShell(216),//神圣魔法盾
+    KeyDownTimeIgnore(217), //圣光普照
+    ArcaneAim(218),
+    MasterMagicOn(219),
+    AsrR(220), //异常抗性 水盾
+    TerR(221),//属性抗性 水盾
+    DamAbsorbShield(222), //伤害吸收 水盾 双重防御
+    DevilishPower(223),//海蛇螺旋
+    Roulette(224), //随机橡木桶
+    SpiritLink(225),
+    AsrRByItem(226),
+    Event(227),
+    CriticalBuff(228), //暴击率
+    DropRate(229),//爆率
+    PlusExpRate(230),
+    ItemInvincible(231),
     Awake(223),
     ItemCritical(224),
 
@@ -290,15 +293,14 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     SlowAttack(238),
 
     PyramidEffect(246),
-    KillingPoint(247),
-    HollowPointBullet(249),
-    KeyDownMoving(251),
-    IgnoreTargetDEF(250),
-    ReviveOnce(521),
-    Invisible(252),
-    EnrageCr(253),
-
-    EnrageCrDam(254),
+    KillingPoint(249), //侠盗本能击杀点数
+    HollowPointBullet(250),
+    KeyDownMoving(251), //暴风类技能
+    IgnoreTargetDEF(252), //无视防御力 \龙之献祭
+    ReviveOnce(523),
+    Invisible(254),
+    EnrageCr(255),//葵花宝典
+    EnrageCrDam(256),//葵花宝典暴击伤害 极限弩暴击伤害...
     Judgement(248),
     DojangLuckyBonus(249),
     PainMark(250),
@@ -313,12 +315,13 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     GrandGuardian(259),
     DropPer(260),
     VampDeath(261),
-    BlessingArmorIncPAD(262),
-    KeyDownAreaMoving(263),
-    Larkness(264),
-    StackBuff(265),
+    GuidedArrow(262), //向导之箭
+    BlessingArmorIncPAD(263),
+    KeyDownAreaMoving(264),
+    Larkness(265), //残影之矢
+    StackBuff(274), //双重防御
     BlessOfDarkness(266),
-    AntiMagicShell(274),
+    AntiMagicShell(276),//神圣保护 元素配合
     AntiMagicShellBool(267),
     LifeTidal(268),
     HitCriDamR(269),
@@ -343,51 +346,47 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Contagion(286),
 
     ComboUnlimited(287),
-    SoulExalt(288),
-    IgnorePCounter(289),
-    IgnoreAllCounter(290),
-    IgnorePImmune(291),
-    IgnoreAllImmune(292),
-    Unk293(293),
-    FinalJudgement(294),
-    IceAura(295),
-
-    FireAura(296),
-    VengeanceOfAngel(297),
-    HeavensDoor(298),
-    Preparation(299),
-    BullsEye(300),
-    IncEffectHPPotion(301),
-    IncEffectMPPotion(302),
-    BleedingToxin(303),
-
-    IgnoreMobDamR(304),
-    Asura(305),
-    Unk306(306),
-    FlipTheCoin(307),
-    UnityOfPower(308),
-    Stimulate(309),
-    ReturnTeleport(310),
-    DropRIncrease(311),
-    IgnoreMobpdpR(312),
-
-    BdR(318),
-    CapDebuff(314),
-    Exceed(315),
-    DiabolikRecovery(316),
-    FinalAttackProp(317),
-    ExceedOverload(318),
-    OverloadCount(319),
-    BuckShot(320),
-
-    FireBomb(321),
-    HalfstatByDebuff(322),
-    SurplusSupply(323),
-    SetBaseDamage(324),
-    EVAR(325),
-    NewFlying(326),
-    AmaranthGenerator(327),
-    OnCapsule(328),
+    SoulExalt(295),
+    IgnorePCounter(296),
+    IgnoreAllCounter(297),
+    IgnorePImmune(298), //免疫 至圣领域
+    IgnoreAllImmune(299),
+    Unk293(300),
+    FinalJudgement(301),
+    IceAura(302),//寒冰灵气
+    FireAura(303),//火焰灵气
+    VengeanceOfAngel(304),//天使复仇
+    HeavensDoor(305),//天堂之门
+    Preparation(306),
+    BullsEye(307),//鹰眼
+    IncEffectHPPotion(308),
+    IncEffectMPPotion(309),
+    BleedingToxin(310), //流血剧毒
+    IgnoreMobDamR(311), //无视怪物伤害百分比？
+    Asura(312), //阿修罗
+    Unk306(313),
+    FlipTheCoin(314), //幸运钱 & 能量激发
+    UnityOfPower(315), //混元归一
+    Stimulate(316),// 能量激发?
+    ReturnTeleport(317),
+    DropRIncrease(318),
+    IgnoreMobpdpR(319),
+    BdR(320), //BOSS伤 龙之献祭
+    CapDebuff(321),
+    Exceed(322),
+    DiabolicRecovery(323),
+    FinalAttackProp(324),
+    ExceedOverload(325),
+    OverloadCount(326),
+    BuckShot(327),//霰弹炮
+    FireBomb(328),
+    HalfstatByDebuff(329),
+    SurplusSupply(330), //尖兵能量
+    SetBaseDamage(331),
+    EVAR(332),
+    NewFlying(333), //心魂漫步 自由飞行 空中悬浮
+    AmaranthGenerator(334),//永动引擎
+    OnCapsule(335),
 
     CygnusElementSkill(329),
     StrikerHyperElectric(330),
@@ -408,33 +407,31 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     SoulExplosion(349),
     SoulMP(349),
 
-    FullSoulMP(350),
+    FullSoulMP(351), //灵魂武器MAX
     SoulSkillDamageUp(352),
-    Restoration(353),
-    ElementalCharge(356),
-    CrossOverChain(354),
-    ChargeBuff(350),
-    Reincarnation(351),
-    KnightsAura(352),
-
-    ChillingStep(357),
-    DotBasedBuff(354),
-    BlessEnsenble(355),
-    ComboCostInc(356),
-    ExtremeArchery(363),
-    NaviFlying(358),
-
-    QuiverCatridge(365),
-    AdvancedQuiver(366),
+    ElementalCharge(354), //元素冲击
+    Restoration(355), //元气恢复
+    CrossOverChain(356), //交叉锁链
+    ChargeBuff(357),
+    Reincarnation(358), //重生
+    KnightsAura(-1),
+    ChillingStep(359),//寒冰步
+    DotBasedBuff(360),
+    BlessEnsenble(361),//幽冥气息
+    ComboCostInc(362),
+    ExtremeArchery(363),//极限：弓 极限：弩
+    NaviFlying(364),
+    QuiverCartridge(365),//三彩箭矢
+    AdvancedQuiver(366),//进阶箭筒
 
     UserControlMob(361),
     ImmuneBarrier(362),
     ArmorPiercing(363),
     ZeroAuraStr(364),
     ZeroAuraSpd(365),
-    CriticalGrowing(366),
+    CriticalGrowing(370),//名流暴击
     QuickDraw(367),
-    BowMasterConcentration(368),
+    BowMasterConcentration(373), //集中精神
 
     TimeFastABuff(369),
     TimeFastBBuff(370),
@@ -446,11 +443,11 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk376(376),
     DotHealHPPerSecond(377),
 
-    SpiritGuard(378),
+    SpiritGuard(383),//招魂结界
     Unk379(379),
     PreReviveOnce(380),
-    SetBaseDamageByBuff(381),
-    LimitMP(382),
+    SetBaseDamageByBuff(381), //祈祷 回蓝
+    LimitMP(382), //祈祷 回血
     ReflectDamR(383),
     ComboTempest(384),
     MHPCutR(385),
@@ -463,10 +460,10 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Dominion(391),
     SiphonVitality(392),
     DarknessAscension(393),
-    BossWaitingLinesBuff(394),
+    BossWaitingLinesBuff(394),//引燃
 
     DamageReduce(395),
-    ShadowServant(396),
+    ShadowServant(396),//火凤凰.炎术士
     ShadowIllusion(397),
     KnockBack(398),
     AddAttackCount(399),
@@ -474,34 +471,34 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     JaguarSummoned(401),
     JaguarCount(402),
 
-    SSFShootingAttack(403),
-    DevilCry(404),
-    ShieldAttack(405),
-    BMageAura(406),
-    DarkLighting(407),
-    AttackCountX(408),
-    BMageDeath(409),
-    BombTime(410),
-    NoDebuff(411),
-    BattlePvPMikeShield(412),
-    BattlePvPMikeBugle(413),
-    XenonAegisSystem(414),
-    AngelicBursterSoulSeeker(415),
-    HiddenPossession(416),
-    NightWalkerBat(417),
-    NightLordMark(418),
-    WizardIgnite(419),
+    SSFShootingAttack(403), //火焰咆哮
+    DevilCry(407),
+    ShieldAttack(408),
+    BMageAura(409),
+    DarkLighting(410),
+    AttackCountX(411),
+    BMageDeath(412),
+    BombTime(413), //轰炸时间
+    NoDebuff(414),
+    BattlePvPMikeShield(415),
+    BattlePvPMikeBugle(416),
+    XenonAegisSystem(417), //宙斯盾系统
+    AngelicBursterSoulSeeker(418),
+    HiddenPossession(419),//灵狐
+    NightWalkerBat(420),
+    NightLordMark(421),//刺客标记
+    WizardIgnite(422),//燎原之火
     FireBarrier(420),
     ChangeFoxMan(421),
     DivineEcho(422),
-    Unk423(423),
-    Unk424(424),
-    Unk425(425),
+    Unk423(423), //紫炎结界
+    Unk424(424), //影朋：小白
+    Unk425(425), //神圣归一
     RIFT_OF_DAMNATION(426),
     Unk427(427),
     Unk428(428),
     Unk429(429),
-    Unk430(430),
+    Unk430(430), //全箭发射
     Unk431(431),
     BattlePvPHelenaMark(432),
     BattlePvPHelenaWindSpirit(433),
@@ -513,29 +510,30 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     PinkbeanRollingGrade(439),
     PinkbeanYoYoStack(440),
     RandAreaAttack(440),
-    Unk442(442),
-    NextAttackEnhance(443),
-    AranBeyonderDamAbsorb(444),
-    AranCombotempastOption(445),
-    NautilusFinalAttack(446),
-    ViperTimeLeap(447),
-    RoyalGuardState(448),
-    RoyalGuardPrepare(449),
+    Unk442(445),
+    NextAttackEnhance(446),
+    AranBeyonderDamAbsorb(447),
+    AranCombotempastOption(448),
+    NautilusFinalAttack(448),//诺特勒斯战舰
+    ViperTimeLeap(449),//伺机待发
+
+    RoyalGuardState(451),//天上气息
+    RoyalGuardPrepare(452),
     MichaelSoulLink(450),
     MichaelStanceLink(451),
     TriflingWhimOnOff(452),
     AddRangeOnOff(453),
 
-    KinesisPsychicPoint(454),
-    KinesisPsychicOver(455),
-    KinesisPsychicShield(456),
-    KinesisIncMastery(457),
-    KinesisPsychicEnergeShield(458),
+    KinesisPsychicPoint(456), //心魂点
+    KinesisPsychicOver(457), //心魂附体
+    KinesisPsychicShield(458), //心魂之盾
+    KinesisIncMastery(459),
+    KinesisPsychicEnergyShield(460), //心魂本能
     BladeStance(459),
     DebuffActiveSkillHPCon(460),
     DebuffIncHP(461),
 
-    BowMasterMortalBlow(462),
+    BowMasterMortalBlow(464), //贯穿箭
     AngelicBursterSoulResonance(463),
     Fever(-1),
     IgnisRore(464),
@@ -546,8 +544,8 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     AdrenalinBoost(469),
     AranSmashSwing(469),
-    AranDrain(471),
-    AttackRecovery(471),
+    AranDrain(471),//   钢铁之躯
+    AttackRecovery(473), //黑暗饥渴 攻击时恢复最大血量%
     AranBoostEndHunt(472),
     HiddenHyperLinkMaximization(473),
     RWCylinder(474),
@@ -568,35 +566,35 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk488(488),
     Unk489(489),
     Unk490(490),
-    Unk491(491),
+    Unk491(491), //精准火箭
     Unk492(492),
     LightningCascade(493),
     BulletBarrage(494),
     Unk495(495),
     AuraScythe(496),
-    Unk497(497),
+    Unk497(497), //祈祷
     Unk498(498),
     Unk499(499),
     Unk500(500),
-    Unk501(501),
+    Unk501(501),//灵魂武器
     ManaOverload(502),
     Unk503(502),
     Unk504(504),
     SpreadThrow(505),
     WindEnergy(506),
-    MassDestructionRockets(507),
+    MassDestructionRockets(507),//神明惩戒 怒涛拍岸 蓄能类技能
     ShadowAssault(508),
     Unk509(509),
     Unk510(510),
     Unk511(511),
-    BlitzShield(512),
+    BlitzShield(512), //召唤式神
     Unk513(513),
     FreudWisdom(514),
     CoreOverload(515),
     Spotlight(516),
     Unk517(517),
     Unk518(518),
-    CrystallineWings(519),
+    CrystallineWings(519), //功势之盾
     Unk520(520),
     Unk521(521),
     Overdrive(522),
@@ -608,7 +606,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk528(528),
     Unk529(529),
     Unk530(530),
-    Unk531(531),
+    Unk531(531), //暴击强化 nrt
     Unk532(532),
     Unk533(533),
     Unk534(534),
@@ -644,7 +642,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk564(564),
     Unk565(565),
     Unk566,
-    Unk567,
+    Unk567, //斗争本能
     Unk568,
     Unk569,
     Unk570,
@@ -662,14 +660,14 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk582,
     Unk583,
     Unk584,
-    Unk585,
-    Unk586,
+    Unk585,//破坏之黑暗剑灵
+    Unk586, //创造之光明剑灵
     Unk587,
     EyeForEye(588),
     WillowDodge(588),
     Unk465(590),
     HayatoPAD(591),
-    HayatoHPR(592),
+    HayatoHPR(592), //上古指引
     HayatoMPR(593),
     HayatoBooster(594),
     Unk595,
@@ -695,32 +693,60 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk615(615),
     Unk616(616),
     Unk617(617),
-    Unk618(618),
+    Unk618(618), //御剑屏障
     Unk619(619),
-    Unk620,
-    Unk621,
-    Unk622,
-    Unk623,
+    Unk620, //苍空之子
+    Unk621, //缔造
+    Unk622, //御剑屏障
+    Unk623, //出神
     Unk624,
-    Unk625,
-    Unk626,
+    Unk625, //贵族精神
+    Unk626, //共振
     EnergyCharged(627),
     DashSpeed(628),
     DashJump(629),
 
-    RideVehicle(630), //黄色
-    PartyBooster(631), //红色
-    GuidedBullet(632), //蓝色
-    Undead(633), //黑暗
-    RideVehicleExpire(634), //减益
+    RideVehicle(630), //黄色灵气
+    PartyBooster(631), //红色灵气
+    GuidedBullet(632), //蓝色灵气
+    Undead(633), //黑暗灵气
+    RideVehicleExpire(634), //减益灵气
     UNK635(635),//结合灵气
-
-
-    unk690(690),
-    unk691(691),
-    unk692(692),
-    unk693(693),
-    unk694(694),
+    UNK636(636),
+    UNK637(637), //抗震防御
+    UNK638(638),
+    UNK639(639),
+    UNK640(640),
+    UNK641(641),
+    UNK642(642),
+    UNK643(643), //幻影魔迹
+    UNK644(644),
+    UNK645(645),
+    unk670(670),
+    unk671(671),
+    unk672(672),
+    unk673(673),
+    unk674(674),
+    unk675(675),
+    unk676(676),
+    unk677(677),
+    unk678(678),
+    unk679(679),
+    unk680(680),
+    unk681(681), //破魔阵
+    unk682(682), //拔刀姿势
+    unk683(683),
+    unk684(684), //拔刀术加成
+    unk685(685), //避柳
+    unk686(686), //武神归来-MHP%
+    unk687(687), //武神归来-MMP%
+    unk688(688), //武神归来-攻击力
+    unk689(689), //迅速
+    unk690(690), //一闪
+    unk691(691), //小白的祝福
+    unk692(692), //灯笼结界
+    unk693(693), //厚积薄发
+    unk694(694), //晓月流基本技能
     unk695(695),
     unk696(696),
     unk697(697),
@@ -730,14 +756,31 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     unk701(701),
     unk702(702),
     unk703(703),
-    unk704(704),
+    unk704(704), //黎明的aegis
     unk705(705),
     unk706(706),
     unk707(707),
     unk708(708),
     unk709(709),
-    unk720(720),
+    unk710(710),
+    unk711(711),
+    unk712(712), //气魄
+    unk713(713),
+    unk714(714), //秘技：护身罡气
+    unk715(715),
+    unk716(716),
+    unk717(717),
+    unk718(718), //能量获得
+    unk719(719), //疾驰 Speed
+    unk720(720),//疾驰 Jump
     unk721(721),
+    unk722(722),//急速领域
+    unk723(723),
+    unk724(724),
+    unk725(725),
+    unk726(726), //遗物充能
+    unk727(727),
+
     ;
 
     private final int bitPos;
@@ -784,12 +827,12 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             SoulMP, FullSoulMP, SoulSkillDamageUp,
             BleedingToxin, IgnoreMobDamR, Asura, Unk306, FlipTheCoin, UnityOfPower, Stimulate, ReturnTeleport, CapDebuff,
             DropRIncrease, IgnoreMobpdpR, BdR,
-            Exceed, DiabolikRecovery, FinalAttackProp, ExceedOverload, DevilishPower,
+            Exceed, DiabolicRecovery, FinalAttackProp, ExceedOverload, DevilishPower,
             OverloadCount, BuckShot, FireBomb, HalfstatByDebuff, SurplusSupply, SetBaseDamage, AmaranthGenerator,
             StrikerHyperElectric, EventPointAbsorb, EventAssemble, StormBringer, ACCR, DEXR, Albatross, Translucence,
             PoseType, LightOfSpirit, ElementSoul, GlimmeringTime, Restoration, ComboCostInc, ChargeBuff,
             TrueSight, CrossOverChain, ChillingStep, Reincarnation, DotBasedBuff, BlessEnsenble, ExtremeArchery,
-            QuiverCatridge, AdvancedQuiver, UserControlMob, ImmuneBarrier, ArmorPiercing, ZeroAuraStr, ZeroAuraSpd,
+            QuiverCartridge, AdvancedQuiver, UserControlMob, ImmuneBarrier, ArmorPiercing, ZeroAuraStr, ZeroAuraSpd,
             CriticalGrowing, QuickDraw, BowMasterConcentration, TimeFastABuff, TimeFastBBuff, GatherDropR, AimBox2D,
             IncMonsterBattleCaptureRate, CursorSniping, DebuffTolerance, Unk376, DotHealHPPerSecond, SpiritGuard, Unk379,
             PreReviveOnce, SetBaseDamageByBuff, LimitMP, ReflectDamR, ComboTempest, MHPCutR, MMPCutR, SelfWeakness,
@@ -804,7 +847,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             PinkbeanRelax, PinkbeanYoYoStack, WindEnergy,
             NextAttackEnhance, AranBeyonderDamAbsorb, AranCombotempastOption, NautilusFinalAttack, ViperTimeLeap,
             RoyalGuardState, RoyalGuardPrepare, MichaelSoulLink, MichaelStanceLink, TriflingWhimOnOff, AddRangeOnOff,
-            KinesisPsychicPoint, KinesisPsychicOver, KinesisPsychicShield, KinesisIncMastery, KinesisPsychicEnergeShield,
+            KinesisPsychicPoint, KinesisPsychicOver, KinesisPsychicShield, KinesisIncMastery, KinesisPsychicEnergyShield,
             BladeStance, DebuffActiveSkillHPCon, DebuffIncHP, BowMasterMortalBlow, AngelicBursterSoulResonance, Fever,
             IgnisRore, RpSiksin, TeleportMasteryRange, FireBarrier, ChangeFoxMan,
             FixCoolTime, IncMobRateDummy, AdrenalinBoost, AranSmashSwing, AranDrain, AttackRecovery, AranBoostEndHunt, HiddenHyperLinkMaximization,
@@ -846,10 +889,10 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             FinalJudgement, KnightsAura, IceAura, FireAura, HeavensDoor, DamAbsorbShield, NotDamaged, BleedingToxin,
             WindBreakerFinal, IgnoreMobDamR, Asura, Unk306, UnityOfPower, Stimulate, ReturnTeleport, CapDebuff, OverloadCount, FireBomb,
             SurplusSupply, NewFlying, NaviFlying, AmaranthGenerator, CygnusElementSkill, StrikerHyperElectric, EventPointAbsorb, EventAssemble,
-            Albatross, Translucence, PoseTypeBool, LightOfSpirit, ElementSoul, GlimmeringTime, Reincarnation, Beholder, QuiverCatridge, ArmorPiercing,
+            Albatross, Translucence, PoseTypeBool, LightOfSpirit, ElementSoul, GlimmeringTime, Reincarnation, Beholder, QuiverCartridge, ArmorPiercing,
             ZeroAuraStr, ZeroAuraSpd, ImmuneBarrier, FullSoulMP, AntiMagicShellBool, Dance, Unk379, Unk425, ComboTempest, HalfstatByDebuff,
             ComplusionSlant, JaguarSummoned, BMageAura, BombTime, Unk491, Unk492, LightningCascade, BulletBarrage, Unk495, AuraScythe,
-            Unk497, DarkLighting, AttackCountX, FireBarrier, KeyDownMoving, MichaelSoulLink, KinesisPsychicEnergeShield, BladeStance,
+            Unk497, DarkLighting, AttackCountX, FireBarrier, KeyDownMoving, MichaelSoulLink, KinesisPsychicEnergyShield, BladeStance,
             IgnisRore, AdrenalinBoost, RWBarrier, Unk476, RWMagnumBlow, Unk253, Unk254, Unk255, Unk256, Unk257, Stigma, DivineEcho, Unk503,
             Unk504, Unk485, ManaOverload, CursorSniping, Unk517, Spotlight, CoreOverload, FreudWisdom, ComboCounter, Overdrive, EtherealForm,
             LastResort, Unk525, Unk526, Unk527, Unk528, Unk529, Unk520, Unk530, Unk531, Unk532, Unk533,
@@ -921,7 +964,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case ShadowPartner:
             case AranSmashSwing:
             case SetBaseDamage:
-            case QuiverCatridge:
+            case QuiverCartridge:
             case ImmuneBarrier:
             case NaviFlying:
             case Dance:
@@ -1028,7 +1071,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case Unk379:
             case Unk425:
             case SpiritGuard:
-            case KinesisPsychicEnergeShield:
+            case KinesisPsychicEnergyShield:
             case AdrenalinBoost:
             case RWBarrier:
             case Unk476:

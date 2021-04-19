@@ -384,7 +384,7 @@ public enum SendOpcode {
     USER_ENTER_FIELD(0x2AE),
     USER_LEAVE_FIELD(0x2AF),
     CHAT(0x2B0),
-    UNK_2B1(0x2B1),
+    AD_BOARD(0x2B1),
     BLACK_BOARD(0x2B2),
     //
     //
@@ -445,21 +445,25 @@ public enum SendOpcode {
     //
     PET_NAME_CHANGED(0x318),
     PET_LOAD_EXCEPTION_LIST(0x319),
+    //
+    //
+    //
+    //
     PET_ACTION_COMMAND(0x31E),
     //
     //
     //
-    PET_ACTION(0x32D),
-    ANDROID_CREATED(0x32E),
-    ANDROID_MOVE(0x32F),
-    ANDROID_ACTION_SET(0x330),
-    ANDROID_MODIFIED(0x331),
-    ANDROID_REMOVED(0x332),
+    PET_ACTION(0x322),
+    ANDROID_CREATED(0x323),
+    ANDROID_MOVE(0x324),
+    ANDROID_ACTION_SET(0x325),
+    ANDROID_MODIFIED(0x326),
+    ANDROID_REMOVED(0x327),
     //
     //
     //
     //
-    SKILL_PET_MOVE(0x337),
+    SKILL_PET_MOVE(0x32C),
     //
     //
     //
@@ -506,6 +510,7 @@ public enum SendOpcode {
     QUEST_RESULT(0x384),
     //
     PET_SKILL_CHANGED(0x386),
+    BALLOON_MSG(0x387),
     //
     //
     //
@@ -633,14 +638,30 @@ public enum SendOpcode {
     NPC_ANIMATION(0x552), //549 + 9
 
 
-    DROP_ENTER_FIELD(0x578), //569+8
+    DROP_ENTER_FIELD(0x578),
     //
-    DROP_LEAVE_FIELD(0x57A), //56b+8
+    DROP_LEAVE_FIELD(0x57A),
     //
-    REACTOR_CHANGE_STATE(0x582),
-    REACTOR_ENTER_FIELD(0x584),//
-    REACTOR_REMOVE(0x586),//
-    REACTOR_LEAVE_FIELD(0x58C),
+    //
+    //
+    //
+    //
+    //
+    //
+    REACTOR_CHANGE_STATE(0x589),
+    //
+    REACTOR_ENTER_FIELD(0x58B),//
+    REACTOR_RESET_STATE(0x58C),
+    REACTOR_OWNER_INFO(0x58D),
+    REACTOR_REMOVE(0x58E),//
+    //
+    //
+    //
+    //
+    //
+    REACTOR_LEAVE_FIELD(0x593),
+
+
     BINGO(0x6A5),
     BINGO_NUMBER(0x6A6),
     //6A7
@@ -677,8 +698,8 @@ public enum SendOpcode {
     //
     //
     //
-    CHAT_ROOM(0x752),
-    TRADE_ROOM(0x753),
+    CHAT_ROOM(0x752), //MINI ROOM
+    TRADE_ROOM(0x753), //MINI ROOM2
 
 
     EXPRESS(0x7AA),

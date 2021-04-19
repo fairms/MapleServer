@@ -9,6 +9,7 @@ import im.cave.ms.enums.BroadcastMsgType;
 import im.cave.ms.enums.MapleNotesType;
 import im.cave.ms.enums.WhisperType;
 import im.cave.ms.provider.data.StringData;
+import im.cave.ms.tools.Position;
 
 import java.util.List;
 
@@ -182,6 +183,20 @@ public class MessagePacket {
                 out.writeInt(1);
                 out.writeInt(param);
                 break;
+        }
+        return out;
+    }
+
+
+    public static OutPacket balloonMsg(String message, int width, int timeOut, Position position) {
+        OutPacket out = new OutPacket(SendOpcode.BALLOON_MSG);
+
+        out.writeMapleAsciiString(message);
+        out.writeShort(width);// 100
+        out.writeShort(timeOut);// 3
+        out.writeBool(position == null);
+        if (position != null) {
+            out.writePosition(position);
         }
         return out;
     }

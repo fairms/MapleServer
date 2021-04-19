@@ -552,7 +552,8 @@ public class WorldHandler {
                 break;
             }
             case Create: {
-                in.readShort(); // 04 00
+                in.readShort(); // 04 00 是交易
+                    //03 00 是剪刀石头布？
                 tradeRoom = new TradeRoom(player);
                 player.setMiniRoom(tradeRoom);
                 player.announce(MiniRoomPacket.enterTrade(tradeRoom, 0));

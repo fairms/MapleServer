@@ -8,11 +8,14 @@ import im.cave.ms.client.character.skill.ForceAtomInfo;
 import im.cave.ms.client.character.skill.MobAttackInfo;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.field.MapleMap;
+import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobTemporaryStat;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.enums.ForceAtomEnum;
+import im.cave.ms.enums.MoveAbility;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.Position;
@@ -69,7 +72,9 @@ public class Archer extends Beginner {
     public static final int BOW_ADVANCED_FINAL_ATTACK = 1;
     public static final int BOW_Armor_BREAK = 1;
     //hyper
-
+    public static final int BOW_EPIC_ADVENTURE = 3121053;
+    public static final int BOW_CONCENTRATION = 3121054;
+    public static final int BOW_GRITTY_GUST = 1;
 
     public static final int[] buffs = new int[]{
             BOW_BOOSTER,
@@ -78,7 +83,9 @@ public class Archer extends Beginner {
             BOW_RECKLESS_HUNT,
             BOW_SHARP_EYE,
             BOW_MAPLE_WARRIOR,
-            BOW_ENCHANTED_QUIVER
+            BOW_ENCHANTED_QUIVER,
+            BOW_EPIC_ADVENTURE,
+            BOW_CONCENTRATION
 
     };
 
@@ -94,8 +101,13 @@ public class Archer extends Beginner {
         super.handleSkill(c, skillId, slv, in);
 
         switch (skillId) {
-
-
+            case BOW_PHOENIX:
+                Summon summon = Summon.getSummonBy(c.getPlayer(), skillId, (byte) slv);
+                MapleMap map = c.getPlayer().getMap();
+                summon.setFlyMob(true);
+                summon.setMoveAbility(MoveAbility.Fly);
+                map.spawnSummon(summon);
+                break;
         }
     }
 
@@ -159,11 +171,11 @@ public class Archer extends Beginner {
             case BOW_QUIVER_CARTRIDGE:
                 if (quiverCartridge == null) {
                     quiverCartridge = new QuiverCartridge(chr);
-                } else if (tsm.hasStat(QuiverCatridge)) {
+                } else if (tsm.hasStat(QuiverCartridge)) {
                     quiverCartridge.incType();
                 }
                 o = quiverCartridge.getOption();
-                tsm.putCharacterStatValue(QuiverCatridge, o);
+                tsm.putCharacterStatValue(QuiverCartridge, o);
                 break;
             case BOW_RECKLESS_HUNT: //todo 加的攻击力去哪了？
                 if (tsm.hasStatBySkillId(skillId)) {
@@ -203,6 +215,22 @@ public class Archer extends Beginner {
                 o.rOption = skillId;
                 o.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(AdvancedQuiver, o);
+                break;
+            case BOW_EPIC_ADVENTURE:
+                o.nReason = skillId;
+                o.nValue = si.getValue(indieDamR, slv);
+                o.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o);
+                break;
+            case BOW_CONCENTRATION:
+                o.nReason = skillId;
+                o.nValue = si.getValue(indiePad, slv);
+                o.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o);
+                ooo.nOption = slv;
+                ooo.rOption = skillId;
+                ooo.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Preparation, ooo);
                 break;
             default:
                 sendStat = false;
@@ -369,7 +397,7 @@ public class Archer extends Beginner {
                     break;
             }
         }
-        tsm.putCharacterStatValue(QuiverCatridge, quiverCartridge.getOption());
+        tsm.putCharacterStatValue(QuiverCartridge, quiverCartridge.getOption());
         tsm.sendSetStatPacket();
     }
 

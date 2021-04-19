@@ -41,7 +41,7 @@ import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDa
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOverR;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.KeyDownMoving;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.LifeTidal;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.QuiverCatridge;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.QuiverCartridge;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicle;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicleExpire;
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.SoulMP;
@@ -330,8 +330,8 @@ public class TemporaryStatManager {
             out.write(getOption(ElementalCharge).uOption);
             out.write(getOption(ElementalCharge).zOption);
         }
-        if (hasNewStat(QuiverCatridge)) {
-            out.writeInt(getOption(QuiverCatridge).xOption);
+        if (hasNewStat(QuiverCartridge)) {
+            out.writeInt(getOption(QuiverCartridge).xOption);
         }
         out.writeInt(0);
         if (hasNewStat(ComboCounter)) { //todo
