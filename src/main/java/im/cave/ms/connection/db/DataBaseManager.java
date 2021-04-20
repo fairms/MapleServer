@@ -13,6 +13,9 @@ import im.cave.ms.client.character.items.Item;
 import im.cave.ms.client.character.items.PetItem;
 import im.cave.ms.client.character.items.WishedItem;
 import im.cave.ms.client.character.potential.CharacterPotential;
+import im.cave.ms.client.character.skill.MatrixInventory;
+import im.cave.ms.client.character.skill.MatrixSkill;
+import im.cave.ms.client.character.skill.MatrixSlot;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.client.multiplayer.guilds.GuildGrade;
@@ -111,6 +114,9 @@ public class DataBaseManager {
                 HotTimeReward.class,
                 Express.class,
                 LinkSkill.class,
+                MatrixInventory.class,
+                MatrixSkill.class,
+                MatrixSlot.class
 
         };
         for (var clazz : dbClasses) {

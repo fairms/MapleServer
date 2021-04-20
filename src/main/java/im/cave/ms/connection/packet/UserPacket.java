@@ -938,4 +938,23 @@ public class UserPacket {
 
         return out;
     }
+
+
+    public static OutPacket modComboResponse(int combo) {
+        OutPacket out = new OutPacket(SendOpcode.MOD_COMBO_RESPONSE);
+
+        out.writeInt(combo);
+
+        return out;
+    }
+
+
+    public static OutPacket incJudgementStack(byte amount) {
+        OutPacket out = new OutPacket(SendOpcode.INC_JUDGEMENT_STACK_RESPONSE);
+
+        out.write(0);
+        out.write(amount);
+
+        return out;
+    }
 }

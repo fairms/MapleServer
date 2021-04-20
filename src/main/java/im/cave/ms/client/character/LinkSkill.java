@@ -21,7 +21,6 @@ public class LinkSkill {
     private int level;
     private long time;
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

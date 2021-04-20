@@ -279,7 +279,7 @@ public class ChannelHandler extends AbstractServerHandler {
             case CLOSE_RANGE_ATTACK:
             case RANGED_ATTACK:
             case MAGIC_ATTACK:
-//            case TOUCH_MONSTER_ATTACK:
+            case USER_AREA_DOT_ATTACK:
                 UserHandler.handleAttack(in, c, opcode);
                 break;
             case CHANGE_STAT_REQUEST:

@@ -5,7 +5,6 @@ import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
-import im.cave.ms.client.field.MapleMap;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobTemporaryStat;
@@ -22,7 +21,7 @@ public class AffectedArea extends MapleMapObj {
     private int force;
     private int option;
     private int elemAttr;
-    private int idk;
+    private int idk = 235;
     private int slv;
     private byte mobOrigin;
     private short delay;

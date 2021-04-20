@@ -99,6 +99,11 @@ public class UserHandler {
 
     }
 
+    /*
+        RANGED_ATTACK @
+        CLOSE_RANGE_ATTACK @
+
+     */
     public static void handleAttack(InPacket in, MapleClient c, RecvOpcode opcode) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
@@ -116,33 +121,44 @@ public class UserHandler {
         in.readInt(); //00 00 00 00
         attackInfo.skillId = in.readInt();
         attackInfo.skillLevel = in.readInt();
-        in.readLong(); // crc
-        if (attackInfo.attackHeader != MAGIC_ATTACK) {
-            in.readByte();//unk
-        }
+        in.readByte();
+        in.readLong(); // CRC CLOSE_RANGE_ATTACK = 0
+
+        /*
+            0A A1 36 22
+            00
+            01 00
+            00 00 00 00
+            00 00 00 00
+            00 00 00 00
+         */
         in.skip(18);
-        Position position = in.readPositionInt();
+        if (attackInfo.attackHeader != MAGIC_ATTACK) {
+            in.readByte();//unk 00
+        }
+
+        Position position = in.readPositionInt(); //mob pos
 
         in.readLong(); // 00 00 00 00
-        in.readInt(); // 8E B1 05 5F 固定的
+        in.readInt(); //  00 00 00 00
+        in.readInt(); // CRC
         if (attackInfo.skillId == player.getPrepareSkill().getLeft()) {
             in.readInt();//如果是按压技能的话
-
         }
-        in.skip(3);
+        in.skip(3); // 00 00 00
         if (attackInfo.attackHeader == RANGED_ATTACK) {
             in.readInt();
             in.readByte();
         }
         attackInfo.attackAction = in.readByte();
-        attackInfo.direction = in.readByte();
+        attackInfo.direction = in.readByte(); // left:0x80 right:0x00
         attackInfo.requestTime = in.readInt();
         attackInfo.attackActionType = in.readByte(); // 武器类型
         attackInfo.attackSpeed = in.readByte();
         player.setTick(in.readInt());
-        in.readInt();
+        in.readInt(); //00 00 00 00
         if (attackInfo.attackHeader == CLOSE_RANGE_ATTACK) {
-            in.readInt();
+            in.readInt(); //00 00 00 00
         }
         if (attackInfo.attackHeader == RANGED_ATTACK) {
             in.readInt(); // 00
@@ -154,12 +170,12 @@ public class UserHandler {
             MobAttackInfo mobAttackInfo = new MobAttackInfo();
             mobAttackInfo.objectId = in.readInt();
             mobAttackInfo.hitAction = in.readByte();
-            in.readShort();
+            in.readShort(); //00 00
             mobAttackInfo.left = in.readByte();
-            in.readByte();
+            in.readByte(); //03
             mobAttackInfo.templateID = in.readInt();
             mobAttackInfo.calcDamageStatIndex = in.readByte();
-            mobAttackInfo.hitX = in.readShort();
+            mobAttackInfo.hitX = in.readShort(); //MOB pos
             mobAttackInfo.hitY = in.readShort();
             in.readShort(); //x
             in.readShort(); //y
@@ -167,7 +183,7 @@ public class UserHandler {
                 mobAttackInfo.hpPerc = in.readByte();
                 short unk = in.readShort(); //unk
             } else {
-                byte unk1 = in.readByte();
+                short interval = in.readShort();
                 byte unk2 = in.readByte(); //1 正常 2 趴着
             }
             in.readLong(); // 00
@@ -176,7 +192,7 @@ public class UserHandler {
                 mobAttackInfo.damages[j] = in.readLong();
             }
             in.readInt(); // 00 00 00 00
-            in.readInt(); // crc 7C 45 9E 38
+            in.readInt(); // crc
             mobAttackInfo.type = in.readByte();
             if (mobAttackInfo.type == 1) {
                 mobAttackInfo.currentAnimationName = in.readMapleAsciiString();
@@ -193,7 +209,7 @@ public class UserHandler {
             in.skip(18); //unk pos
             attackInfo.mobAttackInfo.add(mobAttackInfo);
         }
-        in.readInt();
+        Position pos = in.readPosition();
         player.getJobHandler().handleAttack(c, attackInfo);
         handleAttack(c, attackInfo);
     }
