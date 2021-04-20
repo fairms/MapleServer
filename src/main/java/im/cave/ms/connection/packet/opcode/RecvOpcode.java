@@ -135,10 +135,11 @@ public enum RecvOpcode {
     GROUP_MESSAGE(0x1AD),
     WHISPER(0x1B0),
     MESSENGER(0x1B1),
-    CHAT_ROOM(0x1B2),//MINI_ROOM1
-    TRADE_ROOM(0x1B3),//MINI_ROOM2
+    MINI_ROOM_MULTI(0x1B2),
+    MINI_ROOM_DUAL(0x1B3),
+    //
     PARTY_REQUEST(0x1B5),
-    PARTY_INVITE_RESPONSE(0x1B6),
+    PARTY_RESULT(0x1B6),
     SETTING(0x1B7),
     GUILD_REQUEST(0x1BB),
     GUILD_RANK(0x1C1),
@@ -336,10 +337,6 @@ public enum RecvOpcode {
     //
     //
     OBSTACLE_ATOM_COLLISION(0x493),
-
-
-    阴阳师生成灵脉(0x57E),
-    阴阳师删除灵脉(0x580),
 
     CASH_SHOP_POINT_REQUEST(0x5B7),
     CASH_SHOP_CASH_ITEM_REQUEST(0x5B8),

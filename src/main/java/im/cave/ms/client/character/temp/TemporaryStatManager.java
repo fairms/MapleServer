@@ -3,6 +3,7 @@ package im.cave.ms.client.character.temp;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.Option;
 import im.cave.ms.client.character.job.MapleJob;
+import im.cave.ms.client.field.AffectedArea;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.server.service.EventManager;
@@ -21,31 +22,11 @@ import im.cave.ms.tools.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.CombatOrders;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ComboCounter;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ElementalCharge;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ExtremeArchery;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.FullSoulMP;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOver;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndieMaxDamageOverR;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.KeyDownMoving;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.LifeTidal;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.QuiverCartridge;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicle;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.RideVehicleExpire;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.SoulMP;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.Speed;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.*;
 
 
 public class TemporaryStatManager {
@@ -65,7 +46,7 @@ public class TemporaryStatManager {
     //    private StopForceAtom stopForceAtom;
     private final MapleCharacter chr;
     private final List<TemporaryStatBase> twoStates = new ArrayList<>();
-    //    private final Set<AffectedArea> affectedAreas = new HashSet<>();
+    private final Set<AffectedArea> affectedAreas = new HashSet<>();
     private final Map<BaseStat, Integer> baseStats = new HashMap<>();
 
     public TemporaryStatManager(MapleCharacter chr) {
@@ -708,7 +689,7 @@ public class TemporaryStatManager {
         getRemovedStats().clear();
     }
 
-    public void removeAllDebuffs() {
+    public void removeAllDeBuffs() {
         removeStat(CharacterTemporaryStat.Stun, false);
         removeStat(CharacterTemporaryStat.Poison, false);
         removeStat(CharacterTemporaryStat.Seal, false);
@@ -721,25 +702,26 @@ public class TemporaryStatManager {
         sendResetStatPacket();
     }
 
-//    public Set<AffectedArea> getAffectedAreas() {
-//        return affectedAreas;
-//    }
+    public Set<AffectedArea> getAffectedAreas() {
+        return affectedAreas;
+    }
 
-//    public void addAffectedArea(AffectedArea aa) {
-//        getAffectedAreas().add(aa);
-//    }
-//
-//    public void removeAffectedArea(AffectedArea aa) {
-//        getAffectedAreas().remove(aa);
-//
-//        if (aa.getRemoveSkill()) {
-//            removeStatsBySkill(aa.getSkillID());
-//        }
-//    }
-//
-//    public boolean hasAffectedArea(AffectedArea affectedArea) {
-//        return getAffectedAreas().contains(affectedArea);
-//    }
+    public void addAffectedArea(AffectedArea aa) {
+        getAffectedAreas().add(aa);
+    }
+
+    public void removeAffectedArea(AffectedArea aa) {
+        getAffectedAreas().remove(aa);
+
+        if (aa.getRemoveSkill()) {
+            removeStatsBySkill(aa.getSkillID());
+        }
+    }
+
+    //
+    public boolean hasAffectedArea(AffectedArea affectedArea) {
+        return getAffectedAreas().contains(affectedArea);
+    }
 
     public boolean hasStatBySkillId(int skillId) {
         for (CharacterTemporaryStat cts : getCurrentStats().keySet()) {

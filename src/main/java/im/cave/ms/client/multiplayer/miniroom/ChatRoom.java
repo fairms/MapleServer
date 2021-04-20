@@ -38,4 +38,25 @@ public class ChatRoom implements MiniRoom {
     public void setChatRoomId(int chatRoomId) {
         this.chatRoomId = chatRoomId;
     }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public void invite(MapleCharacter inviter, MapleCharacter invitee) {
+
+    }
+
+    @Override
+    public void invite(MapleCharacter invitee) {
+
+    }
+
+    @Override
+    public void exit(MapleCharacter chr) {
+
+    }
+
 }

@@ -427,9 +427,7 @@ public class WorldHandler {
                 }
 
                 player.buildQuestEx();
-                //todo 分散到之后的请求中
                 player.changeMap(player.getMapId(), true);
-                //封装    封包顺序是否影响游戏运行
                 c.announce(UserPacket.keymapInit(player));
                 c.announce(LoginPacket.account(player.getAccount()));
                 c.announce(UserPacket.quickslotInit(player));
@@ -437,7 +435,7 @@ public class WorldHandler {
                 c.announce(UserPacket.updateMaplePoint(player));
                 c.getAccount().buildSharedQuestEx();
 
-//                c.announce(MapleDailyGift.init());
+                c.announce(MapleDailyGift.init());
 
                 Party party = player.getMapleWorld().getPartyById(player.getPartyId());
                 if (party != null) {
@@ -445,9 +443,9 @@ public class WorldHandler {
                     party.updatePartyMemberInfoByChr(player);
                 } else {
                     player.setPartyId(0);
-                    //todo 这里应该发送一个空的组队消息包
                 }
                 //todo init friend
+
                 c.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Inbox, player.getInBox(), 0));
                 c.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Outbox, player.getOutbox(), 0));
                 c.announce(MessagePacket.broadcastMsg(Config.worldConfig.getWorldInfo(player.getWorld()).server_message, BroadcastMsgType.SLIDE));
@@ -477,7 +475,7 @@ public class WorldHandler {
         }
     }
 
-    public static void handleTradeRoom(InPacket in, MapleClient c) {
+    public static void handleMiniRoomDual(InPacket in, MapleClient c) {
         byte val = in.readByte();
         MapleCharacter player = c.getPlayer();
         TradeRoomType type = TradeRoomType.getByVal(val);
@@ -553,7 +551,7 @@ public class WorldHandler {
             }
             case Create: {
                 in.readShort(); // 04 00 是交易
-                    //03 00 是剪刀石头布？
+                //03 00 是剪刀石头布
                 tradeRoom = new TradeRoom(player);
                 player.setMiniRoom(tradeRoom);
                 player.announce(MiniRoomPacket.enterTrade(tradeRoom, 0));
@@ -732,7 +730,7 @@ public class WorldHandler {
         }
     }
 
-    public static void handlePartyInviteResponse(InPacket in, MapleClient c) {
+    public static void handlePartyResult(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         PartyType type = PartyType.getByVal(in.readByte());
         Party party;
@@ -881,12 +879,12 @@ public class WorldHandler {
         player.announce(WorldPacket.partyMemberCandidateResult(players));
     }
 
-    public static void handleChatRoom(InPacket in, MapleClient c) {
+    public static void handleMiniRoomMulti(InPacket in, MapleClient c) {
         byte val = in.readByte();
         MapleCharacter player = c.getPlayer();
         ChatRoomType type = ChatRoomType.getByVal(val);
         if (type == null) {
-            log.error("Unknown ChatRoomType Type {}", val);
+            log.error("Unknown MiniRoomType Type {}", val);
             return;
         }
         ChatRoom chatRoom = (ChatRoom) player.getMiniRoom();

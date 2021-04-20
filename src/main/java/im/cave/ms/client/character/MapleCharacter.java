@@ -8,6 +8,7 @@ import im.cave.ms.client.character.job.adventurer.Beginner;
 import im.cave.ms.client.character.job.adventurer.Warrior;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
+import im.cave.ms.client.character.skill.MatrixInventory;
 import im.cave.ms.client.character.skill.Skill;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
@@ -141,9 +142,12 @@ public class MapleCharacter implements Serializable {
     @JoinColumn(name = "cashEquipInventory")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Inventory cashEquipInventory;
+    @JoinColumn(name = "matrixInventory")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private MatrixInventory matrixInventory = new MatrixInventory();
     //快捷键映射
     @Convert(converter = InlinedIntArrayConverter.class)
-    private List<Integer> quickslots;
+    private List<Integer> quickSlots;
     @JoinColumn(name = "charId")
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Skill> skills;

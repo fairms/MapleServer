@@ -144,7 +144,6 @@ public class TradeRoom implements MiniRoom {
             other.announce(MiniRoomPacket.cancelTrade(1));
         }
         restoreItems();
-
     }
 
     public MapleCharacter getOtherChar(MapleCharacter chr) {
@@ -170,5 +169,25 @@ public class TradeRoom implements MiniRoom {
             out.writeShort(chr.getJob());
         }
         out.write(-1);
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public void invite(MapleCharacter inviter, MapleCharacter invitee) {
+
+    }
+
+    @Override
+    public void invite(MapleCharacter invitee) {
+
+    }
+
+    @Override
+    public void exit(MapleCharacter chr) {
+
     }
 }

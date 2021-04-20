@@ -3,16 +3,15 @@ package im.cave.ms.client.field;
 import im.cave.ms.client.Clock;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.obj.Drop;
-import im.cave.ms.client.field.obj.npc.Npc;
-import im.cave.ms.connection.netty.Packet;
-import im.cave.ms.provider.data.MobData;
-import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobGen;
+import im.cave.ms.client.field.obj.npc.Npc;
 import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.netty.Packet;
 import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.connection.server.service.EventManager;
@@ -23,6 +22,8 @@ import im.cave.ms.enums.DropLeaveType;
 import im.cave.ms.enums.FieldOption;
 import im.cave.ms.enums.FieldType;
 import im.cave.ms.provider.data.ItemData;
+import im.cave.ms.provider.data.MobData;
+import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.provider.info.ItemInfo;
 import im.cave.ms.scripting.map.MapScriptManager;
 import im.cave.ms.tools.DateUtil;
@@ -34,13 +35,7 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
@@ -576,7 +571,23 @@ public class MapleMap {
         addObj(mob);
     }
 
+    public Set<AffectedArea> getAffectedAreas() {
+        return getLifesByClass(AffectedArea.class);
+    }
+
     public Set<FieldAttackObj> getFieldAttackObjects() {
         return getLifesByClass(FieldAttackObj.class);
+    }
+
+    public void checkCharInAffectedAreas(MapleCharacter chr) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        for (AffectedArea aa : getAffectedAreas()) {
+            boolean isInsideAA = aa.getRect().hasPositionInside(chr.getPosition());
+            if (isInsideAA) {
+                aa.handleCharInside(chr);
+            } else if (tsm.hasAffectedArea(aa)) {
+                tsm.removeAffectedArea(aa);
+            }
+        }
     }
 }

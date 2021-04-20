@@ -1,7 +1,6 @@
-package im.cave.ms.client;
+package im.cave.ms.client.character.skill;
 
 
-import im.cave.ms.client.character.skill.ForceAtomInfo;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.enums.ForceAtomEnum;
 import im.cave.ms.tools.Position;

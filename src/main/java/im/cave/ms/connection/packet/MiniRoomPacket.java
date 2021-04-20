@@ -25,7 +25,7 @@ public class MiniRoomPacket {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.TRADE_ROOM.getValue());
         out.write(TradeRoomType.TradeInviteRequest.getVal());
-        out.write(4);
+        out.write(4); //type
         out.writeMapleAsciiString(player.getName());
         out.writeInt(0);
         out.writeInt(player.getId());

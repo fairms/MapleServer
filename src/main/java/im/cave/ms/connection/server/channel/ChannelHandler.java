@@ -373,17 +373,17 @@ public class ChannelHandler extends AbstractServerHandler {
             case REQUEST_ARROW_PLATTER_OBJ:
                 WorldHandler.handleRequestArrowPlatterObj(in, c);
                 break;
-            case CHAT_ROOM:
-                WorldHandler.handleChatRoom(in, c);
+            case MINI_ROOM_MULTI:
+                WorldHandler.handleMiniRoomMulti(in, c);
                 break;
-            case TRADE_ROOM:
-                WorldHandler.handleTradeRoom(in, c);
+            case MINI_ROOM_DUAL:
+                WorldHandler.handleMiniRoomDual(in, c);
                 break;
             case PARTY_REQUEST:
                 WorldHandler.handlePartyRequest(in, c);
                 break;
-            case PARTY_INVITE_RESPONSE:
-                WorldHandler.handlePartyInviteResponse(in, c);
+            case PARTY_RESULT:
+                WorldHandler.handlePartyResult(in, c);
                 break;
             case GUILD_REQUEST:
                 WorldHandler.handleGuildRequest(in, c);

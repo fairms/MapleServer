@@ -535,7 +535,7 @@ public class UserHandler {
                 aKeys.add(in.readInt());
             }
         }
-        player.setQuickslots(aKeys);
+        player.setQuickSlots(aKeys);
     }
 
     public static void handleChangeKeyMap(InPacket in, MapleClient c) {

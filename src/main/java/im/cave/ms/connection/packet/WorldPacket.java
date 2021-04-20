@@ -1,7 +1,7 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.Account;
-import im.cave.ms.client.ForceAtom;
+import im.cave.ms.client.character.skill.ForceAtom;
 import im.cave.ms.client.HotTimeReward;
 import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;

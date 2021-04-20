@@ -6,7 +6,6 @@ import im.cave.ms.enums.BaseStat;
 import im.cave.ms.enums.EnchantStat;
 import im.cave.ms.enums.QuickMoveType;
 import im.cave.ms.provider.data.ItemData;
-import im.cave.ms.tools.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +21,34 @@ import static im.cave.ms.constants.ServerConstants.ZERO_TIME;
  * @date 11/19 21:48
  */
 public class GameConstants {
+
+    public static int getViewX(byte resolution) {
+        switch (resolution) {
+            case 0:
+                return 800;
+            case 1:
+                return 1024;
+            case 2:
+                return 1280;
+            case 3:
+                return 1366;
+        }
+        return 0;
+    }
+
+    public static int getViewY(byte resolution) {
+        switch (resolution) {
+            case 0:
+                return 600;
+            case 1:
+            case 3:
+                return 768;
+            case 2:
+                return 720;
+        }
+        return 0;
+    }
+
 
     public static int MAX_VIEW_X = 1366; //1366*768
     public static int MAX_VIEW_Y = 768;
@@ -94,21 +121,21 @@ public class GameConstants {
     public static final long HYPER_SKILL_RESET_COST = 1000000;
 
     //Party
-        public static final String DEFAULT_PARTY_NAME = "快去组队游戏吧，GoGo";
+    public static final String DEFAULT_PARTY_NAME = "快去组队游戏吧，GoGo";
 
-        //Friend
-        public static final String DEFAULT_FRIEND_GROUP = "未指定群组";
-        // Default slots
-        public static final int DEFAULT_BUDDY_CAPACITY = 20;
-        public static final int DEFAULT_DAMAGE_SLOTS = 1;
-        public static final short DEFAULT_EQUIP_INVENTORY_SLOTS = 32;
-        public static final short DEFAULT_CONSUME_INVENTORY_SLOTS = 32;
-        public static final short DEFAULT_INSTALL_INVENTORY_SLOTS = 32;
-        public static final short DEFAULT_ETC_INVENTORY_SLOTS = 32;
-        public static final short DEFAULT_CASH_INVENTORY_SLOTS = 64;
-        public static final short DEFAULT_TRUNK_SLOTS = 4;
-        public static final short DEFAULT_CHARACTER_SLOTS = 6;
-        public static final short INVENTORY_MAX_SLOTS = 128;
+    //Friend
+    public static final String DEFAULT_FRIEND_GROUP = "未指定群组";
+    // Default slots
+    public static final int DEFAULT_BUDDY_CAPACITY = 20;
+    public static final int DEFAULT_DAMAGE_SLOTS = 1;
+    public static final short DEFAULT_EQUIP_INVENTORY_SLOTS = 32;
+    public static final short DEFAULT_CONSUME_INVENTORY_SLOTS = 32;
+    public static final short DEFAULT_INSTALL_INVENTORY_SLOTS = 32;
+    public static final short DEFAULT_ETC_INVENTORY_SLOTS = 32;
+    public static final short DEFAULT_CASH_INVENTORY_SLOTS = 64;
+    public static final short DEFAULT_TRUNK_SLOTS = 4;
+    public static final short DEFAULT_CHARACTER_SLOTS = 6;
+    public static final short INVENTORY_MAX_SLOTS = 128;
 
     // Inner Ability
     public static final int CHAR_POT_BASE_ID = 70000000;

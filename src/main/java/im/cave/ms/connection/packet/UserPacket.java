@@ -506,10 +506,10 @@ public class UserPacket {
     public static OutPacket quickslotInit(MapleCharacter player) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.QUICKSLOT_INIT.getValue());
-        boolean edited = player.getQuickslots() != null && player.getQuickslots().size() == 32;
+        boolean edited = player.getQuickSlots() != null && player.getQuickSlots().size() == 32;
         out.writeBool(edited);
-        if (player.getQuickslots() != null) {
-            for (Integer key : player.getQuickslots()) {
+        if (player.getQuickSlots() != null) {
+            for (Integer key : player.getQuickSlots()) {
                 out.writeInt(key);
             }
         }
