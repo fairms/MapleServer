@@ -911,7 +911,7 @@ public class UserPacket {
         return out;
     }
 
-    public static OutPacket miracleCirculatorResult(List<CharacterPotential> potentials, Item item) {
+    public static OutPacket miracleCirculatorResult(Set<CharacterPotential> potentials, Item item) {
         OutPacket out = new OutPacket(SendOpcode.MIRACLE_CIRCULATOR_RESULT);
 
         out.writeInt(potentials.size());

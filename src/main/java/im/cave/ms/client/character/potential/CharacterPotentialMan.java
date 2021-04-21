@@ -21,6 +21,9 @@ public class CharacterPotentialMan {
         this.chr = chr;
     }
 
+    private Set<CharacterPotential> temp = new HashSet<>();
+
+
     private Set<CharacterPotential> getPotentials() {
         return chr.getPotentials();
     }
@@ -90,10 +93,10 @@ public class CharacterPotentialMan {
     }
 
     //simplify
-    public Set<CharacterPotential> randomizer(Set<Byte> lockedLines) {
+    public Set<CharacterPotential> randomizer(Set<Byte> lockedLines, int minGrade) {
         Set<CharacterPotential> changedPotential = new HashSet<>();
+        Set<CharacterPotential> potentials = getPotentials();
         if (lockedLines != null) {
-            Set<CharacterPotential> potentials = getPotentials();
             CharacterPotential firstPotential = getPotentialByKey((byte) 1);
             byte maxGrade = firstPotential.getGrade();
             for (CharacterPotential potential : potentials) {
@@ -106,14 +109,13 @@ public class CharacterPotentialMan {
                 boolean gradeDown = Randomizer.isSuccess(GameConstants.getBaseCharPotDownRate(potential.getGrade()));
                 if (gradeUp && key != 1 && grade < CharPotGrade.Legendary.ordinal() && grade < maxGrade - 1) {
                     grade++;
-                } else if (gradeDown && key != 1 && grade > CharPotGrade.Rare.ordinal()) {
+                } else if (gradeDown && key != 1 && grade > CharPotGrade.Rare.ordinal() && grade > minGrade) {
                     grade--;
                 }
                 CharacterPotential p = generateRandomPotential(key, grade);
                 changedPotential.add(p);
             }
         } else {
-            Set<CharacterPotential> potentials = getPotentials();
             int maxGrade = CharPotGrade.Legendary.ordinal();
             for (CharacterPotential potential : potentials) {
                 byte key = potential.getKey();
@@ -122,7 +124,7 @@ public class CharacterPotentialMan {
                 boolean gradeDown = Randomizer.isSuccess(GameConstants.getBaseCharPotDownRate(potential.getGrade()));
                 if (gradeUp && grade < CharPotGrade.Legendary.ordinal() && grade < maxGrade) {
                     grade++;
-                } else if (gradeDown && grade > CharPotGrade.Rare.ordinal()) {
+                } else if (gradeDown && grade > CharPotGrade.Rare.ordinal() && grade > minGrade) {
                     grade--;
                 }
                 if (key == 1) {
@@ -136,4 +138,11 @@ public class CharacterPotentialMan {
         return changedPotential;
     }
 
+    public Set<CharacterPotential> getTemp() {
+        return temp;
+    }
+
+    public void setTemp(Set<CharacterPotential> temp) {
+        this.temp = temp;
+    }
 }

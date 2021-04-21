@@ -660,7 +660,7 @@ public class UserHandler {
         player.addHonerPoint(-cost);
 
         CharacterPotentialMan cpm = player.getPotentialMan();
-        Set<CharacterPotential> potentials = cpm.randomizer(lockedLines);
+        Set<CharacterPotential> potentials = cpm.randomizer(lockedLines, CharPotGrade.Rare.ordinal());
         int i = 0;
         for (CharacterPotential potential : potentials) {
             ++i;

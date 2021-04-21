@@ -3,6 +3,8 @@ package im.cave.ms.connection.server.channel.handler;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Equip;
 import im.cave.ms.client.character.items.Item;
+import im.cave.ms.client.character.potential.CharacterPotential;
+import im.cave.ms.client.character.potential.CharacterPotentialMan;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.obj.Familiar;
 import im.cave.ms.connection.netty.InPacket;
@@ -217,11 +219,12 @@ public class CashItemActuator {
 
     //内在还原器
     public static boolean miracleCirculator(Item item, MapleCharacter chr) {
-
-        chr.announce(UserPacket.miracleCirculatorResult(null, item));
+        CharacterPotentialMan cpm = chr.getPotentialMan();
+        Set<CharacterPotential> changed = cpm.randomizer(null, cpm.getPotentialByKey((byte) 1).getGrade());//这样就只会升不会降了
+        cpm.setTemp(changed); //暂存 待选择
+        chr.announce(UserPacket.miracleCirculatorResult(changed, item));
         return true;
     }
-
 
     public static boolean dispatch(Item item, MapleCharacter chr, InPacket in) {
         return true;
