@@ -553,7 +553,7 @@ public class InventoryHandler {
         if (item.getItemId() != itemId) {
             return;
         }
-        CashItemActuator.dispatch(item, chr, in);
+        boolean success = CashItemActuator.dispatch(item, chr, in);
 
         if (itemId / 10000 == 515) {
             ItemInfo ii = ItemData.getItemInfoById(itemId);

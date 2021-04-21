@@ -127,7 +127,7 @@ public class ChannelHandler extends AbstractServerHandler {
                 WorldHandler.handleInstanceTableRequest(in, c);
                 break;
             case USER_REQUEST_CHARACTER_POTENTIAL_SKILL_RAND_SET_UI:
-                UserHandler.handleUserRequestCharacterPotentialSkillRandSetUi(in, c);
+                UserHandler.handleUserRequestCharacterPotentialSkillRandSetUI(in, c);
                 break;
             case GROUP_MESSAGE:
                 ChatHandler.handleGroupMessage(in, c);
@@ -200,6 +200,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case USER_MEMORIAL_CUBE_OPTION_REQUEST:
                 UserHandler.handleUserMemorialCubeOptionRequest(in, c);
+                break;
+            case USER_MIRACLE_CIRCULATOR_SELECT:
+                UserHandler.handleUserMiracleCirculatorSelect(in, c);
                 break;
             case USER_PORTAL_SCROLL_USE_REQUEST:
                 InventoryHandler.handleUserPortalScrollUseRequest(in, c);
@@ -467,6 +470,10 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case PICK_UP_ITEM:
                 UserHandler.handlePickUp(in, c);
+                break;
+            case REACTOR_HIT:
+            case REACTOR_CLICK:
+                UserHandler.handleReactorClick(in, c);
                 break;
             case REQUEST_RECOMMEND_PLAYERS:
                 WorldHandler.handleRequestRecommendPlayers(c);

@@ -448,10 +448,13 @@ public class UserPacket {
         return characterPotentialSet(true, true, cp.getKey(), cp.getSkillID(), cp.getSlv(), cp.getGrade(), true);
     }
 
+    public static OutPacket characterPotentialSet(CharacterPotential cp,boolean updatePassive) {
+        return characterPotentialSet(true, true, cp.getKey(), cp.getSkillID(), cp.getSlv(), cp.getGrade(), updatePassive);
+    }
+
     public static OutPacket characterPotentialSet(boolean exclRequest, boolean changed, short pos, int skillID,
                                                   short skillLevel, short grade, boolean updatePassive) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.CHARACTER_POTENTIAL_SET.getValue());
+        OutPacket out = new OutPacket(SendOpcode.CHARACTER_POTENTIAL_SET);
         out.writeBool(exclRequest);
         out.writeBool(changed);
         if (changed) {
@@ -459,7 +462,7 @@ public class UserPacket {
             out.writeInt(skillID);
             out.writeShort(skillLevel);
             out.writeShort(grade);
-            out.writeBool(updatePassive);
+            out.writeBool(updatePassive); //全部重置的话第三条就是true
         }
         return out;
     }
@@ -905,6 +908,25 @@ public class UserPacket {
 
         out.writeBool(false);
 
+        return out;
+    }
+
+    public static OutPacket miracleCirculatorResult(List<CharacterPotential> potentials, Item item) {
+        OutPacket out = new OutPacket(SendOpcode.MIRACLE_CIRCULATOR_RESULT);
+
+        out.writeInt(potentials.size());
+        for (CharacterPotential potential : potentials) {
+            out.writeInt(potential.getSkillID());
+            out.write(potential.getSlv());
+            out.write(potential.getKey());
+            out.write(potential.getGrade());
+        }
+        out.writeInt(item.getItemId());
+
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
+        out.writeInt(0);
         return out;
     }
 

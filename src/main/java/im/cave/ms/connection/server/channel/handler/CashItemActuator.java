@@ -215,6 +215,14 @@ public class CashItemActuator {
         return true;
     }
 
+    //内在还原器
+    public static boolean miracleCirculator(Item item, MapleCharacter chr) {
+
+        chr.announce(UserPacket.miracleCirculatorResult(null, item));
+        return true;
+    }
+
+
     public static boolean dispatch(Item item, MapleCharacter chr, InPacket in) {
         return true;
     }

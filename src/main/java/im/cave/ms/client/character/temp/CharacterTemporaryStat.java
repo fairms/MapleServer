@@ -24,7 +24,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieJump(9),
     IndieSpeed(10),
     IndieAllStat(12), //所有冒险岛勇士增加的属性
-    IndieDodgeCriticalTime(12),
+    IndieDodgeCriticalTime(13),
 
     IndieEXP(14),
     IndieBooster(15),//攻击速度 绿药
@@ -54,15 +54,20 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieStatR(35),
     IndieStance(36), //稳如泰山
     IndieIgnoreMobpdpR(37), //无视
-    IndieEmpty(49),
-
     IndiePADR(39), //攻击力百分比
+    IndiePMdR(43),//最终伤害 重击研究Ⅱ
+
+    IndieEmpty(49), //召唤物
+    IndieUnk5(51), //释放过程中无敌
+    IndieUnk7(53), //烟幕弹 樱花结界 范围减伤
+    IndieUnk11(57),//减少受到的伤害?
+    IndieUnk17(63), //dropRate 神圣祈祷
+
     IndieMADR(40),
     IndieCrDamR(41),
     IndieEVAR(42),
     IndieMDDR(-1),
     IndieDrainHP(-1),
-    IndiePMdR(43),//最终伤害 重击研究Ⅱ
     IndieMaxDamageOverR(-1),
 
     IndieForceJump(44),
@@ -72,19 +77,16 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieUnk2(48),
     IndieUnk3(49),
     IndieUnk4(50),
-    IndieUnk5(51), //释放过程中无敌
+
     IndieUnk6(52),
-    IndieUnk7(53), //烟幕弹 樱花结界 范围减伤
     IndieUnk8(54),
     IndieUnk9(55),
     IndieUnk10(56),
-    IndieUnk11(57),//减少受到的伤害?
     IndieUnk12(58),
     IndieUnk13(59),
     IndieUnk14(60),
     IndieUnk15(61),
     IndieUnk16(62),
-    IndieUnk17(63), //dropRate 神圣祈祷
     IndieStatCount(71),
 
     PAD(78),
@@ -138,22 +140,22 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Concentration(124),
     BanMap(125),
     MaxLevelBuff(126),
-    Unk114(122),
-    Unk115(123),
-    MesoUpByItem(124),
-    Ghost(125),
-    Barrier(126),
-    ReverseInput(127),
-    ItemUpByItem(128),
-    RespectPImmune(129),
-    RespectMImmune(130),
-    DefenseAtt(123),
+    Unk127(127),
+    Unk128(128),
+    MesoUpByItem(129),
+    Ghost(130),
+    Barrier(131),
+    ReverseInput(132),
+    ItemUpByItem(133),
+    RespectPImmune(134),
+    RespectMImmune(135),
+    DefenseAtt(136),
 
-    DefenseState(124),
-    DojangBerserk(125),
-    DojangInvincible(126),
-    DojangShield(127),
-    SoulMasterFinal(128),
+    DefenseState(137),
+    DojangBerserk(138),
+    DojangInvincible(139),
+    DojangShield(140),
+    SoulMasterFinal(141),
     WindBreakerFinal(142),//隐形剑
     ElementalReset(143),//自然力重置
     HideAttack(144),
@@ -188,6 +190,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     EPDD(173),
     EMDD(-1),
     Guard(174),//完美机甲
+
     Unk162(170),
     Unk163(171),
     Cyclone(172),
@@ -199,6 +202,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Conversion(174),
     Revive(175),
     PinkbeanMinibeenMove(176),
+
     Sneak(178),//隐匿  \潜入
     Mechanic(179), //金属机甲
     BeastFormMaxHP(180),
@@ -213,34 +217,34 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     OnixDivineProtection(189),
     Web(190),
     Bless(191),//祝福
-    TimeBomb(191),
-    DisOrder(192),
-    Thread(193),
+    TimeBomb(192),
+    DisOrder(193),
+    Thread(194),
 
-    Team(194),
-    Explosion(195),
-    BuffLimit(196),
+    Team(195),
+    Explosion(196),
+    BuffLimit(197),
     STR(198),
     INT(199),
     DEX(200),
     LUK(201),
-    DispelItemOptionByField(201),
+    DispelItemOptionByField(202),
 
-    DarkTornado(202),
-    PVPDamage(195),
-    PvPScoreBonus(196),
-    PvPInvincible(197),
-    PvPRaceEffect(198),
-    WeaknessMdamage(199),
-    Frozen2(200),
-    PVPDamageSkill(201),
+    DarkTornado(203),
+    PVPDamage(204),
+    PvPScoreBonus(205),
+    PvPInvincible(206),
+    PvPRaceEffect(207),
+    WeaknessMdamage(208),
+    Frozen2(209),
+    PVPDamageSkill(210),
 
-    AmplifyDamage(202),
+    AmplifyDamage(211),
     IceKnight(-1),
-    Shock(203),
-    InfinityForce(204),
-    IncMaxHP(205),
-    IncMaxMP(206),
+    Shock(212),
+    InfinityForce(213),
+    IncMaxHP(214),
+    IncMaxMP(215),
     HolyMagicShell(216),//神圣魔法盾
     KeyDownTimeIgnore(217), //圣光普照
     ArcaneAim(218),
@@ -257,12 +261,12 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     DropRate(229),//爆率
     PlusExpRate(230),
     ItemInvincible(231),
-    Awake(223),
-    ItemCritical(224),
+    Awake(232),
+    ItemCritical(233),
 
-    ItemEvade(225),
-    Event2(226),
-    VampiricTouch(227),
+    ItemEvade(234),
+    Event2(235),
+    VampiricTouch(236),
     DDR(237), //防御力百分比
     IncCriticalDamMin(-1),
     IncCriticalDamMax(-1),
@@ -287,11 +291,11 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Invisible(254),  //幻影屏障 不可见
     EnrageCr(255),//葵花宝典
     EnrageCrDam(256),//葵花宝典暴击伤害 极限弩暴击伤害...
-    Judgement(248),
-    DojangLuckyBonus(249),
-    PainMark(250),
-    Magnet(251),
-    MagnetArea(252),
+    Judgement(257),
+    DojangLuckyBonus(258),
+    PainMark(259),
+    Magnet(260),
+    MagnetArea(261),
     Unk253(253),
     Unk254(254),
     Unk255(255),
@@ -503,7 +507,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     ViperTimeLeap(449),//伺机待发
 
     RoyalGuardState(450),
-    RoyalGuardPrepare(451),
+    RoyalGuardPrepare(451), //米哈尔
     MichaelSoulLink(452), //灵魂链接
     MichaelStanceLink(453),
     TriflingWhimOnOff(454), //狂风肆虐：Ⅰ
@@ -786,7 +790,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             Morph, Ghost,
             Regen, BasicStatUp, Stance, SharpEyes, ManaReflection, Attract, NoBulletConsume, StackBuff, Trinity,
             Infinity, AdvancedBless, IllusionStep, Blind, Concentration, BanMap, MaxLevelBuff, Barrier, DojangShield, ReverseInput,
-            Unk114, Unk115, MesoUpByItem, ItemUpByItem, RespectPImmune, RespectMImmune, DefenseAtt, DefenseState, DojangBerserk, DojangInvincible, SoulMasterFinal,
+            Unk127, Unk128, MesoUpByItem, ItemUpByItem, RespectPImmune, RespectMImmune, DefenseAtt, DefenseState, DojangBerserk, DojangInvincible, SoulMasterFinal,
             WindBreakerFinal, ElementalReset, HideAttack, EventRate, ComboAbilityBuff, ComboDrain, ComboBarrier, PartyBarrier,
             BodyPressure, RepeatEffect, ExpBuffRate, StopPortion, StopMotion, Fear, MagicShield, MagicResistance, SoulStone,
             Flying, NewFlying, NaviFlying, Frozen, Frozen2, Web,

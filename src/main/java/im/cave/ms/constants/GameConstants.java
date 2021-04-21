@@ -137,15 +137,6 @@ public class GameConstants {
     public static final short DEFAULT_CHARACTER_SLOTS = 6;
     public static final short INVENTORY_MAX_SLOTS = 128;
 
-    // Inner Ability
-    public static final int CHAR_POT_BASE_ID = 70000000;
-    public static final int CHAR_POT_END_ID = 70000062;
-    public static final int BASE_CHAR_POT_UP_RATE = 10; // 10%
-    public static final int BASE_CHAR_POT_DOWN_RATE = 10; // 10%
-    public static final int CHAR_POT_RESET_COST = 100;
-    public static final int CHAR_POT_GRADE_LOCK_COST = 10000;
-    public static final int CHAR_POT_LOCK_1_COST = 3000;
-    public static final int CHAR_POT_LOCK_2_COST = 5000;
 
     public static int[][][] INC_HP_MP = {
             // first array = per job
@@ -603,4 +594,101 @@ public class GameConstants {
         return null;
     }
 
+
+    /*
+        内在能力
+        内在等级=第一条潜能的等级
+     */
+    public static final int CHAR_POT_BASE_ID = 70000000;
+    public static final int CHAR_POT_END_ID = 70000062;
+    public static final int BASE_CHAR_POT_UP_RATE = 10; // 10%
+    public static final int BASE_CHAR_POT_DOWN_RATE = 10; // 10%
+    public static final int CHAR_POT_RESET_COST = 100;
+    @Deprecated
+    public static final int CHAR_POT_GRADE_LOCK_COST = 10000;
+    public static final int CHAR_POT_LOCK_1_COST = 3000;
+    public static final int CHAR_POT_LOCK_2_COST = 5000;
+
+    public static final List<Integer> GRADE_B = List.of(
+            70000000, 70000001, 70000002, 70000003, 70000004, 70000005,
+            70000006, 70000008, 70000009, 70000015, 70000021,
+            70000022, 70000023, 70000024, 70000033, 70000036,
+            70000039, 70000048, 70000049, 70000052, 70000053,
+            70000054, 70000055, 70000058, 70000059, 70000060, 70000061);
+
+    public static final List<Integer> GRADE_A = List.of(70000012, 70000013, 70000014);
+
+    public static final List<Integer> GRADE_S = List.of(70000027, 70000028, 70000029, 70000034,
+            70000035, 70000041, 70000045);
+
+    public static final List<Integer> GRADE_SS = List.of(70000016, 70000040, 70000042, 70000046, 70000047);
+
+    public static int getCharPotGradeLockCost(int grade) {
+        switch (grade) {
+            case 0:
+                return 0;
+            case 1:
+                return 490;
+            case 2:
+                return 5000;
+            case 3:
+                return 10000;
+        }
+        return 0;
+    }
+
+    public static int getBaseCharPotUpRate(byte grade) {
+        switch (grade) {
+            case 0:
+                return 5;
+            case 1:
+                return 3;
+            case 2:
+                return 1;
+            case 3:
+                return 0;
+        }
+        return 0;
+    }
+
+    public static int getBaseCharPotDownRate(byte grade) {
+        switch (grade) {
+            case 0:
+                return 0;
+            case 1:
+                return 3;
+            case 2:
+                return 15;
+            case 3:
+                return 50;
+        }
+        return 0;
+    }
+
+    public static List<Integer> getCharPotentialIDByGrade(byte grade) {
+        List<Integer> potentials = new ArrayList<>();
+        switch (grade) {
+            case 3:
+                potentials.addAll(GRADE_SS);
+            case 2:
+                potentials.addAll(GRADE_S);
+            case 1:
+                potentials.addAll(GRADE_A);
+            case 0:
+                potentials.addAll(GRADE_B);
+        }
+        return potentials;
+    }
+
+    public static byte getLeastReqGradeOfSkill(int skill) {
+        if (GRADE_SS.contains(skill)) {
+            return 3;
+        } else if (GRADE_S.contains(skill)) {
+            return 2;
+        } else if (GRADE_A.contains(skill)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 }

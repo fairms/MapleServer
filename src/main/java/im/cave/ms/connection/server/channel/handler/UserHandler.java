@@ -19,6 +19,7 @@ import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Android;
 import im.cave.ms.client.field.obj.Drop;
 import im.cave.ms.client.field.obj.MapleMapObj;
+import im.cave.ms.client.field.obj.Reactor;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.multiplayer.party.PartyMember;
 import im.cave.ms.client.storage.Locker;
@@ -230,7 +231,7 @@ public class UserHandler {
                 case SUMMON_ATTACK:
                     player.getMap().broadcastMessage(player, SummonPacket.summonAttack(player.getId(), attackInfo, false), false);
                     break;
-//                case FAMILIAR_ATTACK:
+//                case FAMILIAR_ATTACK:f'd's
 //                    chr.getField().broadcastPacket(CFamiliar.familiarAttack(chr.getId(), attackInfo), chr);
 //                    break;
                 default:
@@ -629,27 +630,28 @@ public class UserHandler {
         c.announce(UserPacket.statChanged(stats, true, player));
     }
 
-    //内在能力
-    public static void handleUserRequestCharacterPotentialSkillRandSetUi(InPacket in, MapleClient c) {
+    //内在能力重置
+    public static void handleUserRequestCharacterPotentialSkillRandSetUI(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         if (player == null) {
             return;
         }
         int cost = GameConstants.CHAR_POT_RESET_COST;
-        int rate = in.readInt();
-        int size = in.readInt();
-        Set<Integer> lockedLines = new HashSet<>();
-        for (int i = 0; i < size; i++) {
-            lockedLines.add(in.readInt());
-            if (lockedLines.size() == 0) {
-                cost += GameConstants.CHAR_POT_LOCK_1_COST;
-            } else {
-                cost += GameConstants.CHAR_POT_LOCK_2_COST;
-            }
-        }
+        int rate = in.readInt(); //锁定的等级
         boolean locked = rate > 0;
+        Set<Byte> lockedLines = null;
         if (locked) {
-            cost += GameConstants.CHAR_POT_GRADE_LOCK_COST;
+            lockedLines = new HashSet<>();
+            cost += GameConstants.getCharPotGradeLockCost(rate);
+            int size = in.readInt();
+            for (int i = 0; i < size; i++) {
+                lockedLines.add((byte) in.readInt());
+                if (lockedLines.size() == 0) {
+                    cost += GameConstants.CHAR_POT_LOCK_1_COST;
+                } else {
+                    cost += GameConstants.CHAR_POT_LOCK_2_COST;
+                }
+            }
         }
         if (cost > player.getHonerPoint()) {
             player.chatMessage("You do not have enough honor exp for that action.");
@@ -658,21 +660,11 @@ public class UserHandler {
         player.addHonerPoint(-cost);
 
         CharacterPotentialMan cpm = player.getPotentialMan();
-        boolean gradeUp = !locked && Util.succeedProp(GameConstants.BASE_CHAR_POT_UP_RATE);
-        boolean gradeDown = !locked && Util.succeedProp(GameConstants.BASE_CHAR_POT_DOWN_RATE);
-        byte grade = cpm.getGrade();
-        // update grades
-        if (grade < CharPotGrade.Legendary.ordinal() && gradeUp) {
-            grade++;
-        } else if (grade > CharPotGrade.Rare.ordinal() && gradeDown) {
-            grade--;
-        }
-        // set new potentials that weren't locked
-        for (CharacterPotential cp : player.getPotentials()) {
-            cp.setGrade(grade);
-            if (!lockedLines.contains((int) cp.getKey())) {
-                cpm.addPotential(cpm.generateRandomPotential(cp.getKey()));
-            }
+        Set<CharacterPotential> potentials = cpm.randomizer(lockedLines);
+        int i = 0;
+        for (CharacterPotential potential : potentials) {
+            ++i;
+            cpm.addPotential(potential, i == potentials.size());
         }
         c.announce(UserPacket.noticeMsg("内在能力重新设置成功。"));
     }
@@ -1343,5 +1335,43 @@ public class UserHandler {
         }
         MapleCharacter chr = c.getPlayer();
         chr.addQuestExAndSendPacket(QUEST_EX_STACK_CHAIRS, questEx);
+    }
+
+    public static void handleReactorClick(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        int objID = in.readInt();
+        int idk = in.readInt();
+        byte type = in.readByte();
+        MapleMapObj life = chr.getMap().getObj(objID);
+        if (!(life instanceof Reactor)) {
+            log.error("Could not find reactor with objID " + objID);
+            return;
+        }
+        Reactor reactor = (Reactor) life;
+        int templateID = reactor.getTemplateId();
+//        ReactorInfo ri = ReactorData.getReactorInfoByID(templateID);
+//        String action = ri.getAction();
+//        if (chr.getScriptManager().isActive(ScriptType.Reactor)
+//                && chr.getScriptManager().getParentIDByScriptType(ScriptType.Reactor) == templateID) {
+//            try {
+//                chr.getScriptManager().getInvocableByType(ScriptType.Reactor).invokeFunction("action", reactor, type);
+//            } catch (ScriptException | NoSuchMethodException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            chr.getScriptManager().startScript(templateID, objID, action, ScriptType.Reactor);
+//        }
+
+    }
+
+    public static void handleUserMiracleCirculatorSelect(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        chr.setTick(in.readInt());
+        boolean chooseAfter = in.readByte() != 0;
+        if (chooseAfter) {
+            //change
+        } else {
+            in.readByte(); //1
+        }
     }
 }
