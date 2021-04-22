@@ -784,8 +784,10 @@ public class WorldHandler {
     }
 
     public static void handleAndroidActionSet(InPacket in, MapleClient c) {
-        byte b = in.readByte();
-        byte b1 = in.readByte();
+        MapleCharacter chr = c.getPlayer();
+        byte action = in.readByte();
+        byte emo = in.readByte();
+        chr.getMap().broadcastMessage(AndroidPacket.actionSet(chr.getAndroid(), action, emo));
     }
 
     public static void handleFriendRequest(InPacket in, MapleClient c) {
@@ -1513,5 +1515,15 @@ public class WorldHandler {
             return;
         }
         driverChr.write(WorldPacket.setPassenserRequest(chr.getId()));
+    }
+
+    public static void handleSomethingAboutMonster(InPacket in, MapleClient c) {
+        int zero = in.readInt();
+        int templateId = in.readInt();
+        for (int i = 0; i < 6; i++) {
+            Position position = in.readPositionInt();
+        }
+        //6个点能做啥呢
+
     }
 }

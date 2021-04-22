@@ -38,10 +38,7 @@ import im.cave.ms.connection.packet.*;
 import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.connection.server.world.World;
-import im.cave.ms.constants.GameConstants;
-import im.cave.ms.constants.ItemConstants;
-import im.cave.ms.constants.JobConstants;
-import im.cave.ms.constants.SkillConstants;
+import im.cave.ms.constants.*;
 import im.cave.ms.enums.*;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
@@ -234,10 +231,10 @@ public class MapleCharacter implements Serializable {
     private Map<Integer, Map<String, String>> questEx;
     //冷却时间计时器
     @Transient
-    private Map<Integer, Pair<Long, ScheduledFuture>> cooltimes;
+    private Map<Integer, Pair<Long, ScheduledFuture<?>>> cooltimes;
     //其他计时器
     @Transient
-    private Map<Integer, ScheduledFuture> schedules;
+    private Map<Integer, ScheduledFuture<?>> schedules;
     @Transient
     private MapleJob jobHandler;
     @Transient
@@ -2141,5 +2138,52 @@ public class MapleCharacter implements Serializable {
             return portal.getPosition();
         }
         return position;
+    }
+
+    public Map<Integer, Map<String, String>> getQuestEx() {
+        return questEx;
+    }
+
+    public String getQuestEx(int questID, String key) {
+        Map<String, String> str = getQuestEx().getOrDefault(questID, null);
+        if (str != null) {
+            return str.getOrDefault(key, null);
+        }
+        return null;
+    }
+
+    public boolean setQuestEx(int questId, String key, String value) {
+        if (key == null || key.isEmpty()) {
+            return false;
+        }
+        if (value.equals("DayN")) {
+            return false;
+        }
+        Map<String, String> str = getQuestEx().getOrDefault(questId, null);
+        if (str == null) {
+            getQuestEx().put(questId, new HashMap<>());
+            str = getQuestEx().getOrDefault(questId, null);
+            if (str == null) {
+                return false;
+            }
+        }
+        if (!value.isEmpty()) {
+            str.put(key, value);
+        } else {
+            str.remove(key);
+        }
+        return true;
+    }
+
+    public int getShards() {
+        String value = getQuestEx(QuestConstants.QUEST_EX_MATRIX_SHARDS, "count");
+        if (value != null) {
+            return Integer.parseInt(value);
+        }
+        return 0;
+    }
+
+    public void incShards(int inc) {
+        setQuestEx(QuestConstants.QUEST_EX_MATRIX_SHARDS, "count", Integer.toString(getShards() + inc));
     }
 }

@@ -30,17 +30,21 @@ import im.cave.ms.constants.*;
 import im.cave.ms.enums.*;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
+import im.cave.ms.provider.data.VCoreData;
 import im.cave.ms.provider.info.AndroidInfo;
 import im.cave.ms.provider.info.CashItemInfo;
 import im.cave.ms.provider.info.SkillInfo;
-import im.cave.ms.tools.*;
+import im.cave.ms.provider.info.VCore;
+import im.cave.ms.tools.DateUtil;
+import im.cave.ms.tools.Pair;
+import im.cave.ms.tools.Position;
+import im.cave.ms.tools.Rect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.KeyDownMoving;
 import static im.cave.ms.connection.packet.opcode.RecvOpcode.*;
@@ -1379,7 +1383,7 @@ public class UserHandler {
         }
     }
 
-    public static void handleUpdateMatrix(InPacket in, MapleClient c) {
+    public static void handleMatrixRequest(InPacket in, MapleClient c) {
         MapleCharacter chr = c.getPlayer();
         int type = in.readInt();
         MatrixUpdateType updateType = MatrixUpdateType.getUpdateTypeByVal(type);
@@ -1391,125 +1395,127 @@ public class UserHandler {
 
         switch (updateType) {
             case ENABLE: {
-//                int slot = in.readInt();
-//                inPacket.decodeInt();// -1
-//                inPacket.decodeInt();// -1
-//                int toSlot = inPacket.decodeInt();
-//
-//                chr.write(WvsContext.updateVMatrix(chr, true, MatrixUpdateType.ENABLE, chr.getMatrixInventory().activateSkill(slot, toSlot)));
-//                MatrixInventory.reloadSkills(chr);
-//                break;
+                int slot = in.readInt();
+                in.readInt();// -1
+                in.readInt();// -1
+                int toSlot = in.readInt();
+                boolean replace = in.readByte() != 0;
+                chr.write(UserPacket.updateVMatrix(chr, true, MatrixUpdateType.ENABLE, chr.getMatrixInventory().activateSkill(slot, toSlot)));
+                MatrixInventory.reloadSkills(chr);
+                break;
             }
             case DISABLE: {
                 int slot = in.readInt();
                 in.readInt();// -1
-//                chr.write(UserPacket.updateVMatrix(chr, true, MatrixUpdateType.DISABLE, chr.getMatrixInventory().deactivateSkill(slot)));
-//                MatrixInventory.reloadSkills(chr);
+                chr.write(UserPacket.updateVMatrix(chr, true, MatrixUpdateType.DISABLE, chr.getMatrixInventory().deactivateSkill(slot)));
+                MatrixInventory.reloadSkills(chr);
                 break;
             }
             case MOVE: {
-//                int skillSlotID = inPacket.decodeInt();
-//                int replaceSkill = inPacket.decodeInt();
-//                int fromSlot = inPacket.decodeInt();// 0
-//                int toSlot = inPacket.decodeInt();
-//                chr.getMatrixInventory().moveSkill(skillSlotID, replaceSkill, fromSlot, toSlot);
-//                chr.write(WvsContext.updateVMatrix(chr, true, MatrixUpdateType.MOVE, 0));
-//                MatrixInventory.reloadSkills(chr);
-//                break;
+                int skillSlotID = in.readInt();
+                int replaceSkill = in.readInt();
+                int fromSlot = in.readInt();// 0
+                int toSlot = in.readInt();
+                chr.getMatrixInventory().moveSkill(skillSlotID, replaceSkill, fromSlot, toSlot);
+                chr.write(UserPacket.updateVMatrix(chr, true, MatrixUpdateType.MOVE, 0));
+                MatrixInventory.reloadSkills(chr);
+                break;
             }
             case DISASSEMBLE_SINGLE: {
-//                int slot = inPacket.decodeInt();
-//                inPacket.decodeInt();// -1
-//                chr.getMatrixInventory().disassemble(chr, slot);
-//                MatrixInventory.reloadSkills(chr);
-//                break;
+                int slot = in.readInt();
+                in.readInt();// -1
+                chr.getMatrixInventory().disassemble(chr, slot);
+                MatrixInventory.reloadSkills(chr);
+                break;
             }
             case DISASSEMBLE_MULTIPLE: {
-//                int count = inPacket.decodeInt();
-//
-//                List<MatrixSkill> skills = new ArrayList<>();
-//                for (int i = 0; i < count; i++) {
-//                    MatrixSkill skill = chr.getMatrixInventory().getSkill(inPacket.decodeInt());
-//                    if (skill != null) {
-//                        skills.add(skill);
-//                    }
-//                }
-//                chr.getMatrixInventory().disassembleMultiple(chr, skills);
-//                MatrixInventory.reloadSkills(chr);
-//                break;
+                int count = in.readInt();
+
+                List<MatrixSkill> skills = new ArrayList<>();
+                for (int i = 0; i < count; i++) {
+                    MatrixSkill skill = chr.getMatrixInventory().getSkill(in.readInt());
+                    if (skill != null) {
+                        skills.add(skill);
+                    }
+                }
+                chr.getMatrixInventory().disassembleMultiple(chr, skills);
+                MatrixInventory.reloadSkills(chr);
+                break;
             }
             case ENHANCE: {
-//                int slot = inPacket.decodeInt();
-//                MatrixSkill toEnhance = chr.getMatrixInventory().getSkill(slot);
-//                if (toEnhance != null && toEnhance.getSkillLevel() < VCore.getMaxLevel(VCore.getCore(toEnhance.getCoreID()).getType())) {
-//                    int count = inPacket.decodeInt();
-//                    List<MatrixSkill> skills = new ArrayList<>();
-//                    for (int i = 0; i < count; i++) {
-//                        MatrixSkill skill = chr.getMatrixInventory().getSkill(inPacket.decodeInt());
-//                        if (skill != null) {
-//                            skills.add(skill);
-//                        }
-//                    }
-//                    chr.getMatrixInventory().enhance(chr, toEnhance, skills);
-//                    MatrixInventory.reloadSkills(chr);
-//                }
-//                break;
+                int slot = in.readInt();
+                MatrixSkill toEnhance = chr.getMatrixInventory().getSkill(slot);
+                if (toEnhance != null && toEnhance.getLevel() < VCoreData.getMaxLevel(VCoreData.getCore(toEnhance.getCoreId()).getType())) {
+                    int count = in.readInt();
+                    List<MatrixSkill> skills = new ArrayList<>();
+                    for (int i = 0; i < count; i++) {
+                        MatrixSkill skill = chr.getMatrixInventory().getSkill(in.readInt());
+                        if (skill != null) {
+                            skills.add(skill);
+                        }
+                    }
+                    chr.getMatrixInventory().enhance(chr, toEnhance, skills);
+                    MatrixInventory.reloadSkills(chr);
+                }
+                break;
             }
             case CRAFT_NODE: {
-//                int coreID = inPacket.decodeInt();
-//                VCoreData core = VCore.getCore(coreID);
-//                if (core != null) {
-//                    int price = 0;
-//                    if (VCore.isSkillNode(coreID)) {
-//                        price = MatrixConstants.CRAFT_SKILL_CORE_COST;
-//                    } else if (VCore.isBoostNode(coreID)) {
-//                        price = MatrixConstants.CRAFT_ENCHANT_CORE_COST;
-//                    } else if (VCore.isSpecialNode(coreID)) {
-//                        price = MatrixConstants.CRAFT_SPECIAL_CORE_COST;
-//                    } else if (VCore.isExpNode(coreID)) {
-//                        price = MatrixConstants.CRAFT_GEMSTONE_COST;
-//                    }
-//                    if (price > 0) {
-//                        int shardCount = chr.getShards();
-//                        if (shardCount >= price) {
-//                            chr.incShards(-price);
-//
-//                            MatrixSkill skill = new MatrixSkill();
-//                            skill.setCoreID(coreID);
-//                            if (!VCore.isSpecialNode(coreID)) {
-//                                skill.setSkillID(core.getConnectSkills().get(0));
-//                                skill.setSkillLevel(1);
-//                                skill.setMasterLevel(core.getMaxLevel());
-//                            } else {
-//                                skill.setSkillID(0);
-//                                skill.setSkillLevel(1);
-//                                skill.setMasterLevel(1);
-//                                skill.setExpirationDate(FileTime.fromLong(System.currentTimeMillis() + (86400000 * core.getExpireAfter())));
-//                            }
-//                            if (VCore.isBoostNode(coreID)) {
-//                                List<VCoreData> boostNode = VCore.getBoostNodes();
-//                                boostNode.remove(core);
-//
-//                                core = boostNode.get((int) (Math.random() % boostNode.size()));
-//                                while (!core.isJobSkill(chr.getJob())) {
-//                                    core = boostNode.get((int) (Math.random() % boostNode.size()));
-//                                }
-//                                boostNode.remove(core);
-//                                skill.setSkillID2(core.getConnectSkills().get(0));
-//
-//                                core = boostNode.get((int) (Math.random() % boostNode.size()));
-//                                while (!core.isJobSkill(chr.getJob())) {
-//                                    core = boostNode.get((int) (Math.random() % boostNode.size()));
-//                                }
-//                                skill.setSkillID3(core.getConnectSkills().get(0));
-//                            }
-//                            chr.getMatrixInventory().addSkill(skill);
-//                            MatrixInventory.reloadSkills(chr);
-//                            chr.write(WvsContext.updateVMatrix(chr, true, MatrixUpdateType.CRAFT_NODE, 0));
-//                            chr.write(WvsContext.nodeCraftResult(coreID, skill.getSkillID(), skill.getSkillID2(), skill.getSkillID3()));
-//                        }
-//                    }
-//                }
+                int coreID = in.readInt();
+                VCore core = VCoreData.getCore(coreID);
+                int quantity = in.readInt();
+                if (core != null) {
+                    int price = 0;
+                    if (VCoreData.isSkillNode(coreID)) {
+                        price = MatrixConstants.CRAFT_SKILL_CORE_COST;
+                    } else if (VCoreData.isBoostNode(coreID)) {
+                        price = MatrixConstants.CRAFT_ENCHANT_CORE_COST;
+                    } else if (VCoreData.isSpecialNode(coreID)) {
+                        price = MatrixConstants.CRAFT_SPECIAL_CORE_COST;
+                    } else if (VCoreData.isExpNode(coreID)) {
+                        price = MatrixConstants.CRAFT_GEMSTONE_COST;
+                    }
+                    price *= quantity;
+                    if (price > 0) {
+                        int shardCount = chr.getShards();
+                        if (shardCount >= price) {
+                            chr.incShards(-price);
+
+                            MatrixSkill skill = new MatrixSkill();
+                            skill.setCoreId(coreID);
+                            if (!VCoreData.isSpecialNode(coreID)) {
+                                skill.setSkill1(core.getConnectSkills().get(0));
+                                skill.setLevel(1);
+                                skill.setMasterLevel(core.getMaxLevel());
+                            } else {
+                                skill.setSkill1(0);
+                                skill.setLevel(1);
+                                skill.setMasterLevel(1);
+                                skill.setExpirationDate(DateUtil.getFileTime(System.currentTimeMillis() + (86400000L * core.getExpireAfter())));
+                            }
+                            if (VCoreData.isBoostNode(coreID)) {
+                                List<VCore> boostNode = VCoreData.getBoostNodes();
+                                boostNode.remove(core);
+
+                                core = boostNode.get((int) (Math.random() % boostNode.size()));
+                                while (!core.isJobSkill(chr.getJob())) {
+                                    core = boostNode.get((int) (Math.random() % boostNode.size()));
+                                }
+                                boostNode.remove(core);
+                                skill.setSkill2(core.getConnectSkills().get(0));
+
+                                core = boostNode.get((int) (Math.random() % boostNode.size()));
+                                while (!core.isJobSkill(chr.getJob())) {
+                                    core = boostNode.get((int) (Math.random() % boostNode.size()));
+                                }
+                                skill.setSkill3(core.getConnectSkills().get(0));
+                            }
+                            chr.getMatrixInventory().addSkill(skill);
+                            MatrixInventory.reloadSkills(chr);
+                            chr.write(UserPacket.updateVMatrix(chr, false, MatrixUpdateType.CRAFT_NODE, 0));
+                            chr.write(UserPacket.nodeCraftResult(coreID, quantity, skill.getSkill1(), skill.getSkill2(), skill.getSkill3()));
+                        }
+                    }
+                }
                 break;
             }
 
@@ -1522,21 +1528,12 @@ public class UserHandler {
                     return;
                 }
                 matrixSlot.setEnhanceLevel(matrixSlot.getEnhanceLevel() + 1);
-                if (matrixSlot.getEquippedSkill() != 0) {
-                    MatrixSkill matrixSkill = matrixInventory.getMatrixSkillById(matrixSlot.getEquippedSkill());
-                    if (matrixSkill.getSlot() != matrixSlot.getSlotId()) {
-                        //something wrong
-                        return;
-                    }
-                    List<Integer> skills = Arrays.asList(matrixSkill.getSkill1(), matrixSkill.getSkill2(), matrixSkill.getSkill3());
-                    skills = skills.stream().filter(s -> s != 0).collect(Collectors.toList());
-                    for (Integer skillId : skills) {
-                        Skill skill = chr.getSkill(skillId);
-                        skill.setCurrentLevel(skill.getCurrentLevel() + 1);
-                        chr.announce(UserPacket.changeSkillRecordResult(skill));
-                    }
-                }
-
+                MatrixInventory.reloadSkills(chr);
+                chr.announce(UserPacket.updateVMatrix(chr, false, MatrixUpdateType.SLOT_ENHANCEMENT, 0));
+            }
+            case RESET_SLOT_ENHANCEMENT: {
+                chr.getMatrixInventory().resetSlotsEnhanceLevel(chr);
+                break;
             }
             default: {
                 break;

@@ -1006,7 +1006,42 @@ public class UserPacket {
     public static OutPacket updateVMatrix(MapleCharacter chr, boolean update, MatrixUpdateType updateType, int pos) {
         OutPacket out = new OutPacket(SendOpcode.UPDATE_MATRIX);
         chr.getMatrixInventory().encode(out);
-        out.writeInt(0); //todo
+        out.writeInt(update);
+        if (update) {
+            out.writeInt(updateType.getVal());
+            out.writeInt(pos);
+        }
+        return out;
+    }
+
+    public static OutPacket nodeCraftResult(int coreID, int quantity, int skillID1, int skillID2, int skillID3) {
+        OutPacket out = new OutPacket(SendOpcode.NODE_CRAFT_RESULT);
+
+        out.writeInt(coreID);
+        out.writeInt(1);
+        out.writeInt(skillID1);
+        out.writeInt(skillID2);
+        out.writeInt(skillID3);
+        out.writeInt(quantity); //size
+        return out;
+    }
+
+    public static OutPacket nodeEnhanceResult(int recordID, int exp, int slv1, int slv2) {
+        OutPacket out = new OutPacket(SendOpcode.NODE_ENHANCE_RESULT);
+
+        out.writeInt(recordID);
+        out.writeInt(exp);
+        out.writeInt(slv1);
+        out.writeInt(slv2);
+
+        return out;
+    }
+
+    public static OutPacket nodeShardResult(int shard) {
+        OutPacket out = new OutPacket(SendOpcode.NODE_SHARD_RESULT);
+
+        out.writeInt(shard);
+
         return out;
     }
 

@@ -4,6 +4,8 @@ import im.cave.ms.client.field.AffectedArea;
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.constants.SkillConstants;
+import im.cave.ms.tools.Position;
+import im.cave.ms.tools.Rect;
 
 public class FieldPacket {
     /*
@@ -47,4 +49,19 @@ public class FieldPacket {
         return out;
 
     }
+
+
+    public static OutPacket spawnErdaAura() {
+        OutPacket out = new OutPacket(SendOpcode.光谱召唤的);
+
+        out.writeInt(1);//size?
+        out.writeInt(33);//type
+        out.writeInt(1);//counter/ID
+        out.writeInt(0);
+        out.writeInt(2500);//duration消失
+        out.writeRectInt(new Rect(-120, -128, 120, 5));
+        out.writePositionInt(new Position());
+        return out;
+    }
+
 }

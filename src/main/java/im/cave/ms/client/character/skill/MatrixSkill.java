@@ -30,6 +30,9 @@ public class MatrixSkill {
     private long expirationDate = ServerConstants.MAX_TIME;
 
 
+    public boolean isActive() { return state == MatrixStateType.ACTIVE; }
+
+
     public void encode(OutPacket out){
         out.writeLong(getId());
         out.writeInt(getCoreId());

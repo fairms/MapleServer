@@ -42,8 +42,6 @@ public class VCore {
         this.jobs.add(job);
     }
 
-
-
     public static class EnforceOption {
         private int enforceExp;
         private int nextExp;

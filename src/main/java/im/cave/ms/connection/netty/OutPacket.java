@@ -176,6 +176,14 @@ public class OutPacket extends Packet {
         writeShort(rect.getBottom());
     }
 
+    public void writeRectInt(Rect rect) {
+        writeInt(rect.getLeft());
+        writeInt(rect.getTop());
+        writeInt(rect.getRight());
+        writeInt(rect.getBottom());
+    }
+
+
 
     @Override
     public Packet clone() {

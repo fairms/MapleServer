@@ -303,7 +303,7 @@ public enum RecvOpcode {
     //
     //
     //
-    HOWLING_GALE_PREPARE(0x22B),
+    USER_HOWLING_STORM_STACK(0x22B),
     //
     //
     ANDROID_SHOP_REQUEST(0x22E),
@@ -316,8 +316,10 @@ public enum RecvOpcode {
     LEGION_LOAD_REQUEST(0x253),
 
 
-    UPDATE_MATRIX(0x264),
+    MATRIX_REQUEST(0x264),
+    MATRIX_HELP_REQUEST(0x265),
     ARK_POWER(0x268), //int:能量数值
+    和怪物相关(0x273),
     LIE_DETECTOR_TEST(0x274),
 
     USER_AVATAR_MODIFY_COUPON_USE_REQUEST(0x27B),
@@ -386,7 +388,7 @@ public enum RecvOpcode {
 
     REQUEST_ARROW_PLATTER_OBJ(0x2C3),
 
-    OPEN_KEYMAPPING_SETTING(0x2DC), //打开键盘快捷键
+    OPEN_UI(0x2DC), //各种界面开启的 HOOK
     TRANSFER(0x2E2),
     ORBITAL_FLAME(0x309),
 

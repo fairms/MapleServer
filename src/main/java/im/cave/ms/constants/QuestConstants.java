@@ -42,7 +42,8 @@ public class QuestConstants {
     public static final int SHARE_QUEST_EX_LOGIN_IP = 1; //登陆IP=/59.53.44.112;初次登陆=1
     public static final int SHARE_QUEST_EX_LOGIN_TIP = 88818; //出生提示=1
     public static final int SHARE_QUEST_EX_USE_AUCTION = 81818; //使用拍卖=1
-
+    //核心碎片
+    public static final int QUEST_EX_MATRIX_SHARDS = 1477;
     //记忆魔方
     public static final int QUEST_EX_MEMORIAL_CUBE = 52889;
     //林志玲外观

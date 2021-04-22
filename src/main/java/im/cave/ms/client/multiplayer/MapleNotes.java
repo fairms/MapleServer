@@ -51,7 +51,12 @@ public class MapleNotes {
         out.write(0);
         out.writeMapleAsciiString(getFromChr());
         out.writeMapleAsciiString(getMsg());
-        out.writeZeroBytes(13);
+        out.writeLong(0);
+        out.write(1);
+        out.write(1);
+        out.write(0);
+        out.write(0);
+        out.write(0);
     }
 
     public void encodeForOut(OutPacket out) {

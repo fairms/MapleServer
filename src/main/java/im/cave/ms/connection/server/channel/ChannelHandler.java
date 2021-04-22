@@ -337,9 +337,12 @@ public class ChannelHandler extends AbstractServerHandler {
             case STACK_CHAIRS:
                 UserHandler.handleStackChairs(in, c);
                 break;
-            case UPDATE_MATRIX:
-                UserHandler.handleUpdateMatrix(in, c);
+            case MATRIX_REQUEST:
+                UserHandler.handleMatrixRequest(in, c);
                 break;
+            case 和怪物相关:
+                WorldHandler.handleSomethingAboutMonster(in, c);
+                return;
             case USER_SOUL_EFFECT_REQUEST:
                 UserHandler.handleUserSoulEffectRequest(in, c);
                 break;
@@ -373,6 +376,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case ANDROID_MOVE:
                 WorldHandler.handleAndroidMove(in, c);
                 break;
+            case ANDROID_ACTION_SET:
+                WorldHandler.handleAndroidActionSet(in, c);
             case CHANGE_QUICKSLOT:
                 UserHandler.handleChangeQuickSlot(in, c);
                 break;
@@ -431,7 +436,7 @@ public class ChannelHandler extends AbstractServerHandler {
             case CHECK_TRICK_OR_TREAT_REQUEST:
                 WorldHandler.handleCheckTrickOrTreatRequest(in, c);
                 break;
-            case HOWLING_GALE_PREPARE:
+            case USER_HOWLING_STORM_STACK:
                 //todo 呼啸风暴
 //                ((Beginner) c.getPlayer().getJobHandler()).handleHowlingGalePrepare();
                 break;
