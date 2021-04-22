@@ -10,10 +10,8 @@ import im.cave.ms.client.field.obj.mob.MobSkill;
 import im.cave.ms.client.field.obj.mob.MobSkillAttackInfo;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.MobPacket;
-import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.tools.Position;
 import im.cave.ms.tools.Util;
-import org.graalvm.nativeimage.c.struct.CField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +20,7 @@ import java.util.List;
 /**
  * @author fair
  * @version V1.0
- * @Package im.cave.ms.net.handler.channel
+ * @Package im.cave.ms.net.handler.channelId
  * @date 11/29 15:52
  */
 public class MobHandler {
@@ -126,7 +124,6 @@ public class MobHandler {
             return;
         }
         c.write(MobPacket.changeMobController(mob, true, true));
-
     }
 
     //todo

@@ -8,7 +8,6 @@ import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.FieldEffect;
 import im.cave.ms.client.field.Foothold;
 import im.cave.ms.client.field.MapleMap;
-import im.cave.ms.constants.GameConstants;
 import im.cave.ms.provider.info.DropInfo;
 import im.cave.ms.client.field.obj.MapleMapObj;
 import im.cave.ms.configs.Config;
@@ -422,7 +421,7 @@ public class Mob extends MapleMapObj {
         long totalDamage = getInjuryStatistics().values().stream().mapToLong(l -> l).sum();
         for (MapleCharacter chr : getInjuryStatistics().keySet()) {
             double damagePercent = getInjuryStatistics().get(chr) / (double) totalDamage;
-            int mobExpRate = chr.getLevel() < 10 ? 1 : Config.worldConfig.getWorldInfo(chr.getWorld()).exp_rate;
+            int mobExpRate = chr.getLevel() < 10 ? 1 : Config.worldConfig.getWorldInfo(chr.getWorldId()).exp_rate;
             long appliedExpPre = (long) (exp * damagePercent * mobExpRate);
             long appliedExpPost = appliedExpPre;
             ExpIncreaseInfo expIncreaseInfo = new ExpIncreaseInfo();

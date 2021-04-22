@@ -8,7 +8,7 @@ import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.enums.ChatRoomType;
 import im.cave.ms.enums.RoomLeaveType;
-import im.cave.ms.enums.TradeRoomType;
+import im.cave.ms.enums.MiniRoomType;
 
 /**
  * @author fair
@@ -19,12 +19,14 @@ import im.cave.ms.enums.TradeRoomType;
 public class MiniRoomPacket {
 
     /*
-        Begin Trade
+        Invite
+        type 4:trade
+             3: RPS
      */
     public static OutPacket tradeInvite(MapleCharacter player) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.TRADE_ROOM.getValue());
-        out.write(TradeRoomType.TradeInviteRequest.getVal());
+        out.writeShort(SendOpcode.MINI_ROOM_DUAL.getValue());
+        out.write(MiniRoomType.TradeInviteRequest.getVal());
         out.write(4); //type
         out.writeMapleAsciiString(player.getName());
         out.writeInt(0);
@@ -34,8 +36,8 @@ public class MiniRoomPacket {
 
     public static OutPacket cancelTrade(int user) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.TRADE_ROOM.getValue());
-        out.write(TradeRoomType.ExitTrade.getVal());
+        out.writeShort(SendOpcode.MINI_ROOM_DUAL.getValue());
+        out.write(MiniRoomType.ExitTrade.getVal());
         out.write(user);
         out.write(RoomLeaveType.MRLeave_Closed.getVal());
         return out;
@@ -43,9 +45,9 @@ public class MiniRoomPacket {
 
     public static OutPacket enterTrade(TradeRoom tradeRoom, int user) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.TRADE_ROOM.getValue());
-        out.write(TradeRoomType.EnterTrade.getVal());
-        out.write(4);
+        out.writeShort(SendOpcode.MINI_ROOM_DUAL.getValue());
+        out.write(MiniRoomType.EnterTrade.getVal());
+        out.write(4); //type
         out.write(2);
         out.write(user);
         tradeRoom.encodeChar(out);
@@ -54,8 +56,8 @@ public class MiniRoomPacket {
 
     public static OutPacket acceptTradeInvite(MapleCharacter player) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.TRADE_ROOM.getValue());
-        out.write(TradeRoomType.Accept.getVal());
+        out.writeShort(SendOpcode.MINI_ROOM_DUAL.getValue());
+        out.write(MiniRoomType.Accept.getVal());
         out.write(1);
         player.getCharLook().encode(out);
         out.writeShort(player.getJob());
@@ -64,8 +66,8 @@ public class MiniRoomPacket {
 
     public static OutPacket chat(int pos, String msg, MapleCharacter chr) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.TRADE_ROOM.getValue());
-        out.write(TradeRoomType.Chat.getVal());
+        out.writeShort(SendOpcode.MINI_ROOM_DUAL.getValue());
+        out.write(MiniRoomType.Chat.getVal());
         out.write(25);
         out.write(pos);
         out.writeMapleAsciiString(msg);
@@ -78,8 +80,8 @@ public class MiniRoomPacket {
 
     public static OutPacket putItem(int user, byte tradePos, Item item) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.TRADE_ROOM.getValue());
-        out.write(TradeRoomType.PlaceItem.getVal());
+        out.writeShort(SendOpcode.MINI_ROOM_DUAL.getValue());
+        out.write(MiniRoomType.PlaceItem.getVal());
         out.write(user);
         out.write(tradePos);
         item.encode(out);
@@ -88,8 +90,8 @@ public class MiniRoomPacket {
 
     public static OutPacket putMeso(int user, long meso) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.TRADE_ROOM.getValue());
-        out.write(TradeRoomType.SetMesos.getVal());
+        out.writeShort(SendOpcode.MINI_ROOM_DUAL.getValue());
+        out.write(MiniRoomType.SetMesos.getVal());
         out.write(user);
         out.writeLong(meso);
         return out;
@@ -97,15 +99,15 @@ public class MiniRoomPacket {
 
     public static OutPacket tradeConfirm() {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.TRADE_ROOM.getValue());
-        out.write(TradeRoomType.Trade.getVal());
+        out.writeShort(SendOpcode.MINI_ROOM_DUAL.getValue());
+        out.write(MiniRoomType.Trade.getVal());
         return out;
     }
 
     public static OutPacket tradeComplete(int user) {
         OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.TRADE_ROOM.getValue());
-        out.write(TradeRoomType.ExitTrade.getVal());
+        out.writeShort(SendOpcode.MINI_ROOM_DUAL.getValue());
+        out.write(MiniRoomType.ExitTrade.getVal());
         out.write(user); // other user cancelled
         out.write(RoomLeaveType.TRLeave_TradeDone.getVal());
         return out;
@@ -121,8 +123,8 @@ public class MiniRoomPacket {
         Begin Chat
      */
     public static OutPacket chatRoomInvite(String name) {
-        OutPacket out = new OutPacket(SendOpcode.CHAT_ROOM);
-        out.write(ChatRoomType.ChatInviteRequest.getVal());
+        OutPacket out = new OutPacket(SendOpcode.MINI_ROOM_MULTI);
+        out.write(ChatRoomType.Res_ChatInviteRequest.getVal());
         out.writeMapleAsciiString(name);
         out.writeInt(0); //unk
         out.writeInt(0); //unk
@@ -131,8 +133,8 @@ public class MiniRoomPacket {
     }
 
     public static OutPacket chatRoomInviteTip(String name, boolean self) {
-        OutPacket out = new OutPacket(SendOpcode.CHAT_ROOM);
-        out.write(ChatRoomType.ChatInviteTip.getVal());
+        OutPacket out = new OutPacket(SendOpcode.MINI_ROOM_MULTI);
+        out.write(ChatRoomType.Res_ChatInviteTip.getVal());
         out.writeMapleAsciiString(name);
         out.writeBool(self);
         return out;
@@ -140,8 +142,8 @@ public class MiniRoomPacket {
 
 
     public static OutPacket enterChatRoom(ChatRoom cr, MapleCharacter chr) {
-        OutPacket out = new OutPacket(SendOpcode.CHAT_ROOM);
-        out.write(ChatRoomType.Join.getVal());
+        OutPacket out = new OutPacket(SendOpcode.MINI_ROOM_MULTI);
+        out.write(ChatRoomType.Req_Join.getVal());
         out.write(1); //unk
         out.writeInt(cr.getChatRoomId());
         chr.getCharLook().encode(out);

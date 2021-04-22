@@ -1,18 +1,115 @@
-package im.cave.ms.client.field;
+package im.cave.ms.connection.packet.result;
 
 import im.cave.ms.connection.netty.OutPacket;
 import im.cave.ms.enums.InGameDirectionEventType;
 import im.cave.ms.tools.Position;
 
+/**
+ * InGameDirectionEvent, for when a client is in InGameDirection mode
+ */
 public class InGameDirectionEvent {
     private InGameDirectionEventType type;
-    private int arg1, arg2, arg3, arg4, arg5, arg6;
+    private int arg1, arg2, arg3, arg4, arg5;
     private String str;
     private Position pos;
     private int[] arr;
 
     public InGameDirectionEvent(InGameDirectionEventType type) {
         this.type = type;
+    }
+
+    public void encode(OutPacket out) {
+        out.write(type.getVal());
+        switch (type) {
+            case ForcedAction:
+                out.writeInt(arg1); // nAction
+                if (arg1 <= 1895) {
+                    out.writeInt(arg2); // nDuration
+                }
+                break;
+            case Delay:
+                out.writeInt(arg1); // nDelay
+                break;
+            case EffectPlay:
+                out.writeMapleAsciiString(str); // sEffectUOL
+                out.writeInt(arg1); // tDuration (0 => take effect's duration)
+                out.writePositionInt(pos);
+                out.writeBool(arg2 >= -1);
+                if (arg2 >= -1) {
+                    out.writeInt(arg2); // z
+                }
+                out.writeBool(arg3 >= -1);
+                if (arg3 >= -1) {
+                    out.writeInt(arg3); // dwNpcID (for CNpcPool::GetNpcForExtend)
+                    out.write(arg4);
+                    out.write(arg5);
+                }
+                break;
+            case ForcedInput:
+                out.writeInt(arg1); // nForcedInput
+                break;
+            case PatternInputRequest:
+                out.writeMapleAsciiString(str); // sPattern
+                out.writeInt(arg1); // nAct
+                out.writeInt(arg2); // nRequestCount
+                out.writeInt(arg3); // nTime
+                break;
+            case CameraMove:
+                out.write(arg1); // bBack
+                out.writeInt(arg2); // nPixelPerSec
+                if (arg1 == 0) {
+                    out.writePositionInt(pos);
+                } else {
+                    out.write(0);// not sure if really exists but in GMS(v198) there is extra 0 byte
+                }
+                break;
+            case CameraOnCharacter:
+                out.writeInt(arg1); // dwNpcID
+                break;
+            case CameraZoom:
+                out.writeInt(arg1); // nTime
+                out.writeInt(arg2); // nScale
+                out.writeInt(arg3); // nTimePos
+                out.writePositionInt(pos);
+                break;
+            case CameraReleaseFromUserPoint:
+                break;
+            case VansheeMode:
+                out.write(arg1); // bVanshee
+                break;
+            case FaceOff:
+                out.writeInt(arg1); // nFaceItemID
+                break;
+            case Monologue:
+                out.writeMapleAsciiString(str); // sStr
+                out.write(arg1); // bIsEnd
+                break;
+            case MonologueScroll:
+                out.writeMapleAsciiString(str); // sStr
+                out.write(arg1); // stayModal
+                out.writeShort(arg2); // nAlign
+                out.writeInt(arg3); // nUpdateSpeedTime
+                out.writeInt(arg4); // nDecTic
+                break;
+            case AvatarLookSet:
+                out.write(arr.length);
+                for (int itemID : arr) {
+                    out.writeInt(itemID);
+                }
+                break;
+            case RemoveAdditionalEffect:
+                break;
+            case ForcedMove:
+                out.writeInt(arg1); // nDir
+                out.writeInt(arg2); // nSpeed
+                break;
+            case ForcedFlip:
+                out.writeInt(arg1); // nForcedFlip
+                break;
+            case InputUI:
+                out.write(arg1); // nIdx
+                break;
+        }
     }
 
     public static InGameDirectionEvent forcedAction(int action, int duration) {
@@ -186,101 +283,6 @@ public class InGameDirectionEvent {
         igdr.arg1 = idx;
 
         return igdr;
-    }
-
-    public void encode(OutPacket out) {
-        out.write(type.getVal());
-        switch (type) {
-            case ForcedAction:
-                out.writeInt(arg1); // nAction
-                if (arg1 <= 1895) {
-                    out.writeInt(arg2); // nDuration
-                }
-                break;
-            case Delay:
-                out.writeInt(arg1); // nDelay
-                break;
-            case EffectPlay:
-                out.writeMapleAsciiString(str); // sEffectUOL
-                out.writeInt(arg1); // tDuration (0 => take effect's duration)
-                out.writePositionInt(pos);
-                out.writeBool(arg2 >= -1);
-                if (arg2 >= -1) {
-                    out.writeInt(arg2); // z
-                }
-                out.writeBool(arg3 >= -1);
-                if (arg3 >= -1) {
-                    out.writeInt(arg3); // dwNpcID (for CNpcPool::GetNpcForExtend)
-                    out.write(arg4);
-                    out.write(arg5);
-                    out.write(arg6);
-                }
-                break;
-            case ForcedInput:
-                out.writeInt(arg1); // nForcedInput
-                break;
-            case PatternInputRequest:
-                out.writeMapleAsciiString(str); // sPattern
-                out.writeInt(arg1); // nAct
-                out.writeInt(arg2); // nRequestCount
-                out.writeInt(arg3); // nTime
-                break;
-            case CameraMove:
-                out.write(arg1); // bBack
-                out.writeInt(arg2); // nPixelPerSec
-                if (arg1 == 0) {
-                    out.writePositionInt(pos);
-                } else {
-                    out.write(0);// not sure if really exists but in GMS(v198) there is extra 0 byte
-                }
-                break;
-            case CameraOnCharacter:
-                out.writeInt(arg1); // dwNpcID
-                break;
-            case CameraZoom:
-                out.writeInt(arg1); // nTime
-                out.writeInt(arg2); // nScale
-                out.writeInt(arg3); // nTimePos
-                out.writePositionInt(pos);
-                break;
-            case CameraReleaseFromUserPoint:
-                break;
-            case VansheeMode:
-                out.write(arg1); // bVanshee
-                break;
-            case FaceOff:
-                out.writeInt(arg1); // nFaceItemID
-                break;
-            case Monologue:
-                out.writeMapleAsciiString(str); // sStr
-                out.write(arg1); // bIsEnd
-                break;
-            case MonologueScroll:
-                out.writeMapleAsciiString(str); // sStr
-                out.write(arg1); // stayModal
-                out.writeShort(arg2); // nAlign
-                out.writeInt(arg3); // nUpdateSpeedTime
-                out.writeInt(arg4); // nDecTic
-                break;
-            case AvatarLookSet:
-                out.write(arr.length);
-                for (int itemID : arr) {
-                    out.writeInt(itemID);
-                }
-                break;
-            case RemoveAdditionalEffect:
-                break;
-            case ForcedMove:
-                out.writeInt(arg1); // nDir
-                out.writeInt(arg2); // nSpeed
-                break;
-            case ForcedFlip:
-                out.writeInt(arg1); // nForcedFlip
-                break;
-            case InputUI:
-                out.write(arg1); // nIdx
-                break;
-        }
     }
 
 

@@ -33,9 +33,8 @@ public class FieldEffect {
                 break;
             case Tremble:
                 out.write(getArg1());  // 1 x?
-                out.write(getArg2());  // 1 y?
-                out.writeInt(getArg3()); // duration
-                out.writeShort(getArg4()); // level
+                out.writeInt(getArg2()); // duration
+                out.writeShort(getArg3()); // level
                 break;
             case ObjectStateByString:
             case TopScreen:

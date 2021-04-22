@@ -29,7 +29,7 @@ public class MessagePacket {
         out.writeMapleAsciiString(player.getName());
         out.writeMapleAsciiString(content);
         out.writeLong(0);
-        out.write(player.getWorld());
+        out.write(player.getWorldId());
         out.writeInt(player.getId());
         out.write(3);
         out.write(1);
@@ -92,9 +92,9 @@ public class MessagePacket {
                 out.writeMapleAsciiString(chr.getName());
                 out.writeMapleAsciiString(content);
                 out.writeLong(0); //喇叭itemId
-                out.write(chr.getWorld());
+                out.write(chr.getWorldId());
                 out.writeInt(chr.getId()); //unk 8025765
-                out.write(chr.getChannel());
+                out.write(chr.getChannelId());
                 out.writeBool(true); //是否可以点击私聊
                 out.writeInt(5076100);
                 out.writeBool(item != null);
@@ -106,7 +106,7 @@ public class MessagePacket {
             case WITH_ITEM:// check
                 out.writeMapleAsciiString(content);
                 out.writeInt(item.getItemId());
-                out.writeInt(chr.getChannel());
+                out.writeInt(chr.getChannelId());
                 out.writeInt(3); // color?
                 out.writeBool(true);
                 item.encode(out);
@@ -118,9 +118,9 @@ public class MessagePacket {
                 out.writeMapleAsciiString(chr.getName());
                 out.writeMapleAsciiString(content);
                 out.writeLong(0);
-                out.write(chr.getWorld());
+                out.write(chr.getWorldId());
                 out.writeInt(chr.getId());
-                out.write(chr.getChannel());
+                out.write(chr.getChannelId());
                 out.write(1);
 
         }
@@ -140,9 +140,9 @@ public class MessagePacket {
         out.writeMapleAsciiString(msg);
         out.writeInt(0); //00 00 00 00
         out.writeInt(0);//00 00 00 00
-        out.write(chr.getWorld());  // 01
+        out.write(chr.getWorldId());  // 01
         out.writeInt(chr.getId()); // 01 00 00 00  unk
-        out.writeInt(chr.getChannel()); // 02 00 00 00 channel
+        out.writeInt(chr.getChannelId()); // 02 00 00 00 channelId
         out.writeBool(whisperIcon);
         chr.getCharLook().encode(out);
         return out;

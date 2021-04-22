@@ -233,7 +233,7 @@ public abstract class MapleJob {
     }
 
     /**
-     * Used for Classes that have timers, to cancel the timer after changing channel
+     * Used for Classes that have timers, to cancel the timer after changing channelId
      *
      * @param chr The MapleCharacteracter
      */

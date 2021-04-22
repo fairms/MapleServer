@@ -91,7 +91,7 @@ public class MapleCharacter implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private byte world;
+    private byte worldId;
     private int accId;
     private byte buddyCapacity = DEFAULT_BUDDY_CAPACITY;
     private byte spawnPoint = 0;
@@ -217,7 +217,7 @@ public class MapleCharacter implements Serializable {
     @Transient
     private MapleMap map;
     @Transient
-    private int channel;
+    private int channelId;
     @Transient
     private MapleClient client;
     @Transient
@@ -461,7 +461,7 @@ public class MapleCharacter implements Serializable {
     }
 
     public void logout() {
-        log.info("{} 断开连接 世界-{},频道-{}", getName(), getWorld(), getChannel());
+        log.info("{} 断开连接 世界-{},频道-{}", getName(), getWorldId(), getChannelId());
         setLastLogout(DateUtil.getFileTime(System.currentTimeMillis()));
         if (getMap().getForcedReturn() != NO_MAP_ID) {
             this.mapId = getMap().getForcedReturn();
@@ -487,7 +487,7 @@ public class MapleCharacter implements Serializable {
         }
         if (!isChangingChannel()) {
             getAccount().logout();
-            getClient().getMapleChannel().removePlayer(this);
+            getClient().getChannel().removePlayer(this);
         } else {
             getClient().setPlayer(null);
             getAccount().save();
@@ -625,8 +625,8 @@ public class MapleCharacter implements Serializable {
         if (map != null) {
             return map;
         }
-        World curWorld = Server.getInstance().getWorldById(world);
-        MapleChannel curChannel = curWorld.getChannel(channel);
+        World curWorld = Server.getInstance().getWorldById(worldId);
+        MapleChannel curChannel = curWorld.getChannel(channelId);
         MapleMap map = curChannel.getMap(mapId);
         setMap(map);
         return map;
@@ -1084,7 +1084,7 @@ public class MapleCharacter implements Serializable {
      */
 
     public void changeMap(int mapId, boolean load) {
-        MapleChannel channel = Server.getInstance().getWorldById(world).getChannel(this.channel);
+        MapleChannel channel = Server.getInstance().getWorldById(worldId).getChannel(this.channelId);
         MapleMap map = channel.getMap(mapId);
         if (map == null && load) {
             map = channel.getMap(mapId);
@@ -1114,7 +1114,7 @@ public class MapleCharacter implements Serializable {
 
     //传送门的走这里
     public void changeMap(int mapId, byte portal) {
-        MapleChannel channel = Server.getInstance().getWorldById(world).getChannel(this.channel);
+        MapleChannel channel = Server.getInstance().getWorldById(worldId).getChannel(this.channelId);
         MapleMap map = channel.getMap(mapId);
         if (map != null) {
             if (map == getMap()) {
@@ -1303,8 +1303,8 @@ public class MapleCharacter implements Serializable {
         setChangingChannel(true);
         MapleMap map = getMap();
         map.removeChar(this);
-        Server.getInstance().addClientInTransfer((byte) channel, getId(), getClient());
-        announce(WorldPacket.getChannelChange(true, getMapleWorld().getCashShop().getPort()));
+        Server.getInstance().addClientInTransfer((byte) channelId, getId(), getClient());
+        announce(WorldPacket.getChannelChange(true, getWorld().getCashShop().getPort()));
     }
 
     public void enterAuction() {
@@ -1312,8 +1312,8 @@ public class MapleCharacter implements Serializable {
         setChangingChannel(true);
         MapleMap map = getMap();
         map.removeChar(this);
-        Server.getInstance().addClientInTransfer((byte) channel, getId(), getClient());
-        announce(WorldPacket.getChannelChange(true, getMapleWorld().getAuction().getPort()));
+        Server.getInstance().addClientInTransfer((byte) channelId, getId(), getClient());
+        announce(WorldPacket.getChannelChange(true, getWorld().getAuction().getPort()));
     }
 
 
@@ -1332,7 +1332,7 @@ public class MapleCharacter implements Serializable {
         map.removeChar(this);
         this.map = null;
         Server.getInstance().addClientInTransfer(channel, getId(), getClient());
-        int port = Server.getInstance().getChannel(world, channel).getPort();
+        int port = Server.getInstance().getChannel(worldId, channel).getPort();
         announce(WorldPacket.getChannelChange(true, port));
     }
 
@@ -1702,12 +1702,12 @@ public class MapleCharacter implements Serializable {
         return chr;
     }
 
-    public World getMapleWorld() {
-        return Server.getInstance().getWorldById(world);
+    public World getWorld() {
+        return Server.getInstance().getWorldById(worldId);
     }
 
-    public MapleChannel getMapleChannel() {
-        return client.getMapleChannel();
+    public MapleChannel getChannel() {
+        return client.getChannel();
     }
 
     public void deductMoney(long amount) {
@@ -1916,7 +1916,7 @@ public class MapleCharacter implements Serializable {
         if (mask.isInMask(CharMask.Character)) {
             out.writeInt(getId());
             out.writeInt(getId());
-            out.writeInt(getWorld());
+            out.writeInt(getWorldId());
             out.writeAsciiString(getName(), 13);
             CharLook charLook = getCharLook();
             out.write(charLook.getGender());
@@ -2127,7 +2127,7 @@ public class MapleCharacter implements Serializable {
 
     public void teleport(String portalName) {
         Portal portal = getMap().getPortal(portalName);
-        announce(UserPacket.teleport(position, portal));
+        announce(UserPacket.teleport(0, position, portal));
     }
 
     public void addVisitedMap(MapleMap map) {

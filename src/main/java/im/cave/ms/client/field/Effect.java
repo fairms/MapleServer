@@ -232,6 +232,10 @@ public class Effect {
                 }
                 out.writeInt(getArg11());// nCharID
                 break;
+            case ProtectOnDieItemUse:
+                out.writeInt(getArg1());
+                out.writeShort(getArg2());
+                break;
         }
     }
 

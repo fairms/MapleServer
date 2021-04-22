@@ -672,7 +672,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     BeastMode(605),
     TeamRoar(606),
     Unk607(607),
-    Unk608(608),
+    Unk608(608), //这是啥呢
     Unk609(609),
     Unk610(610),
     Unk611(611),

@@ -103,7 +103,7 @@ public class LoginServerHandler extends AbstractServerHandler {
             case ERROR_PACKET:
                 ErrorPacketHandler.handlePacket(in);
                 break;
-            case OPEN_CREATE_CHAR_LAYOUT:
+            case LP_OPEN_CREATE_CHAR_LAYOUT:
             case USER_TRANSFER_CHANNEL_REQUEST:
                 c.announce(LoginPacket.getOpenCreateChar());
                 break;

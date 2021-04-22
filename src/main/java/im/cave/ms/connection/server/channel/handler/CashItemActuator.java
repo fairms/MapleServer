@@ -32,7 +32,7 @@ import static im.cave.ms.enums.EquipBaseStat.tuc;
 /**
  * @author fair
  * @version V1.0
- * @Package im.cave.ms.connection.server.channel.handler
+ * @Package im.cave.ms.connection.server.channelId.handler
  * @date 1/19 19:36
  */
 public class CashItemActuator {

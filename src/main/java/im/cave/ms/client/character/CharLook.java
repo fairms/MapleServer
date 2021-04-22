@@ -152,6 +152,7 @@ public class CharLook {
         }
 
         if (JobConstants.isXenon((short) getJob()) || JobConstants.isDemon((short) getJob())) {
+            //虎影：胡须
             out.writeInt(getMark());
         }
         out.writeZeroBytes(7);

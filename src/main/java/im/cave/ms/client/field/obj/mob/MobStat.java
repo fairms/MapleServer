@@ -100,6 +100,7 @@ public enum MobStat {
     Ember(85),
     TrueSight(86),
     Laser(87),
+    似乎每个Mob都有(158),
     ;
 
     private final int val;
@@ -149,8 +150,10 @@ public enum MobStat {
     }
 
     public static void main(String[] args) {
-        for (MobStat stat : MobStat.values()) {
-            System.out.println(stat.toString() + " " + stat.getBitPos() + " " + Integer.toHexString(stat.getVal()) + " " + stat.getPos());
+        for (int i = 0; i < 32 * 5; i++) {
+            int val = 1 << (31 - i % 32);
+            int pos = i / 32;
+            System.out.printf("BitPos:%d, Val:%d, %d%n", i, val, pos);
         }
     }
 }

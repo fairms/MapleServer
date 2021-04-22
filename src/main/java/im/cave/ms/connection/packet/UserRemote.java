@@ -94,14 +94,14 @@ public class UserRemote {
         OutPacket out = new OutPacket();
 
         switch (attackInfo.attackHeader) {
-            case CLOSE_RANGE_ATTACK:
-                out.writeShort(SendOpcode.REMOTE_CLOSE_RANGE_ATTACK.getValue());
+            case USER_MELEE_ATTACK:
+                out.writeShort(SendOpcode.REMOTE_USER_MELEE_ATTACK.getValue());
                 break;
-            case RANGED_ATTACK:
-                out.writeShort(SendOpcode.REMOTE_RANGED_ATTACK.getValue());
+            case USER_SHOOT_ATTACK:
+                out.writeShort(SendOpcode.REMOTE_USER_SHOOT_ATTACK.getValue());
                 break;
-            case MAGIC_ATTACK:
-                out.writeShort(SendOpcode.REMOTE_MAGIC_ATTACK.getValue());
+            case USER_MAGIC_ATTACK:
+                out.writeShort(SendOpcode.REMOTE_USER_MAGIC_ATTACK.getValue());
                 break;
         }
 
@@ -112,12 +112,13 @@ public class UserRemote {
         out.writeInt(attackInfo.skillLevel);
         if (attackInfo.skillLevel > 0) {
             out.writeInt(attackInfo.skillId);
+            out.writeInt(0);
         }
+        out.writeInt(8);
         out.writeZeroBytes(10);
         out.write(attackInfo.attackAction);
         out.write(attackInfo.direction);
-
-        out.writeShort(1);
+        out.writeShort(attackInfo.attackActionType);
         out.writeInt(0);
         out.writeShort(1);
         out.write(0);
@@ -228,7 +229,7 @@ public class UserRemote {
     }
 
     public static OutPacket remoteUserNickItem(int charId, int itemId) {
-        OutPacket out = new OutPacket(SendOpcode.REMOTE_NICK_ITEM);
+        OutPacket out = new OutPacket(SendOpcode.REMOTE_SET_ACTIVE_NICK_ITEM);
 
         out.writeInt(charId);
         out.writeInt(itemId);

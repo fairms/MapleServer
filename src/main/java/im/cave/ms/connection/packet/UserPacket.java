@@ -20,6 +20,7 @@ import im.cave.ms.connection.netty.Packet;
 import im.cave.ms.connection.packet.opcode.RecvOpcode;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.packet.result.FameResult;
+import im.cave.ms.connection.packet.result.InGameDirectionEvent;
 import im.cave.ms.enums.*;
 import im.cave.ms.tools.DateUtil;
 import im.cave.ms.tools.Position;
@@ -49,8 +50,7 @@ public class UserPacket {
     }
 
     public static OutPacket statChanged(Map<Stat, Long> stats, boolean enableActions, MapleCharacter chr) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.STAT_CHANGED.getValue());
+        OutPacket out = new OutPacket(SendOpcode.STAT_CHANGED);
         out.write(enableActions ? 1 : 0);
         out.write(0); //unk
         long mask = 0;
@@ -111,7 +111,7 @@ public class UserPacket {
         out.write(chr != null ? chr.getCharLook().getHairColorProb() : 0);
         out.write(0);
         out.write(0);
-
+        out.write(0);
         return out;
 
     }
@@ -138,22 +138,24 @@ public class UserPacket {
         return out;
     }
 
-    public static OutPacket setInGameDirectionMode(boolean enable) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SET_STAND_ALONE_MODE.getValue());
+    public static OutPacket setStandAloneMode(boolean enable) {
+        OutPacket out = new OutPacket(SendOpcode.SET_STAND_ALONE_MODE);
+
         out.writeBool(enable);
+
         return out;
     }
 
-    public static OutPacket disableUI(boolean disable) {
-        OutPacket out = new OutPacket();
-        out.writeShort(SendOpcode.SET_IN_GAME_DIRECTION_MODE.getValue());
-        out.writeBool(disable);
-        out.writeBool(disable);
-        if (disable) {
-            out.writeBool(false);
-            out.writeBool(false);
+    public static OutPacket setInGameDirectionMode(boolean lockUI, boolean blackFrame, boolean forceMouseOver, boolean showUI) {
+        OutPacket out = new OutPacket(SendOpcode.SET_IN_GAME_DIRECTION_MODE);
+
+        out.writeBool(lockUI);
+        out.writeBool(blackFrame);
+        if (lockUI) {
+            out.writeBool(forceMouseOver);
+            out.writeBool(showUI);
         }
+
         return out;
     }
 
@@ -313,10 +315,10 @@ public class UserPacket {
         return out;
     }
 
-    public static OutPacket teleport(Position position, Portal portal) {
+    public static OutPacket teleport(int type, Position position, Portal portal) {
         OutPacket out = new OutPacket(SendOpcode.TELEPORT);
         out.writeBool(false);// excl request
-        out.write(0);// calling type
+        out.write(type);
         /*
         TODO: import the enum
         enum USER_TELEPORT_CALLING_TYPE
@@ -327,8 +329,17 @@ public class UserPacket {
           TELEPORT_CALLING_TYPE_BYSCRIPT = 0x3,
         };
          */
-        out.writeInt(portal.getId());
-        out.write(0);
+        switch (type) {
+            case 0x00:
+                out.writeInt(portal.getId());
+                out.write(0);
+                break;
+            case 0xCD:
+                out.writeInt(1);//charId
+                out.writePosition(position);
+                break;
+
+        }
 
         return out;
     }
@@ -448,7 +459,7 @@ public class UserPacket {
         return characterPotentialSet(true, true, cp.getKey(), cp.getSkillID(), cp.getSlv(), cp.getGrade(), true);
     }
 
-    public static OutPacket characterPotentialSet(CharacterPotential cp,boolean updatePassive) {
+    public static OutPacket characterPotentialSet(CharacterPotential cp, boolean updatePassive) {
         return characterPotentialSet(true, true, cp.getKey(), cp.getSkillID(), cp.getSlv(), cp.getGrade(), updatePassive);
     }
 
@@ -488,6 +499,17 @@ public class UserPacket {
         } else if (req == DamageSkinType.DamageSkinSaveReq_SendInfo) {
             chr.encodeDamageSkins(out);
         }
+        return out;
+    }
+
+
+    public static OutPacket resurrectionCountdown(int time1, int time2, boolean opt) {
+        OutPacket out = new OutPacket(SendOpcode.RESURRECTION_COUNTDOWN);
+
+        out.writeInt(time1);  //20s
+        out.writeInt(time2);  //20s
+        out.writeBool(opt);   //false
+
         return out;
     }
 
@@ -976,6 +998,33 @@ public class UserPacket {
 
         out.write(0);
         out.write(amount);
+
+        return out;
+    }
+
+
+    public static OutPacket updateVMatrix(MapleCharacter chr, boolean update, MatrixUpdateType updateType, int pos) {
+        OutPacket out = new OutPacket(SendOpcode.UPDATE_MATRIX);
+        chr.getMatrixInventory().encode(out);
+        out.writeInt(0); //todo
+        return out;
+    }
+
+    public static OutPacket erdaSpectrumCounter(int erda, int arg1, int arg2) {
+        OutPacket out = new OutPacket(SendOpcode.ERDA_SPECTRUM);
+
+        out.writeInt(erda);
+        out.writeInt(arg1);
+        out.writeInt(arg2);
+
+        return out;
+    }
+
+
+    public static OutPacket inGameDirectionEvent(InGameDirectionEvent igdr) {
+        OutPacket out = new OutPacket(SendOpcode.IN_GAME_DIRECTION_EVENT);
+
+        igdr.encode(out);
 
         return out;
     }

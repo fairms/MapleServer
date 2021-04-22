@@ -1,6 +1,7 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.character.skill.AttackInfo;
+import im.cave.ms.client.character.skill.MobAttackInfo;
 import im.cave.ms.client.field.movement.MovementInfo;
 import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.connection.netty.OutPacket;
@@ -74,12 +75,24 @@ public class SummonPacket {
         return out;
     }
 
-    //todo
     public static OutPacket summonAttack(int charId, AttackInfo ai, boolean counter) {
         OutPacket out = new OutPacket(SendOpcode.SUMMONED_ATTACK);
 
         out.writeInt(charId);
-
+        out.writeInt(ai.summon.getObjectId());
+        out.writeInt(ai.summon.getCharLevel());
+        byte left = (byte) (ai.left ? 1 : 0);
+        out.write((left << 7) | ai.attackActionType);
+        byte attackCount = (byte) (ai.mobAttackInfo.size() > 0 ? ai.mobAttackInfo.get(0).damages.length : 0);
+        out.write((ai.mobCount << 4) | (attackCount & 0xF));
+        for (MobAttackInfo mai : ai.mobAttackInfo) {
+            out.writeInt(mai.objectId);
+            out.write(mai.damages.length);
+            for (long dmg : mai.damages) {
+                out.writeLong(dmg);
+            }
+        }
+        out.writeZeroBytes(15);
         return out;
     }
 }

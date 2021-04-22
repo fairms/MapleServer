@@ -71,7 +71,7 @@ public class PacketHelper {
     public static void addCharStats(OutPacket out, MapleCharacter chr) {
         out.writeInt(chr.getId());
         out.writeInt(chr.getId());
-        out.writeInt(chr.getWorld());
+        out.writeInt(chr.getWorldId());
         out.writeAsciiString(chr.getName(), 13);
         CharLook charLook = chr.getCharLook();
         out.write(charLook.getGender());

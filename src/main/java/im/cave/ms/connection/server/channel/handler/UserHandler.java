@@ -7,10 +7,7 @@ import im.cave.ms.client.character.items.*;
 import im.cave.ms.client.character.job.MapleJob;
 import im.cave.ms.client.character.potential.CharacterPotential;
 import im.cave.ms.client.character.potential.CharacterPotentialMan;
-import im.cave.ms.client.character.skill.AttackInfo;
-import im.cave.ms.client.character.skill.HitInfo;
-import im.cave.ms.client.character.skill.MobAttackInfo;
-import im.cave.ms.client.character.skill.Skill;
+import im.cave.ms.client.character.skill.*;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
 import im.cave.ms.client.field.Effect;
 import im.cave.ms.client.field.MapleMap;
@@ -43,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static im.cave.ms.client.character.temp.CharacterTemporaryStat.KeyDownMoving;
 import static im.cave.ms.connection.packet.opcode.RecvOpcode.*;
@@ -53,7 +51,7 @@ import static im.cave.ms.constants.ServerConstants.ONE_DAY_TIMES;
 /**
  * @author fair
  * @version V1.0
- * @Package im.cave.ms.net.handler.channel
+ * @Package im.cave.ms.net.handler.channelId
  * @date 12/1 14:59
  */
 public class UserHandler {
@@ -101,8 +99,8 @@ public class UserHandler {
     }
 
     /*
-        RANGED_ATTACK @
-        CLOSE_RANGE_ATTACK @
+        USER_SHOOT_ATTACK @
+        USER_MELEE_ATTACK @
 
      */
     public static void handleAttack(InPacket in, MapleClient c, RecvOpcode opcode) {
@@ -112,7 +110,7 @@ public class UserHandler {
         }
         AttackInfo attackInfo = new AttackInfo();
         attackInfo.attackHeader = opcode;
-        if (opcode == RANGED_ATTACK) {
+        if (opcode == USER_SHOOT_ATTACK) {
             attackInfo.boxAttack = in.readByte() != 0;
         }
         attackInfo.fieldKey = in.readByte(); //map key
@@ -123,7 +121,7 @@ public class UserHandler {
         attackInfo.skillId = in.readInt();
         attackInfo.skillLevel = in.readInt();
         in.readByte();
-        in.readLong(); // CRC CLOSE_RANGE_ATTACK = 0
+        in.readLong(); // CRC USER_MELEE_ATTACK = 0
 
         /*
             0A A1 36 22
@@ -134,7 +132,7 @@ public class UserHandler {
             00 00 00 00
          */
         in.skip(18);
-        if (attackInfo.attackHeader != MAGIC_ATTACK) {
+        if (attackInfo.attackHeader != USER_MAGIC_ATTACK) {
             in.readByte();//unk 00
         }
 
@@ -147,7 +145,7 @@ public class UserHandler {
             in.readInt();//如果是按压技能的话
         }
         in.skip(3); // 00 00 00
-        if (attackInfo.attackHeader == RANGED_ATTACK) {
+        if (attackInfo.attackHeader == USER_SHOOT_ATTACK) {
             in.readInt();
             in.readByte();
         }
@@ -158,10 +156,10 @@ public class UserHandler {
         attackInfo.attackSpeed = in.readByte();
         player.setTick(in.readInt());
         in.readInt(); //00 00 00 00
-        if (attackInfo.attackHeader == CLOSE_RANGE_ATTACK) {
+        if (attackInfo.attackHeader == USER_MELEE_ATTACK) {
             in.readInt(); //00 00 00 00
         }
-        if (attackInfo.attackHeader == RANGED_ATTACK) {
+        if (attackInfo.attackHeader == USER_SHOOT_ATTACK) {
             in.readInt(); // 00
             in.readShort(); // 00
             in.readByte(); // 1E
@@ -180,7 +178,7 @@ public class UserHandler {
             mobAttackInfo.hitY = in.readShort();
             in.readShort(); //x
             in.readShort(); //y
-            if (attackInfo.attackHeader == MAGIC_ATTACK) {
+            if (attackInfo.attackHeader == USER_MAGIC_ATTACK) {
                 mobAttackInfo.hpPerc = in.readByte();
                 short unk = in.readShort(); //unk
             } else {
@@ -231,7 +229,7 @@ public class UserHandler {
                 case SUMMON_ATTACK:
                     player.getMap().broadcastMessage(player, SummonPacket.summonAttack(player.getId(), attackInfo, false), false);
                     break;
-//                case FAMILIAR_ATTACK:f'd's
+//                case FAMILIAR_ATTACK:
 //                    chr.getField().broadcastPacket(CFamiliar.familiarAttack(chr.getId(), attackInfo), chr);
 //                    break;
                 default:
@@ -734,7 +732,7 @@ public class UserHandler {
         }
         if (in.available() == 0) {
             c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
-            player.changeChannel((byte) player.getChannel());
+            player.changeChannel((byte) player.getChannelId());
             return;
         }
         if (in.available() != 0) {
@@ -757,7 +755,7 @@ public class UserHandler {
         }
     }
 
-    public static void handleUserEnterPortalSpecialRequest(InPacket in, MapleClient c) {
+    public static void handleUserPortalScriptRequest(InPacket in, MapleClient c) {
         byte type = in.readByte();
         String portalName = in.readMapleAsciiString();
         Portal portal = c.getPlayer().getMap().getPortal(portalName);
@@ -902,7 +900,7 @@ public class UserHandler {
         Locker locker = account.getLocker();
         byte type = in.readByte();
         CashItemType cit = CashItemType.getRequestTypeByVal(type);
-        CashShopServer cashShop = Server.getInstance().getCashShop(player.getWorld());
+        CashShopServer cashShop = Server.getInstance().getCashShop(player.getWorldId());
         if (cit == null) {
             log.error("Unhandled cash shop cash item request " + type);
             player.enableAction();
@@ -1248,7 +1246,7 @@ public class UserHandler {
     }
 
     //todo
-    public static void handleUserSkillHoldDownRequest(InPacket in, MapleClient c) {
+    public static void handleUserSkillPrepareRequest(InPacket in, MapleClient c) {
         //7C 9F 2F 00 1E 00 00 00 87 6F 2E A3 00 16 80 04 00 01 8A 3D 0D
         //7C 9F 2F 00 1E 00 00 00 87 6F 2E A3 00 16 00 04 00 7D 69 3C 0D
         MapleCharacter player = c.getPlayer();
@@ -1276,7 +1274,7 @@ public class UserHandler {
     }
 
     //移动技能 包括五转钩锁或者法师的瞬移？
-    public static void handleUserMoveSkillRequest(InPacket in, MapleClient c) {
+    public static void handleUserEffectLocal(InPacket in, MapleClient c) {
         int skillId = in.readInt();
         short slv = in.readShort();
         Position from = in.readPositionInt();
@@ -1369,9 +1367,181 @@ public class UserHandler {
         chr.setTick(in.readInt());
         boolean chooseAfter = in.readByte() != 0;
         if (chooseAfter) {
-            //change
+            CharacterPotentialMan potentialMan = chr.getPotentialMan();
+            Set<CharacterPotential> temp = potentialMan.getTemp();
+            int i = 0;
+            for (CharacterPotential characterPotential : temp) {
+                i++;
+                potentialMan.addPotential(characterPotential, i == temp.size());
+            }
         } else {
-            in.readByte(); //1
+            in.readByte();
         }
+    }
+
+    public static void handleUpdateMatrix(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        int type = in.readInt();
+        MatrixUpdateType updateType = MatrixUpdateType.getUpdateTypeByVal(type);
+        if (updateType == null) {
+            chr.chatMessage(String.format("[VMatrix Update] Packet Data %s", in));
+            chr.chatMessage(String.format("[VMatrix Update] Unknown update type [%d]", type));
+            return;
+        }
+
+        switch (updateType) {
+            case ENABLE: {
+//                int slot = in.readInt();
+//                inPacket.decodeInt();// -1
+//                inPacket.decodeInt();// -1
+//                int toSlot = inPacket.decodeInt();
+//
+//                chr.write(WvsContext.updateVMatrix(chr, true, MatrixUpdateType.ENABLE, chr.getMatrixInventory().activateSkill(slot, toSlot)));
+//                MatrixInventory.reloadSkills(chr);
+//                break;
+            }
+            case DISABLE: {
+                int slot = in.readInt();
+                in.readInt();// -1
+//                chr.write(UserPacket.updateVMatrix(chr, true, MatrixUpdateType.DISABLE, chr.getMatrixInventory().deactivateSkill(slot)));
+//                MatrixInventory.reloadSkills(chr);
+                break;
+            }
+            case MOVE: {
+//                int skillSlotID = inPacket.decodeInt();
+//                int replaceSkill = inPacket.decodeInt();
+//                int fromSlot = inPacket.decodeInt();// 0
+//                int toSlot = inPacket.decodeInt();
+//                chr.getMatrixInventory().moveSkill(skillSlotID, replaceSkill, fromSlot, toSlot);
+//                chr.write(WvsContext.updateVMatrix(chr, true, MatrixUpdateType.MOVE, 0));
+//                MatrixInventory.reloadSkills(chr);
+//                break;
+            }
+            case DISASSEMBLE_SINGLE: {
+//                int slot = inPacket.decodeInt();
+//                inPacket.decodeInt();// -1
+//                chr.getMatrixInventory().disassemble(chr, slot);
+//                MatrixInventory.reloadSkills(chr);
+//                break;
+            }
+            case DISASSEMBLE_MULTIPLE: {
+//                int count = inPacket.decodeInt();
+//
+//                List<MatrixSkill> skills = new ArrayList<>();
+//                for (int i = 0; i < count; i++) {
+//                    MatrixSkill skill = chr.getMatrixInventory().getSkill(inPacket.decodeInt());
+//                    if (skill != null) {
+//                        skills.add(skill);
+//                    }
+//                }
+//                chr.getMatrixInventory().disassembleMultiple(chr, skills);
+//                MatrixInventory.reloadSkills(chr);
+//                break;
+            }
+            case ENHANCE: {
+//                int slot = inPacket.decodeInt();
+//                MatrixSkill toEnhance = chr.getMatrixInventory().getSkill(slot);
+//                if (toEnhance != null && toEnhance.getSkillLevel() < VCore.getMaxLevel(VCore.getCore(toEnhance.getCoreID()).getType())) {
+//                    int count = inPacket.decodeInt();
+//                    List<MatrixSkill> skills = new ArrayList<>();
+//                    for (int i = 0; i < count; i++) {
+//                        MatrixSkill skill = chr.getMatrixInventory().getSkill(inPacket.decodeInt());
+//                        if (skill != null) {
+//                            skills.add(skill);
+//                        }
+//                    }
+//                    chr.getMatrixInventory().enhance(chr, toEnhance, skills);
+//                    MatrixInventory.reloadSkills(chr);
+//                }
+//                break;
+            }
+            case CRAFT_NODE: {
+//                int coreID = inPacket.decodeInt();
+//                VCoreData core = VCore.getCore(coreID);
+//                if (core != null) {
+//                    int price = 0;
+//                    if (VCore.isSkillNode(coreID)) {
+//                        price = MatrixConstants.CRAFT_SKILL_CORE_COST;
+//                    } else if (VCore.isBoostNode(coreID)) {
+//                        price = MatrixConstants.CRAFT_ENCHANT_CORE_COST;
+//                    } else if (VCore.isSpecialNode(coreID)) {
+//                        price = MatrixConstants.CRAFT_SPECIAL_CORE_COST;
+//                    } else if (VCore.isExpNode(coreID)) {
+//                        price = MatrixConstants.CRAFT_GEMSTONE_COST;
+//                    }
+//                    if (price > 0) {
+//                        int shardCount = chr.getShards();
+//                        if (shardCount >= price) {
+//                            chr.incShards(-price);
+//
+//                            MatrixSkill skill = new MatrixSkill();
+//                            skill.setCoreID(coreID);
+//                            if (!VCore.isSpecialNode(coreID)) {
+//                                skill.setSkillID(core.getConnectSkills().get(0));
+//                                skill.setSkillLevel(1);
+//                                skill.setMasterLevel(core.getMaxLevel());
+//                            } else {
+//                                skill.setSkillID(0);
+//                                skill.setSkillLevel(1);
+//                                skill.setMasterLevel(1);
+//                                skill.setExpirationDate(FileTime.fromLong(System.currentTimeMillis() + (86400000 * core.getExpireAfter())));
+//                            }
+//                            if (VCore.isBoostNode(coreID)) {
+//                                List<VCoreData> boostNode = VCore.getBoostNodes();
+//                                boostNode.remove(core);
+//
+//                                core = boostNode.get((int) (Math.random() % boostNode.size()));
+//                                while (!core.isJobSkill(chr.getJob())) {
+//                                    core = boostNode.get((int) (Math.random() % boostNode.size()));
+//                                }
+//                                boostNode.remove(core);
+//                                skill.setSkillID2(core.getConnectSkills().get(0));
+//
+//                                core = boostNode.get((int) (Math.random() % boostNode.size()));
+//                                while (!core.isJobSkill(chr.getJob())) {
+//                                    core = boostNode.get((int) (Math.random() % boostNode.size()));
+//                                }
+//                                skill.setSkillID3(core.getConnectSkills().get(0));
+//                            }
+//                            chr.getMatrixInventory().addSkill(skill);
+//                            MatrixInventory.reloadSkills(chr);
+//                            chr.write(WvsContext.updateVMatrix(chr, true, MatrixUpdateType.CRAFT_NODE, 0));
+//                            chr.write(WvsContext.nodeCraftResult(coreID, skill.getSkillID(), skill.getSkillID2(), skill.getSkillID3()));
+//                        }
+//                    }
+//                }
+                break;
+            }
+
+            case SLOT_ENHANCEMENT: {
+                int slotId = in.readInt();
+                in.readInt();//FF FF FF FF
+                MatrixInventory matrixInventory = chr.getMatrixInventory();
+                MatrixSlot matrixSlot = matrixInventory.getMatrixSlotBySlotId(slotId);
+                if (matrixSlot.getEnhanceLevel() >= 5) {
+                    return;
+                }
+                matrixSlot.setEnhanceLevel(matrixSlot.getEnhanceLevel() + 1);
+                if (matrixSlot.getEquippedSkill() != 0) {
+                    MatrixSkill matrixSkill = matrixInventory.getMatrixSkillById(matrixSlot.getEquippedSkill());
+                    if (matrixSkill.getSlot() != matrixSlot.getSlotId()) {
+                        //something wrong
+                        return;
+                    }
+                    List<Integer> skills = Arrays.asList(matrixSkill.getSkill1(), matrixSkill.getSkill2(), matrixSkill.getSkill3());
+                    skills = skills.stream().filter(s -> s != 0).collect(Collectors.toList());
+                    for (Integer skillId : skills) {
+                        Skill skill = chr.getSkill(skillId);
+                        skill.setCurrentLevel(skill.getCurrentLevel() + 1);
+                        chr.announce(UserPacket.changeSkillRecordResult(skill));
+                    }
+                }
+
+            }
+            default: {
+                break;
+            }
+        }
+
     }
 }

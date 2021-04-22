@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * @author fair
  * @version V1.0
- * @Package im.cave.ms.abstractServer.world
+ * @Package im.cave.ms.abstractServer.worldId
  * @date 11/19 16:22
  */
 public class World {

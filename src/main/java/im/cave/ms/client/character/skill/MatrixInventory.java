@@ -1,6 +1,8 @@
 package im.cave.ms.client.character.skill;
 
 
+import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.tools.Util;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,4 +42,24 @@ public class MatrixInventory {
         return ret;
     }
 
+
+    public MatrixSlot getMatrixSlotBySlotId(int slotId) {
+        return Util.findWithPred(getSlots(), slot -> slot.getSlotId() == slotId);
+    }
+
+
+    public MatrixSkill getMatrixSkillById(long id) {
+        return Util.findWithPred(getSkills(), skill -> skill.getId() == id);
+    }
+
+    public void encode(OutPacket out) {
+        out.writeInt(getSkills().size());
+        for (MatrixSkill skill : getSkills()) {
+            skill.encode(out);
+        }
+        out.writeInt(getSlots().size());
+        for (MatrixSlot slot : getSlots()) {
+            slot.encode(out);
+        }
+    }
 }

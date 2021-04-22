@@ -123,7 +123,7 @@ public class MobPacket {
         out.writeBool(isController);
         out.writeInt(mob.getObjectId());
         if (isController) {
-            out.write(mob.getCalcDamageIndex());
+            out.write(mob.getCalcDamageIndex()); //可能不是这个意思 Controller包是1 Spawn是0
             out.writeInt(mob.getTemplateId());
             ForcedMobStat forcedMobStat = mob.getForcedMobStat();
             out.writeBool(forcedMobStat != null);
@@ -151,6 +151,7 @@ public class MobPacket {
         out.write(msai.action);
         out.writeLong(msai.targetInfo);
         out.writeZeroBytes(6);
+        out.writeInt(0);
         out.write(msai.multiTargetForBalls.size());
         for (Position pos : msai.multiTargetForBalls) {
             out.writePosition(pos);

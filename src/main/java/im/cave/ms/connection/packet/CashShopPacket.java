@@ -331,7 +331,7 @@ public class CashShopPacket {
         out.write(chr != null ? chr.getCharLook().getHairColorProb() : 0);
         out.write(0);
         out.write(0);
-
+        out.write(0);
         return out;
     }
 }

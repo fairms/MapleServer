@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class Config {
     public static ServerConfig serverConfig = (ServerConfig) loadConfig("server.yml", ServerConfig.class);
-    public static WorldConfig worldConfig = (WorldConfig) loadConfig("world.yml", WorldConfig.class);
+    public static WorldConfig worldConfig = (WorldConfig) loadConfig("worldId.yml", WorldConfig.class);
 
     public static Object loadConfig(String filename, Class<?> clazz) {
         try {
@@ -35,6 +35,6 @@ public class Config {
 
     public static void reload() {
         serverConfig = (ServerConfig) loadConfig("server-config.yml", ServerConfig.class);
-        worldConfig = (WorldConfig) loadConfig("world-config.yml", WorldConfig.class);
+        worldConfig = (WorldConfig) loadConfig("worldId-config.yml", WorldConfig.class);
     }
 }

@@ -99,8 +99,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case OPEN_WORLD_MAP:
                 c.announce(UserPacket.openWorldMap());
                 break;
-            case PORTAL_SPECIAL:
-                UserHandler.handleUserEnterPortalSpecialRequest(in, c);
+            case USER_PORTAL_SCRIPT_REQUEST:
+                UserHandler.handleUserPortalScriptRequest(in, c);
                 break;
             case USER_QUEST_REQUEST:
                 QuestHandler.handleQuestRequest(in, c);
@@ -117,8 +117,11 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_LOTTERY_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserLotteryItemUseRequest(in, c);
                 break;
-            case USER_SET_GAME_RESOLUTION:
+            case USER_CLIENT_RESOLUTION_RESULT:
                 UserHandler.handleUserSetGameResolution(in, c);
+                break;
+            case USER_FOLLOW_CHARACTER_REQUEST:
+                WorldHandler.handleUserFollowCharacterRequest(in, c);
                 break;
             case USER_TRANSFER_FIELD_REQUEST:
                 UserHandler.handleChangeMapRequest(in, c);
@@ -195,6 +198,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case EQUIP_ENCHANT_REQUEST:
                 InventoryHandler.handleEquipEnchanting(in, c);
                 break;
+            case USER_ARC_ENHANCING_REQUEST:
+                InventoryHandler.handleArcEnhancingRequest(in, c);
+                break;
             case USER_ITEM_RELEASE_REQUEST:
                 InventoryHandler.handleUserItemReleaseRequest(in, c);
                 break;
@@ -258,10 +264,10 @@ public class ChannelHandler extends AbstractServerHandler {
             case EXPRESS_REQUEST:
                 WorldHandler.handleMapleExpressRequest(in, c);
                 break;
-            case MOVE_SKILL:
-                UserHandler.handleUserMoveSkillRequest(in, c);
+            case USER_EFFECT_LOCAL:
+                UserHandler.handleUserEffectLocal(in, c);
                 break;
-            case AUCTION:
+            case AUCTION_REQUEST:
                 WorldHandler.handleAuctionRequest(in, c);
                 break;
             case EXIT_AUCTION:
@@ -279,9 +285,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case MIGRATE_TO_AUCTION_REQUEST:
                 WorldHandler.handleMigrateToAuctionRequest(in, c);
                 break;
-            case CLOSE_RANGE_ATTACK:
-            case RANGED_ATTACK:
-            case MAGIC_ATTACK:
+            case USER_MELEE_ATTACK:
+            case USER_SHOOT_ATTACK:
+            case USER_MAGIC_ATTACK:
             case USER_AREA_DOT_ATTACK:
                 UserHandler.handleAttack(in, c, opcode);
                 break;
@@ -307,8 +313,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_SKILL_CANCEL_REQUEST:
                 UserHandler.handleUserSkillCancel(in, c);
                 break;
-            case USER_SKILL_HOLD_DOWN_REQUEST:
-                UserHandler.handleUserSkillHoldDownRequest(in, c);
+            case USER_SKILL_PREPARE_REQUEST:
+                UserHandler.handleUserSkillPrepareRequest(in, c);
                 break;
             case USER_ADD_FAME_REQUEST:
                 UserHandler.handleUserAddFameRequest(in, c);
@@ -330,6 +336,9 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case STACK_CHAIRS:
                 UserHandler.handleStackChairs(in, c);
+                break;
+            case UPDATE_MATRIX:
+                UserHandler.handleUpdateMatrix(in, c);
                 break;
             case USER_SOUL_EFFECT_REQUEST:
                 UserHandler.handleUserSoulEffectRequest(in, c);
@@ -391,7 +400,7 @@ public class ChannelHandler extends AbstractServerHandler {
             case GUILD_REQUEST:
                 WorldHandler.handleGuildRequest(in, c);
                 break;
-            case GUILD_RANK:
+            case GUILD_RANK_REQUEST:
                 WorldHandler.handleGuildRankRequest(c);
                 break;
             case SYSTEM_OPTION:

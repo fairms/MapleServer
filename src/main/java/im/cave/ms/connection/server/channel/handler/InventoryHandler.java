@@ -61,7 +61,7 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 /**
  * @author fair
  * @version V1.0
- * @Package im.cave.ms.net.handler.channel
+ * @Package im.cave.ms.net.handler.channelId
  * @date 11/29 22:00
  */
 public class InventoryHandler {
@@ -984,5 +984,10 @@ public class InventoryHandler {
         }
         potionPot.setAutoAddPotion(autoAddPotion);
         potionPot.setAutoAddPotion(autoAddAlchemyPotion);
+    }
+
+    public static void handleArcEnhancingRequest(InPacket in, MapleClient c) {
+        int val = in.readInt();
+
     }
 }
