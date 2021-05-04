@@ -691,4 +691,18 @@ public class GameConstants {
             return 0;
         }
     }
+
+
+    public static int getArcUpgradeCost(int arcId, int curLevel) {
+        if (arcId == 1712001) {
+            return 12440000 + 6600000 * curLevel;
+        } else {
+            return 2370000 + 7130000 * curLevel;
+        }
+    }
+
+    public static int getArcUpgradeReqExp(int curLevel) {
+        return (int) (Math.pow(curLevel, 2) + 11);
+    }
+
 }

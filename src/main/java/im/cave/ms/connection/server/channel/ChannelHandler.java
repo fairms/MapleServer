@@ -198,8 +198,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case EQUIP_ENCHANT_REQUEST:
                 InventoryHandler.handleEquipEnchanting(in, c);
                 break;
-            case USER_ARC_ENHANCING_REQUEST:
-                InventoryHandler.handleArcEnhancingRequest(in, c);
+            case USER_ARC_ENHANCE_REQUEST:
+                InventoryHandler.handleArcEnhanceRequest(in, c);
                 break;
             case USER_ITEM_RELEASE_REQUEST:
                 InventoryHandler.handleUserItemReleaseRequest(in, c);

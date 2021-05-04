@@ -72,6 +72,9 @@ public class Equip extends Item {
     private byte tradeAvailable = 0;
     private boolean showEffect = true;
     private long limitBreak;
+    private short arc;
+    private int arcExp;
+    private short arcLevel;
     @OneToOne(orphanRemoval = true, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "flame")
     private FlameStats flameStats;
