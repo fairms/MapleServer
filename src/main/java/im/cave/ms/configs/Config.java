@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class Config {
     public static ServerConfig serverConfig = (ServerConfig) loadConfig("server.yml", ServerConfig.class);
-    public static WorldConfig worldConfig = (WorldConfig) loadConfig("worldId.yml", WorldConfig.class);
+    public static WorldConfig worldConfig = (WorldConfig) loadConfig("world.yml", WorldConfig.class);
 
     public static Object loadConfig(String filename, Class<?> clazz) {
         try {

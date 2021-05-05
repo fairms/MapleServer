@@ -435,7 +435,7 @@ public class WorldHandler {
                 c.announce(UserPacket.updateMaplePoint(player));
                 c.getAccount().buildSharedQuestEx();
 
-                c.announce(MapleDailyGift.init());
+//                c.announce(MapleDailyGift.init());
 
                 Party party = player.getWorld().getPartyById(player.getPartyId());
                 if (party != null) {

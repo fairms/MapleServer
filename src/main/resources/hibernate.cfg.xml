@@ -12,7 +12,7 @@
         </property>
 
         <property name="hibernate.connection.url">
-            jdbc:mysql://172.26.112.220:3306/maple?autoReconnect=true&amp;useSSL=false&amp;serverTimezone=UTC
+            jdbc:mysql://localhost:3306/maple?autoReconnect=true&amp;useSSL=false&amp;serverTimezone=UTC
         </property>
 
         <property name="hibernate.connection.username">

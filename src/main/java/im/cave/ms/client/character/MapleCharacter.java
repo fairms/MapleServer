@@ -88,6 +88,7 @@ public class MapleCharacter implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+    @Column(name = "world")
     private byte worldId;
     private int accId;
     private byte buddyCapacity = DEFAULT_BUDDY_CAPACITY;
