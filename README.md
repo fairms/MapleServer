@@ -4,6 +4,7 @@
 
 ~~只能进游戏逛街😓~~
 
+![game](https://raw.githubusercontent.com/fairms/MapleServer/v179/images/game1.png)
 
 ###### **参考项目:**
 
