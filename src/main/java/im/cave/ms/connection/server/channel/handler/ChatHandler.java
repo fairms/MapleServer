@@ -11,7 +11,7 @@ import im.cave.ms.enums.WhisperType;
 /**
  * @author fair
  * @version V1.0
- * @Package im.cave.ms.network.server.channel.handler
+ * @Package im.cave.ms.network.server.channelId.handler
  * @date 1/9 23:14
  */
 public class ChatHandler {
@@ -43,13 +43,13 @@ public class ChatHandler {
         }
         player.setTick(in.readInt());
         String destName = in.readMapleAsciiString();
-        MapleCharacter dest = player.getMapleWorld().getCharByName(destName);
+        MapleCharacter dest = player.getWorld().getCharByName(destName);
         switch (type) {
             case Req_Find_Friend:
                 if (dest == null) {
                     return;
-                } else if (dest.getChannel() != player.getChannel()) {
-                    player.announce(MessagePacket.whisper(WhisperType.Res_Find_Friend, destName, 3, dest.getChannel()));
+                } else if (dest.getChannelId() != player.getChannelId()) {
+                    player.announce(MessagePacket.whisper(WhisperType.Res_Find_Friend, destName, 3, dest.getChannelId()));
                     break;
                 }
                 player.announce(MessagePacket.whisper(WhisperType.Res_Find_Friend, destName, 1, dest.getMapId()));
@@ -57,8 +57,8 @@ public class ChatHandler {
             case Req_Find_GuildMember:
                 if (dest == null) {
                     return;
-                } else if (dest.getChannel() != player.getChannel()) {
-                    player.announce(MessagePacket.whisper(WhisperType.Res_Find_GuildMember, destName, 3, dest.getChannel()));
+                } else if (dest.getChannelId() != player.getChannelId()) {
+                    player.announce(MessagePacket.whisper(WhisperType.Res_Find_GuildMember, destName, 3, dest.getChannelId()));
                     break;
                 }
                 player.announce(MessagePacket.whisper(WhisperType.Res_Find_GuildMember, destName, 1, dest.getMapId()));
@@ -79,20 +79,24 @@ public class ChatHandler {
     //todo
     public static void handleGroupMessage(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        byte type = in.readByte(); //0 好友
+        byte type = in.readByte(); //0 好友 1 组队 2 家族
         in.readByte();
         int groupId = in.readInt();
         if (type == 0) {
             for (Friend friend : player.getFriends()) {
-                MapleCharacter friendChar = player.getMapleWorld().getCharById(friend.getId());
+                MapleCharacter friendChar = player.getWorld().getCharById(friend.getId());
                 if (friendChar != null) {
-//                    friendChar.announce();
                 }
             }
         } else if (type == 1) {
 
         } else if (type == 2) {
+            int count = in.readByte();
+            for (int i = 0; i < count; i++) {
+                int charId = in.readInt();
 
+            }
+            String message = in.readMapleAsciiString();
         }
     }
 }

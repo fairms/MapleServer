@@ -330,4 +330,11 @@ public class SkillConstants {
     public static boolean isKeyDownMovingSkill(int skillId) {
         return skillId == 3121020;
     }
+
+    public static boolean isFlipAffectAreaSkill(int skillID) {
+        return skillID == 33111013 || skillID == 33121016 || skillID == 33121012 || skillID == 131001207 ||
+                skillID == 131001107 || skillID == 4121015 || skillID == 51120057 || skillID == 400001017 ||
+                skillID == 400021039 || skillID == 400041041 || skillID == 152121041 || skillID == 400020046 ||
+                skillID == 400020051 || skillID == 35121052;
+    }
 }

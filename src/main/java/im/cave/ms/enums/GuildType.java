@@ -2,11 +2,8 @@ package im.cave.ms.enums;
 
 import java.util.Arrays;
 
-/**
- * Created on 3/21/2018.
- */
 public enum GuildType {
-
+    Req_FindGuildByCid(1),
     Req_RemoveGuild(3),
     Req_CheckGuildName(4),
     Req_SetGradeName(18),
@@ -26,6 +23,7 @@ public enum GuildType {
 
     Res_InputGuildNameRequest(3),
     Res_LoadGuild_Done(58),
+    Res_FindGuild_Done(59),
     Res_Rank(60),
     Res_RemoveGuild_Done(96),
     Res_IncMaxMemberNum_Done(113),

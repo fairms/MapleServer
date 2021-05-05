@@ -1,6 +1,8 @@
 package im.cave.ms.tools;
 
 
+import im.cave.ms.connection.netty.OutPacket;
+
 public class Rect {
     private int left, top, right, bottom;
 

@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * @author fair
  * @version V1.0
- * @Package im.cave.ms.abstractServer.channel
+ * @Package im.cave.ms.abstractServer.channelId
  * @date 11/19 16:22
  */
 public class MapleChannel extends AbstractServer {

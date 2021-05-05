@@ -278,7 +278,7 @@ public class NpcPacket {
     public static OutPacket avatarChangedResult(int itemId, short bodyPart, int before, int after) {
         OutPacket out = new OutPacket(SendOpcode.CHAR_AVATAR_CHANGE_RESULT);
         out.writeInt(itemId);
-        out.write(1);
+        out.write(1);  //00 01 00 00 00
         out.write(0);
         out.write(1);
         out.writeInt(1);

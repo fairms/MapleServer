@@ -17,7 +17,6 @@ public class AESCipher {
             (byte) 0xD3, (byte) 0x00, (byte) 0x00, (byte) 0x00
     };
 
-
     public AESCipher() {
         pCipher = new AES();
         pCipher.setKey(aKey);

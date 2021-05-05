@@ -140,7 +140,8 @@ public class ForcedMobStat {
         out.writeInt(getMdr());
         out.writeInt(getAcc());
         out.writeInt(getEva());
-        out.writeLong(getPushed());
+        out.writeInt((int) getPushed());
+        out.writeInt(getSpeed());
         out.writeInt(getLevel());
         out.writeInt(getUserCount());
         out.write(1);

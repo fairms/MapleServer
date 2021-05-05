@@ -16,7 +16,6 @@ import java.util.List;
  * @date 1/1 22:15
  */
 public class PetPacket {
-    //remove
     public static OutPacket petActivateChange(Pet pet, boolean active, byte removedReason) {
         OutPacket out = new OutPacket();
         out.writeShort(SendOpcode.PET_ACTIVATED.getValue());

@@ -151,6 +151,8 @@ public class OutPacket extends Packet {
         }
     }
 
+
+
     @Override
     public String toString() {
         if (byteBuf.writerIndex() == 0) {
@@ -173,6 +175,14 @@ public class OutPacket extends Packet {
         writeShort(rect.getRight());
         writeShort(rect.getBottom());
     }
+
+    public void writeRectInt(Rect rect) {
+        writeInt(rect.getLeft());
+        writeInt(rect.getTop());
+        writeInt(rect.getRight());
+        writeInt(rect.getBottom());
+    }
+
 
 
     @Override

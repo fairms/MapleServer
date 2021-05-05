@@ -1,7 +1,7 @@
 package im.cave.ms.connection.packet;
 
 import im.cave.ms.client.Account;
-import im.cave.ms.client.ForceAtom;
+import im.cave.ms.client.character.skill.ForceAtom;
 import im.cave.ms.client.HotTimeReward;
 import im.cave.ms.client.character.ExpIncreaseInfo;
 import im.cave.ms.client.character.MapleCharacter;
@@ -24,6 +24,7 @@ import im.cave.ms.client.multiplayer.guilds.Guild;
 import im.cave.ms.client.multiplayer.party.PartyResult;
 import im.cave.ms.client.storage.Trunk;
 import im.cave.ms.connection.netty.OutPacket;
+import im.cave.ms.connection.netty.Packet;
 import im.cave.ms.connection.packet.opcode.SendOpcode;
 import im.cave.ms.connection.packet.result.ExpressResult;
 import im.cave.ms.connection.packet.result.GuildResult;
@@ -57,6 +58,9 @@ public class WorldPacket {
     }
 
     public static OutPacket getWarpToMap(MapleCharacter chr, boolean load, MapleMap to, int spawnPoint, boolean firstLoggedIn) {
+//        if (load) {
+//            return OriginPacket.setMap();
+//        }
         OutPacket out = new OutPacket(SendOpcode.SET_MAP);
 
         out.writeShort(1);
@@ -264,7 +268,7 @@ public class WorldPacket {
             out.writePosition(posFrom);
             out.writeInt(delay); //delay
         }
-        out.write(0); //unk
+        out.write(0);
         if (!drop.isMoney()) {
             out.writeLong(drop.getExpireTime());
         }
@@ -590,7 +594,7 @@ public class WorldPacket {
         out.writeInt(1051291);
         out.writeZeroBytes(29);
         //显示不出来
-        out.writeMapleAsciiString(chr.getWorld() + "-" + StringUtil.getLeftPaddedStr(String.valueOf(chr.getId()), '0', 6));
+        out.writeMapleAsciiString(chr.getWorldId() + "-" + StringUtil.getLeftPaddedStr(String.valueOf(chr.getId()), '0', 6));
         out.writeInt(0); // 如果是5 则有怪怪  应该是MASK
 
         return out;
@@ -766,7 +770,7 @@ public class WorldPacket {
                 out.writeInt(chr.getId()); //friendId
                 out.writeInt(chr.getAccId()); //accId
                 out.write(0); //
-                out.writeInt(chr.getChannel()); //20商城 -1离线
+                out.writeInt(chr.getChannelId()); //20商城 -1离线
                 out.write(1); //是否是账号好友
                 out.write(1);
                 out.writeMapleAsciiString(chr.getName()); //账号好友才有
@@ -1014,4 +1018,11 @@ public class WorldPacket {
         return out;
     }
 
+    public static Packet setPassenserRequest(int requesterCharId) {
+        OutPacket out = new OutPacket(SendOpcode.SET_PASSENSER_REQUEST);
+
+        out.writeInt(requesterCharId);
+
+        return out;
+    }
 }

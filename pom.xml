@@ -6,8 +6,8 @@
     <artifactId>ms</artifactId>
     <version>1.0.2</version>
     <packaging>jar</packaging>
-    <name>maplestory</name>
-    <description>maplestory emulator</description>
+    <name>MapleServer</name>
+    <description>Open-source MapleStory server emulation software</description>
     <build>
         <plugins>
             <plugin>

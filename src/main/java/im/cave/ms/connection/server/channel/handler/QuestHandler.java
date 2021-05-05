@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author fair
  * @version V1.0
- * @Package im.cave.ms.net.server.channel.handler
+ * @Package im.cave.ms.net.server.channelId.handler
  * @date 12/9 17:04
  */
 public class QuestHandler {

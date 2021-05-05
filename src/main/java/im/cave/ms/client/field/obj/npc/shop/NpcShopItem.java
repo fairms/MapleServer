@@ -290,9 +290,9 @@ public class NpcShopItem {
     }
 
     /**
-     * Sets whether or not this item should be displayed on this world.
+     * Sets whether or not this item should be displayed on this worldId.
      *
-     * @param worldBlock whether or not this item should be displayed on this world.
+     * @param worldBlock whether or not this item should be displayed on this worldId.
      */
     public void setWorldBlock(boolean worldBlock) {
         this.worldBlock = worldBlock;

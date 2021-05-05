@@ -658,6 +658,6 @@ public class MobData {
     }
 
     public static void init() {
-
+        System.out.println("Begin MobData Init");
     }
 }

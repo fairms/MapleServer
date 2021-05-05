@@ -125,7 +125,6 @@ public class CharLook {
             out.writeInt(itemId);
         });
         out.write(-1);
-
         //未知
         out.write(-1);
 
@@ -141,7 +140,7 @@ public class CharLook {
         out.writeInt(getSubWeaponId());
 
         out.writeLong(0);
-        out.write(0); // 0或1 难道和性别有关？
+        out.write(0); //boolean
 
         //三个宠物的ID
         for (int i = 0; i < GameConstants.MAX_PET_AMOUNT; i++) {
@@ -153,8 +152,10 @@ public class CharLook {
         }
 
         if (JobConstants.isXenon((short) getJob()) || JobConstants.isDemon((short) getJob())) {
+            //虎影：胡须
             out.writeInt(getMark());
         }
         out.writeZeroBytes(7);
+        out.writeInt(0);
     }
 }

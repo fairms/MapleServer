@@ -99,8 +99,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case OPEN_WORLD_MAP:
                 c.announce(UserPacket.openWorldMap());
                 break;
-            case PORTAL_SPECIAL:
-                UserHandler.handleUserEnterPortalSpecialRequest(in, c);
+            case USER_PORTAL_SCRIPT_REQUEST:
+                UserHandler.handleUserPortalScriptRequest(in, c);
                 break;
             case USER_QUEST_REQUEST:
                 QuestHandler.handleQuestRequest(in, c);
@@ -117,8 +117,11 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_LOTTERY_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserLotteryItemUseRequest(in, c);
                 break;
-            case USER_SET_GAME_RESOLUTION:
+            case USER_CLIENT_RESOLUTION_RESULT:
                 UserHandler.handleUserSetGameResolution(in, c);
+                break;
+            case USER_FOLLOW_CHARACTER_REQUEST:
+                WorldHandler.handleUserFollowCharacterRequest(in, c);
                 break;
             case USER_TRANSFER_FIELD_REQUEST:
                 UserHandler.handleChangeMapRequest(in, c);
@@ -127,7 +130,7 @@ public class ChannelHandler extends AbstractServerHandler {
                 WorldHandler.handleInstanceTableRequest(in, c);
                 break;
             case USER_REQUEST_CHARACTER_POTENTIAL_SKILL_RAND_SET_UI:
-                UserHandler.handleUserRequestCharacterPotentialSkillRandSetUi(in, c);
+                UserHandler.handleUserRequestCharacterPotentialSkillRandSetUI(in, c);
                 break;
             case GROUP_MESSAGE:
                 ChatHandler.handleGroupMessage(in, c);
@@ -183,6 +186,9 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_CONSUME_CASH_ITEM_USE_REQUEST:
                 InventoryHandler.handleUserConsumeCashItemUseRequest(in, c);
                 break;
+            case USER_ADDITIONAL_SLOT_EXTEND_ITEM_USE_REQUEST:
+                InventoryHandler.handleUserAdditionalSlotExtendItemUseRequest(in, c);
+                break;
             case USER_CASH_PET_PICK_UP_ON_OFF_REQUEST:
                 PetHandler.handleUserCashPetPickUpOnOffRequest(in, c);
                 break;
@@ -192,11 +198,17 @@ public class ChannelHandler extends AbstractServerHandler {
             case EQUIP_ENCHANT_REQUEST:
                 InventoryHandler.handleEquipEnchanting(in, c);
                 break;
+            case USER_ARC_ENHANCE_REQUEST:
+                InventoryHandler.handleArcEnhanceRequest(in, c);
+                break;
             case USER_ITEM_RELEASE_REQUEST:
                 InventoryHandler.handleUserItemReleaseRequest(in, c);
                 break;
             case USER_MEMORIAL_CUBE_OPTION_REQUEST:
                 UserHandler.handleUserMemorialCubeOptionRequest(in, c);
+                break;
+            case USER_MIRACLE_CIRCULATOR_SELECT:
+                UserHandler.handleUserMiracleCirculatorSelect(in, c);
                 break;
             case USER_PORTAL_SCROLL_USE_REQUEST:
                 InventoryHandler.handleUserPortalScrollUseRequest(in, c);
@@ -252,10 +264,10 @@ public class ChannelHandler extends AbstractServerHandler {
             case EXPRESS_REQUEST:
                 WorldHandler.handleMapleExpressRequest(in, c);
                 break;
-            case MOVE_SKILL:
-                UserHandler.handleUserMoveSkillRequest(in, c);
+            case USER_EFFECT_LOCAL:
+                UserHandler.handleUserEffectLocal(in, c);
                 break;
-            case AUCTION:
+            case AUCTION_REQUEST:
                 WorldHandler.handleAuctionRequest(in, c);
                 break;
             case EXIT_AUCTION:
@@ -273,10 +285,10 @@ public class ChannelHandler extends AbstractServerHandler {
             case MIGRATE_TO_AUCTION_REQUEST:
                 WorldHandler.handleMigrateToAuctionRequest(in, c);
                 break;
-            case CLOSE_RANGE_ATTACK:
-            case RANGED_ATTACK:
-            case MAGIC_ATTACK:
-//            case TOUCH_MONSTER_ATTACK:
+            case USER_MELEE_ATTACK:
+            case USER_SHOOT_ATTACK:
+            case USER_MAGIC_ATTACK:
+            case USER_AREA_DOT_ATTACK:
                 UserHandler.handleAttack(in, c, opcode);
                 break;
             case CHANGE_STAT_REQUEST:
@@ -301,8 +313,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case USER_SKILL_CANCEL_REQUEST:
                 UserHandler.handleUserSkillCancel(in, c);
                 break;
-            case USER_SKILL_HOLD_DOWN_REQUEST:
-                UserHandler.handleUserSkillHoldDownRequest(in, c);
+            case USER_SKILL_PREPARE_REQUEST:
+                UserHandler.handleUserSkillPrepareRequest(in, c);
                 break;
             case USER_ADD_FAME_REQUEST:
                 UserHandler.handleUserAddFameRequest(in, c);
@@ -322,6 +334,15 @@ public class ChannelHandler extends AbstractServerHandler {
             case FAMILIAR:
                 WorldHandler.handleFamiliarRequest(in, c);
                 break;
+            case STACK_CHAIRS:
+                UserHandler.handleStackChairs(in, c);
+                break;
+            case MATRIX_REQUEST:
+                UserHandler.handleMatrixRequest(in, c);
+                break;
+            case 和怪物相关:
+                WorldHandler.handleSomethingAboutMonster(in, c);
+                return;
             case USER_SOUL_EFFECT_REQUEST:
                 UserHandler.handleUserSoulEffectRequest(in, c);
                 break;
@@ -355,6 +376,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case ANDROID_MOVE:
                 WorldHandler.handleAndroidMove(in, c);
                 break;
+            case ANDROID_ACTION_SET:
+                WorldHandler.handleAndroidActionSet(in, c);
             case CHANGE_QUICKSLOT:
                 UserHandler.handleChangeQuickSlot(in, c);
                 break;
@@ -367,22 +390,22 @@ public class ChannelHandler extends AbstractServerHandler {
             case REQUEST_ARROW_PLATTER_OBJ:
                 WorldHandler.handleRequestArrowPlatterObj(in, c);
                 break;
-            case CHAT_ROOM:
-                WorldHandler.handleChatRoom(in, c);
+            case MINI_ROOM_MULTI:
+                WorldHandler.handleMiniRoomMulti(in, c);
                 break;
-            case TRADE_ROOM:
-                WorldHandler.handleTradeRoom(in, c);
+            case MINI_ROOM_DUAL:
+                WorldHandler.handleMiniRoomDual(in, c);
                 break;
             case PARTY_REQUEST:
                 WorldHandler.handlePartyRequest(in, c);
                 break;
-            case PARTY_INVITE_RESPONSE:
-                WorldHandler.handlePartyInviteResponse(in, c);
+            case PARTY_RESULT:
+                WorldHandler.handlePartyResult(in, c);
                 break;
             case GUILD_REQUEST:
                 WorldHandler.handleGuildRequest(in, c);
                 break;
-            case GUILD_RANK:
+            case GUILD_RANK_REQUEST:
                 WorldHandler.handleGuildRankRequest(c);
                 break;
             case SYSTEM_OPTION:
@@ -413,7 +436,7 @@ public class ChannelHandler extends AbstractServerHandler {
             case CHECK_TRICK_OR_TREAT_REQUEST:
                 WorldHandler.handleCheckTrickOrTreatRequest(in, c);
                 break;
-            case HOWLING_GALE_PREPARE:
+            case USER_HOWLING_STORM_STACK:
                 //todo 呼啸风暴
 //                ((Beginner) c.getPlayer().getJobHandler()).handleHowlingGalePrepare();
                 break;
@@ -423,8 +446,8 @@ public class ChannelHandler extends AbstractServerHandler {
             case UPDATE_TICK:
                 c.getPlayer().setTick(in.readInt());
                 break;
-            case DAILY_BONUS_CHECK_IN:
-                WorldHandler.handleDailyBonusCheckIn(in, c);
+            case DAILY_GIFT_CHECK_IN:
+                WorldHandler.handleDailyGiftCheckIn(in, c);
                 break;
             case UNITY_PORTAL_REQUEST:
                 WorldHandler.handleUnityPortalSelect(in, c);
@@ -461,6 +484,10 @@ public class ChannelHandler extends AbstractServerHandler {
                 break;
             case PICK_UP_ITEM:
                 UserHandler.handlePickUp(in, c);
+                break;
+            case REACTOR_HIT:
+            case REACTOR_CLICK:
+                UserHandler.handleReactorClick(in, c);
                 break;
             case REQUEST_RECOMMEND_PLAYERS:
                 WorldHandler.handleRequestRecommendPlayers(c);

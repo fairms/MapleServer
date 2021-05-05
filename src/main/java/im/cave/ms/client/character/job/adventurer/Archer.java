@@ -7,14 +7,15 @@ import im.cave.ms.client.character.skill.AttackInfo;
 import im.cave.ms.client.character.skill.ForceAtomInfo;
 import im.cave.ms.client.character.skill.MobAttackInfo;
 import im.cave.ms.client.character.skill.Skill;
-import im.cave.ms.client.character.temp.CharacterTemporaryStat;
 import im.cave.ms.client.character.temp.TemporaryStatManager;
+import im.cave.ms.client.field.MapleMap;
+import im.cave.ms.client.field.obj.Summon;
 import im.cave.ms.client.field.obj.mob.Mob;
 import im.cave.ms.client.field.obj.mob.MobTemporaryStat;
 import im.cave.ms.connection.netty.InPacket;
 import im.cave.ms.connection.packet.WorldPacket;
 import im.cave.ms.enums.ForceAtomEnum;
-import im.cave.ms.enums.SkillStat;
+import im.cave.ms.enums.MoveAbility;
 import im.cave.ms.provider.data.SkillData;
 import im.cave.ms.provider.info.SkillInfo;
 import im.cave.ms.tools.Position;
@@ -23,22 +24,8 @@ import im.cave.ms.tools.Util;
 
 import java.util.Random;
 
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.AdvancedQuiver;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.EPAD;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.ExtremeArchery;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePDDR;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.IndiePMdR;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.NoBulletConsume;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.QuiverCatridge;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.SharpEyes;
-import static im.cave.ms.client.character.temp.CharacterTemporaryStat.SoulArrow;
-import static im.cave.ms.enums.SkillStat.epad;
-import static im.cave.ms.enums.SkillStat.indiePMdR;
-import static im.cave.ms.enums.SkillStat.time;
-import static im.cave.ms.enums.SkillStat.u;
-import static im.cave.ms.enums.SkillStat.w;
-import static im.cave.ms.enums.SkillStat.x;
-import static im.cave.ms.enums.SkillStat.y;
+import static im.cave.ms.client.character.temp.CharacterTemporaryStat.*;
+import static im.cave.ms.enums.SkillStat.*;
 
 /**
  * @author fair
@@ -47,15 +34,61 @@ import static im.cave.ms.enums.SkillStat.y;
  * @date 12/28 14:25
  */
 public class Archer extends Beginner {
+    //1st
+    public static final int BOW_ARROW_BLOW = 1;
+    public static final int BOW_DOUBLE_JUMP = 1;
+    public static final int BOW_CRITICAL_SHOT = 1;
+    public static final int BOW_ARCHERY_MASTERY = 1;
+    //2nd
+    public static final int BOW_ARROW_BOMB = 1;
+    public static final int BOW_COVERING_FIRE = 1;
+    public static final int BOW_BOOSTER = 3101002;
     public static final int BOW_SOUL_ARROW = 3101004;
-    public static final int BOW_HURRICANE = 3121020;
     public static final int BOW_QUIVER_CARTRIDGE = 3101009;
     public static final int BOW_QUIVER_CARTRIDGE_ATOM = 3100010;
-    public static final int BOW_ENCHANTED_QUIVER = 3121016;
+    public static final int BOW_MASTERY = 1;
+    public static final int BOW_FINAL_ATTACK = 1;
+    public static final int BOW_PHYSICAL_TRAINING = 1;
+    //3st
+    public static final int BOW_FLAME_SURGE = 1;
+    public static final int BOW_PHOENIX = 1;
+    public static final int BOW_HOOK_SHOT = 1;
     public static final int BOW_RECKLESS_HUNT = 3111011;
+    public static final int BOW_MORTAL_BLOW = 1;
+    public static final int BOW_FOCUSED_FURY = 1;
+    public static final int BOW_EVASION_BOOST = 1;
+    public static final int BOW_MARKSMANSHIP = 1;
     public static final int BOW_ARROW_PLATTER = 3111013;
-    public static final int BOW_ILLUSION_STEP = 3121007;
+    //4th
+    public static final int BOW_HURRICANE = 3121020;
+    public static final int BOW_BINDING_SHOT = 1;
+    public static final int BOW_ARROW_STREAM = 1;
     public static final int BOW_SHARP_EYE = 3121002;
+    public static final int BOW_ILLUSION_STEP = 3121007;
+    public static final int BOW_HERO_WILL = 1;
+    public static final int BOW_MAPLE_WARRIOR = 1;
+    public static final int BOW_ENCHANTED_QUIVER = 3121016;
+    public static final int BOW_EXPERT = 1;
+    public static final int BOW_ADVANCED_FINAL_ATTACK = 1;
+    public static final int BOW_Armor_BREAK = 1;
+    //hyper
+    public static final int BOW_EPIC_ADVENTURE = 3121053;
+    public static final int BOW_CONCENTRATION = 3121054;
+    public static final int BOW_GRITTY_GUST = 1;
+
+    public static final int[] buffs = new int[]{
+            BOW_BOOSTER,
+            BOW_SOUL_ARROW,
+            BOW_QUIVER_CARTRIDGE,
+            BOW_RECKLESS_HUNT,
+            BOW_SHARP_EYE,
+            BOW_MAPLE_WARRIOR,
+            BOW_ENCHANTED_QUIVER,
+            BOW_EPIC_ADVENTURE,
+            BOW_CONCENTRATION
+
+    };
+
 
     public Archer(MapleCharacter chr) {
         super(chr);
@@ -68,8 +101,13 @@ public class Archer extends Beginner {
         super.handleSkill(c, skillId, slv, in);
 
         switch (skillId) {
-
-
+            case BOW_PHOENIX:
+                Summon summon = Summon.getSummonBy(c.getPlayer(), skillId, (byte) slv);
+                MapleMap map = c.getPlayer().getMap();
+                summon.setFlyMob(true);
+                summon.setMoveAbility(MoveAbility.Fly);
+                map.spawnSummon(summon);
+                break;
         }
     }
 
@@ -110,15 +148,11 @@ public class Archer extends Beginner {
         Option oo = new Option();
         Option ooo = new Option();
         switch (skillId) {
-            case BOW_ILLUSION_STEP:
-                o.nOption = si.getValue(SkillStat.indieDex, slv);
+            case BOW_BOOSTER:
+                o.nOption = si.getValue(x, slv);
                 o.rOption = skillId;
                 o.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CharacterTemporaryStat.DEX, o);
-                oo.nOption = si.getValue(x, slv);
-                oo.rOption = skillId;
-                oo.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CharacterTemporaryStat.IllusionStep, oo);
+                tsm.putCharacterStatValue(Booster, o);
                 break;
             case BOW_SOUL_ARROW:
                 o.nOption = si.getValue(x, slv);
@@ -134,14 +168,14 @@ public class Archer extends Beginner {
                 ooo.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(NoBulletConsume, ooo);
                 break;
-            case BOW_SHARP_EYE:
-                int cr = si.getValue(x, slv);
-                int cd = si.getValue(y, slv);
-                o.nOption = (cr << 8) + cd;
-                o.rOption = skillId;
-                o.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(SharpEyes, oo);
-                //todo deal hyper passive
+            case BOW_QUIVER_CARTRIDGE:
+                if (quiverCartridge == null) {
+                    quiverCartridge = new QuiverCartridge(chr);
+                } else if (tsm.hasStat(QuiverCartridge)) {
+                    quiverCartridge.incType();
+                }
+                o = quiverCartridge.getOption();
+                tsm.putCharacterStatValue(QuiverCartridge, o);
                 break;
             case BOW_RECKLESS_HUNT: //todo 加的攻击力去哪了？
                 if (tsm.hasStatBySkillId(skillId)) {
@@ -162,14 +196,41 @@ public class Archer extends Beginner {
                     tsm.putCharacterStatValue(IndiePMdR, ooo);
                 }
                 break;
-            case BOW_QUIVER_CARTRIDGE:
-                if (quiverCartridge == null) {
-                    quiverCartridge = new QuiverCartridge(chr);
-                } else if (tsm.hasStat(QuiverCatridge)) {
-                    quiverCartridge.incType();
-                }
-                o = quiverCartridge.getOption();
-                tsm.putCharacterStatValue(QuiverCatridge, o);
+            case BOW_SHARP_EYE:
+                int cr = si.getValue(x, slv);
+                int cd = si.getValue(y, slv);
+                o.nOption = (cr << 8) + cd;
+                o.rOption = skillId;
+                o.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(SharpEyes, oo);
+                //todo deal hyper passive
+                break;
+            case BOW_MAPLE_WARRIOR:
+                o.nOption = si.getValue(x, slv);
+                o.rOption = skillId;
+                o.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(BasicStatUp, o);
+                break;
+            case BOW_ENCHANTED_QUIVER:
+                o.rOption = skillId;
+                o.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AdvancedQuiver, o);
+                break;
+            case BOW_EPIC_ADVENTURE:
+                o.nReason = skillId;
+                o.nValue = si.getValue(indieDamR, slv);
+                o.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o);
+                break;
+            case BOW_CONCENTRATION:
+                o.nReason = skillId;
+                o.nValue = si.getValue(indiePad, slv);
+                o.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o);
+                ooo.nOption = slv;
+                ooo.rOption = skillId;
+                ooo.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Preparation, ooo);
                 break;
             default:
                 sendStat = false;
@@ -336,7 +397,7 @@ public class Archer extends Beginner {
                     break;
             }
         }
-        tsm.putCharacterStatValue(QuiverCatridge, quiverCartridge.getOption());
+        tsm.putCharacterStatValue(QuiverCartridge, quiverCartridge.getOption());
         tsm.sendSetStatPacket();
     }
 

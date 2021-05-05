@@ -25,7 +25,8 @@ import java.net.InetSocketAddress;
  * @date 11/20 21:38
  */
 public class PasswordLoginHandler {
-    private static int count = 0;
+    private static int count = 0; //todo 记录登录账号密码尝试册数
+    //todo 记录异地登陆踢出在线账号功能
     private static final Logger log = LoggerFactory.getLogger(PasswordLoginHandler.class);
 
     public static void handlePacket(MapleClient c, InPacket in) {

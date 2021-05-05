@@ -1,6 +1,6 @@
 package im.cave.ms.configs;
 
-import im.cave.ms.client.MapleDailyBonus;
+import im.cave.ms.client.MapleDailyGift;
 
 import java.util.List;
 
@@ -13,14 +13,14 @@ import java.util.List;
 public class WorldConfig {
 
     public List<WorldInfo> worlds;
-    public List<MapleDailyBonus.CheckInRewardInfo> dailyBonus;
+    public List<MapleDailyGift.CheckInRewardInfo> dailyGifts;
 
     public WorldInfo getWorldInfo(int worldId) {
         return worlds.stream().filter(world -> world.id == worldId).findAny().orElse(null);
     }
 
-    public List<MapleDailyBonus.CheckInRewardInfo> getDailyBonusRewards() {
-        return dailyBonus;
+    public List<MapleDailyGift.CheckInRewardInfo> getDailyGiftsRewards() {
+        return dailyGifts;
     }
 
     public static class WorldInfo {

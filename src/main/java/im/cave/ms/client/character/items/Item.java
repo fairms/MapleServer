@@ -187,7 +187,7 @@ public class Item implements Serializable {
         }
         out.writeLong(getExpireTime()); //期限时间
         out.writeInt(-1);
-        out.write(0);
+        out.write(1); //代表啥意思呢
         if (getType() == Type.ITEM) {
             out.writeShort(getQuantity());
             out.writeMapleAsciiString(getOwner());
@@ -197,16 +197,17 @@ public class Item implements Serializable {
                 out.writeLong(getId());
             }
             out.writeInt(0);
-            if (ItemConstants.isFamiliar(getItemId()) && getFamiliar() == null) {
-                int familiarID = ItemData.getFamiliarId(getItemId());
-                Familiar familiar = new Familiar(familiarID);
-                setFamiliar(familiar);
-            }
+            //不需要在这里设置
+//            if (ItemConstants.isFamiliar(getItemId()) && getFamiliar() == null) {
+//                int familiarID = ItemData.getFamiliarId(getItemId());
+//                Familiar familiar = new Familiar(familiarID);
+//                setFamiliar(familiar);
+//            }
             Familiar familiar = getFamiliar();
             out.writeInt(familiar != null ? familiar.getFamiliarId() : 0);
-            out.writeShort(familiar != null ? familiar.getLevel() : 0);
+            out.writeShort(familiar != null ? familiar.getLevel() : 1);
             out.writeShort(familiar != null ? familiar.getSkill() : 0);
-            out.writeShort(familiar != null ? familiar.getLevel() : 0);
+            out.writeShort(familiar != null ? familiar.getLevel() : 1);
             out.writeShort(familiar != null ? familiar.getOption(0) : 0);
             out.writeShort(familiar != null ? familiar.getOption(1) : 0);
             out.writeShort(familiar != null ? familiar.getOption(2) : 0);

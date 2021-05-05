@@ -33,6 +33,7 @@ public class QuestData {
     private static final Map<Integer, Integer> medalQuest = new HashMap<>();
 
     public static void loadQuests() {
+        System.out.println("Begin QuestData Init");
         MapleData checkData = questData.getData("/Check.img");
         MapleData actData = questData.getData("/Act.img");
         MapleData questInfoData = questData.getData("/QuestInfo.img");

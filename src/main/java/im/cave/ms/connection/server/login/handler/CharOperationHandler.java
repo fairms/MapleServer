@@ -34,8 +34,6 @@ public class CharOperationHandler {
         int charId = in.readInt();
         byte invisible = in.readByte();
         if (c.getLoginStatus().equals(LoginStatus.LOGGEDIN) && c.getAccount().getCharacter(charId) != null) {
-            MapleCharacter player = c.getAccount().getCharacter(charId);
-            c.setPlayer(player);
             c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
             Server.getInstance().addClientInTransfer(c.getChannelId(), charId, c);
             int port = Server.getInstance().getChannel(c.getWorldId(), c.getChannelId()).getPort();
@@ -105,7 +103,7 @@ public class CharOperationHandler {
             c.announce(LoginPacket.checkDuplicatedIDResult(name, (byte) 3));
             return;
         }
-        in.skip(4);
+        in.skip(4); //-1
         int curSelectedRace = in.readInt();
         JobType job = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginJob();
         int mapId = JobConstants.LoginJob.getLoginJobById(curSelectedRace).getBeginMap();
@@ -134,13 +132,13 @@ public class CharOperationHandler {
         }
         {
             chr.setAccId(c.getAccount().getId());
-            chr.setWorld(c.getWorldId());
+            chr.setWorldId(c.getWorldId());
             chr.setSubJob(subJob);
             chr.setGender(gender);
             chr.setSkin(skin);
             chr.setName(name);
             chr.setGm(c.getAccount().isGm());
-            chr.setChannel(c.getChannelId());
+            chr.setChannelId(c.getChannelId());
             chr.getKeyMap().setDefault(keyMode != 0);
             chr.setFace(items[0]);
             chr.setHair(items[1]);
@@ -171,9 +169,8 @@ public class CharOperationHandler {
             MapleCharacter chr = account.getCharacter(charId);
             account.setOnlineChar(chr);
             c.setLoginStatus(LoginStatus.SERVER_TRANSITION);
-//            c.setPlayer(chr);
             Server.getInstance().addClientInTransfer(c.getChannelId(), charId, c);
-            c.announce(LoginPacket.selectCharacterResult(LoginType.Success, (byte) 0, c.getMapleChannel().getPort(), chr.getId()));
+            c.announce(LoginPacket.selectCharacterResult(LoginType.Success, (byte) 0, c.getChannel().getPort(), chr.getId()));
         }
     }
 

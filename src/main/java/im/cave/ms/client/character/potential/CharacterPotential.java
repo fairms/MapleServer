@@ -103,4 +103,16 @@ public class CharacterPotential {
         }
         return skill;
     }
+
+
+    @Override
+    public String toString() {
+        return "CharacterPotential{" +
+                "id=" + id +
+                ", key=" + key +
+                ", skillId=" + skillId +
+                ", slv=" + slv +
+                ", grade=" + grade +
+                '}';
+    }
 }

@@ -2,7 +2,7 @@ package im.cave.ms.connection.server.channel.handler;
 
 import im.cave.ms.client.Account;
 import im.cave.ms.client.MapleClient;
-import im.cave.ms.client.MapleDailyBonus;
+import im.cave.ms.client.MapleDailyGift;
 import im.cave.ms.client.character.MapleCharacter;
 import im.cave.ms.client.character.items.Inventory;
 import im.cave.ms.client.character.items.Item;
@@ -66,7 +66,7 @@ import im.cave.ms.enums.MessageType;
 import im.cave.ms.enums.PartyType;
 import im.cave.ms.enums.ServerType;
 import im.cave.ms.enums.SkillStat;
-import im.cave.ms.enums.TradeRoomType;
+import im.cave.ms.enums.MiniRoomType;
 import im.cave.ms.enums.TrunkOpType;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.SkillData;
@@ -94,12 +94,12 @@ import java.util.stream.Collectors;
 
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_COMBO_KILL;
 import static im.cave.ms.constants.QuestConstants.QUEST_EX_SKILL_STATE;
-import static im.cave.ms.constants.QuestConstants.SHARE_QUEST_EX_DAILY_BONUS_LOG;
+import static im.cave.ms.constants.QuestConstants.SHARE_QUEST_EX_DAILY_GIFT_LOG;
 
 /**
  * @author fair
  * @version V1.0
- * @Package im.cave.ms.net.server.channel.handler
+ * @Package im.cave.ms.net.server.channelId.handler
  * @date 12/5 15:25
  */
 public class WorldHandler {
@@ -297,26 +297,26 @@ public class WorldHandler {
         c.announce(QuestPacket.updateQuestEx(QUEST_EX_COMBO_KILL));
     }
 
-    public static void handleDailyBonusCheckIn(InPacket in, MapleClient c) {
+    public static void handleDailyGiftCheckIn(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         Account account = player.getAccount();
         int itemId = in.readInt();
-        Map<String, String> log = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_BONUS_LOG);
+        Map<String, String> log = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_GIFT_LOG);
         if (log == null) {
             HashMap<String, String> options = new HashMap<>();
-            options.put("count", "0");
+            options.put("count", "0"); //累计签到次数？
             options.put("day", "0");
             options.put("date", String.valueOf(DateUtil.getDate()));
-            account.addSharedQuestEx(SHARE_QUEST_EX_DAILY_BONUS_LOG, options, true);
-            c.announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_DAILY_BONUS_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
+            account.addSharedQuestEx(SHARE_QUEST_EX_DAILY_GIFT_LOG, options, true);
+            c.announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_DAILY_GIFT_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
         }
-        String count = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_BONUS_LOG).get("count");
-        String day = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_BONUS_LOG).get("day");
-        String date = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_BONUS_LOG).get("date");
+        String count = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_GIFT_LOG).get("count");
+        String day = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_GIFT_LOG).get("day");
+        String date = account.getSharedQuestEx().get(SHARE_QUEST_EX_DAILY_GIFT_LOG).get("date");
         if (date.equals(String.valueOf(DateUtil.getDate()))) {
             player.dropMessage("已经签到过了?");
         } else {
-            MapleDailyBonus.CheckInRewardInfo signRewardInfo = MapleDailyBonus.getDailyRewardInfo(Integer.parseInt(day));
+            MapleDailyGift.CheckInRewardInfo signRewardInfo = MapleDailyGift.getDailyRewardInfo(Integer.parseInt(day));
             if (signRewardInfo == null || itemId != signRewardInfo.getItemId()) {
                 player.dropMessage("签到出错,请检查");
                 return;
@@ -328,13 +328,13 @@ public class WorldHandler {
             options.put("count", count);
             options.put("day", day);
             options.put("date", date);
-            account.addSharedQuestEx(SHARE_QUEST_EX_DAILY_BONUS_LOG, options, true);
-            c.announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_DAILY_BONUS_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
+            account.addSharedQuestEx(SHARE_QUEST_EX_DAILY_GIFT_LOG, options, true);
+            c.announce(UserPacket.message(MessageType.WORLD_SHARE_RECORD_MESSAGE, SHARE_QUEST_EX_DAILY_GIFT_LOG, account.getSharedQuestExStorage().get(QUEST_EX_SKILL_STATE), (byte) 0));
             Item item = ItemData.getItemCopy(itemId, false);
             item.setQuantity(signRewardInfo.getQuantity());
             player.addItemToInv(item);
-            c.announce(MapleDailyBonus.getCheckInRewardPacket(2, itemId));
-            c.announce(MapleDailyBonus.getCheckInRewardPacket(0, itemId));
+            c.announce(MapleDailyGift.getCheckInRewardPacket(2, itemId));
+            c.announce(MapleDailyGift.getCheckInRewardPacket(0, itemId));
         }
     }
 
@@ -398,7 +398,7 @@ public class WorldHandler {
         player.setClient(c);
         player.setOnline(true);
         player.setAccount(c.getAccount());
-        player.setChannel(channel);
+        player.setChannelId(channel);
         c.setPlayer(player);
         c.setLoginStatus(LoginStatus.LOGGEDIN);
         Server.getInstance().addAccount(c.getAccount());
@@ -411,7 +411,7 @@ public class WorldHandler {
         c.announce(UserPacket.initOpCodeEncryption(c));
         switch (type) {
             case CHANNEL: {
-                MapleChannel mapleChannel = c.getMapleChannel();
+                MapleChannel mapleChannel = c.getChannel();
                 mapleChannel.addPlayer(player);
                 player.setJobHandler(JobManager.getJobById(player.getJob(), player));
                 c.announce(UserPacket.updateEventNameTag()); //updateEventNameTag
@@ -420,8 +420,6 @@ public class WorldHandler {
                 c.announce(UserPacket.setSkillCoolTime(player));
 
                 //todo init guild
-
-
                 player.initBaseStats();
                 if (player.getHp() <= 0) {
                     player.setMapId(player.getMap().getReturnMap());
@@ -429,7 +427,6 @@ public class WorldHandler {
                 }
 
                 player.buildQuestEx();
-                //todo 分散到之后的请求中
                 player.changeMap(player.getMapId(), true);
                 c.announce(UserPacket.keymapInit(player));
                 c.announce(LoginPacket.account(player.getAccount()));
@@ -438,20 +435,20 @@ public class WorldHandler {
                 c.announce(UserPacket.updateMaplePoint(player));
                 c.getAccount().buildSharedQuestEx();
 
-                c.announce(MapleDailyBonus.init());
+                c.announce(MapleDailyGift.init());
 
-                Party party = player.getMapleWorld().getPartyById(player.getPartyId());
+                Party party = player.getWorld().getPartyById(player.getPartyId());
                 if (party != null) {
                     player.setParty(party);
                     party.updatePartyMemberInfoByChr(player);
                 } else {
                     player.setPartyId(0);
-                    //todo 这里应该发送一个空的组队消息包
                 }
                 //todo init friend
+
                 c.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Inbox, player.getInBox(), 0));
                 c.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Outbox, player.getOutbox(), 0));
-                c.announce(MessagePacket.broadcastMsg(Config.worldConfig.getWorldInfo(player.getWorld()).server_message, BroadcastMsgType.SLIDE));
+                c.announce(MessagePacket.broadcastMsg(Config.worldConfig.getWorldInfo(player.getWorldId()).server_message, BroadcastMsgType.SLIDE));
                 c.announce(WorldPacket.hotTimeRewardResult(HotTimeRewardResult.hotTimeRewardsList(player)));
 
                 if (player.getExpresses().size() > 0) {
@@ -462,7 +459,7 @@ public class WorldHandler {
                 break;
             }
             case CASHSHOP:
-                CashShopServer cashShop = player.getMapleWorld().getCashShop();
+                CashShopServer cashShop = player.getWorld().getCashShop();
                 cashShop.addChar(player);
                 c.announce(CashShopPacket.getWrapToCashShop(player));
                 c.announce(CashShopPacket.setCashShop(cashShop));
@@ -473,15 +470,15 @@ public class WorldHandler {
                 c.announce(CashShopPacket.initCashShopEvent());
                 break;
             case AUCTION:
-                Auction auction = player.getMapleWorld().getAuction();
+                Auction auction = player.getWorld().getAuction();
                 c.announce(AuctionPacket.getWrapToAuction(player));
         }
     }
 
-    public static void handleTradeRoom(InPacket in, MapleClient c) {
+    public static void handleMiniRoomDual(InPacket in, MapleClient c) {
         byte val = in.readByte();
         MapleCharacter player = c.getPlayer();
-        TradeRoomType type = TradeRoomType.getByVal(val);
+        MiniRoomType type = MiniRoomType.getByVal(val);
         if (type == null) {
             log.error("Unknown TradeRoom Type {}", val);
             return;
@@ -503,7 +500,7 @@ public class WorldHandler {
                 in.readShort(); // 00 00
                 MapleCharacter other = player.getMap().getCharById(charId);
                 if (other == null) {
-                    other = Server.getInstance().getCharById(charId, player.getWorld());
+                    other = Server.getInstance().getCharById(charId, player.getWorldId());
                     if (other == null) {
                         player.chatMessage("交易已取消");
                         return;
@@ -553,7 +550,10 @@ public class WorldHandler {
                 break;
             }
             case Create: {
-                in.readShort(); // 04 00
+                in.readByte(); // 04 是交易
+                //03  是剪刀石头布
+                //02 记忆大考验
+                //01 五子棋 + name + byte:isLock + pwd
                 tradeRoom = new TradeRoom(player);
                 player.setMiniRoom(tradeRoom);
                 player.announce(MiniRoomPacket.enterTrade(tradeRoom, 0));
@@ -675,7 +675,7 @@ public class WorldHandler {
                 }
                 boolean appliable = in.readByte() != 0; //公开
                 String name = in.readMapleAsciiString();
-                party = Party.createNewParty(appliable, name, player.getMapleWorld());
+                party = Party.createNewParty(appliable, name, player.getWorld());
                 party.addPartyMember(player);
                 party.broadcast(WorldPacket.partyResult(PartyResult.createNewParty(party)));
                 break;
@@ -694,12 +694,12 @@ public class WorldHandler {
             }
             case PartyReq_InviteParty: {
                 if (party == null) {
-                    party = Party.createNewParty(true, GameConstants.DEFAULT_PARTY_NAME, player.getMapleWorld());
+                    party = Party.createNewParty(true, GameConstants.DEFAULT_PARTY_NAME, player.getWorld());
                     party.addPartyMember(player);
                     party.broadcast(WorldPacket.partyResult(PartyResult.createNewParty(party)));
                 }
                 String name = in.readMapleAsciiString();
-                MapleCharacter other = Server.getInstance().findCharByName(name, player.getWorld());
+                MapleCharacter other = Server.getInstance().findCharByName(name, player.getWorldId());
                 if (other == null) {
                     player.chatMessage("Can't find this player");
                     player.enableAction();
@@ -732,7 +732,7 @@ public class WorldHandler {
         }
     }
 
-    public static void handlePartyInviteResponse(InPacket in, MapleClient c) {
+    public static void handlePartyResult(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         PartyType type = PartyType.getByVal(in.readByte());
         Party party;
@@ -743,7 +743,7 @@ public class WorldHandler {
         switch (type) {
             case PartyRes_InviteParty_Sent: { //收到组队邀请
                 int partyId = in.readInt(); //party ID
-                party = player.getMapleWorld().getPartyById(partyId);
+                party = player.getWorld().getPartyById(partyId);
                 if (party != null) {
                     party.addInvitedChar(player);
                 }
@@ -751,7 +751,7 @@ public class WorldHandler {
             }
             case PartyRes_InviteParty_Rejected: { //拒绝组队邀请
                 int partyId = in.readInt();
-                party = player.getMapleWorld().getPartyById(partyId);
+                party = player.getWorld().getPartyById(partyId);
                 if (party != null) { //队长才能邀请人是吧
                     party.getPartyLeader().getChr().chatMessage(String.format("'%s'玩家拒绝了组队招待.", player.getName()));
                     party.removeInvited(player);
@@ -760,7 +760,7 @@ public class WorldHandler {
             }
             case PartyRes_InviteParty_Accepted: {
                 int partyId = in.readInt();
-                party = player.getMapleWorld().getPartyById(partyId);
+                party = player.getWorld().getPartyById(partyId);
                 if (party != null) {
                     party.addPartyMember(player);
                     party.removeInvited(player);
@@ -784,8 +784,10 @@ public class WorldHandler {
     }
 
     public static void handleAndroidActionSet(InPacket in, MapleClient c) {
-        byte b = in.readByte();
-        byte b1 = in.readByte();
+        MapleCharacter chr = c.getPlayer();
+        byte action = in.readByte();
+        byte emo = in.readByte();
+        chr.getMap().broadcastMessage(AndroidPacket.actionSet(chr.getAndroid(), action, emo));
     }
 
     public static void handleFriendRequest(InPacket in, MapleClient c) {
@@ -799,7 +801,7 @@ public class WorldHandler {
         switch (ft) {
             case FriendReq_SetFriend: {
                 String name = in.readMapleAsciiString();
-                MapleCharacter other = player.getMapleWorld().getCharByName(name);
+                MapleCharacter other = player.getWorld().getCharByName(name);
                 String group = in.readMapleAsciiString();
                 String memo = in.readMapleAsciiString();
                 boolean account = in.readByte() != 0;
@@ -881,25 +883,25 @@ public class WorldHandler {
         player.announce(WorldPacket.partyMemberCandidateResult(players));
     }
 
-    public static void handleChatRoom(InPacket in, MapleClient c) {
+    public static void handleMiniRoomMulti(InPacket in, MapleClient c) {
         byte val = in.readByte();
         MapleCharacter player = c.getPlayer();
         ChatRoomType type = ChatRoomType.getByVal(val);
         if (type == null) {
-            log.error("Unknown ChatRoomType Type {}", val);
+            log.error("Unknown MiniRoomType Type {}", val);
             return;
         }
         ChatRoom chatRoom = (ChatRoom) player.getMiniRoom();
         switch (type) {
-            case Join: {
-                in.readByte(); // 06
+            case Req_Join: {
+                in.readByte(); // 06 type
                 chatRoom = new ChatRoom(player);
                 player.setMiniRoom(chatRoom);
                 break;
             }
-            case ChatInviteRequest: {
+            case Res_ChatInviteRequest: {
                 String name = in.readMapleAsciiString();
-                MapleCharacter chr = player.getMapleWorld().getCharByName(name);
+                MapleCharacter chr = player.getWorld().getCharByName(name);
                 if (chr == null) {
                     player.chatMessage(ChatType.Notice, "角色不存在");
                     return;
@@ -909,6 +911,9 @@ public class WorldHandler {
                 chr.announce(MiniRoomPacket.chatRoomInviteTip(name, true));
                 break;
             }
+            case Req_Leave: {
+
+            }
         }
     }
 
@@ -916,7 +921,7 @@ public class WorldHandler {
         MapleCharacter player = c.getPlayer();
         byte val = in.readByte();
         String toCharName = in.readMapleAsciiString();
-        MapleCharacter other = player.getMapleWorld().getCharByName(toCharName);
+        MapleCharacter other = player.getWorld().getCharByName(toCharName);
         if (other == null) {
             player.announce(MessagePacket.mapleNotesResult(MapleNotesType.Res_Send_Fail, null, 1));
             return;
@@ -1135,6 +1140,18 @@ public class WorldHandler {
         }
         Guild guild = player.getGuild();
         switch (type) {
+            case Req_FindGuildByCid: {
+                int charId = in.readInt();
+                World world = player.getWorld();
+                MapleCharacter other = world.getCharById(charId);
+                if (other == null) {
+                    return;
+                }
+                if (other.getGuild() == null) {
+                    return;
+                }
+                break;
+            }
             case Req_RemoveGuild:
                 if (guild == null || guild.getLeaderId() != player.getId()) {
                     return;
@@ -1267,7 +1284,7 @@ public class WorldHandler {
                 player.setGuild(guild);
                 guild = player.getGuild();
                 guild.addMember(player);
-                guild.setWorldId(player.getWorld());
+                guild.setWorldId(player.getWorldId());
                 GuildMember gm = guild.getMemberByChar(player);
                 player.announce(WorldPacket.guildResult(GuildResult.loadResult(guild)));
                 gm.addCommitment(500);
@@ -1350,7 +1367,7 @@ public class WorldHandler {
 
     public static void handleGuildRankRequest(MapleClient c) {
         MapleCharacter player = c.getPlayer();
-        World world = player.getMapleWorld();
+        World world = player.getWorld();
         Map<Integer, Guild> guilds = world.getGuilds();
         List<Guild> captureTheFlagGameRank = new ArrayList<>();
         List<Guild> undergroundWaterwayRank = new ArrayList<>();
@@ -1484,6 +1501,29 @@ public class WorldHandler {
 
     //todo
     public static void handleExitAuction(InPacket in, MapleClient c) {
-        
+
+    }
+
+    public static void handleUserFollowCharacterRequest(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        MapleMap map = chr.getMap();
+        int driverChrId = in.readInt();
+        short unk = in.readShort();
+
+        MapleCharacter driverChr = map.getCharById(driverChrId);
+        if (driverChr == null) {
+            return;
+        }
+        driverChr.write(WorldPacket.setPassenserRequest(chr.getId()));
+    }
+
+    public static void handleSomethingAboutMonster(InPacket in, MapleClient c) {
+        int zero = in.readInt();
+        int templateId = in.readInt();
+        for (int i = 0; i < 6; i++) {
+            Position position = in.readPositionInt();
+        }
+        //6个点能做啥呢
+
     }
 }

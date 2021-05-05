@@ -7,6 +7,7 @@ import im.cave.ms.connection.server.Server;
 import im.cave.ms.connection.server.channel.MapleChannel;
 import im.cave.ms.enums.PortalType;
 import im.cave.ms.scripting.portal.PortalScriptManager;
+import im.cave.ms.tools.Position;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -80,5 +81,9 @@ public class Portal {
         if (!changed) {
             c.announce(UserPacket.enableActions());
         }
+    }
+
+    public Position getPosition() {
+        return new Position(getX(), getY());
     }
 }

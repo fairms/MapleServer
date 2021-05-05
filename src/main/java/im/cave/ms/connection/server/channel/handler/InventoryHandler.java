@@ -20,17 +20,7 @@ import im.cave.ms.connection.packet.UserPacket;
 import im.cave.ms.connection.packet.UserRemote;
 import im.cave.ms.constants.GameConstants;
 import im.cave.ms.constants.ItemConstants;
-import im.cave.ms.enums.BroadcastMsgType;
-import im.cave.ms.enums.DropTimeoutStrategy;
-import im.cave.ms.enums.EquipAttribute;
-import im.cave.ms.enums.EquipBaseStat;
-import im.cave.ms.enums.EquipSpecialAttribute;
-import im.cave.ms.enums.EquipmentEnchantType;
-import im.cave.ms.enums.InventoryOperationType;
-import im.cave.ms.enums.InventoryType;
-import im.cave.ms.enums.ItemGrade;
-import im.cave.ms.enums.ScrollStat;
-import im.cave.ms.enums.SpecStat;
+import im.cave.ms.enums.*;
 import im.cave.ms.provider.data.ItemData;
 import im.cave.ms.provider.data.StringData;
 import im.cave.ms.provider.info.ItemInfo;
@@ -61,7 +51,7 @@ import static im.cave.ms.enums.InventoryType.EQUIPPED;
 /**
  * @author fair
  * @version V1.0
- * @Package im.cave.ms.net.handler.channel
+ * @Package im.cave.ms.net.handler.channelId
  * @date 11/29 22:00
  */
 public class InventoryHandler {
@@ -419,6 +409,11 @@ public class InventoryHandler {
         ItemScriptManager.getInstance().startScript(itemId, script, npcId, c);
     }
 
+    //todo
+    public static void handleUserAdditionalSlotExtendItemUseRequest(InPacket in, MapleClient c) {
+
+    }
+
     public static void handleUserFlameItemUseRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         player.setTick(in.readInt());
@@ -548,7 +543,7 @@ public class InventoryHandler {
         if (item.getItemId() != itemId) {
             return;
         }
-        CashItemActuator.dispatch(item, chr, in);
+        boolean success = CashItemActuator.dispatch(item, chr, in);
 
         if (itemId / 10000 == 515) {
             ItemInfo ii = ItemData.getItemInfoById(itemId);
@@ -778,6 +773,7 @@ public class InventoryHandler {
         player.consumeItem(scroll);
     }
 
+    //强化卷
     public static void handleUserHyperUpgradeItemUseRequest(InPacket in, MapleClient c) {
         MapleCharacter player = c.getPlayer();
         in.readInt();
@@ -793,6 +789,7 @@ public class InventoryHandler {
         }
         int scrollId = scroll.getItemId();
         Map<ScrollStat, Integer> vals = ItemData.getItemInfoById(scrollId).getScrollStats();
+
     }
 
     //todo
@@ -977,5 +974,77 @@ public class InventoryHandler {
         }
         potionPot.setAutoAddPotion(autoAddPotion);
         potionPot.setAutoAddPotion(autoAddAlchemyPotion);
+    }
+
+    public static void handleArcEnhanceRequest(InPacket in, MapleClient c) {
+        MapleCharacter chr = c.getPlayer();
+        int val = in.readInt();
+        ArcEnchantType type = ArcEnchantType.getEnchantTypeByVal(val);
+        if (type == null) {
+            chr.chatMessage(String.format("Unhandled ArcEnchantType val : %d \n content：%s", val, in));
+            return;
+        }
+        switch (type) {
+            case Absorbing_Single: {
+                int absorbedPos = in.readInt();
+                int toPos = in.readInt();
+                Equip absorbed = (Equip) chr.getEquipInventory().getItem(absorbedPos);
+                Equip equipped = (Equip) chr.getEquippedInventory().getItemByItemID(absorbed.getItemId());
+                if (equipped != null) {
+                    int arcExp = equipped.getArcExp();
+                    short arcLevel = equipped.getArcLevel();
+                    if (arcExp >= GameConstants.getArcUpgradeReqExp(arcLevel)) {
+                        return;
+                    }
+                    equipped.setArcExp(arcExp + absorbed.getArcLevel());
+                    chr.consumeItem(absorbed);
+                    equipped.updateToChar(chr);
+                }
+                break;
+            }
+            case Upgrade: {
+                int ePos = in.readInt();
+                Equip equipped = (Equip) chr.getEquippedInventory().getItem(ePos);
+                if (equipped == null) {
+                    return;
+                }
+                short arc = equipped.getArc();
+                int arcExp = equipped.getArcExp();
+                short lv = equipped.getArcLevel();
+                int reqExp = GameConstants.getArcUpgradeReqExp(lv);
+                if (arcExp < reqExp) {
+                    return;
+                }
+                int cost = GameConstants.getArcUpgradeCost(equipped.getItemId(), lv);
+                if (chr.getMeso() < cost) {
+                    return;
+                }
+                chr.deductMoney(cost);
+                equipped.setArcExp(arcExp - reqExp);
+                equipped.setArc((short) (arc + 10));
+                equipped.setArcLevel((short) (lv + 1));
+                //todo addStat
+                equipped.updateToChar(chr);
+                break;
+            }
+            case Absorbing_Multi: {
+                int arcItemID = in.readInt();
+                int unk = in.readInt();
+                int quantity = in.readInt();
+                Equip equipped = (Equip) chr.getEquippedInventory().getItemByItemID(arcItemID);
+                if (equipped == null) {
+                    return;
+                }
+                int arcExp = equipped.getArcExp();
+                short arcLevel = equipped.getArcLevel();
+                if (arcExp >= GameConstants.getArcUpgradeReqExp(arcLevel)) {
+                    return;
+                }
+                //todo
+                chr.consumeItem(arcItemID, quantity);
+                break;
+            }
+
+        }
     }
 }

@@ -63,7 +63,7 @@ public enum ForceAtomEnum {
     ADV_WRECKAGE(24, 1), //Evan's Advanced Magic Debris
     TRANSPARENT_AB_ORB(25, 1), // same for 26, but that disappears
     TRANSPARENT_AB_ORB_RECREATION(26,1),
-    UNK27(27, 1),
+    UNK27(27, 1), //向导之箭
     UNK28(28, 1),
     GREEN_STAR(29, 1),
     BLUE_STAR(29, 2),

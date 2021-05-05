@@ -168,7 +168,7 @@ public class AbstractPlayerInteraction {
     }
 
     public int findSPNearNpc(int mapId, int npcId) {
-        MapleMap map = getChar().getMapleChannel().getMap(mapId);
+        MapleMap map = getChar().getChannel().getMap(mapId);
         Npc npc = map.getNpcById(npcId);
         Portal portal = null;
         if (npc != null) {

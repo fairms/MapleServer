@@ -11,6 +11,9 @@ public class QuestConstants {
     public static final String QUEST_COMPLETE_SCRIPT_END_TAG = "e";
 
     public static final int QUEST_POCKET = 6500;
+
+
+    public static final int QUEST_EX_STACK_CHAIRS = 7266;
     //锁定技能
     public static final int QUEST_EX_SKILL_STATE = 1544;
     //每日等级范围内怪物击杀数目统计
@@ -31,15 +34,16 @@ public class QuestConstants {
     //怪物收藏数量
     public static final int QUEST_EX_COLLECTION_COUNT = 18821; //count=27
     //签到月份
-    public static final int SHARE_QUEST_EX_DAILY_BONUS_MONTH = 6; //enter=202101
+    public static final int SHARE_QUEST_EX_DAILY_GIFT_MONTH = 6; //enter=202101
     //账号签到记录
-    public static final int SHARE_QUEST_EX_DAILY_BONUS_LOG = 7; //count=0;day=0;date=20210108
+    public static final int SHARE_QUEST_EX_DAILY_GIFT_LOG = 7; //count=0;day=0;date=20210108
     //账号在线时间
     public static final int SHARE_QUEST_EX_ONLINE_TIME = 900100; //date=20210103;OnlineTime=138
     public static final int SHARE_QUEST_EX_LOGIN_IP = 1; //登陆IP=/59.53.44.112;初次登陆=1
     public static final int SHARE_QUEST_EX_LOGIN_TIP = 88818; //出生提示=1
     public static final int SHARE_QUEST_EX_USE_AUCTION = 81818; //使用拍卖=1
-
+    //核心碎片
+    public static final int QUEST_EX_MATRIX_SHARDS = 1477;
     //记忆魔方
     public static final int QUEST_EX_MEMORIAL_CUBE = 52889;
     //林志玲外观

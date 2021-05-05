@@ -42,6 +42,7 @@ public class Packet implements Cloneable {
 
     public byte[] getData() {
         return data;
+
     }
 
     public void setData(byte[] data) {
